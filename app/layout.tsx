@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
+import { ClerkProvider } from '@clerk/nextjs'
 
 import './globals.css'
 
@@ -116,37 +117,59 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang='en' className={inter.variable}>
-      <body className={`${inter.className} antialiased`}>
-        <div className='min-h-screen min-h-dvh bg-gray-50'>
-          {/* Skip to main content for accessibility */}
-          <a
-            href='#main-content'
-            className='sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-primary-500 text-white px-4 py-2 rounded-lg'
-          >
-            Skip to main content
-          </a>
-          
-          {/* Main application content */}
-          <main id='main-content' className='relative'>
-            {children}
-          </main>
-        </div>
-        
-        {/* Development tools - only in development */}
-        {process.env.NODE_ENV === 'development' && (
-          <div className='fixed bottom-4 right-4 z-50'>
-            <div className='bg-black/80 text-white text-xs px-2 py-1 rounded'>
-              <span className='block sm:hidden'>XS</span>
-              <span className='hidden sm:block md:hidden'>SM</span>
-              <span className='hidden md:block lg:hidden'>MD</span>
-              <span className='hidden lg:block xl:hidden'>LG</span>
-              <span className='hidden xl:block 2xl:hidden'>XL</span>
-              <span className='hidden 2xl:block'>2XL</span>
-            </div>
+    <ClerkProvider
+      publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      appearance={{
+        baseTheme: undefined, // Will be customized in sign-in/sign-up pages
+        variables: {
+          colorPrimary: '#3b82f6', // Blue-500 for primary actions
+          colorBackground: '#ffffff',
+          colorText: '#1f2937',
+          borderRadius: '0.5rem',
+        },
+        elements: {
+          formButtonPrimary: 'bg-blue-600 hover:bg-blue-700 text-sm font-medium',
+          card: 'shadow-xl border-0',
+          headerTitle: 'text-xl font-semibold text-gray-900',
+          headerSubtitle: 'text-gray-600',
+          socialButtonsBlockButton: 'border-gray-200 hover:bg-gray-50',
+          formFieldInput: 'border-gray-300 focus:border-blue-500 focus:ring-blue-500',
+          footerActionLink: 'text-blue-600 hover:text-blue-700',
+        },
+      }}
+    >
+      <html lang='en' className={inter.variable}>
+        <body className={`${inter.className} antialiased`}>
+          <div className='min-h-screen min-h-dvh bg-gray-50'>
+            {/* Skip to main content for accessibility */}
+            <a
+              href='#main-content'
+              className='sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium'
+            >
+              Skip to main content
+            </a>
+            
+            {/* Main application content */}
+            <main id='main-content' className='relative'>
+              {children}
+            </main>
           </div>
-        )}
-      </body>
-    </html>
+          
+          {/* Development tools - only in development */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className='fixed bottom-4 right-4 z-50'>
+              <div className='bg-black/80 text-white text-xs px-2 py-1 rounded'>
+                <span className='block sm:hidden'>XS</span>
+                <span className='hidden sm:block md:hidden'>SM</span>
+                <span className='hidden md:block lg:hidden'>MD</span>
+                <span className='hidden lg:block xl:hidden'>LG</span>
+                <span className='hidden xl:block 2xl:hidden'>XL</span>
+                <span className='hidden 2xl:block'>2XL</span>
+              </div>
+            </div>
+          )}
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }

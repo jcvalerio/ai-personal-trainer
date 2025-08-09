@@ -174,3 +174,5 @@ jspm_packages/
 /test-results/
 /playwright-report/
 /playwright/.cache/
+# clerk configuration (can include secrets)
+/.clerk/
