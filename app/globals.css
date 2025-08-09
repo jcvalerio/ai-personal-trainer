@@ -1,0 +1,262 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS Variables for theming and PWA */
+:root {
+  /* Brand colors */
+  --color-primary: 59 130 246; /* blue-500 */
+  --color-primary-foreground: 255 255 255;
+  --color-secondary: 241 245 249; /* slate-100 */
+  --color-secondary-foreground: 15 23 42; /* slate-900 */
+  
+  /* Status colors */
+  --color-success: 16 185 129; /* emerald-500 */
+  --color-warning: 245 158 11; /* amber-500 */
+  --color-error: 239 68 68; /* red-500 */
+  
+  /* Neutral colors */
+  --color-background: 255 255 255;
+  --color-foreground: 15 23 42; /* slate-900 */
+  --color-muted: 241 245 249; /* slate-100 */
+  --color-muted-foreground: 100 116 139; /* slate-500 */
+  --color-border: 226 232 240; /* slate-200 */
+  --color-input: 226 232 240; /* slate-200 */
+  
+  /* Spacing for touch targets */
+  --touch-target-min: 44px;
+  --safe-area-inset-top: env(safe-area-inset-top);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom);
+  --safe-area-inset-left: env(safe-area-inset-left);
+  --safe-area-inset-right: env(safe-area-inset-right);
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: 15 23 42; /* slate-900 */
+    --color-foreground: 248 250 252; /* slate-50 */
+    --color-muted: 30 41 59; /* slate-800 */
+    --color-muted-foreground: 148 163 184; /* slate-400 */
+    --color-border: 51 65 85; /* slate-700 */
+    --color-input: 51 65 85; /* slate-700 */
+    --color-secondary: 30 41 59; /* slate-800 */
+    --color-secondary-foreground: 248 250 252; /* slate-50 */
+  }
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+               'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.5;
+  color: rgb(var(--color-foreground));
+  background-color: rgb(var(--color-background));
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
+}
+
+/* PWA Safe Area handling for iPhone notches */
+.safe-area-top {
+  padding-top: var(--safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: var(--safe-area-inset-bottom);
+}
+
+.safe-area-left {
+  padding-left: var(--safe-area-inset-left);
+}
+
+.safe-area-right {
+  padding-right: var(--safe-area-inset-right);
+}
+
+/* Touch-friendly interactions */
+.touch-target {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Focus styles for accessibility */
+:focus-visible {
+  outline: 2px solid rgb(var(--color-primary));
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Remove default button styles */
+button {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Smooth scrolling */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Utility classes */
+@layer utilities {
+  /* Text utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .text-pretty {
+    text-wrap: pretty;
+  }
+  
+  /* Layout utilities */
+  .container-safe {
+    @apply container mx-auto px-4 safe-area-left safe-area-right;
+  }
+  
+  /* Animation utilities */
+  .animate-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .animate-out {
+    animation: fadeOut 0.3s ease-in-out;
+  }
+  
+  /* Interactive states */
+  .interactive {
+    @apply touch-target transition-all duration-200 ease-in-out;
+    @apply hover:scale-[1.02] active:scale-[0.98];
+  }
+  
+  /* Status indicators */
+  .status-success {
+    @apply bg-success-50 text-success-700 border border-success-200;
+  }
+  
+  .status-warning {
+    @apply bg-warning-50 text-warning-700 border border-warning-200;
+  }
+  
+  .status-error {
+    @apply bg-error-50 text-error-700 border border-error-200;
+  }
+}
+
+/* Component styles */
+@layer components {
+  /* Button variants */
+  .btn {
+    @apply inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200;
+    @apply touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-primary {
+    @apply btn bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  }
+  
+  .btn-secondary {
+    @apply btn bg-gray-100 text-gray-900 hover:bg-gray-200 active:bg-gray-300;
+  }
+  
+  .btn-outline {
+    @apply btn border border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100;
+  }
+  
+  /* Card component */
+  .card {
+    @apply bg-white rounded-2xl border border-gray-200 shadow-soft overflow-hidden;
+  }
+  
+  .card-header {
+    @apply px-6 py-4 border-b border-gray-200;
+  }
+  
+  .card-content {
+    @apply px-6 py-4;
+  }
+  
+  .card-footer {
+    @apply px-6 py-4 border-t border-gray-200;
+  }
+  
+  /* Input styles */
+  .input {
+    @apply w-full px-4 py-3 text-base bg-white border border-gray-300 rounded-xl;
+    @apply focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-offset-0;
+    @apply placeholder:text-gray-500 transition-all duration-200;
+    min-height: var(--touch-target-min);
+  }
+  
+  /* Loading states */
+  .loading {
+    @apply animate-pulse;
+  }
+  
+  .skeleton {
+    @apply loading bg-gray-200 rounded;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .card {
+    @apply bg-slate-800 border-slate-700;
+  }
+  
+  .card-header,
+  .card-footer {
+    @apply border-slate-700;
+  }
+  
+  .input {
+    @apply bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400;
+  }
+  
+  .btn-secondary {
+    @apply bg-slate-800 text-slate-100 hover:bg-slate-700 active:bg-slate-600;
+  }
+  
+  .btn-outline {
+    @apply border-slate-700 text-slate-300 hover:bg-slate-800 active:bg-slate-700;
+  }
+  
+  .skeleton {
+    @apply bg-slate-700;
+  }
+}

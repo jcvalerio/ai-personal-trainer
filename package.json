@@ -1,0 +1,64 @@
+{
+  "name": "ai-personal-trainer",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI-powered personal trainer PWA for families and gyms",
+  "engines": {
+    "node": ">=18.17.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0",
+  "scripts": {
+    "dev": "next dev --turbo",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "analyze": "cross-env ANALYZE=true next build",
+    "setup": "./scripts/setup.sh"
+  },
+  "dependencies": {
+    "next": "15.4.6",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.6.0",
+    "clsx": "^2.1.0",
+    "tailwindcss-merge": "^2.2.0"
+  },
+  "devDependencies": {
+    "@next/eslint-config-next": "15.4.6",
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "postcss": "^8.4.0",
+    "prettier": "^3.3.0",
+    "prettier-plugin-tailwindcss": "^0.6.0",
+    "tailwindcss": "^3.4.0",
+    "cross-env": "^7.0.3",
+    "autoprefixer": "^10.4.0"
+  },
+  "keywords": [
+    "fitness",
+    "ai",
+    "personal-trainer",
+    "pwa",
+    "nextjs",
+    "gym",
+    "workout"
+  ],
+  "author": "AI Personal Trainer Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/ai-personal-trainer.git"
+  }
+}
