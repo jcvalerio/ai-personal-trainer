@@ -2,6 +2,7 @@
  * Alert and notification components
  * Used for displaying important messages to users
  */
+'use client'
 
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
