@@ -1,11 +1,12 @@
 import { type ClassValue, clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
 
 /**
- * Utility function to merge CSS classes with clsx
+ * Utility function to merge CSS classes with clsx and tailwind-merge
  * Handles conditional classes and removes duplicates
  */
 export function cn(...inputs: ClassValue[]) {
-  return clsx(inputs)
+  return twMerge(clsx(inputs))
 }
 
 /**
@@ -130,7 +131,9 @@ export const isBrowser = typeof window !== 'undefined'
  * Check if the user is on a mobile device
  */
 export function isMobileDevice(): boolean {
-  if (!isBrowser) return false
+  if (!isBrowser) {
+    return false
+  }
   return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 }
 
@@ -172,7 +175,9 @@ export function isValidEmail(email: string): boolean {
  * Calculate percentage
  */
 export function calculatePercentage(value: number, total: number): number {
-  if (total === 0) return 0
+  if (total === 0) {
+    return 0
+  }
   return Math.round((value / total) * 100)
 }
 
