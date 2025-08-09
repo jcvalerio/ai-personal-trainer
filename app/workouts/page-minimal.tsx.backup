@@ -1,0 +1,22 @@
+/**
+ * Minimal Workouts Page for Testing
+ */
+
+import { Suspense } from 'react'
+
+export default function MinimalWorkoutsPage() {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <h1 className="text-3xl font-bold text-gray-900 p-8">Workouts Page</h1>
+      <p className="p-8">This is a minimal workouts page to test basic functionality.</p>
+      
+      <Suspense fallback={<div>Loading...</div>}>
+        <div className="p-8">
+          <h2 className="text-xl font-semibold">Mock Statistics</h2>
+          <p>Total workouts: 47</p>
+          <p>Weekly workouts: 4</p>
+        </div>
+      </Suspense>
+    </div>
+  )
+}
