@@ -85,8 +85,8 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
     }
 
     // Filter sensitive information based on user's role
-    const userRole = members.find(member => member.clerkUserId === userId)?.role || 'member'
-    const isAdmin = ['admin', 'owner'].includes(userRole)
+    const userRole = members.find(member => member.clerkUserId === userId)?.role || 'user'
+    const isAdmin = ['gym_admin', 'gym_owner', 'family_admin'].includes(userRole)
     
     const sanitizedMembers = members.map(member => ({
       id: member.id,
@@ -99,8 +99,8 @@ export async function GET(request: NextRequest, { params }: RouteParams): Promis
       ...(isAdmin && { email: member.email }),
       // Only include sensitive data for admins
       ...(isAdmin && { 
-        lastActiveAt: member.lastActiveAt,
-        totalWorkouts: member.totalWorkouts,
+        lastActiveAt: member.lastActiveAt || null,
+        totalWorkouts: (member as any).totalWorkouts || 0, // TODO: Implement proper workout counting
       }),
     }))
 
@@ -360,10 +360,10 @@ export async function DELETE(request: NextRequest, { params }: RouteParams): Pro
       )
     }
 
-    // Check permissions
-    const isCurrentUserAdmin = ['admin', 'owner'].includes(currentUserMember.role)
+    // Check permissions  
+    const isCurrentUserAdmin = ['gym_admin', 'gym_owner', 'family_admin'].includes(currentUserMember.role)
     const isSelfRemoval = currentUserMember.id === memberToRemove
-    const isTargetOwner = targetMember.role === 'owner'
+    const isTargetOwner = targetMember.role === 'gym_owner'
 
     // Rules:
     // - Admins can remove members (but not owners)
@@ -376,7 +376,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams): Pro
       )
     }
 
-    if (!isSelfRemoval && isTargetOwner && currentUserMember.role !== 'owner') {
+    if (!isSelfRemoval && isTargetOwner && currentUserMember.role !== 'gym_owner') {
       return NextResponse.json(
         { success: false, error: 'Cannot remove organization owner', code: 'CANNOT_REMOVE_OWNER' },
         { status: 403 }

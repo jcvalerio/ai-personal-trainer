@@ -222,43 +222,103 @@ jobs:
               body: `🚀 **Preview deployed!**\n\n✨ Preview URL: ${{ steps.deploy.outputs.preview-url }}\n\n📱 Test on mobile devices and verify PWA functionality.`
             })
 
-  # Job 6: Production Deploy (on main branch push)
+  # Job 6: Database Migration (Production)
+  migrate-database:
+    name: Database Migration
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [build, security]
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run database migrations
+        run: pnpm db:setup
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Verify database connection
+        run: pnpm db:verify
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+  # Job 7: Production Deploy (on main branch push)
   deploy-production:
     name: Deploy Production
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [build, security, lighthouse]
+    needs: [build, security, lighthouse, migrate-database]
     environment:
       name: production
-      url: https://ai-personal-trainer.vercel.app
+      url: ${{ secrets.PRODUCTION_URL }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Deploy to Vercel
+        id: deploy
         uses: amondnet/vercel-action@v25
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
+          vercel-args: '--prod --confirm'
           working-directory: ./
 
-      - name: Create Sentry release (when available)
-        if: env.SENTRY_AUTH_TOKEN != ''
+      - name: Wait for deployment
+        run: sleep 30
+
+      - name: Production health check
         run: |
-          npx @sentry/wizard -i sourcemaps
+          for i in {1..5}; do
+            if curl -f "${{ secrets.PRODUCTION_URL }}/api/health"; then
+              echo "Health check passed"
+              exit 0
+            fi
+            echo "Health check failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "Health check failed after 5 attempts"
+          exit 1
+
+      - name: Create Sentry release
+        if: secrets.SENTRY_AUTH_TOKEN != ''
+        uses: getsentry/action-release@v1
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        with:
+          environment: production
+          sourcemaps: '.next/static'
+          url_prefix: '~/_next/static'
 
-  # Job 7: Notify Team
+      - name: Performance monitoring setup
+        run: |
+          echo "✅ Production deployment successful"
+          echo "🌐 URL: ${{ secrets.PRODUCTION_URL }}"
+          echo "📊 Monitor: https://vercel.com/dashboard"
+
+  # Job 8: Notify Team
   notify:
     name: Notify Team
     runs-on: ubuntu-latest
     if: always() && (github.ref == 'refs/heads/main' || github.event_name == 'pull_request')
-    needs: [quality, build, security]
+    needs: [quality, build, security, deploy-production, migrate-database]
     steps:
       - name: Notify on success
         if: needs.quality.result == 'success' && needs.build.result == 'success' && needs.security.result == 'success'

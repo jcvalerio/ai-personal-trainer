@@ -348,7 +348,13 @@ function GoalsStep({ data, updateData, nextStep, prevStep }: { data: OnboardingD
       ? currentGoals.filter(g => g !== goal)
       : [...currentGoals, goal]
     
-    updateData({ goalsData: { ...data.goalsData, primaryGoals: updatedGoals } })
+    updateData({ 
+      goalsData: { 
+        primaryGoals: updatedGoals,
+        workoutPreference: data.goalsData?.workoutPreference || 'home',
+        availableHours: data.goalsData?.availableHours || 1
+      } 
+    })
   }
 
   const canProceed = (data.goalsData?.primaryGoals?.length || 0) > 0
@@ -440,8 +446,10 @@ function OrganizationStep({ data, updateData, nextStep, prevStep, isLoading }: {
                   value={data.organizationData?.organizationName || ''}
                   onChange={(e) => updateData({ 
                     organizationData: { 
-                      ...data.organizationData, 
-                      organizationName: e.target.value 
+                      action: data.organizationData?.action || 'create',
+                      organizationType: data.organizationData?.organizationType,
+                      organizationName: e.target.value,
+                      joinCode: data.organizationData?.joinCode
                     } 
                   })}
                 />

@@ -35,8 +35,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       )
     }
 
-    // Get the headers
-    const headerPayload = headers()
+    // Get the headers (Next.js 15 async headers)
+    const headerPayload = await headers()
     const svix_id = headerPayload.get('svix-id')
     const svix_timestamp = headerPayload.get('svix-timestamp')
     const svix_signature = headerPayload.get('svix-signature')
@@ -65,13 +65,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         'svix-timestamp': svix_timestamp,
         'svix-signature': svix_signature,
       }) as ClerkWebhookEvent
-    } catch (err) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown verification error'
       console.error('Webhook verification failed:', err)
       
-      // Log the security event
+      // Log the security event with proper error handling
       await logAuthEvent('webhook_verification_failed', 'security', 'Webhook verification failed', 
         undefined, undefined, { 
-          error: err.message,
+          error: errorMessage,
+          errorType: err instanceof Error ? err.constructor.name : 'UnknownError',
           svix_id,
           svix_timestamp,
           headers: Object.fromEntries(headerPayload.entries())
@@ -134,14 +136,16 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         }
       }, { status: 200 })
 
-    } catch (processingError) {
+    } catch (processingError: unknown) {
+      const errorMessage = processingError instanceof Error ? processingError.message : 'Unknown processing error'
       console.error('Error processing webhook:', processingError)
       
-      // Log the processing error
+      // Log the processing error with proper type safety
       await logAuthEvent('webhook_processing_failed', 'security', `Webhook processing failed: ${event.type}`, 
         event.data.id, undefined, { 
           eventType: event.type,
-          error: processingError.message,
+          error: errorMessage,
+          errorType: processingError instanceof Error ? processingError.constructor.name : 'UnknownError',
           processingTime: Date.now() - startTime
         })
 
@@ -151,25 +155,29 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           error: 'Webhook processing failed', 
           code: 'PROCESSING_FAILED',
           eventType: event.type,
-          message: process.env.NODE_ENV === 'development' ? processingError.message : undefined
+          message: process.env.NODE_ENV === 'development' ? errorMessage : undefined
         },
         { status: 500 }
       )
     }
 
-  } catch (error) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     console.error('Unexpected webhook error:', error)
     
-    // Log the unexpected error
+    // Log the unexpected error with proper typing
     await logAuthEvent('webhook_error', 'security', 'Unexpected webhook error', 
-      undefined, undefined, { error: error.message })
+      undefined, undefined, { 
+        error: errorMessage,
+        errorType: error instanceof Error ? error.constructor.name : 'UnknownError'
+      })
 
     return NextResponse.json(
       { 
         success: false, 
         error: 'Internal server error', 
         code: 'INTERNAL_ERROR',
-        message: process.env.NODE_ENV === 'development' ? error.message : undefined
+        message: process.env.NODE_ENV === 'development' ? errorMessage : undefined
       },
       { status: 500 }
     )

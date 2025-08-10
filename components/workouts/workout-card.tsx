@@ -92,7 +92,7 @@ export function WorkoutCard({
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Users className="h-4 w-4" />
-            <Badge size="sm" variant={getFitnessLevelColor(workout.targetFitnessLevel)}>
+            <Badge variant={getFitnessLevelColor(workout.targetFitnessLevel)}>
               {workout.targetFitnessLevel}
             </Badge>
           </div>

@@ -1,6 +1,22 @@
-import Link from 'next/link'
+'use client'
 
-export function HeroSection() {
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+
+interface HeroSectionProps {
+  user?: any // Clerk user type
+}
+
+export function HeroSection({ user }: HeroSectionProps) {
+  const router = useRouter()
+
+  const handleSmartCTA = () => {
+    if (user) {
+      router.push('/dashboard')
+    } else {
+      router.push('/sign-up')
+    }
+  }
   return (
     <section className='relative overflow-hidden bg-gradient-to-b from-blue-50 to-white'>
       <div className='container-safe py-16 sm:py-24'>
@@ -48,14 +64,33 @@ export function HeroSection() {
               </div>
             </div>
 
-            {/* CTA Buttons */}
+            {/* Smart CTA Buttons */}
             <div className='flex flex-col sm:flex-row items-center justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-4'>
-              <Link href='/sign-up' className='btn-primary text-base px-8 py-4 w-full sm:w-auto'>
-                Start Free Trial
-              </Link>
-              <Link href='#demo' className='btn-outline text-base px-8 py-4 w-full sm:w-auto'>
-                Watch Demo
-              </Link>
+              {user ? (
+                <>
+                  <button 
+                    onClick={handleSmartCTA}
+                    className='btn-primary text-base px-8 py-4 w-full sm:w-auto'
+                  >
+                    Go to Dashboard
+                  </button>
+                  <Link href='/workouts/generate' className='btn-outline text-base px-8 py-4 w-full sm:w-auto'>
+                    Generate Workout
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <button 
+                    onClick={handleSmartCTA}
+                    className='btn-primary text-base px-8 py-4 w-full sm:w-auto'
+                  >
+                    Start Free Trial
+                  </button>
+                  <Link href='#demo' className='btn-outline text-base px-8 py-4 w-full sm:w-auto'>
+                    Watch Demo
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Social Proof */}
@@ -96,11 +131,17 @@ export function HeroSection() {
                     {/* Header */}
                     <div className='flex items-center justify-between'>
                       <div>
-                        <h3 className='font-semibold text-gray-900'>Good morning, Alex!</h3>
-                        <p className='text-sm text-gray-500'>Ready for today&apos;s workout?</p>
+                        <h3 className='font-semibold text-gray-900'>
+                          Good morning, {user?.firstName || 'Alex'}!
+                        </h3>
+                        <p className='text-sm text-gray-500'>
+                          {user ? 'Ready for today\'s workout?' : 'Ready to get started?'}
+                        </p>
                       </div>
                       <div className='w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center'>
-                        <span className='text-white font-semibold text-sm'>A</span>
+                        <span className='text-white font-semibold text-sm'>
+                          {user?.firstName?.[0] || user?.emailAddresses?.[0]?.emailAddress[0]?.toUpperCase() || 'A'}
+                        </span>
                       </div>
                     </div>
 

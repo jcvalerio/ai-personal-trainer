@@ -123,17 +123,21 @@ export class AIWorkoutService extends BaseService {
         return this.mapWorkoutGenerationJobFromDb(jobResult[0])
       })
 
-      await this.logEvent('generation_job_created', 'AI workout generation job created', context, { 
-        jobId: result.id,
-        jobType: result.jobType
-      })
+      if (result.success) {
+        await this.logEvent('generation_job_created', 'AI workout generation job created', context, { 
+          jobId: result.data.id,
+          jobType: result.data.jobType
+        })
 
-      // Start background processing
-      this.processGenerationJobAsync(result.id, context).catch(error => {
-        console.error('Background job processing failed:', error)
-      })
+        // Start background processing
+        this.processGenerationJobAsync(result.data.id, context).catch(error => {
+          console.error('Background job processing failed:', error)
+        })
 
-      return this.createSuccessResult(result, 'Workout generation job created successfully')
+        return this.createSuccessResult(result.data, 'Workout generation job created successfully')
+      }
+
+      return result
     } catch (error) {
       return this.handleError(error, 'createWorkoutGenerationJob')
     }
@@ -165,15 +169,17 @@ export class AIWorkoutService extends BaseService {
         values.push(filters.status)
       }
 
-      const result = await this.db.query(`
+      const sql = `
         SELECT wgj.*
         FROM workout_generation_jobs wgj
         ${whereClause}
         ORDER BY wgj.created_at DESC
         LIMIT $${paramIndex}
-      `, [...values, limit])
+      `
+      
+      const result = await this.db.queryRaw(sql, [...values, limit])
 
-      const jobs = result.rows.map(row => this.mapWorkoutGenerationJobFromDb(row))
+      const jobs = result.map(row => this.mapWorkoutGenerationJobFromDb(row))
 
       await this.logEvent('generation_jobs_accessed', 'AI generation jobs accessed', context)
 
@@ -232,7 +238,7 @@ export class AIWorkoutService extends BaseService {
         AND status IN ('pending', 'generating')
       `
 
-      if (result.count === 0) {
+      if (result.length === 0) {
         return this.createErrorResult('Generation job not found or cannot be cancelled', 'NOT_FOUND')
       }
 
@@ -428,11 +434,13 @@ export class AIWorkoutService extends BaseService {
     values.push(jobId)
 
     if (updates.length > 1) { // More than just updated_at
-      await this.db.query(`
+      const sql = `
         UPDATE workout_generation_jobs 
         SET ${updates.join(', ')}
         WHERE id = $${paramIndex}
-      `, values)
+      `
+      
+      await this.db.queryRaw(sql, values)
     }
   }
 
@@ -493,13 +501,13 @@ Format the response as structured JSON.`
 
 Requirements:
 - Target Muscle Groups: ${request.targetMuscleGroups.join(', ')}
-- Exclude: ${request.excludeMuscleGroups.join(', ') || 'None'}
-- Exercise Types: ${request.exerciseTypes.join(', ') || 'Any'}
+- Exclude: ${request.excludeMuscleGroups?.join(', ') || 'None'}
+- Exercise Types: ${request.exerciseTypes?.join(', ') || 'Any'}
 - Difficulty: ${request.difficultyLevel || 'Any'}
 - Session Duration: ${request.sessionDuration} minutes
-- Equipment: ${request.equipmentAvailable.length > 0 ? 'Available' : 'Minimal/Bodyweight'}
-- Goals: ${request.fitnessGoals.join(', ') || 'General fitness'}
-- Limitations: ${request.limitations.join(', ') || 'None'}
+- Equipment: ${(request.equipmentAvailable?.length ?? 0) > 0 ? 'Available' : 'Minimal/Bodyweight'}
+- Goals: ${request.fitnessGoals?.join(', ') || 'General fitness'}
+- Limitations: ${request.limitations?.join(', ') || 'None'}
 
 Provide exercises with detailed instructions, sets, reps, and modifications.
 Format as structured JSON with exercise details.`

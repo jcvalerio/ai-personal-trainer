@@ -169,7 +169,7 @@ export function canInviteMoreMembers(
   subscriptionTier: 'free' | 'premium' | 'enterprise',
   currentMemberCount: number
 ): boolean {
-  const limits = ORGANIZATION_LIMITS[organizationType][subscriptionTier.toUpperCase() as keyof typeof ORGANIZATION_LIMITS[OrganizationType]]
+  const limits = ORGANIZATION_LIMITS[organizationType.toUpperCase() as keyof typeof ORGANIZATION_LIMITS][subscriptionTier.toUpperCase() as keyof typeof ORGANIZATION_LIMITS[keyof typeof ORGANIZATION_LIMITS]]
   return currentMemberCount < limits.maxMembers
 }
 
@@ -183,7 +183,7 @@ export function getPermissionsForRole(role: UserRole): Permission[] {
   const basePermissions = DEFAULT_PERMISSIONS.USER
   
   if (role === 'user') {
-    return basePermissions
+    return [...basePermissions] // Convert readonly array to mutable
   }
 
   return [...basePermissions, ...rolePermissions]
@@ -210,7 +210,7 @@ export async function validateOrganizationMembership(
   // In a real app, this would query your database
   // For now, we'll use Clerk's organization membership
   try {
-    const { orgId } = auth()
+    const { orgId } = await auth()
     return orgId === organizationId
   } catch {
     return false

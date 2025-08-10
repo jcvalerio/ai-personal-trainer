@@ -1,6 +1,20 @@
+'use client'
+
 import Link from 'next/link'
+import { useUser } from '@clerk/nextjs'
+import { useRouter } from 'next/navigation'
 
 export function CTASection() {
+  const { user } = useUser()
+  const router = useRouter()
+
+  const handleSmartCTA = () => {
+    if (user) {
+      router.push('/dashboard')
+    } else {
+      router.push('/sign-up')
+    }
+  }
   return (
     <section className='py-16 sm:py-24 bg-gradient-to-r from-primary-600 to-blue-700'>
       <div className='container-safe'>
@@ -16,20 +30,39 @@ export function CTASection() {
               with personalized AI coaching. Start free today.
             </p>
 
-            {/* CTA Buttons */}
+            {/* Smart CTA Buttons */}
             <div className='flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6 mb-12'>
-              <Link 
-                href='/sign-up' 
-                className='bg-white text-primary-600 hover:bg-gray-50 active:bg-gray-100 font-semibold px-8 py-4 rounded-xl text-lg transition-all duration-200 w-full sm:w-auto touch-target shadow-lg hover:shadow-xl'
-              >
-                Start Free Trial
-              </Link>
-              <Link 
-                href='/contact' 
-                className='bg-primary-500/20 text-white border border-white/30 hover:bg-primary-500/30 active:bg-primary-500/40 font-semibold px-8 py-4 rounded-xl text-lg transition-all duration-200 w-full sm:w-auto touch-target'
-              >
-                Contact Sales
-              </Link>
+              {user ? (
+                <>
+                  <button
+                    onClick={handleSmartCTA}
+                    className='bg-white text-primary-600 hover:bg-gray-50 active:bg-gray-100 font-semibold px-8 py-4 rounded-xl text-lg transition-all duration-200 w-full sm:w-auto touch-target shadow-lg hover:shadow-xl'
+                  >
+                    Go to Dashboard
+                  </button>
+                  <Link 
+                    href='/workouts/generate' 
+                    className='bg-primary-500/20 text-white border border-white/30 hover:bg-primary-500/30 active:bg-primary-500/40 font-semibold px-8 py-4 rounded-xl text-lg transition-all duration-200 w-full sm:w-auto touch-target'
+                  >
+                    Generate New Workout
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleSmartCTA}
+                    className='bg-white text-primary-600 hover:bg-gray-50 active:bg-gray-100 font-semibold px-8 py-4 rounded-xl text-lg transition-all duration-200 w-full sm:w-auto touch-target shadow-lg hover:shadow-xl'
+                  >
+                    Start Free Trial
+                  </button>
+                  <Link 
+                    href='/contact' 
+                    className='bg-primary-500/20 text-white border border-white/30 hover:bg-primary-500/30 active:bg-primary-500/40 font-semibold px-8 py-4 rounded-xl text-lg transition-all duration-200 w-full sm:w-auto touch-target'
+                  >
+                    Contact Sales
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Trust Indicators */}

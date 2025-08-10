@@ -67,7 +67,9 @@ export interface CreateEquipmentRequest {
   demoVideoUrl?: string
 }
 
-export interface UpdateEquipmentRequest extends Partial<CreateEquipmentRequest> {}
+export interface UpdateEquipmentRequest extends Partial<CreateEquipmentRequest> {
+  [key: string]: any // Allow dynamic property access for sanitization
+}
 
 export interface EquipmentFilters {
   category?: string
@@ -137,7 +139,9 @@ export interface CreateExerciseRequest {
   isPublic?: boolean
 }
 
-export interface UpdateExerciseRequest extends Partial<CreateExerciseRequest> {}
+export interface UpdateExerciseRequest extends Partial<CreateExerciseRequest> {
+  [key: string]: any // Allow dynamic property access for sanitization
+}
 
 export interface ExerciseFilters {
   exerciseType?: ExerciseType
@@ -229,6 +233,7 @@ export interface CreateWorkoutPlanRequest {
 
 export interface UpdateWorkoutPlanRequest extends Partial<CreateWorkoutPlanRequest> {
   status?: WorkoutStatus
+  [key: string]: any // Allow dynamic property access for sanitization
 }
 
 export interface WorkoutPlanFilters {

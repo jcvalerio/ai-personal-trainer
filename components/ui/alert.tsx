@@ -177,6 +177,7 @@ export function ToastAlert({
       
       return () => clearTimeout(timer)
     }
+    return // Explicit return for when duration <= 0
   }, [duration, onDismiss, onClose])
 
   return (

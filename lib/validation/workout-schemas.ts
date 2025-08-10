@@ -57,7 +57,7 @@ export const equipmentFiltersSchema = z.object({
 })
 
 // Exercise schemas
-export const createExerciseSchema = z.object({
+const baseExerciseSchema = z.object({
   name: z.string().min(2).max(100).trim(),
   description: z.string().min(10).max(2000),
   instructions: z.string().min(20).max(5000),
@@ -67,7 +67,7 @@ export const createExerciseSchema = z.object({
   difficultyLevel: fitnessLevelSchema.default('beginner'),
   equipmentRequired: z.array(z.string().uuid()).default([]),
   equipmentOptional: z.array(z.string().uuid()).default([]),
-  equipmentAlternatives: z.record(z.array(z.string())).default({}),
+  equipmentAlternatives: z.record(z.array(z.string())).default(() => ({})),
   defaultSets: z.number().int().min(1).max(10).optional(),
   defaultRepsMin: z.number().int().min(1).optional(),
   defaultRepsMax: z.number().int().min(1).optional(),
@@ -78,10 +78,12 @@ export const createExerciseSchema = z.object({
   demoImageUrl: z.string().url().optional(),
   instructionImages: z.array(z.string().url()).default([]),
   contraindications: z.array(z.string()).default([]),
-  modifications: z.record(z.any()).default({}),
+  modifications: z.record(z.any()).default(() => ({})),
   safetyTips: z.array(z.string()).default([]),
   isPublic: z.boolean().default(true)
-}).refine(data => {
+})
+
+export const createExerciseSchema = baseExerciseSchema.refine(data => {
   if (data.defaultRepsMin && data.defaultRepsMax) {
     return data.defaultRepsMax >= data.defaultRepsMin
   }
@@ -90,7 +92,7 @@ export const createExerciseSchema = z.object({
   message: "defaultRepsMax must be greater than or equal to defaultRepsMin"
 })
 
-export const updateExerciseSchema = createExerciseSchema.partial()
+export const updateExerciseSchema = baseExerciseSchema.partial()
 
 export const exerciseFiltersSchema = z.object({
   exerciseType: exerciseTypeSchema.optional(),
@@ -132,13 +134,26 @@ export const createWorkoutPlanSchema = z.object({
   fitnessGoals: z.array(z.string()).min(1).max(10),
   targetFitnessLevel: fitnessLevelSchema.default('beginner'),
   estimatedSessionDuration: z.number().int().min(10).max(300).optional(),
-  planData: workoutPlanDataSchema.optional().default({}),
-  weeklySchedule: weeklyScheduleSchema.optional().default({}),
-  progressionRules: z.record(z.any()).default({}),
+  planData: workoutPlanDataSchema.optional().default(() => ({
+    summary: '',
+    phases: [],
+    progressionStrategy: '',
+    notes: ''
+  })),
+  weeklySchedule: weeklyScheduleSchema.optional().default(() => ({
+    monday: [],
+    tuesday: [],
+    wednesday: [],
+    thursday: [],
+    friday: [],
+    saturday: [],
+    sunday: []
+  })),
+  progressionRules: z.record(z.any()).default(() => ({})),
   aiPromptUsed: z.string().max(5000).optional(),
   aiModelVersion: z.string().max(50).optional(),
   aiGenerationId: z.string().uuid().optional(),
-  generationParameters: z.record(z.any()).default({}),
+  generationParameters: z.record(z.any()).default(() => ({})),
   isTemplate: z.boolean().default(false),
   templateCategory: z.string().max(100).optional(),
   isPublic: z.boolean().default(false)
@@ -185,7 +200,13 @@ export const createWorkoutSessionSchema = z.object({
   scheduledDate: z.string().datetime().or(z.date()),
   scheduledTime: z.string().regex(/^([01]\d|2[0-3]):([0-5]\d)$/).optional(),
   scheduledDuration: z.number().int().min(1).max(300).optional(),
-  sessionData: sessionDataSchema.optional().default({}),
+  sessionData: sessionDataSchema.optional().default(() => ({
+    difficultyLevel: 'beginner' as const,
+    targetMuscleGroups: [],
+    totalExercises: 0,
+    estimatedDuration: 0,
+    equipmentNeeded: []
+  })),
   warmUpExercises: z.array(sessionExerciseSchema).default([]),
   mainExercises: z.array(sessionExerciseSchema).default([]),
   coolDownExercises: z.array(sessionExerciseSchema).default([])
@@ -253,7 +274,7 @@ export const createProgressMeasurementSchema = z.object({
   measuredAt: z.string().datetime().or(z.date()).optional(),
   measurementMethod: z.string().max(100).optional(),
   measurementDevice: z.string().max(100).optional(),
-  bodyComposition: z.record(z.number()).default({}),
+  bodyComposition: z.record(z.number()).default(() => ({})),
   notes: z.string().max(1000).optional(),
   photoUrl: z.string().url().optional()
 }).refine(data => {
@@ -266,7 +287,21 @@ export const createProgressMeasurementSchema = z.object({
   message: "measurementLocation is required for circumference measurements"
 })
 
-export const updateProgressMeasurementSchema = createProgressMeasurementSchema.partial()
+// Create base schema without refinement for partial updates
+const baseProgressMeasurementSchema = z.object({
+  measurementType: measurementTypeSchema,
+  measurementLocation: z.string().max(100).optional(),
+  value: z.number().positive(),
+  unit: z.string().min(1).max(20),
+  measuredAt: z.string().datetime().or(z.date()).optional(),
+  measurementMethod: z.string().max(100).optional(),
+  measurementDevice: z.string().max(100).optional(),
+  bodyComposition: z.record(z.number()).default(() => ({})),
+  notes: z.string().max(1000).optional(),
+  photoUrl: z.string().url().optional()
+})
+
+export const updateProgressMeasurementSchema = baseProgressMeasurementSchema.partial()
 
 export const progressMeasurementFiltersSchema = z.object({
   measurementType: measurementTypeSchema.optional(),
@@ -325,7 +360,7 @@ export const workoutGenerationRequestSchema = z.object({
     injuries: z.array(z.string()).default([]),
     limitations: z.array(z.string()).default([]),
     experience: z.array(z.string()).default([]),
-    preferences: z.record(z.any()).default({})
+    preferences: z.record(z.any()).default(() => ({}))
   }),
   equipmentAvailable: z.array(z.string().uuid()).default([]),
   timeConstraints: z.object({
@@ -333,7 +368,7 @@ export const workoutGenerationRequestSchema = z.object({
     preferredTimeSlots: z.array(z.string()).default([]),
     daysPerWeek: z.number().int().min(1).max(7)
   }).optional(),
-  generationParameters: z.record(z.any()).default({})
+  generationParameters: z.record(z.any()).default(() => ({}))
 })
 
 export const workoutGenerationJobFiltersSchema = z.object({

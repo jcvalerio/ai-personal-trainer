@@ -173,7 +173,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    const profileData: CreateUserProfileRequest = validationResult.data
+    const profileData: CreateUserProfileRequest = {
+      ...validationResult.data,
+      birthDate: validationResult.data.birthDate 
+        ? validationResult.data.birthDate instanceof Date 
+          ? validationResult.data.birthDate.toISOString().split('T')[0] 
+          : validationResult.data.birthDate 
+        : undefined
+    }
 
     // Additional validation
     if (!isValidDisplayName(profileData.displayName)) {
@@ -302,7 +309,14 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       )
     }
 
-    const updateData = validationResult.data
+    const updateData = {
+      ...validationResult.data,
+      birthDate: validationResult.data.birthDate 
+        ? validationResult.data.birthDate instanceof Date 
+          ? validationResult.data.birthDate.toISOString().split('T')[0] 
+          : validationResult.data.birthDate 
+        : undefined
+    }
 
     // Additional validation for display name if provided
     if (updateData.displayName && !isValidDisplayName(updateData.displayName)) {

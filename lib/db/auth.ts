@@ -138,13 +138,13 @@ export async function updateUserProfile(clerkUserId: string, data: Partial<Creat
       RETURNING *
     `
 
-    const result = await db.query(query, values)
+    const result = await db.queryRaw(query, values)
     
-    if (result.rows.length === 0) {
+    if (result.length === 0) {
       throw new Error('User profile not found or update failed')
     }
 
-    return mapUserProfileFromDb(result.rows[0])
+    return mapUserProfileFromDb(result[0])
   } catch (error) {
     console.error('Error updating user profile:', error)
     throw createAuthError('USER_UPDATE_FAILED', 'Failed to update user profile', { clerkUserId, error: (error as Error).message })
@@ -153,24 +153,22 @@ export async function updateUserProfile(clerkUserId: string, data: Partial<Creat
 
 export async function deleteUserProfile(clerkUserId: string): Promise<boolean> {
   try {
-    await db.transaction(async (client) => {
-      // Remove from organizations first
-      await client.query(`
-        UPDATE organization_memberships 
-        SET is_active = false, left_at = CURRENT_TIMESTAMP
-        WHERE user_id = (SELECT id FROM user_profiles WHERE clerk_user_id = $1)
-      `, [clerkUserId])
+    // Remove from organizations first
+    await db.queryRaw(`
+      UPDATE organization_memberships 
+      SET is_active = false, left_at = CURRENT_TIMESTAMP
+      WHERE user_id = (SELECT id FROM user_profiles WHERE clerk_user_id = $1)
+    `, [clerkUserId])
 
-      // Soft delete the user profile
-      await client.query(`
-        UPDATE user_profiles 
-        SET is_active = false, account_status = 'deactivated', updated_at = CURRENT_TIMESTAMP
-        WHERE clerk_user_id = $1
-      `, [clerkUserId])
+    // Soft delete the user profile
+    await db.queryRaw(`
+      UPDATE user_profiles 
+      SET is_active = false, account_status = 'deactivated', updated_at = CURRENT_TIMESTAMP
+      WHERE clerk_user_id = $1
+    `, [clerkUserId])
 
-      // Log the deletion
-      await logAuthEvent('user_deleted', 'auth', 'User account deleted', clerkUserId)
-    })
+    // Log the deletion
+    await logAuthEvent('user_deleted', 'auth', 'User account deleted', clerkUserId)
 
     return true
   } catch (error) {
@@ -209,13 +207,13 @@ export async function createOrganization(clerkOrgId: string, data: CreateOrganiz
       JSON.stringify(data.settings || {})
     ]
 
-    const result = await db.query(query, values)
+    const result = await db.queryRaw(query, values)
     
-    if (result.rows.length === 0) {
+    if (result.length === 0) {
       throw new Error('Failed to create organization')
     }
 
-    return mapOrganizationFromDb(result.rows[0])
+    return mapOrganizationFromDb(result[0])
   } catch (error) {
     console.error('Error creating organization:', error)
     throw createAuthError('ORG_CREATION_FAILED', 'Failed to create organization', { clerkOrgId, error: (error as Error).message })
@@ -229,13 +227,13 @@ export async function getOrganizationByClerkId(clerkOrgId: string): Promise<Orga
       WHERE clerk_org_id = $1 AND is_active = true
     `
     
-    const result = await db.query(query, [clerkOrgId])
+    const result = await db.queryRaw(query, [clerkOrgId])
     
-    if (result.rows.length === 0) {
+    if (result.length === 0) {
       return null
     }
 
-    return mapOrganizationFromDb(result.rows[0])
+    return mapOrganizationFromDb(result[0])
   } catch (error) {
     console.error('Error fetching organization:', error)
     throw createAuthError('ORGANIZATION_NOT_FOUND', 'Failed to fetch organization', { clerkOrgId, error: (error as Error).message })
@@ -255,9 +253,9 @@ export async function getUserOrganizations(clerkUserId: string): Promise<Organiz
       ORDER BY om.joined_at DESC
     `
     
-    const result = await db.query(query, [clerkUserId])
+    const result = await db.queryRaw(query, [clerkUserId])
     
-    return result.rows.map(row => mapOrganizationFromDb(row))
+    return result.map(row => mapOrganizationFromDb(row))
   } catch (error) {
     console.error('Error fetching user organizations:', error)
     throw createAuthError('ORG_FETCH_FAILED', 'Failed to fetch user organizations', { clerkUserId, error: (error as Error).message })
@@ -294,13 +292,13 @@ export async function addUserToOrganization(
       invitedBy ? new Date() : null
     ]
 
-    const result = await db.query(query, values)
+    const result = await db.queryRaw(query, values)
     
-    if (result.rows.length === 0) {
+    if (result.length === 0) {
       throw new Error('Failed to add user to organization')
     }
 
-    return mapMembershipFromDb(result.rows[0])
+    return mapMembershipFromDb(result[0])
   } catch (error) {
     console.error('Error adding user to organization:', error)
     if ((error as Error).message.includes('maximum member limit')) {
@@ -318,9 +316,9 @@ export async function removeUserFromOrganization(organizationId: string, userId:
       WHERE organization_id = $1 AND user_id = $2 AND is_active = true
     `
     
-    const result = await db.query(query, [organizationId, userId])
+    const result = await db.queryRaw(query, [organizationId, userId])
     
-    return result.rows.length > 0
+    return result.length > 0
   } catch (error) {
     console.error('Error removing user from organization:', error)
     throw createAuthError('MEMBERSHIP_REMOVAL_FAILED', 'Failed to remove user from organization', { organizationId, userId, error: (error as Error).message })
@@ -330,20 +328,23 @@ export async function removeUserFromOrganization(organizationId: string, userId:
 export async function getOrganizationMembers(organizationId: string): Promise<Array<UserProfile & { role: string, joinedAt: Date }>> {
   try {
     const query = `
-      SELECT up.*, om.role, om.joined_at
+      SELECT up.*, om.role as organization_role, om.joined_at
       FROM user_profiles up
       JOIN organization_memberships om ON up.id = om.user_id
       WHERE om.organization_id = $1 AND om.is_active = true AND up.is_active = true
       ORDER BY om.joined_at ASC
     `
     
-    const result = await db.query(query, [organizationId])
+    const result = await db.queryRaw(query, [organizationId])
     
-    return result.rows.map(row => ({
-      ...mapUserProfileFromDb(row),
-      role: row.role,
-      joinedAt: new Date(row.joined_at)
-    }))
+    return result.map(row => {
+      const profile = mapUserProfileFromDb(row)
+      return {
+        ...profile,
+        role: row.organization_role as string,
+        joinedAt: new Date(row.joined_at as string)
+      } as UserProfile & { role: string, joinedAt: Date }
+    })
   } catch (error) {
     console.error('Error fetching organization members:', error)
     throw createAuthError('MEMBERS_FETCH_FAILED', 'Failed to fetch organization members', { organizationId, error: (error as Error).message })
@@ -386,13 +387,13 @@ export async function createOrganizationInvite(
       expiresAt
     ]
 
-    const result = await db.query(query, values)
+    const result = await db.queryRaw(query, values)
     
-    if (result.rows.length === 0) {
+    if (result.length === 0) {
       throw new Error('Failed to create invitation')
     }
 
-    return mapInvitationFromDb(result.rows[0])
+    return mapInvitationFromDb(result[0])
   } catch (error) {
     console.error('Error creating organization invite:', error)
     throw createAuthError('INVITE_CREATION_FAILED', 'Failed to create invitation', { organizationId, inviterId, error: (error as Error).message })
@@ -410,13 +411,13 @@ export async function getInvitationByCode(inviteCode: string): Promise<Organizat
       WHERE oi.invite_code = $1
     `
     
-    const result = await db.query(query, [inviteCode.toUpperCase()])
+    const result = await db.queryRaw(query, [inviteCode.toUpperCase()])
     
-    if (result.rows.length === 0) {
+    if (result.length === 0) {
       return null
     }
 
-    return mapInvitationFromDb(result.rows[0])
+    return mapInvitationFromDb(result[0])
   } catch (error) {
     console.error('Error fetching invitation:', error)
     throw createAuthError('INVITE_FETCH_FAILED', 'Failed to fetch invitation', { inviteCode, error: (error as Error).message })
@@ -425,29 +426,27 @@ export async function getInvitationByCode(inviteCode: string): Promise<Organizat
 
 export async function acceptInvitation(inviteCode: string, userId: string): Promise<boolean> {
   try {
-    await db.transaction(async (client) => {
-      // Update invitation status
-      const inviteResult = await client.query(`
-        UPDATE organization_invitations 
-        SET status = 'accepted', accepted_at = CURRENT_TIMESTAMP, accepted_by = $1
-        WHERE invite_code = $2 AND status = 'pending' AND expires_at > CURRENT_TIMESTAMP
-        RETURNING organization_id, role
-      `, [userId, inviteCode.toUpperCase()])
+    // First, update the invitation and get the organization details
+    const inviteResult = await db.queryRaw(`
+      UPDATE organization_invitations 
+      SET status = 'accepted', accepted_at = CURRENT_TIMESTAMP, accepted_by = $1
+      WHERE invite_code = $2 AND status = 'pending' AND expires_at > CURRENT_TIMESTAMP
+      RETURNING organization_id, role
+    `, [userId, inviteCode.toUpperCase()])
 
-      if (inviteResult.rows.length === 0) {
-        throw new Error('Invalid or expired invitation')
-      }
+    if (inviteResult.length === 0) {
+      throw new Error('Invalid or expired invitation')
+    }
 
-      const { organization_id, role } = inviteResult.rows[0]
+    const { organization_id, role } = inviteResult[0]
 
-      // Add user to organization
-      await client.query(`
-        INSERT INTO organization_memberships (organization_id, user_id, role)
-        VALUES ($1, $2, $3)
-        ON CONFLICT (organization_id, user_id) 
-        DO UPDATE SET is_active = true, role = $3, joined_at = CURRENT_TIMESTAMP
-      `, [organization_id, userId, role])
-    })
+    // Add user to organization
+    await db.queryRaw(`
+      INSERT INTO organization_memberships (organization_id, user_id, role)
+      VALUES ($1, $2, $3)
+      ON CONFLICT (organization_id, user_id) 
+      DO UPDATE SET is_active = true, role = $3, joined_at = CURRENT_TIMESTAMP
+    `, [organization_id, userId, role])
 
     return true
   } catch (error) {
@@ -467,28 +466,20 @@ export async function handleClerkUserWebhook(eventType: string, data: ClerkUserW
     switch (eventType) {
       case 'user.created':
         // Create basic user profile
-        await db.query(`
+        await db`
           INSERT INTO user_profiles (clerk_user_id, email, display_name)
-          VALUES ($1, $2, $3)
+          VALUES (${data.id}, ${data.email_addresses[0]?.email_address || ''}, ${`${data.first_name || ''} ${data.last_name || ''}`.trim() || data.email_addresses[0]?.email_address || 'User'})
           ON CONFLICT (clerk_user_id) DO NOTHING
-        `, [
-          data.id,
-          data.email_addresses[0]?.email_address || '',
-          `${data.first_name || ''} ${data.last_name || ''}`.trim() || data.email_addresses[0]?.email_address || 'User'
-        ])
+        `
         break
 
       case 'user.updated':
         // Update user profile
-        await db.query(`
+        await db`
           UPDATE user_profiles 
-          SET email = $2, display_name = $3, updated_at = CURRENT_TIMESTAMP
-          WHERE clerk_user_id = $1
-        `, [
-          data.id,
-          data.email_addresses[0]?.email_address || '',
-          `${data.first_name || ''} ${data.last_name || ''}`.trim() || data.email_addresses[0]?.email_address || 'User'
-        ])
+          SET email = ${data.email_addresses[0]?.email_address || ''}, display_name = ${`${data.first_name || ''} ${data.last_name || ''}`.trim() || data.email_addresses[0]?.email_address || 'User'}, updated_at = CURRENT_TIMESTAMP
+          WHERE clerk_user_id = ${data.id}
+        `
         break
 
       case 'user.deleted':
@@ -513,20 +504,20 @@ export async function handleClerkOrganizationWebhook(eventType: string, data: Cl
 
       case 'organization.updated':
         // Update organization data
-        await db.query(`
+        await db`
           UPDATE organizations 
-          SET name = $2, updated_at = CURRENT_TIMESTAMP
-          WHERE clerk_org_id = $1
-        `, [data.id, data.name])
+          SET name = ${data.name}, updated_at = CURRENT_TIMESTAMP
+          WHERE clerk_org_id = ${data.id}
+        `
         break
 
       case 'organization.deleted':
         // Soft delete organization
-        await db.query(`
+        await db`
           UPDATE organizations 
           SET is_active = false, updated_at = CURRENT_TIMESTAMP
-          WHERE clerk_org_id = $1
-        `, [data.id])
+          WHERE clerk_org_id = ${data.id}
+        `
         break
     }
 
@@ -557,7 +548,7 @@ export async function logAuthEvent(
       `
       
       if (userResult.length > 0) {
-        userId = userResult[0].id
+        userId = userResult[0].id as string
       }
     }
 

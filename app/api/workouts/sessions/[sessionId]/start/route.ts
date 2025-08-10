@@ -76,11 +76,16 @@ export async function POST(
     const result = await workoutService.startWorkoutSession(params.sessionId, context)
 
     if (!result.success) {
-      const statusCode = result.code === 'NOT_FOUND' ? 404 : 
-                        result.code === 'UNAUTHORIZED' ? 403 :
-                        result.code === 'INVALID_STATE' ? 409 : 500
+      const statusCode = result.error.code === 'NOT_FOUND' ? 404 : 
+                        result.error.code === 'INSUFFICIENT_PERMISSIONS' ? 403 :
+                        result.error.code === 'INVALID_STATE' ? 409 : 500
       return NextResponse.json(
-        { success: false, error: result.error, code: result.code },
+        { 
+          success: false, 
+          error: result.error.message, 
+          code: result.error.code,
+          details: result.error.context 
+        },
         { status: statusCode }
       )
     }
@@ -90,7 +95,7 @@ export async function POST(
     return NextResponse.json({
       success: true,
       data: result.data,
-      message: result.message,
+      message: 'Workout session started successfully',
       meta: {
         responseTime,
         timestamp: new Date().toISOString()

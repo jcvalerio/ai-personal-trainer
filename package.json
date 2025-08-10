@@ -32,12 +32,41 @@
     "test:e2e:install": "playwright install",
     "analyze": "cross-env ANALYZE=true next build",
     "setup": "./scripts/setup.sh",
+    "setup:first-time": "pnpm install && pnpm setup && pnpm env:validate && pnpm db:setup && pnpm test:e2e:install && echo '✅ First-time setup complete!'",
     "db:setup": "tsx scripts/setup-database.ts",
     "db:setup:workouts": "tsx scripts/setup-workout-database.ts",
     "db:test:workouts": "tsx scripts/test-workout-queries.ts",
     "db:demo:workouts": "tsx scripts/demo-workout-data.ts",
     "db:verify": "tsx scripts/verify-database.ts",
-    "db:check": "tsx -e 'import {config} from \"dotenv\"; import {resolve} from \"path\"; config({path: resolve(process.cwd(), \".env.local\")}); import { checkDbConnection, getDbInfo } from \"./lib/db/connection\"; checkDbConnection().then(c => console.log(\"Connected:\", c, getDbInfo()))'"
+    "db:check": "tsx -e 'import {config} from \"dotenv\"; import {resolve} from \"path\"; config({path: resolve(process.cwd(), \".env.local\")}); import { checkDbConnection, getDbInfo } from \"./lib/db/connection\"; checkDbConnection().then(c => console.log(\"Connected:\", c, getDbInfo()))'",
+    "db:migrate": "tsx scripts/migrate-production.ts",
+    "env:validate": "tsx scripts/validate-env.ts",
+    "env:check": "tsx scripts/validate-env.ts --verbose",
+    "quick:check": "pnpm type-check && pnpm lint && pnpm env:validate",
+    "quick:fix": "pnpm lint:fix && pnpm format",
+    "quick:test": "pnpm test:e2e tests/e2e/basic-validation.spec.ts",
+    "ready:deploy": "pnpm quick:check && pnpm build && pnpm quick:test && echo '✅ Ready for deployment!'",
+    "local:prod": "pnpm build && pnpm start",
+    "local:preview": "pnpm build && NODE_ENV=production pnpm start",
+    "deploy": "pnpm ready:deploy && ./scripts/deploy.sh preview",
+    "deploy:preview": "./scripts/deploy.sh preview",
+    "deploy:production": "pnpm ready:deploy && ./scripts/deploy.sh production",
+    "deploy:force": "./scripts/deploy.sh preview true",
+    "deploy:prod:force": "./scripts/deploy.sh production true",
+    "health:check": "curl -f http://localhost:3000/api/health || echo '❌ Health check failed'",
+    "clean": "rm -rf .next dist node_modules/.cache",
+    "clean:install": "pnpm clean && pnpm install",
+    "troubleshoot": "tsx scripts/troubleshoot.ts",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@clerk/nextjs": "^6.30.0",
@@ -82,6 +111,8 @@
     "eslint-config-next": "15.4.6",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.32.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10",
     "postcss": "^8.4.0",
     "prettier": "^3.3.0",
     "prettier-plugin-tailwindcss": "^0.6.0",

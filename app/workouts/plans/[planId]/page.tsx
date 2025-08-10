@@ -20,7 +20,8 @@ import {
   Share2,
   Copy,
   Pause,
-  Archive
+  Archive,
+  BarChart3
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'

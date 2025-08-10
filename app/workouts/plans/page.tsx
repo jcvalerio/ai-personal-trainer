@@ -3,6 +3,8 @@
  * View and manage all workout plans
  */
 
+'use client'
+
 import Link from 'next/link'
 import { UserButton } from '@clerk/nextjs'
 import { Dumbbell, Plus, Search, Filter, MoreVertical, Play } from 'lucide-react'
