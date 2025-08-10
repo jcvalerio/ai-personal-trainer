@@ -110,7 +110,7 @@ export async function requireOnboarding(): Promise<AuthSession> {
  * Check if user has specific role
  */
 export function hasRole(session: AuthSession | null, role: UserRole | UserRole[]): boolean {
-  if (!session) return false
+  if (!session) {return false}
   
   const roles = Array.isArray(role) ? role : [role]
   return roles.includes(session.user.role)
@@ -125,7 +125,7 @@ export function hasPermission(
   action: string,
   conditions?: Record<string, any>
 ): boolean {
-  if (!session) return false
+  if (!session) {return false}
 
   return session.permissions.some(permission => {
     if (permission.resource !== resource || permission.action !== action) {
@@ -150,7 +150,7 @@ export function canAccessOrganization(
   session: AuthSession | null,
   organizationId: string
 ): boolean {
-  if (!session) return false
+  if (!session) {return false}
   
   // Users can always access their own organization
   if (session.organization?.id === organizationId) {
@@ -238,7 +238,7 @@ export function getAllowedOrganizationTypes(role: UserRole): OrganizationType[] 
  * Check if user can perform action on organization
  */
 export function canManageOrganization(session: AuthSession | null, action: 'read' | 'update' | 'delete' | 'invite'): boolean {
-  if (!session || !session.organization) return false
+  if (!session || !session.organization) {return false}
 
   const { role } = session.organization
 

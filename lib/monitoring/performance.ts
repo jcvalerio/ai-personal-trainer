@@ -43,7 +43,7 @@ export interface PerformanceMetric {
  * Track Web Vitals using the web-vitals library pattern
  */
 export function initWebVitals() {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined') {return;}
   
   // Dynamically import web-vitals to avoid SSR issues
   const vitalsModule = 'web-vitals';
@@ -202,7 +202,7 @@ export async function withTimer<T>(
  * Memory usage tracking (Node.js only)
  */
 export function trackMemoryUsage() {
-  if (typeof process === 'undefined') return;
+  if (typeof process === 'undefined') {return;}
   
   const memUsage = process.memoryUsage();
   
@@ -240,7 +240,7 @@ export function trackUserInteraction(
  * Page load performance tracking
  */
 export function trackPageLoad(pageName: string) {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined') {return;}
   
   // Wait for the page to be fully loaded
   if (document.readyState === 'complete') {
@@ -251,7 +251,7 @@ export function trackPageLoad(pageName: string) {
 }
 
 function measurePageLoad(pageName: string) {
-  if (typeof window === 'undefined' || !window.performance) return;
+  if (typeof window === 'undefined' || !window.performance) {return;}
   
   const navigation = window.performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
   
@@ -272,7 +272,7 @@ function measurePageLoad(pageName: string) {
  * Resource loading performance tracking
  */
 export function trackResourceLoading() {
-  if (typeof window === 'undefined' || !window.performance) return;
+  if (typeof window === 'undefined' || !window.performance) {return;}
   
   const resources = window.performance.getEntriesByType('resource') as PerformanceResourceTiming[];
   

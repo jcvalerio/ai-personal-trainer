@@ -74,7 +74,7 @@ export function CreateOrganization({ onBack, onSuccess }: CreateOrganizationProp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!selectedType) return
+    if (!selectedType) {return}
 
     setIsLoading(true)
     setError('')

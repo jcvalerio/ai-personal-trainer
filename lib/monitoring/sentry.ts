@@ -92,7 +92,7 @@ export function setUserContext(user: {
   username?: string;
   subscription?: string;
 }) {
-  if (!Sentry) return;
+  if (!Sentry) {return;}
   
   Sentry.setUser({
     id: user.id,
@@ -106,7 +106,7 @@ export function setUserContext(user: {
  * Add custom tags to error reports
  */
 export function addContextTags(tags: Record<string, string>) {
-  if (!Sentry) return;
+  if (!Sentry) {return;}
   
   Sentry.setTags(tags);
 }
@@ -119,7 +119,7 @@ export function trackEvent(
   data?: Record<string, any>,
   level: 'info' | 'warning' | 'error' = 'info'
 ) {
-  if (!Sentry) return;
+  if (!Sentry) {return;}
   
   Sentry.addBreadcrumb({
     message: name,
@@ -137,7 +137,7 @@ export function trackWorkoutGeneration(
   exerciseCount: number,
   success: boolean
 ) {
-  if (!Sentry) return;
+  if (!Sentry) {return;}
   
   const transaction = Sentry.startTransaction({
     name: 'workout-generation',
@@ -160,7 +160,7 @@ export function trackApiPerformance(
   duration: number,
   statusCode: number
 ) {
-  if (!Sentry) return;
+  if (!Sentry) {return;}
   
   const transaction = Sentry.startTransaction({
     name: `${method} ${endpoint}`,
