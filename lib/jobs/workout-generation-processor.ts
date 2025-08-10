@@ -281,7 +281,7 @@ export class WorkoutGenerationProcessor implements JobProcessor {
    * Generate mock exercises for a phase
    */
   private generateMockExercises(phase: 'warm_up' | 'main' | 'cool_down', count: number): any[] {
-    const exercises = []
+    const exercises: any[] = []
     
     for (let i = 0; i < count; i++) {
       exercises.push({

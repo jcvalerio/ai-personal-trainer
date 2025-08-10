@@ -5,8 +5,9 @@
 'use client'
 
 import { Suspense } from 'react'
+import { use } from 'react'
 import Link from 'next/link'
-import { UserButton } from '@clerk/nextjs'
+import { useTranslations } from 'next-intl'
 import { Dumbbell, Plus, Calendar, BarChart3, Library, Sparkles, Filter } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -16,6 +17,13 @@ import { SessionCard } from '@/components/workouts/session-card'
 import { WorkoutStatsGrid, ProgressOverview } from '@/components/workouts/workout-stats'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { LoadingSpinner } from '@/components/ui/loading'
+import { AppNavigation } from '../../../components/navigation/app-navigation'
+import { createLocalizedPath } from '../../../lib/localized-navigation'
+import { TranslationErrorBoundary } from '../../../components/providers/translation-error-boundary'
+
+interface WorkoutsPageProps {
+  params: Promise<{ locale: string }>
+}
 
 // Mock data for demonstration - in a real app, this would come from API calls 
 const mockStats = {
@@ -161,7 +169,9 @@ const mockSessions = [
   }
 ]
 
-export default function WorkoutsPage() {
+export default function WorkoutsPage({ params }: WorkoutsPageProps) {
+  const t = useTranslations('workouts')
+  const { locale } = use(params)
   const handleStartWorkout = (workoutId: string) => {
     // Navigate to workout session or create new session
     console.log('Starting workout:', workoutId)
@@ -178,75 +188,28 @@ export default function WorkoutsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <Link href="/dashboard" className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-xl">
-                  <Dumbbell className="w-6 h-6 text-blue-600" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900">AI Personal Trainer</h1>
-                  <p className="text-xs text-gray-500">Workouts Dashboard</p>
-                </div>
-              </Link>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <nav className="hidden md:flex items-center gap-6">
-                <Link 
-                  href="/workouts" 
-                  className="text-blue-600 font-medium border-b-2 border-blue-600 pb-4 -mb-4"
-                >
-                  Workouts
-                </Link>
-                <Link 
-                  href="/progress" 
-                  className="text-gray-600 hover:text-gray-900 font-medium"
-                >
-                  Progress
-                </Link>
-                <Link 
-                  href="/exercises" 
-                  className="text-gray-600 hover:text-gray-900 font-medium"
-                >
-                  Exercises
-                </Link>
-              </nav>
-              
-              <UserButton 
-                appearance={{
-                  elements: {
-                    avatarBox: 'w-8 h-8',
-                  }
-                }}
-                showName={false}
-              />
-            </div>
-          </div>
-        </div>
-      </header>
+    <TranslationErrorBoundary>
+      <div className="min-h-screen bg-gray-50">
+        {/* Modern Navigation Header */}
+        <AppNavigation locale={locale} variant="workouts" />
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Main Content */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Your Workouts</h2>
-            <p className="text-gray-600">Track your fitness journey and achieve your goals</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">{t('title')}</h2>
+            <p className="text-gray-600">{t('subtitle')}</p>
           </div>
           <div className="flex gap-3 mt-4 sm:mt-0">
             <Button variant="outline" size="sm">
               <Filter className="w-4 h-4 mr-2" />
-              Filter
+{t('buttons.filter')}
             </Button>
             <Button asChild>
-              <Link href="/workouts/create">
+              <Link href={createLocalizedPath('workouts/create', locale as 'en' | 'es')}>
                 <Plus className="w-4 h-4 mr-2" />
-                New Workout
+{t('buttons.newWorkout')}
               </Link>
             </Button>
           </div>
@@ -264,19 +227,19 @@ export default function WorkoutsPage() {
           <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="overview">
               <BarChart3 className="w-4 h-4 mr-2" />
-              Overview
+{t('tabs.overview')}
             </TabsTrigger>
             <TabsTrigger value="plans">
               <Dumbbell className="w-4 h-4 mr-2" />
-              Plans
+{t('tabs.plans')}
             </TabsTrigger>
             <TabsTrigger value="sessions">
               <Calendar className="w-4 h-4 mr-2" />
-              Sessions
+{t('tabs.sessions')}
             </TabsTrigger>
             <TabsTrigger value="library">
               <Library className="w-4 h-4 mr-2" />
-              Library
+{t('tabs.library')}
             </TabsTrigger>
           </TabsList>
 
@@ -295,25 +258,25 @@ export default function WorkoutsPage() {
               {/* Quick Actions */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Quick Actions</CardTitle>
+                  <CardTitle className="text-lg">{t('quickActions.title')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Button asChild className="w-full justify-start">
-                    <Link href="/workouts/generate">
+                    <Link href={createLocalizedPath('workouts/generate', locale as 'en' | 'es')}>
                       <Sparkles className="w-4 h-4 mr-2" />
-                      Generate AI Workout
+{t('buttons.generateAI')}
                     </Link>
                   </Button>
                   <Button variant="outline" asChild className="w-full justify-start">
-                    <Link href="/workouts/plans/new">
+                    <Link href={createLocalizedPath('workouts/plans/new', locale as 'en' | 'es')}>
                       <Plus className="w-4 h-4 mr-2" />
-                      Create Custom Plan
+{t('buttons.createCustom')}
                     </Link>
                   </Button>
                   <Button variant="outline" asChild className="w-full justify-start">
-                    <Link href="/exercises">
+                    <Link href={createLocalizedPath('exercises', locale as 'en' | 'es')}>
                       <Library className="w-4 h-4 mr-2" />
-                      Browse Exercises
+                      {t('buttons.browseExercises')}
                     </Link>
                   </Button>
                 </CardContent>
@@ -322,7 +285,7 @@ export default function WorkoutsPage() {
             
             {/* Today's Sessions */}
             <div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Today&apos;s Sessions</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">{t('todaySessions.title')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {mockSessions
                   .filter(session => 
@@ -341,10 +304,10 @@ export default function WorkoutsPage() {
                 ).length === 0 && (
                   <div className="col-span-2 text-center py-8 text-gray-500">
                     <Calendar className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p>No sessions scheduled for today</p>
+                    <p>{t('todaySessions.noSessions')}</p>
                     <Button asChild className="mt-3">
-                      <Link href="/workouts/sessions/schedule">
-                        Schedule a Session
+                      <Link href={createLocalizedPath('workouts/sessions/schedule', locale as 'en' | 'es')}>
+{t('buttons.scheduleSession')}
                       </Link>
                     </Button>
                   </div>
@@ -356,8 +319,8 @@ export default function WorkoutsPage() {
           {/* Workout Plans Tab */}
           <TabsContent value="plans" className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold text-gray-900">My Workout Plans</h3>
-              <Badge variant="outline">{mockWorkoutPlans.length} plans</Badge>
+              <h3 className="text-xl font-semibold text-gray-900">{t('myPlans.title')}</h3>
+              <Badge variant="outline">{mockWorkoutPlans.length} {t('myPlans.plans')}</Badge>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -375,13 +338,13 @@ export default function WorkoutsPage() {
           {/* Sessions Tab */}
           <TabsContent value="sessions" className="space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-xl font-semibold text-gray-900">All Sessions</h3>
+              <h3 className="text-xl font-semibold text-gray-900">{t('allSessions.title')}</h3>
               <div className="flex gap-2">
                 <Badge variant="success">
-                  {mockSessions.filter(s => s.status === 'completed').length} completed
+                  {mockSessions.filter(s => s.status === 'completed').length} {t('allSessions.completed')}
                 </Badge>
                 <Badge variant="warning">
-                  {mockSessions.filter(s => s.status === 'scheduled').length} scheduled
+                  {mockSessions.filter(s => s.status === 'scheduled').length} {t('allSessions.scheduled')}
                 </Badge>
               </div>
             </div>
@@ -402,20 +365,21 @@ export default function WorkoutsPage() {
           <TabsContent value="library" className="space-y-6">
             <div className="text-center py-12">
               <Library className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Exercise Library</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('exerciseLibrary.title')}</h3>
               <p className="text-gray-600 mb-6 max-w-md mx-auto">
-                Browse our comprehensive collection of exercises, create custom routines, and discover new movements.
+                {t('exerciseLibrary.description')}
               </p>
               <Button asChild>
-                <Link href="/exercises">
+                <Link href={createLocalizedPath('exercises', locale as 'en' | 'es')}>
                   <Library className="w-4 h-4 mr-2" />
-                  Browse Exercises
+                  {t('buttons.browseExercises')}
                 </Link>
               </Button>
             </div>
           </TabsContent>
         </Tabs>
-      </main>
-    </div>
+        </main>
+      </div>
+    </TranslationErrorBoundary>
   )
 }

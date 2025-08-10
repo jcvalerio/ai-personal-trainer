@@ -5,10 +5,11 @@
     "forGyms": "Para Gimnasios", 
     "signIn": "Iniciar Sesión",
     "getStarted": "Comenzar",
-    "dashboard": "Ir al Panel",
+    "dashboard": "Panel",
     "myWorkouts": "Mis Entrenamientos",
     "progress": "Progreso",
     "exercises": "Ejercicios",
+    "community": "Comunidad",
     "toggleMenu": "Alternar menú móvil",
     "openMenu": "Abrir menú"
   },
@@ -173,5 +174,207 @@
   },
   "loading": {
     "text": "Cargando..."
+  },
+  "dashboard": {
+    "title": "Entrenador Personal con IA",
+    "welcome": {
+      "title": "¡Bienvenido de vuelta!",
+      "subtitle": "¿Listo para continuar tu viaje fitness?"
+    },
+    "stats": {
+      "workoutsThisWeek": "Entrenamientos Esta Semana",
+      "currentStreak": "Racha Actual",
+      "streakDays": "días",
+      "totalWorkouts": "Total Entrenamientos",
+      "community": "Comunidad"
+    },
+    "quickActions": {
+      "title": "Acciones Rápidas",
+      "startWorkout": {
+        "title": "Iniciar Nuevo Entrenamiento",
+        "description": "Obtén un plan de entrenamiento generado por IA"
+      },
+      "trackProgress": {
+        "title": "Seguir Progreso",
+        "description": "Registra mediciones y ve análisis"
+      },
+      "joinCommunity": {
+        "title": "Unirse a Comunidad",
+        "description": "Conecta con familia o miembros del gimnasio"
+      }
+    },
+    "recentActivity": {
+      "title": "Actividad Reciente",
+      "empty": {
+        "title": "Aún no hay actividad",
+        "description": "¡Inicia tu primer entrenamiento para ver tu progreso aquí!"
+      }
+    },
+    "comingSoon": {
+      "title": "Próximamente",
+      "features": {
+        "aiWorkout": "Generación de Entrenamientos con IA",
+        "analytics": "Análisis de Progreso",
+        "social": "Características Sociales"
+      }
+    }
+  },
+  "locale": {
+    "select": "Seleccionar idioma",
+    "english": "English",
+    "spanish": "Español",
+    "current": "Idioma actual: {language}"
+  },
+  "progress": {
+    "title": "Tu Progreso",
+    "subtitle": "Rastrea tu viaje fitness y celebra logros",
+    "buttons": {
+      "progressPhotos": "Fotos de Progreso",
+      "logMeasurement": "Registrar Medición",
+      "continueTraining": "Continuar Entrenamiento"
+    },
+    "tabs": {
+      "overview": "Resumen",
+      "measurements": "Cuerpo",
+      "strength": "Fuerza",
+      "achievements": "Objetivos",
+      "analytics": "Análisis"
+    },
+    "recentActivity": {
+      "title": "Actividad Reciente",
+      "description": "Tu actividad de entrenamientos en los últimos 7 días",
+      "rest": "Descanso"
+    },
+    "thisMonth": {
+      "title": "Este Mes",
+      "workouts": "Entrenamientos",
+      "minutes": "Minutos",
+      "avgIntensity": "Intensidad Promedio"
+    },
+    "personalRecords": {
+      "title": "Récords Personales",
+      "benchPress": "Press de Banca",
+      "squat": "Sentadilla",
+      "deadlift": "Peso Muerto",
+      "run5k": "5K Carrera"
+    },
+    "achievementPoints": {
+      "title": "Puntos de Logro",
+      "totalEarned": "Total de Puntos Ganados"
+    },
+    "measurements": {
+      "weight": "Peso",
+      "bodyFat": "Grasa Corporal",
+      "muscleMass": "Masa Muscular",
+      "bodyComposition": "Tendencias de Composición Corporal",
+      "bodyCompositionDesc": "Rastrea cambios en tu composición corporal a lo largo del tiempo",
+      "chartPlaceholder": "La visualización del gráfico aparecería aquí",
+      "connectScale": "Conecta una báscula inteligente para seguimiento automático",
+      "thisMonth": "este mes"
+    },
+    "strength": {
+      "benchPressPR": "RP Press de Banca",
+      "squatPR": "RP Sentadilla",
+      "deadliftPR": "RP Peso Muerto",
+      "totalVolume": "Volumen Total",
+      "strengthProgress": "Progreso de Fuerza",
+      "strengthProgressDesc": "Rastrea el progreso de tus levantamientos principales a lo largo del tiempo",
+      "chartPlaceholder": "El gráfico de progresión de fuerza aparecería aquí",
+      "sinceLastMonth": "desde el mes pasado",
+      "thisWeek": "esta semana"
+    },
+    "achievements": {
+      "consistencyChampion": "Campeón de Consistencia",
+      "consistencyDesc": "Completó 7 entrenamientos consecutivos",
+      "strengthMilestone": "Hito de Fuerza",
+      "strengthDesc": "Aumentó el press de banca en 20 lbs",
+      "cardioCrusher": "Triturador de Cardio",
+      "cardioDesc": "Completó la primera carrera de 5K",
+      "earned": "Ganado",
+      "activeGoals": "Objetivos Activos",
+      "activeGoalsDesc": "Rastrea tu progreso hacia hitos fitness",
+      "benchPress250": "Press de Banca 250 lbs",
+      "current": "Actual",
+      "lose10lbs": "Perder 10 lbs",
+      "progress": "Progreso",
+      "consistency30": "Consistencia 30 días",
+      "currentStreak": "Racha actual",
+      "complete": "completo"
+    },
+    "analytics": {
+      "title": "Análisis Avanzado",
+      "description": "Análisis detallados e insights estarán disponibles con más datos de entrenamientos."
+    }
+  },
+  "workouts": {
+    "title": "Tus Entrenamientos",
+    "subtitle": "Rastrea tu viaje fitness y logra tus objetivos",
+    "dashboard": "Panel de Entrenamientos",
+    "buttons": {
+      "filter": "Filtrar",
+      "newWorkout": "Nuevo Entrenamiento",
+      "generateAI": "Generar Entrenamiento IA",
+      "createCustom": "Crear Plan Personalizado",
+      "browseExercises": "Explorar Ejercicios",
+      "scheduleSession": "Programar Sesión"
+    },
+    "tabs": {
+      "overview": "Resumen",
+      "plans": "Planes",
+      "sessions": "Sesiones",
+      "library": "Biblioteca"
+    },
+    "quickActions": {
+      "title": "Acciones Rápidas"
+    },
+    "todaySessions": {
+      "title": "Sesiones de Hoy",
+      "noSessions": "No hay sesiones programadas para hoy"
+    },
+    "myPlans": {
+      "title": "Mis Planes de Entrenamiento",
+      "plans": "planes"
+    },
+    "allSessions": {
+      "title": "Todas las Sesiones",
+      "completed": "completadas",
+      "scheduled": "programadas"
+    },
+    "exerciseLibrary": {
+      "title": "Biblioteca de Ejercicios",
+      "description": "Explora nuestra colección completa de ejercicios, crea rutinas personalizadas y descubre nuevos movimientos."
+    },
+    "sessions": {
+      "today": "Hoy",
+      "targetMuscles": "Músculos Objetivo",
+      "progress": "Progreso",
+      "started": "Iniciado",
+      "completed": "Completado", 
+      "duration": "Duración",
+      "effort": "Esfuerzo",
+      "overdueBy": "Atrasado por",
+      "startNow": "Comenzar Ahora",
+      "startSession": "Iniciar Sesión",
+      "continue": "Continuar",
+      "viewResults": "Ver Resultados"
+    }
+  },
+  "organizations": {
+    "title": "Comunidad",
+    "subtitle": "Conecta con familia, amigos y miembros del gimnasio",
+    "buttons": {
+      "createOrganization": "Crear Organización",
+      "joinWithCode": "Unirse con Código"
+    },
+    "noOrganizations": {
+      "title": "Únete a tu Primera Comunidad",
+      "description": "Conecta con familia, amigos o miembros del gimnasio para compartir progreso, competir en desafíos y motivarse mutuamente.",
+      "benefits": {
+        "shareProgress": "Compartir progreso de entrenamientos",
+        "familyChallenges": "Desafíos fitness familiares",
+        "leaderboards": "Tablas de clasificación grupales",
+        "motivation": "Motivación mutua"
+      }
+    }
   }
 }

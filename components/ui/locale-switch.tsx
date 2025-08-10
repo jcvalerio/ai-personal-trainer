@@ -16,7 +16,8 @@ export function LocaleSwitch({ locale }: LocaleSwitchProps) {
     const pathWithoutLocale = pathname.replace(/^\/[a-z]{2}/, '') || '/'
     
     // Navigate to the same path with new locale
-    const newPath = newLocale === 'en' ? pathWithoutLocale : `/${newLocale}${pathWithoutLocale}`
+    // Since localePrefix is set to 'always', all locales including 'en' need a prefix
+    const newPath = `/${newLocale}${pathWithoutLocale}`
     router.push(newPath)
   }
 

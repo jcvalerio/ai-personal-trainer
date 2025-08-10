@@ -5,6 +5,7 @@
 'use client'
 
 import { Clock, Calendar, Play, CheckCircle, Timer, MapPin } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -56,6 +57,7 @@ export function SessionCard({
   onContinue,
   className 
 }: SessionCardProps) {
+  const t = useTranslations('workouts')
   const isScheduledToday = new Date(session.scheduledDate).toDateString() === new Date().toDateString()
   const isOverdue = new Date(session.scheduledDate) < new Date() && session.status === 'scheduled'
   
@@ -91,7 +93,7 @@ export function SessionCard({
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Calendar className="h-4 w-4" />
             <span>
-              {isScheduledToday ? 'Today' : format(session.scheduledDate, 'MMM d')}
+              {isScheduledToday ? t('sessions.today') : format(session.scheduledDate, 'MMM d')}
               {session.scheduledTime && ` at ${session.scheduledTime}`}
             </span>
           </div>
@@ -111,7 +113,7 @@ export function SessionCard({
         
         {session.sessionData?.targetMuscleGroups && session.sessionData.targetMuscleGroups.length > 0 && (
           <div className="mb-4">
-            <p className="text-xs font-medium text-gray-700 mb-2">Target Muscles:</p>
+            <p className="text-xs font-medium text-gray-700 mb-2">{t('sessions.targetMuscles')}:</p>
             <div className="flex flex-wrap gap-1">
               {session.sessionData.targetMuscleGroups.slice(0, 4).map((muscle, index) => (
                 <Badge key={index} variant="outline" className="text-xs capitalize">
@@ -130,7 +132,7 @@ export function SessionCard({
         {session.status === 'in_progress' && (
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-gray-700">Progress</span>
+              <span className="text-xs font-medium text-gray-700">{t('sessions.progress')}</span>
               <span className="text-xs text-gray-500">{session.completionPercentage}%</span>
             </div>
             <Progress 
@@ -140,7 +142,7 @@ export function SessionCard({
             />
             {session.startedAt && (
               <p className="text-xs text-gray-500 mt-2">
-                Started {formatDistanceToNow(session.startedAt, { addSuffix: true })}
+{t('sessions.started')} {formatDistanceToNow(session.startedAt, { addSuffix: true })}
               </p>
             )}
           </div>
@@ -148,19 +150,19 @@ export function SessionCard({
         
         {session.status === 'completed' && session.completedAt && (
           <div className="text-sm text-gray-600">
-            <p>Completed {formatDistanceToNow(session.completedAt, { addSuffix: true })}</p>
+            <p>{t('sessions.completed')} {formatDistanceToNow(session.completedAt, { addSuffix: true })}</p>
             {session.actualDuration && (
-              <p>Duration: {session.actualDuration} minutes</p>
+              <p>{t('sessions.duration')}: {session.actualDuration} minutes</p>
             )}
             {session.effortRating && (
-              <p>Effort: {session.effortRating}/10</p>
+              <p>{t('sessions.effort')}: {session.effortRating}/10</p>
             )}
           </div>
         )}
         
         {isOverdue && (
           <div className="text-sm text-red-600 font-medium">
-            Overdue by {formatDistanceToNow(session.scheduledDate)}
+{t('sessions.overdueBy')} {formatDistanceToNow(session.scheduledDate)}
           </div>
         )}
       </CardContent>
@@ -175,7 +177,7 @@ export function SessionCard({
                 onClick={() => onStart?.(session.id)}
                 variant={isScheduledToday ? 'default' : 'outline'}
               >
-                {isScheduledToday ? 'Start Now' : 'Start Session'}
+{isScheduledToday ? t('sessions.startNow') : t('sessions.startSession')}
               </Button>
             </>
           )}
@@ -186,13 +188,13 @@ export function SessionCard({
               className="flex-1"
               onClick={() => onContinue?.(session.id)}
             >
-              Continue
+{t('sessions.continue')}
             </Button>
           )}
           
           {session.status === 'completed' && (
             <Button variant="outline" size="sm" className="flex-1" disabled>
-              View Results
+{t('sessions.viewResults')}
             </Button>
           )}
         </div>

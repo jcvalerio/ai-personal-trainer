@@ -73,12 +73,17 @@ export class ProgressService extends BaseService {
         return this.mapProgressMeasurementFromDb(measurementResult[0])
       })
 
+      // Check if the transaction was successful
+      if (!result.success) {
+        return result
+      }
+
       await this.logEvent('measurement_created', 'Progress measurement created', context, { 
-        measurementId: result.id,
-        type: result.measurementType
+        measurementId: result.data.id,
+        type: result.data.measurementType
       })
 
-      return this.createSuccessResult(result, 'Progress measurement created successfully')
+      return this.createSuccessResult(result.data, 'Progress measurement created successfully')
     } catch (error) {
       return this.handleError(error, 'createProgressMeasurement')
     }
@@ -102,17 +107,17 @@ export class ProgressService extends BaseService {
       const sortOrder = pagination?.sortOrder || 'desc'
 
       // Get total count
-      const countResult = await this.db.query(`
+      const countResult = await this.db.queryRaw(`
         SELECT COUNT(*) as total
         FROM progress_measurements pm
         JOIN user_profiles up ON pm.user_id = up.id
         ${whereClause}
       `, values)
 
-      const total = parseInt(countResult.rows[0].total)
+      const total = parseInt(countResult[0].total as string)
 
       // Get paginated results
-      const result = await this.db.query(`
+      const result = await this.db.queryRaw(`
         SELECT pm.*
         FROM progress_measurements pm
         JOIN user_profiles up ON pm.user_id = up.id
@@ -121,7 +126,7 @@ export class ProgressService extends BaseService {
         LIMIT $${values.length + 1} OFFSET $${values.length + 2}
       `, [...values, limit, offset])
 
-      const measurements = result.rows.map(row => this.mapProgressMeasurementFromDb(row))
+      const measurements = result.map(row => this.mapProgressMeasurementFromDb(row))
       const paginatedResult = this.applyPagination(measurements, total, pagination || {})
 
       await this.logEvent('measurements_accessed', 'Progress measurements accessed', context)
@@ -171,17 +176,17 @@ export class ProgressService extends BaseService {
         timeframe: timeframe || 'month',
         startDate,
         endDate: new Date(),
-        measurementSummary: result.map(row => ({
-          measurementType: row.measurement_type,
-          unit: row.unit,
-          count: parseInt(row.measurement_count),
-          average: parseFloat(row.average_value),
-          min: parseFloat(row.min_value),
-          max: parseFloat(row.max_value),
-          median: parseFloat(row.median_value),
-          firstMeasurement: new Date(row.first_measurement),
-          lastMeasurement: new Date(row.last_measurement),
-          trend: trends[row.measurement_type] || 'stable'
+        measurementSummary: result.map((row: any) => ({
+          measurementType: row.measurement_type as 'weight' | 'body_fat' | 'muscle_mass' | 'circumference',
+          unit: row.unit as string,
+          count: parseInt(row.measurement_count as string),
+          average: parseFloat(row.average_value as string),
+          min: parseFloat(row.min_value as string),
+          max: parseFloat(row.max_value as string),
+          median: parseFloat(row.median_value as string),
+          firstMeasurement: new Date(row.first_measurement as string),
+          lastMeasurement: new Date(row.last_measurement as string),
+          trend: trends[row.measurement_type as string] || 'stable'
         })),
         overallTrend: this.calculateOverallTrend(trends)
       }
@@ -241,7 +246,7 @@ export class ProgressService extends BaseService {
 
       values.push(measurementId)
 
-      const result = await this.db.query(`
+      const result = await this.db.queryRaw(`
         UPDATE progress_measurements 
         SET ${updates.join(', ')}
         WHERE id = $${paramIndex} AND user_id = (
@@ -250,11 +255,11 @@ export class ProgressService extends BaseService {
         RETURNING *
       `, [...values, context.userId])
 
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return this.createErrorResult('Progress measurement not found or access denied', 'NOT_FOUND')
       }
 
-      const updatedMeasurement = this.mapProgressMeasurementFromDb(result.rows[0])
+      const updatedMeasurement = this.mapProgressMeasurementFromDb(result[0])
 
       await this.logEvent('measurement_updated', 'Progress measurement updated', context, { 
         measurementId,
@@ -284,7 +289,7 @@ export class ProgressService extends BaseService {
         )
       `
 
-      if (result.count === 0) {
+      if (result.length === 0) {
         return this.createErrorResult('Progress measurement not found or access denied', 'NOT_FOUND')
       }
 
@@ -364,12 +369,17 @@ export class ProgressService extends BaseService {
         return this.mapUserAchievementFromDb(achievementResult[0])
       })
 
+      // Check if the transaction was successful
+      if (!result.success) {
+        return result
+      }
+
       await this.logEvent('achievement_created', 'User achievement created', context, { 
-        achievementId: result.id,
-        type: result.achievementType
+        achievementId: result.data.id,
+        type: result.data.achievementType
       })
 
-      return this.createSuccessResult(result, 'Achievement created successfully')
+      return this.createSuccessResult(result.data, 'Achievement created successfully')
     } catch (error) {
       return this.handleError(error, 'createUserAchievement')
     }
@@ -393,17 +403,17 @@ export class ProgressService extends BaseService {
       const sortOrder = pagination?.sortOrder || 'desc'
 
       // Get total count
-      const countResult = await this.db.query(`
+      const countResult = await this.db.queryRaw(`
         SELECT COUNT(*) as total
         FROM user_achievements ua
         JOIN user_profiles up ON ua.user_id = up.id
         ${whereClause}
       `, values)
 
-      const total = parseInt(countResult.rows[0].total)
+      const total = parseInt(countResult[0].total as string)
 
       // Get paginated results
-      const result = await this.db.query(`
+      const result = await this.db.queryRaw(`
         SELECT ua.*
         FROM user_achievements ua
         JOIN user_profiles up ON ua.user_id = up.id
@@ -412,7 +422,7 @@ export class ProgressService extends BaseService {
         LIMIT $${values.length + 1} OFFSET $${values.length + 2}
       `, [...values, limit, offset])
 
-      const achievements = result.rows.map(row => this.mapUserAchievementFromDb(row))
+      const achievements = result.map(row => this.mapUserAchievementFromDb(row))
       const paginatedResult = this.applyPagination(achievements, total, pagination || {})
 
       await this.logEvent('achievements_accessed', 'User achievements accessed', context)
@@ -542,14 +552,14 @@ export class ProgressService extends BaseService {
 
     const trends: Record<string, 'improving' | 'declining' | 'stable'> = {}
     
-    result.forEach(row => {
-      const avgChange = parseFloat(row.avg_change)
+    result.forEach((row: any) => {
+      const avgChange = parseFloat(row.avg_change as string)
       if (avgChange > 0.1) {
-        trends[row.measurement_type] = 'improving'
+        trends[row.measurement_type as string] = 'improving'
       } else if (avgChange < -0.1) {
-        trends[row.measurement_type] = 'declining'
+        trends[row.measurement_type as string] = 'declining'
       } else {
-        trends[row.measurement_type] = 'stable'
+        trends[row.measurement_type as string] = 'stable'
       }
     })
 

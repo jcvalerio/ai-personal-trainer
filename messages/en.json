@@ -5,10 +5,11 @@
     "forGyms": "For Gyms",
     "signIn": "Sign In",
     "getStarted": "Get Started",
-    "dashboard": "Go to Dashboard",
+    "dashboard": "Dashboard",
     "myWorkouts": "My Workouts",
     "progress": "Progress",
     "exercises": "Exercises",
+    "community": "Community",
     "toggleMenu": "Toggle mobile menu",
     "openMenu": "Open menu"
   },
@@ -173,5 +174,207 @@
   },
   "loading": {
     "text": "Loading..."
+  },
+  "dashboard": {
+    "title": "AI Personal Trainer",
+    "welcome": {
+      "title": "Welcome back!",
+      "subtitle": "Ready to continue your fitness journey?"
+    },
+    "stats": {
+      "workoutsThisWeek": "Workouts This Week",
+      "currentStreak": "Current Streak",
+      "streakDays": "days",
+      "totalWorkouts": "Total Workouts",
+      "community": "Community"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "startWorkout": {
+        "title": "Start New Workout",
+        "description": "Get an AI-generated workout plan"
+      },
+      "trackProgress": {
+        "title": "Track Progress",
+        "description": "Log measurements and view analytics"
+      },
+      "joinCommunity": {
+        "title": "Join Community",
+        "description": "Connect with family or gym members"
+      }
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "empty": {
+        "title": "No activity yet",
+        "description": "Start your first workout to see your progress here!"
+      }
+    },
+    "comingSoon": {
+      "title": "Coming Soon",
+      "features": {
+        "aiWorkout": "AI Workout Generation",
+        "analytics": "Progress Analytics",
+        "social": "Social Features"
+      }
+    }
+  },
+  "locale": {
+    "select": "Select language",
+    "english": "English",
+    "spanish": "Español",
+    "current": "Current language: {language}"
+  },
+  "progress": {
+    "title": "Your Progress",
+    "subtitle": "Track your fitness journey and celebrate achievements",
+    "buttons": {
+      "progressPhotos": "Progress Photos",
+      "logMeasurement": "Log Measurement",
+      "continueTraining": "Continue Training"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "measurements": "Body",
+      "strength": "Strength",
+      "achievements": "Goals",
+      "analytics": "Analytics"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "description": "Your workout activity over the last 7 days",
+      "rest": "Rest"
+    },
+    "thisMonth": {
+      "title": "This Month",
+      "workouts": "Workouts",
+      "minutes": "Minutes",
+      "avgIntensity": "Avg Intensity"
+    },
+    "personalRecords": {
+      "title": "Personal Records",
+      "benchPress": "Bench Press",
+      "squat": "Squat",
+      "deadlift": "Deadlift",
+      "run5k": "5K Run"
+    },
+    "achievementPoints": {
+      "title": "Achievement Points",
+      "totalEarned": "Total Points Earned"
+    },
+    "measurements": {
+      "weight": "Weight",
+      "bodyFat": "Body Fat",
+      "muscleMass": "Muscle Mass",
+      "bodyComposition": "Body Composition Trends",
+      "bodyCompositionDesc": "Track changes in your body composition over time",
+      "chartPlaceholder": "Chart visualization would appear here",
+      "connectScale": "Connect a smart scale for automatic tracking",
+      "thisMonth": "this month"
+    },
+    "strength": {
+      "benchPressPR": "Bench Press PR",
+      "squatPR": "Squat PR",
+      "deadliftPR": "Deadlift PR",
+      "totalVolume": "Total Volume",
+      "strengthProgress": "Strength Progress",
+      "strengthProgressDesc": "Track your main lift progress over time",
+      "chartPlaceholder": "Strength progression chart would appear here",
+      "sinceLastMonth": "since last month",
+      "thisWeek": "this week"
+    },
+    "achievements": {
+      "consistencyChampion": "Consistency Champion",
+      "consistencyDesc": "Completed 7 consecutive workouts",
+      "strengthMilestone": "Strength Milestone",
+      "strengthDesc": "Increased bench press by 20 lbs",
+      "cardioCrusher": "Cardio Crusher",
+      "cardioDesc": "Completed first 5K run",
+      "earned": "Earned",
+      "activeGoals": "Active Goals",
+      "activeGoalsDesc": "Track your progress towards fitness milestones",
+      "benchPress250": "Bench Press 250 lbs",
+      "current": "Current",
+      "lose10lbs": "Lose 10 lbs",
+      "progress": "Progress",
+      "consistency30": "30-day Consistency",
+      "currentStreak": "Current streak",
+      "complete": "complete"
+    },
+    "analytics": {
+      "title": "Advanced Analytics",
+      "description": "Detailed analytics and insights will be available with more workout data."
+    }
+  },
+  "workouts": {
+    "title": "Your Workouts",
+    "subtitle": "Track your fitness journey and achieve your goals",
+    "dashboard": "Workouts Dashboard",
+    "buttons": {
+      "filter": "Filter",
+      "newWorkout": "New Workout",
+      "generateAI": "Generate AI Workout",
+      "createCustom": "Create Custom Plan",
+      "browseExercises": "Browse Exercises",
+      "scheduleSession": "Schedule a Session"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "plans": "Plans",
+      "sessions": "Sessions",
+      "library": "Library"
+    },
+    "quickActions": {
+      "title": "Quick Actions"
+    },
+    "todaySessions": {
+      "title": "Today's Sessions",
+      "noSessions": "No sessions scheduled for today"
+    },
+    "myPlans": {
+      "title": "My Workout Plans",
+      "plans": "plans"
+    },
+    "allSessions": {
+      "title": "All Sessions",
+      "completed": "completed",
+      "scheduled": "scheduled"
+    },
+    "exerciseLibrary": {
+      "title": "Exercise Library",
+      "description": "Browse our comprehensive collection of exercises, create custom routines, and discover new movements."
+    },
+    "sessions": {
+      "today": "Today",
+      "targetMuscles": "Target Muscles",
+      "progress": "Progress", 
+      "started": "Started",
+      "completed": "Completed",
+      "duration": "Duration",
+      "effort": "Effort",
+      "overdueBy": "Overdue by",
+      "startNow": "Start Now",
+      "startSession": "Start Session",
+      "continue": "Continue",
+      "viewResults": "View Results"
+    }
+  },
+  "organizations": {
+    "title": "Community",
+    "subtitle": "Connect with family, friends, and gym members",
+    "buttons": {
+      "createOrganization": "Create Organization",
+      "joinWithCode": "Join with Code"
+    },
+    "noOrganizations": {
+      "title": "Join Your First Community",
+      "description": "Connect with family, friends, or gym members to share progress, compete in challenges, and motivate each other.",
+      "benefits": {
+        "shareProgress": "Share workout progress",
+        "familyChallenges": "Family fitness challenges",
+        "leaderboards": "Group leaderboards",
+        "motivation": "Mutual motivation"
+      }
+    }
   }
 }

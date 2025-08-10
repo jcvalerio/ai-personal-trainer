@@ -89,9 +89,14 @@ export class WorkoutService extends BaseService {
         return this.mapWorkoutPlanFromDb(planResult[0])
       })
 
-      await this.logEvent('plan_created', 'Workout plan created', context, { planId: result.id })
+      // Check if the transaction was successful
+      if (!result.success) {
+        return result
+      }
+
+      await this.logEvent('plan_created', 'Workout plan created', context, { planId: result.data.id })
       
-      return this.createSuccessResult(result, 'Workout plan created successfully')
+      return this.createSuccessResult(result.data, 'Workout plan created successfully')
     } catch (error) {
       return this.handleError(error, 'createWorkoutPlan')
     }
@@ -115,17 +120,17 @@ export class WorkoutService extends BaseService {
       const sortOrder = pagination?.sortOrder || 'desc'
 
       // Get total count
-      const countResult = await this.db.query(`
+      const countResult = await this.db.queryRaw(`
         SELECT COUNT(*) as total
         FROM workout_plans wp
         JOIN user_profiles up ON wp.user_id = up.id
         ${whereClause}
       `, values)
 
-      const total = parseInt(countResult.rows[0].total)
+      const total = parseInt(countResult[0].total as string)
 
       // Get paginated results
-      const result = await this.db.query(`
+      const result = await this.db.queryRaw(`
         SELECT wp.*, up.display_name as creator_name
         FROM workout_plans wp
         JOIN user_profiles up ON wp.user_id = up.id
@@ -134,7 +139,7 @@ export class WorkoutService extends BaseService {
         LIMIT $${values.length + 1} OFFSET $${values.length + 2}
       `, [...values, limit, offset])
 
-      const plans = result.rows.map(row => this.mapWorkoutPlanFromDb(row))
+      const plans = result.map(row => this.mapWorkoutPlanFromDb(row))
       const paginatedResult = this.applyPagination(plans, total, pagination || {})
 
       await this.logEvent('plans_accessed', 'Workout plans accessed', context)
@@ -236,18 +241,18 @@ export class WorkoutService extends BaseService {
       updates.push(`version = version + 1`)
       values.push(planId)
 
-      const result = await this.db.query(`
+      const result = await this.db.queryRaw(`
         UPDATE workout_plans 
         SET ${updates.join(', ')}
         WHERE id = $${paramIndex} AND is_active = true
         RETURNING *
       `, values)
 
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return this.createErrorResult('Failed to update workout plan', 'UPDATE_FAILED')
       }
 
-      const updatedPlan = this.mapWorkoutPlanFromDb(result.rows[0])
+      const updatedPlan = this.mapWorkoutPlanFromDb(result[0])
 
       await this.logEvent('plan_updated', 'Workout plan updated', context, { 
         planId, 
@@ -273,7 +278,7 @@ export class WorkoutService extends BaseService {
       // Check if plan exists and user has access
       const existingPlan = await this.getWorkoutPlan(planId, context)
       if (!existingPlan.success || !existingPlan.data) {
-        return existingPlan
+        return this.createErrorResult('Workout plan not found', 'NOT_FOUND')
       }
 
       if (existingPlan.data.userId !== context.userId) {
@@ -288,7 +293,7 @@ export class WorkoutService extends BaseService {
         )
       `
 
-      if (result.count === 0) {
+      if (result.length === 0) {
         return this.createErrorResult('Failed to delete workout plan', 'DELETE_FAILED')
       }
 
@@ -354,9 +359,14 @@ export class WorkoutService extends BaseService {
         return this.mapWorkoutSessionFromDb(sessionResult[0])
       })
 
-      await this.logEvent('session_created', 'Workout session created', context, { sessionId: result.id })
+      // Check if the transaction was successful
+      if (!result.success) {
+        return result
+      }
 
-      return this.createSuccessResult(result, 'Workout session created successfully')
+      await this.logEvent('session_created', 'Workout session created', context, { sessionId: result.data.id })
+
+      return this.createSuccessResult(result.data, 'Workout session created successfully')
     } catch (error) {
       return this.handleError(error, 'createWorkoutSession')
     }
@@ -380,17 +390,17 @@ export class WorkoutService extends BaseService {
       const sortOrder = pagination?.sortOrder || 'desc'
 
       // Get total count
-      const countResult = await this.db.query(`
+      const countResult = await this.db.queryRaw(`
         SELECT COUNT(*) as total
         FROM workout_sessions ws
         JOIN user_profiles up ON ws.user_id = up.id
         ${whereClause}
       `, values)
 
-      const total = parseInt(countResult.rows[0].total)
+      const total = parseInt(countResult[0].total as string)
 
       // Get paginated results
-      const result = await this.db.query(`
+      const result = await this.db.queryRaw(`
         SELECT ws.*, up.display_name as user_name, wp.name as plan_name
         FROM workout_sessions ws
         JOIN user_profiles up ON ws.user_id = up.id
@@ -400,7 +410,7 @@ export class WorkoutService extends BaseService {
         LIMIT $${values.length + 1} OFFSET $${values.length + 2}
       `, [...values, limit, offset])
 
-      const sessions = result.rows.map(row => this.mapWorkoutSessionFromDb(row))
+      const sessions = result.map(row => this.mapWorkoutSessionFromDb(row))
       const paginatedResult = this.applyPagination(sessions, total, pagination || {})
 
       await this.logEvent('sessions_accessed', 'Workout sessions accessed', context)

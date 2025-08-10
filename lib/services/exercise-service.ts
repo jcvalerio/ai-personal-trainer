@@ -100,9 +100,14 @@ export class ExerciseService extends BaseService {
         return this.mapExerciseFromDb(exerciseResult[0])
       })
 
-      await this.logEvent('exercise_created', 'Exercise created', context, { exerciseId: result.id })
+      // Check if the transaction was successful
+      if (!result.success) {
+        return result
+      }
 
-      return this.createSuccessResult(result, 'Exercise created successfully')
+      await this.logEvent('exercise_created', 'Exercise created', context, { exerciseId: result.data.id })
+
+      return this.createSuccessResult(result.data, 'Exercise created successfully')
     } catch (error) {
       return this.handleError(error, 'createExercise')
     }
@@ -126,16 +131,16 @@ export class ExerciseService extends BaseService {
       const sortOrder = pagination?.sortOrder || 'asc'
 
       // Get total count
-      const countResult = await this.db.query(`
+      const countResult = await this.db.queryRaw(`
         SELECT COUNT(*) as total
         FROM exercise_library el
         ${whereClause}
       `, values)
 
-      const total = parseInt(countResult.rows[0].total)
+      const total = parseInt(countResult[0].total as string)
 
       // Get paginated results
-      const result = await this.db.query(`
+      const result = await this.db.queryRaw(`
         SELECT el.*, up.display_name as creator_name
         FROM exercise_library el
         LEFT JOIN user_profiles up ON el.created_by = up.id
@@ -144,7 +149,7 @@ export class ExerciseService extends BaseService {
         LIMIT $${values.length + 1} OFFSET $${values.length + 2}
       `, [...values, limit, offset])
 
-      const exercises = result.rows.map(row => this.mapExerciseFromDb(row))
+      const exercises = result.map(row => this.mapExerciseFromDb(row))
       const paginatedResult = this.applyPagination(exercises, total, pagination || {})
 
       await this.logEvent('exercises_accessed', 'Exercises accessed', context)
@@ -253,18 +258,18 @@ export class ExerciseService extends BaseService {
       updates.push(`updated_at = CURRENT_TIMESTAMP`)
       values.push(exerciseId)
 
-      const result = await this.db.query(`
+      const result = await this.db.queryRaw(`
         UPDATE exercise_library 
         SET ${updates.join(', ')}
         WHERE id = $${paramIndex} AND is_active = true
         RETURNING *
       `, values)
 
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return this.createErrorResult('Failed to update exercise', 'UPDATE_FAILED')
       }
 
-      const updatedExercise = this.mapExerciseFromDb(result.rows[0])
+      const updatedExercise = this.mapExerciseFromDb(result[0])
 
       await this.logEvent('exercise_updated', 'Exercise updated', context, { 
         exerciseId, 
@@ -295,7 +300,7 @@ export class ExerciseService extends BaseService {
              OR organization_id = ${context.organizationId || null})
       `
 
-      if (result.count === 0) {
+      if (result.length === 0) {
         return this.createErrorResult('Exercise not found or access denied', 'NOT_FOUND')
       }
 
@@ -363,9 +368,14 @@ export class ExerciseService extends BaseService {
         return this.mapEquipmentFromDb(equipmentResult[0])
       })
 
-      await this.logEvent('equipment_created', 'Equipment created', context, { equipmentId: result.id })
+      // Check if the transaction was successful
+      if (!result.success) {
+        return result
+      }
 
-      return this.createSuccessResult(result, 'Equipment created successfully')
+      await this.logEvent('equipment_created', 'Equipment created', context, { equipmentId: result.data.id })
+
+      return this.createSuccessResult(result.data, 'Equipment created successfully')
     } catch (error) {
       return this.handleError(error, 'createEquipment')
     }
@@ -389,16 +399,16 @@ export class ExerciseService extends BaseService {
       const sortOrder = pagination?.sortOrder || 'asc'
 
       // Get total count
-      const countResult = await this.db.query(`
+      const countResult = await this.db.queryRaw(`
         SELECT COUNT(*) as total
         FROM equipment_catalog ec
         ${whereClause}
       `, values)
 
-      const total = parseInt(countResult.rows[0].total)
+      const total = parseInt(countResult[0].total as string)
 
       // Get paginated results
-      const result = await this.db.query(`
+      const result = await this.db.queryRaw(`
         SELECT *
         FROM equipment_catalog ec
         ${whereClause}
@@ -406,7 +416,7 @@ export class ExerciseService extends BaseService {
         LIMIT $${values.length + 1} OFFSET $${values.length + 2}
       `, [...values, limit, offset])
 
-      const equipment = result.rows.map(row => this.mapEquipmentFromDb(row))
+      const equipment = result.map(row => this.mapEquipmentFromDb(row))
       const paginatedResult = this.applyPagination(equipment, total, pagination || {})
 
       await this.logEvent('equipment_accessed', 'Equipment accessed', context)

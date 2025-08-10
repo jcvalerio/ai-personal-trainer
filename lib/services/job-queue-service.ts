@@ -93,8 +93,7 @@ export class JobQueueService extends BaseService {
 
       const result = await this.executeWithTransaction(async (client) => {
         // Create jobs table if it doesn't exist (in a real implementation, this would be in migrations)
-        await client.query(`
-          CREATE TABLE IF NOT EXISTS job_queue (
+        await client.queryRaw(`CREATE TABLE IF NOT EXISTS job_queue (
             id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
             type VARCHAR(100) NOT NULL,
             priority INTEGER DEFAULT 0,
@@ -109,36 +108,38 @@ export class JobQueueService extends BaseService {
             result_data JSONB,
             created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-          )
-        `)
+          )`)
 
         // Create index if it doesn't exist
-        await client.query(`
-          CREATE INDEX IF NOT EXISTS idx_job_queue_status_priority 
-          ON job_queue(status, priority DESC, scheduled_at ASC)
-        `)
+        await client.queryRaw(`CREATE INDEX IF NOT EXISTS idx_job_queue_status_priority 
+          ON job_queue(status, priority DESC, scheduled_at ASC)`)
 
         // Insert job
-        const jobResult = await client.query(`
+        const jobResult = await client.queryRaw(`
           INSERT INTO job_queue (
             type, priority, data, max_attempts, scheduled_at
           ) VALUES ($1, $2, $3, $4, $5)
           RETURNING *
         `, [type, priority, JSON.stringify(data), maxAttempts, scheduledAt])
 
-        if (jobResult.rows.length === 0) {
+        if (jobResult.length === 0) {
           throw new Error('Failed to create job')
         }
 
-        return this.mapJobFromDb(jobResult.rows[0])
+        return this.mapJobFromDb(jobResult[0])
       })
+
+      // Check if the transaction was successful
+      if (!result.success) {
+        return result
+      }
 
       // Start processing if not already running
       if (!this.isProcessing) {
         this.startProcessing()
       }
 
-      return this.createSuccessResult(result, 'Job added to queue successfully')
+      return this.createSuccessResult(result.data, 'Job added to queue successfully')
     } catch (error) {
       return this.handleError(error, 'addJob')
     }
@@ -149,15 +150,15 @@ export class JobQueueService extends BaseService {
    */
   async getJob(jobId: string): Promise<ServiceResult<Job>> {
     try {
-      const result = await this.db.query(`
+      const result = await this.db.queryRaw(`
         SELECT * FROM job_queue WHERE id = $1
       `, [jobId])
 
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return this.createErrorResult('Job not found', 'NOT_FOUND')
       }
 
-      const job = this.mapJobFromDb(result.rows[0])
+      const job = this.mapJobFromDb(result[0])
       return this.createSuccessResult(job)
     } catch (error) {
       return this.handleError(error, 'getJob')
@@ -173,14 +174,14 @@ export class JobQueueService extends BaseService {
     offset = 0
   ): Promise<ServiceResult<Job[]>> {
     try {
-      const result = await this.db.query(`
+      const result = await this.db.queryRaw(`
         SELECT * FROM job_queue 
         WHERE status = $1 
         ORDER BY priority DESC, created_at ASC 
         LIMIT $2 OFFSET $3
       `, [status, limit, offset])
 
-      const jobs = result.rows.map(row => this.mapJobFromDb(row))
+      const jobs = result.map(row => this.mapJobFromDb(row))
       return this.createSuccessResult(jobs)
     } catch (error) {
       return this.handleError(error, 'getJobsByStatus')
@@ -192,7 +193,7 @@ export class JobQueueService extends BaseService {
    */
   async getJobStats(): Promise<ServiceResult<JobStats>> {
     try {
-      const result = await this.db.query(`
+      const result = await this.db.queryRaw(`
         SELECT 
           status,
           COUNT(*) as count,
@@ -214,9 +215,9 @@ export class JobQueueService extends BaseService {
       let totalProcessingTime = 0
       let processedCount = 0
 
-      result.rows.forEach(row => {
-        const count = parseInt(row.count)
-        const avgTime = parseFloat(row.avg_processing_time) || 0
+      result.forEach((row: any) => {
+        const count = parseInt(row.count as string)
+        const avgTime = parseFloat(row.avg_processing_time as string) || 0
 
         switch (row.status) {
           case 'pending':
@@ -251,14 +252,14 @@ export class JobQueueService extends BaseService {
    */
   async cancelJob(jobId: string): Promise<ServiceResult<boolean>> {
     try {
-      const result = await this.db.query(`
+      const result = await this.db.queryRaw(`
         UPDATE job_queue 
         SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
         WHERE id = $1 AND status IN ('pending', 'running')
         RETURNING id
       `, [jobId])
 
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return this.createErrorResult('Job not found or cannot be cancelled', 'NOT_FOUND')
       }
 
@@ -273,7 +274,7 @@ export class JobQueueService extends BaseService {
    */
   async retryJob(jobId: string): Promise<ServiceResult<boolean>> {
     try {
-      const result = await this.db.query(`
+      const result = await this.db.queryRaw(`
         UPDATE job_queue 
         SET status = 'pending', 
             attempts = 0,
@@ -284,7 +285,7 @@ export class JobQueueService extends BaseService {
         RETURNING id
       `, [jobId])
 
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return this.createErrorResult('Job not found or not in failed state', 'NOT_FOUND')
       }
 
@@ -337,7 +338,7 @@ export class JobQueueService extends BaseService {
     try {
       // Get next jobs to process
       const availableSlots = this.options.concurrency - this.runningJobs.size
-      const result = await this.db.query(`
+      const result = await this.db.queryRaw(`
         SELECT * FROM job_queue 
         WHERE status = 'pending' 
         AND scheduled_at <= CURRENT_TIMESTAMP
@@ -346,12 +347,12 @@ export class JobQueueService extends BaseService {
         FOR UPDATE SKIP LOCKED
       `, [availableSlots])
 
-      if (result.rows.length === 0) {
+      if (result.length === 0) {
         return
       }
 
       // Start processing each job
-      for (const jobRow of result.rows) {
+      for (const jobRow of result) {
         const job = this.mapJobFromDb(jobRow)
         this.processJob(job).catch(error => {
           console.error(`Error processing job ${job.id}:`, error)
@@ -389,7 +390,7 @@ export class JobQueueService extends BaseService {
   private async executeJobWithProcessor(job: Job, processor: JobProcessor): Promise<void> {
     try {
       // Update job as running
-      await this.db.query(`
+      await this.db.queryRaw(`
         UPDATE job_queue 
         SET status = 'running', 
             attempts = attempts + 1,
@@ -404,7 +405,7 @@ export class JobQueueService extends BaseService {
       const processingTime = Date.now() - startTime
 
       // Mark job as completed
-      await this.db.query(`
+      await this.db.queryRaw(`
         UPDATE job_queue 
         SET status = 'completed',
             result_data = $1,
@@ -425,7 +426,7 @@ export class JobQueueService extends BaseService {
         const retryDelay = this.calculateRetryDelay(updatedJob.attempts)
         const nextRetry = new Date(Date.now() + retryDelay)
         
-        await this.db.query(`
+        await this.db.queryRaw(`
           UPDATE job_queue 
           SET status = 'pending',
               error_message = $1,
@@ -447,7 +448,7 @@ export class JobQueueService extends BaseService {
    * Mark job as failed
    */
   private async markJobFailed(jobId: string, errorMessage: string): Promise<void> {
-    await this.db.query(`
+    await this.db.queryRaw(`
       UPDATE job_queue 
       SET status = 'failed',
           error_message = $1,
@@ -461,11 +462,11 @@ export class JobQueueService extends BaseService {
    * Get job from database
    */
   private async getJobFromDb(jobId: string): Promise<Job | null> {
-    const result = await this.db.query(`
+    const result = await this.db.queryRaw(`
       SELECT * FROM job_queue WHERE id = $1
     `, [jobId])
 
-    return result.rows.length > 0 ? this.mapJobFromDb(result.rows[0]) : null
+    return result.length > 0 ? this.mapJobFromDb(result[0]) : null
   }
 
   /**
@@ -493,15 +494,15 @@ export class JobQueueService extends BaseService {
     try {
       const cutoffDate = new Date(Date.now() - this.options.maxJobAge)
       
-      const result = await this.db.query(`
+      const result = await this.db.queryRaw(`
         DELETE FROM job_queue 
         WHERE status IN ('completed', 'failed', 'cancelled') 
         AND completed_at < $1
         RETURNING id
       `, [cutoffDate])
 
-      if (result.rows.length > 0) {
-        console.log(`Cleaned up ${result.rows.length} old jobs`)
+      if (result.length > 0) {
+        console.log(`Cleaned up ${result.length} old jobs`)
       }
     } catch (error) {
       console.error('Error cleaning up old jobs:', error)
