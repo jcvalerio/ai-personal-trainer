@@ -2,16 +2,11 @@
  * Dashboard Page
  * Main dashboard for authenticated users
  */
+'use client'
 
 import { UserButton } from '@clerk/nextjs'
-import { Metadata } from 'next'
 import Link from 'next/link'
 import { Dumbbell, Users, Target, TrendingUp } from 'lucide-react'
-
-export const metadata: Metadata = {
-  title: 'Dashboard | AI Personal Trainer',
-  description: 'Your personal fitness dashboard with AI-powered workout plans and progress tracking.',
-}
 
 export default function DashboardPage() {
   return (

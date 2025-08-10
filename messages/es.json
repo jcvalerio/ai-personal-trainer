@@ -1,0 +1,177 @@
+{
+  "nav": {
+    "brand": "Entrenador Personal",
+    "features": "Características",
+    "forGyms": "Para Gimnasios", 
+    "signIn": "Iniciar Sesión",
+    "getStarted": "Comenzar",
+    "dashboard": "Ir al Panel",
+    "myWorkouts": "Mis Entrenamientos",
+    "progress": "Progreso",
+    "exercises": "Ejercicios",
+    "toggleMenu": "Alternar menú móvil",
+    "openMenu": "Abrir menú"
+  },
+  "hero": {
+    "title": "Tu Entrenador Personal con IA",
+    "subtitle": "Siempre en tu Bolsillo",
+    "description": "Transforma tu viaje fitness con planes de entrenamiento potenciados por IA, guía en tiempo real y seguimiento de progreso. Perfecto para familias y asociaciones de gimnasio.",
+    "benefits": {
+      "aiPlans": "Planes de Entrenamiento Generados por IA",
+      "equipment": "Identificación de Equipamiento",
+      "familySharing": "Compartir Progreso Familiar", 
+      "gymReady": "Listo para Asociación de Gimnasio"
+    },
+    "buttons": {
+      "startTrial": "Comenzar Prueba Gratuita",
+      "watchDemo": "Ver Demo",
+      "generateWorkout": "Generar Entrenamiento"
+    },
+    "socialProof": {
+      "trusted": "Confiado por familias y gimnasios",
+      "families": "500+ Familias",
+      "gyms": "50+ Socios Gimnasio",
+      "rating": "4.9 Calificación"
+    },
+    "mockup": {
+      "greeting": "¡Buenos días, {name}!",
+      "defaultName": "Alex",
+      "readyQuestion": "¿Listo para el entrenamiento de hoy?",
+      "readyStart": "¿Listo para comenzar?",
+      "todaySession": "Sesión de Hoy",
+      "upperBody": "Fuerza Tren Superior",
+      "duration": "45 min",
+      "exercises": "8 ejercicios",
+      "start": "Comenzar",
+      "streak": "Racha Actual",
+      "streakDays": "12 días",
+      "personalBest": "¡Récord personal!",
+      "recentActivity": "Actividad Reciente",
+      "pushUps": "Flexiones",
+      "benchPress": "Press de Banca",
+      "reps": "reps",
+      "lbs": "lbs"
+    }
+  },
+  "features": {
+    "title": "Todo lo que Necesitas para",
+    "subtitle": "Entrenamiento Fitness Efectivo",
+    "description": "Nuestra plataforma potenciada por IA combina generación de entrenamientos personalizados, seguimiento en tiempo real y características sociales para crear la experiencia fitness definitiva.",
+    "items": {
+      "aiWorkout": {
+        "title": "Generación de Entrenamientos con IA",
+        "description": "Obtén planes de entrenamiento personalizados generados por IA basados en tus objetivos, nivel de fitness y equipamiento disponible.",
+        "benefits": {
+          "tailored": "Adaptado a tus objetivos",
+          "adapts": "Se adapta a tu progreso",
+          "equipment": "Rutinas específicas por equipamiento"
+        }
+      },
+      "tracking": {
+        "title": "Seguimiento de Sesiones",
+        "description": "Rastrea cada repetición, serie y período de descanso con nuestra interfaz móvil intuitiva diseñada para el gimnasio.",
+        "benefits": {
+          "realtime": "Seguimiento de progreso en tiempo real",
+          "timer": "Cronómetro y guía de descanso",
+          "tips": "Consejos de forma y correcciones"
+        }
+      },
+      "equipment": {
+        "title": "Base de Datos de Equipamiento",
+        "description": "Identifica equipamiento de gimnasio con códigos QR, obtén alternativas de ejercicios y comparte conocimiento de equipamiento con tu grupo.",
+        "benefits": {
+          "qr": "Escaneo de códigos QR",
+          "alternatives": "Alternativas de ejercicios",
+          "shared": "Base de datos compartida de equipamiento"
+        }
+      },
+      "family": {
+        "title": "Familia y Amigos",
+        "description": "Crea grupos con familia y amigos para compartir progreso, motivarse mutuamente y lograr objetivos juntos.",
+        "benefits": {
+          "sharing": "Compartir progreso grupal",
+          "leaderboards": "Tablas de clasificación familiares",
+          "motivation": "Sistema de motivación"
+        }
+      },
+      "gym": {
+        "title": "Asociaciones de Gimnasio",
+        "description": "Solución de marca blanca para que los gimnasios ofrezcan entrenamiento personal con IA a sus miembros con experiencia personalizada.",
+        "benefits": {
+          "branding": "Marca personalizada del gimnasio",
+          "analytics": "Análisis de miembros",
+          "management": "Gestión de equipamiento"
+        }
+      },
+      "analytics": {
+        "title": "Análisis de Progreso",
+        "description": "Análisis comprehensivos para rastrear tu viaje fitness, identificar patrones y celebrar logros.",
+        "benefits": {
+          "tracking": "Seguimiento detallado de progreso",
+          "achievements": "Sistema de logros",
+          "insights": "Perspectivas de rendimiento"
+        }
+      }
+    },
+    "cta": {
+      "free": "Gratis",
+      "freeDescription": "Comienza con 5 miembros familiares sin costo",
+      "ready": "¿Listo para transformar tu viaje fitness con IA?",
+      "getStarted": "Comenzar Gratis",
+      "scheduleDemo": "Programar Demo"
+    }
+  },
+  "cta": {
+    "title": "¿Listo para Comenzar tu",
+    "subtitle": "Viaje Fitness Potenciado por IA?",
+    "description": "Únete a miles de familias y miembros de gimnasio que están logrando sus objetivos fitness con entrenamiento personalizado con IA. Comienza gratis hoy.",
+    "buttons": {
+      "dashboard": "Ir al Panel",
+      "generateWorkout": "Generar Nuevo Entrenamiento",
+      "startTrial": "Comenzar Prueba Gratuita",
+      "contactSales": "Contactar Ventas"
+    },
+    "stats": {
+      "families": "500+",
+      "familiesLabel": "Familias Activas",
+      "gyms": "50+",
+      "gymsLabel": "Socios Gimnasio",
+      "rating": "4.9⭐",
+      "ratingLabel": "Calificación Usuario"
+    },
+    "gym": {
+      "title": "¿Eres Propietario de un Gimnasio?",
+      "description": "Ofrece entrenamiento personal con IA a tus miembros con nuestra solución de marca blanca. Aumenta el compromiso de miembros y crea nuevas fuentes de ingresos.",
+      "learnMore": "Conoce las Asociaciones de Gimnasio",
+      "scheduleDemo": "Programar Demo →",
+      "benefits": {
+        "branding": "Marca Blanca",
+        "analytics": "Análisis de Miembros",
+        "revenue": "Compartir Ingresos"
+      }
+    }
+  },
+  "welcome": {
+    "back": "¡Bienvenido de vuelta, {name}!",
+    "defaultGreeting": "¡Bienvenido de vuelta!",
+    "redirecting": "Redirigiendo a tu panel...",
+    "goToDashboard": "Ir al Panel"
+  },
+  "footer": {
+    "brand": "Entrenador Personal",
+    "description": "Transforma tu viaje fitness con planes de entrenamiento potenciados por IA, seguimiento de progreso y entrenamiento personalizado para familias y gimnasios.",
+    "product": "Producto",
+    "features": "Características", 
+    "pricing": "Precios",
+    "getStarted": "Comenzar",
+    "support": "Soporte",
+    "helpCenter": "Centro de Ayuda",
+    "contact": "Contacto",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "copyright": "© {year} AI Personal Trainer. Todos los derechos reservados."
+  },
+  "loading": {
+    "text": "Cargando..."
+  }
+}

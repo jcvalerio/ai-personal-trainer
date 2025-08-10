@@ -111,6 +111,7 @@ const config: Config = {
         'soft': '0 2px 8px 0 rgb(0 0 0 / 0.08)',
         'medium': '0 4px 12px 0 rgb(0 0 0 / 0.1)',
         'strong': '0 8px 24px 0 rgb(0 0 0 / 0.12)',
+        '3xl': '0 20px 40px 0 rgb(0 0 0 / 0.15)',
       },
 
       // Animations for smooth interactions
