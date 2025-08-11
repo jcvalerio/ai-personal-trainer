@@ -13,6 +13,7 @@ import { Progress } from '@/components/ui/progress'
 import type { WorkoutSession } from '@/types/workouts'
 import { cn } from '@/lib/utils'
 import { formatDistanceToNow, format } from 'date-fns'
+import { useHydrationSafeTime } from '@/lib/hooks/use-hydration-safe-time'
 
 interface SessionCardProps {
   session: WorkoutSession
@@ -58,8 +59,15 @@ export function SessionCard({
   className 
 }: SessionCardProps) {
   const t = useTranslations('workouts')
-  const isScheduledToday = new Date(session.scheduledDate).toDateString() === new Date().toDateString()
-  const isOverdue = new Date(session.scheduledDate) < new Date() && session.status === 'scheduled'
+  const { isHydrated, currentTime } = useHydrationSafeTime()
+  
+  const isScheduledToday = isHydrated && currentTime 
+    ? new Date(session.scheduledDate).toDateString() === currentTime.toDateString()
+    : false
+    
+  const isOverdue = isHydrated && currentTime
+    ? new Date(session.scheduledDate) < currentTime && session.status === 'scheduled'
+    : false
   
   return (
     <Card className={cn(
@@ -142,7 +150,10 @@ export function SessionCard({
             />
             {session.startedAt && (
               <p className="text-xs text-gray-500 mt-2">
-{t('sessions.started')} {formatDistanceToNow(session.startedAt, { addSuffix: true })}
+                {t('sessions.started')} {isHydrated 
+                  ? formatDistanceToNow(session.startedAt, { addSuffix: true })
+                  : format(session.startedAt, 'MMM d, h:mm a')
+                }
               </p>
             )}
           </div>
@@ -150,7 +161,10 @@ export function SessionCard({
         
         {session.status === 'completed' && session.completedAt && (
           <div className="text-sm text-gray-600">
-            <p>{t('sessions.completed')} {formatDistanceToNow(session.completedAt, { addSuffix: true })}</p>
+            <p>{t('sessions.completed')} {isHydrated 
+              ? formatDistanceToNow(session.completedAt, { addSuffix: true })
+              : format(session.completedAt, 'MMM d, h:mm a')
+            }</p>
             {session.actualDuration && (
               <p>{t('sessions.duration')}: {session.actualDuration} minutes</p>
             )}
@@ -162,7 +176,10 @@ export function SessionCard({
         
         {isOverdue && (
           <div className="text-sm text-red-600 font-medium">
-{t('sessions.overdueBy')} {formatDistanceToNow(session.scheduledDate)}
+            {t('sessions.overdueBy')} {isHydrated 
+              ? formatDistanceToNow(session.scheduledDate)
+              : format(session.scheduledDate, 'MMM d, h:mm a')
+            }
           </div>
         )}
       </CardContent>

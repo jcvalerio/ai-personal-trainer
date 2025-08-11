@@ -291,4 +291,52 @@ export class DashboardPage extends BasePage {
 
     expect(hasSections).toBe(true)
   }
+
+  /**
+   * Verify recent activity is displayed
+   */
+  async verifyRecentActivity(): Promise<boolean> {
+    return await Promise.race([
+      this.elementExists('[data-testid="recent-workouts"]'),
+      this.elementExists('[data-testid="recent-activity"]'),
+      this.elementExists('.recent-activity'),
+      this.elementExists('[data-testid="activity-feed"]')
+    ])
+  }
+
+  /**
+   * Get dashboard statistics
+   */
+  async getDashboardStats(): Promise<any> {
+    const stats: any = {}
+    
+    try {
+      // Get workout summary data
+      const workoutData = await this.getWorkoutSummaryData()
+      stats.workouts = workoutData
+      
+      // Get recent workouts count
+      const recentWorkouts = await this.getRecentWorkouts()
+      stats.recentWorkoutsCount = recentWorkouts.length
+      
+      // Get other dashboard metrics if available
+      const statsElements = await this.page.locator('[data-testid*="stat"], .stat-card, [data-testid*="metric"]').all()
+      
+      for (const element of statsElements) {
+        const text = await element.textContent()
+        if (text) {
+          const numberMatch = text.match(/(\d+)/)
+          if (numberMatch) {
+            const key = text.toLowerCase().replace(/\d+/g, '').trim()
+            stats[key] = parseInt(numberMatch[1])
+          }
+        }
+      }
+      
+    } catch (error) {
+      console.log('Error getting dashboard stats:', error.message)
+    }
+    
+    return stats
+  }
 }

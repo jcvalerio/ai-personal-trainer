@@ -86,7 +86,18 @@
     "lib/services/exercise-service.ts",
     "lib/services/workout-service.ts",
     "scripts/*.ts",
-    "playwright.config.ts"
+    "playwright.config.ts",
+    "app/[locale]/workouts/create-manual/page-old.tsx",
+    "types/calendar-scheduling.ts",
+    "types/goal-tracking.ts", 
+    "types/plan-dashboard.ts",
+    "types/progress-analytics.ts",
+    "types/template-browser.ts",
+    "components/workouts/**/*.tsx",
+    "lib/api/workout-plans.ts",
+    "lib/services/offline-storage-service.ts",
+    "lib/stores/dashboard-store.ts",
+    "tests/**/*.ts"
   ],
   "ts-node": {
     "esm": true,

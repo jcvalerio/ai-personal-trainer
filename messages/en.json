@@ -306,6 +306,419 @@
       "description": "Detailed analytics and insights will be available with more workout data."
     }
   },
+  "createPlan": {
+    "title": "Create Custom Workout Plan",
+    "subtitle": "Design your personalized training program",
+    "common": {
+      "back": "Back",
+      "next": "Next",
+      "previous": "Previous",
+      "save": "Save",
+      "cancel": "Cancel"
+    },
+    "navigation": {
+      "previous": "Previous",
+      "next": "Next",
+      "creating": "Creating...",
+      "createPlan": "Create Plan",
+      "stepProgress": "Step {current} of {total}"
+    },
+    "schedule": {
+      "title": "Weekly Schedule",
+      "description": "Drag and drop sessions to build your weekly training schedule.",
+      "addSession": "Add Session",
+      "stats": {
+        "sessions": "Sessions",
+        "totalTime": "Total Time",
+        "avgDuration": "Avg Duration",
+        "restDays": "Rest Days"
+      },
+      "days": {
+        "monday": "Monday",
+        "tuesday": "Tuesday", 
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday"
+      },
+      "dropZone": {
+        "empty": "No sessions scheduled",
+        "instruction": "Drag sessions here or add new ones"
+      },
+      "editor": {
+        "title": "Edit Session",
+        "sessionName": "Session Name",
+        "sessionNamePlaceholder": "e.g., Upper Body Strength",
+        "sessionType": "Session Type",
+        "duration": "Duration (minutes)",
+        "durationHint": "Recommended: 30-90 minutes",
+        "save": "Save Session",
+        "cancel": "Cancel"
+      },
+      "defaultSession": {
+        "name": "New Workout Session"
+      }
+    },
+    "steps": {
+      "basics": {
+        "title": "Plan Basics",
+        "description": "Set up your workout plan foundation with name, goals, and structure",
+        "fields": {
+          "name": {
+            "label": "Plan Name",
+            "placeholder": "e.g., 4-Week Lower Body Focus",
+            "help": "Choose a descriptive name for your workout plan"
+          },
+          "description": {
+            "label": "Description",
+            "placeholder": "Describe your plan's purpose and approach...",
+            "help": "Optional: Add details about your plan's goals and methodology"
+          },
+          "duration": {
+            "label": "Duration",
+            "weeks": "{count} weeks"
+          },
+          "sessionsPerWeek": {
+            "label": "Sessions per Week",
+            "sessions": "{count} sessions"
+          },
+          "sessionDuration": {
+            "label": "Session Duration",
+            "minutes": "{count} minutes"
+          }
+        },
+        "programConfig": {
+          "title": "Program Configuration",
+          "description": "Define the structure and duration of your workout program",
+          "overview": {
+            "title": "Program Overview",
+            "weeks": "weeks",
+            "sessionsWeek": "sessions/week",
+            "hoursWeek": "hours/week",
+            "totalHours": "total hours"
+          }
+        },
+        "fitnessGoals": {
+          "title": "Fitness Goals",
+          "description": "Select your primary training objectives (choose multiple)",
+          "selectAtLeastOne": "Please select at least one fitness goal",
+          "options": {
+            "strength": {
+              "name": "Strength",
+              "description": "Build muscle strength"
+            },
+            "muscle_gain": {
+              "name": "Muscle Gain",
+              "description": "Increase muscle mass"
+            },
+            "fat_loss": {
+              "name": "Fat Loss",
+              "description": "Reduce body fat"
+            },
+            "cardio": {
+              "name": "Cardiovascular",
+              "description": "Improve heart health"
+            },
+            "endurance": {
+              "name": "Endurance",
+              "description": "Build stamina"
+            },
+            "flexibility": {
+              "name": "Flexibility",
+              "description": "Improve mobility"
+            },
+            "sports_performance": {
+              "name": "Sports Performance",
+              "description": "Athletic enhancement"
+            },
+            "general_fitness": {
+              "name": "General Fitness",
+              "description": "Overall health"
+            }
+          }
+        },
+        "fitnessLevel": {
+          "title": "Target Fitness Level",
+          "description": "Choose the fitness level this plan is designed for",
+          "levels": {
+            "beginner": {
+              "name": "Beginner",
+              "description": "New to fitness or returning after a break"
+            },
+            "intermediate": {
+              "name": "Intermediate",
+              "description": "Regular exercise routine, familiar with techniques"
+            },
+            "advanced": {
+              "name": "Advanced",
+              "description": "Experienced with complex movements and high intensity"
+            }
+          }
+        },
+        "summary": {
+          "title": "Plan Summary",
+          "planName": "Plan Name:",
+          "duration": "Duration:",
+          "goals": "Goals:",
+          "level": "Level:",
+          "notSet": "Not set",
+          "durationValue": "{weeks} weeks, {sessions} sessions/week",
+          "noGoals": "No goals selected"
+        }
+      },
+      "schedule": {
+        "title": "Weekly Schedule",
+        "description": "Plan your weekly training schedule and rest days",
+        "weekSelector": {
+          "title": "Weekly Schedule Builder",
+          "description": "Configure each week's training schedule",
+          "week": "Week {number}"
+        },
+        "stats": {
+          "workouts": "Workouts",
+          "totalTime": "Total Time",
+          "restDays": "Rest Days",
+          "avgDuration": "Avg mins"
+        },
+        "copyWeek": {
+          "label": "Copy from:",
+          "week": "Week {number}"
+        },
+        "days": {
+          "monday": "Monday",
+          "tuesday": "Tuesday", 
+          "wednesday": "Wednesday",
+          "thursday": "Thursday",
+          "friday": "Friday",
+          "saturday": "Saturday",
+          "sunday": "Sunday"
+        },
+        "dayTypes": {
+          "workout": "Workout",
+          "rest": "Rest",
+          "active_recovery": "Active Recovery"
+        },
+        "dayConfig": {
+          "type": "Day Type",
+          "sessionName": "Session Name",
+          "sessionNamePlaceholder": "e.g., Upper Body Push",
+          "duration": "Duration (min)",
+          "durationHelp": "Leave empty to use default"
+        },
+        "activeRecovery": {
+          "description": "Light activity like walking, yoga, or stretching"
+        },
+        "restDay": {
+          "description": "Complete rest and recovery"
+        },
+        "summary": {
+          "title": "Schedule Summary",
+          "totalWorkouts": "Total Workouts",
+          "totalWeeks": "Total Weeks",
+          "avgWorkoutsWeek": "Avg/Week",
+          "totalHours": "Total Hours"
+        },
+        "warnings": {
+          "lowWorkoutFrequency": "Low workout frequency. Consider adding more workout days.",
+          "tooManyWorkouts": "Too many workouts scheduled. Consider adding more rest days."
+        }
+      },
+      "templates": {
+        "title": "Session Templates",
+        "description": "Create workout session templates that define exercises, sets, and reps",
+        "predefined": {
+          "select": "Add from templates",
+          "lower_body_quad_focus": {
+            "name": "Lower Body - Quad Focus",
+            "description": "Emphasis on quadriceps with imbalance correction"
+          },
+          "upper_body_push": {
+            "name": "Upper Body - Push",
+            "description": "Chest, shoulders, and triceps development"
+          }
+        },
+        "actions": {
+          "createNew": "Create New Template"
+        },
+        "empty": {
+          "title": "No Session Templates Yet",
+          "description": "Create session templates to define your workout structure. You can start with a predefined template or create one from scratch.",
+          "useTemplate": "Use Template",
+          "createFromScratch": "Create From Scratch"
+        },
+        "untitled": "Untitled Template",
+        "noDescription": "No description provided",
+        "stats": {
+          "minutes": "minutes",
+          "exercises": "exercises",
+          "muscleGroups": "muscle groups"
+        },
+        "exercisePreview": "Exercise Preview:",
+        "moreExercises": "more exercises",
+        "fields": {
+          "name": "Template Name",
+          "namePlaceholder": "e.g., Upper Body Push Day",
+          "description": "Description",
+          "descriptionPlaceholder": "Describe the focus and approach of this session...",
+          "duration": "Duration (minutes)",
+          "sessionType": "Session Type",
+          "difficulty": "Difficulty Level",
+          "muscleGroups": "Target Muscle Groups"
+        },
+        "sessionType": {
+          "workout": "Workout",
+          "assessment": "Assessment",
+          "recovery": "Recovery"
+        },
+        "difficulty": {
+          "beginner": "Beginner",
+          "intermediate": "Intermediate",
+          "advanced": "Advanced"
+        },
+        "muscleGroups": {
+          "chest": "Chest",
+          "back": "Back",
+          "shoulders": "Shoulders",
+          "arms": "Arms",
+          "biceps": "Biceps",
+          "triceps": "Triceps",
+          "legs": "Legs",
+          "quadriceps": "Quadriceps",
+          "hamstrings": "Hamstrings",
+          "glutes": "Glutes",
+          "calves": "Calves",
+          "core": "Core",
+          "abs": "Abs",
+          "cardio": "Cardio",
+          "full_body": "Full Body"
+        },
+        "dialog": {
+          "createTemplate": "Create Session Template",
+          "editTemplate": "Edit Session Template",
+          "description": "Configure your session template details",
+          "cancel": "Cancel",
+          "save": "Save Template"
+        },
+        "summary": {
+          "title": "Templates Summary",
+          "totalTemplates": "Total Templates",
+          "avgDuration": "Avg Duration (min)",
+          "totalExercises": "Total Exercises",
+          "muscleGroupsCovered": "Muscle Groups"
+        }
+      },
+      "preview": {
+        "title": "Plan Preview",
+        "description": "Review your complete workout plan before creating it",
+        "validation": {
+          "title": "Validation Issues",
+          "ready": "Plan Ready to Create",
+          "readyDescription": "Your workout plan looks great and is ready to be created!",
+          "missingName": "Plan name is required",
+          "noGoals": "At least one fitness goal must be selected",
+          "noTemplates": "At least one session template is required",
+          "noWorkouts": "No workout sessions are scheduled",
+          "tooFewSessions": "Very low workout frequency (less than 1 per week)"
+        },
+        "overview": {
+          "title": "Plan Overview",
+          "duration": "Duration",
+          "durationValue": "{weeks} weeks",
+          "targetLevel": "Target Level",
+          "sessionDuration": "Session Duration",
+          "minutes": "minutes",
+          "goals": "Fitness Goals"
+        },
+        "stats": {
+          "totalWorkouts": "Total Workouts",
+          "totalHours": "Total Hours", 
+          "avgPerWeek": "Avg/Week",
+          "restDays": "Rest Days"
+        },
+        "schedule": {
+          "title": "Weekly Schedule Preview",
+          "description": "Overview of your training schedule (showing first 4 weeks)",
+          "week": "Week {number}",
+          "workouts": "workouts",
+          "workout": "Workout",
+          "recovery": "Recovery",
+          "rest": "Rest",
+          "moreWeeks": "and {count} more weeks..."
+        },
+        "templates": {
+          "title": "Session Templates",
+          "description": "Your configured workout session templates",
+          "muscles": "Muscles",
+          "summary": {
+            "totalTemplates": "Templates",
+            "totalExercises": "Exercises",
+            "muscleGroups": "Muscle Groups",
+            "avgDuration": "Avg Duration"
+          }
+        },
+        "settings": {
+          "title": "Plan Settings",
+          "description": "Configure sharing and template options",
+          "template": {
+            "title": "Save as Template",
+            "description": "Allow others to use this plan as a template",
+            "enabled": "Template",
+            "disabled": "Personal"
+          },
+          "public": {
+            "title": "Make Public",
+            "description": "Share this plan with the community",
+            "enabled": "Public",
+            "disabled": "Private"
+          }
+        },
+        "summary": {
+          "title": "Ready to Create Your Plan!",
+          "description": "Your {weeks}-week program with {sessions} total sessions ({hours} hours) is ready to go.",
+          "validationWarning": "Please fix the validation issues above before creating your plan.",
+          "moreGoals": "more goals"
+        },
+        "fitnessLevel": {
+          "beginner": "Beginner",
+          "intermediate": "Intermediate", 
+          "advanced": "Advanced"
+        },
+        "goals": {
+          "strength": "Strength",
+          "muscle_gain": "Muscle Gain",
+          "fat_loss": "Fat Loss",
+          "cardio": "Cardio",
+          "endurance": "Endurance",
+          "flexibility": "Flexibility",
+          "sports_performance": "Sports",
+          "general_fitness": "General Fitness"
+        },
+        "muscles": {
+          "chest": "Chest",
+          "back": "Back",
+          "shoulders": "Shoulders",
+          "arms": "Arms",
+          "biceps": "Biceps",
+          "triceps": "Triceps",
+          "legs": "Legs",
+          "quadriceps": "Quads",
+          "hamstrings": "Hamstrings",
+          "glutes": "Glutes",
+          "calves": "Calves",
+          "core": "Core",
+          "abs": "Abs",
+          "cardio": "Cardio",
+          "full_body": "Full Body"
+        },
+        "difficulty": {
+          "beginner": "Beginner",
+          "intermediate": "Intermediate",
+          "advanced": "Advanced"
+        }
+      }
+    }
+  },
   "workouts": {
     "title": "Your Workouts",
     "subtitle": "Track your fitness journey and achieve your goals",
@@ -357,6 +770,158 @@
       "startSession": "Start Session",
       "continue": "Continue",
       "viewResults": "View Results"
+    },
+    "session": {
+      "backToWorkouts": "Back to Workouts",
+      "startSession": "Start Session",
+      "sessionDescription": "Ready to begin your workout session?",
+      "todaysWorkout": "Today's Workout",
+      "beginWorkout": "Begin Workout",
+      "sessionInProgress": "Session in Progress",
+      "exercise": "Exercise",
+      "of": "of",
+      "pause": "Pause",
+      "resume": "Resume",
+      "complete": "Complete",
+      "set": "Set",
+      "round": "Round",
+      "start": "Start",
+      "stop": "Stop",
+      "skip": "Skip",
+      "soundOn": "Sound On",
+      "soundOff": "Sound Off",
+      "restPeriod": "Rest Period",
+      "skipRest": "Skip Rest",
+      "targetReps": "Target Reps",
+      "targetWeight": "Target Weight", 
+      "targetDuration": "Target Duration",
+      "weight": "Weight",
+      "reps": "Reps",
+      "duration": "Duration",
+      "distance": "Distance",
+      "notes": "Notes",
+      "optional": "optional",
+      "addNotes": "Add notes about this set...",
+      "completeSet": "Complete Set",
+      "completedSets": "Completed Sets",
+      "previous": "Previous",
+      "next": "Next",
+      "sessionComplete": "Session Complete!",
+      "sessionCompleteDescription": "Congratulations on completing your workout!",
+      "finishSession": "Finish Session",
+      "noActiveSession": "No active session",
+      "timer": {
+        "set": "Set",
+        "round": "Round",
+        "start": "Start",
+        "stop": "Stop",
+        "skip": "Skip",
+        "soundOn": "Sound On",
+        "soundOff": "Sound Off",
+        "timer": {
+          "tabata": {
+            "phase": {
+              "ready": "Get Ready",
+              "work": "Work",
+              "rest": "Rest",
+              "set_break": "Set Break",
+              "completed": "Complete",
+              "paused": "Paused",
+              "stopped": "Stopped"
+            }
+          }
+        },
+        "controls": {
+          "start": "Start",
+          "pause": "Pause",
+          "resume": "Resume",
+          "stop": "Stop",
+          "reset": "Reset",
+          "restart": "Restart",
+          "skipRest": "Skip Rest",
+          "addTime": "Add Time",
+          "soundToggle": "Toggle Sound",
+          "soundOn": "Sound On",
+          "soundOff": "Sound Off"
+        },
+        "display": {
+          "minutes": "min",
+          "seconds": "sec",
+          "rounds": "Round {current} of {total}",
+          "sets": "Set {current} of {total}",
+          "exercise": "Exercise {current} of {total}",
+          "timeRemaining": "Time Remaining",
+          "nextUp": "Next: {exercise}",
+          "restTime": "Rest Time",
+          "workTime": "Work Time",
+          "totalTime": "Total Time",
+          "elapsedTime": "Elapsed Time"
+        },
+        "tabata": {
+          "title": "Tabata Timer",
+          "rounds": "Rounds",
+          "workTime": "Work Time",
+          "restTime": "Rest Time",
+          "setBreak": "Set Break",
+          "phase": {
+            "ready": "Get Ready",
+            "work": "Work",
+            "rest": "Rest",
+            "set_break": "Set Break",
+            "completed": "Complete",
+            "paused": "Paused",
+            "stopped": "Stopped"
+          },
+          "settings": {
+            "workDuration": "Work Duration (seconds)",
+            "restDuration": "Rest Duration (seconds)",
+            "rounds": "Number of Rounds",
+            "sets": "Number of Sets",
+            "setBreakDuration": "Set Break Duration (seconds)",
+            "preparationTime": "Preparation Time (seconds)"
+          }
+        },
+        "interval": {
+          "title": "Interval Timer",
+          "intervals": "Intervals",
+          "highIntensity": "High Intensity",
+          "lowIntensity": "Low Intensity",
+          "warmUp": "Warm Up",
+          "coolDown": "Cool Down"
+        },
+        "stopwatch": {
+          "title": "Stopwatch",
+          "lapTime": "Lap Time",
+          "splitTime": "Split Time",
+          "lap": "Lap {number}",
+          "reset": "Reset"
+        },
+        "countdown": {
+          "title": "Countdown Timer",
+          "setTime": "Set Time",
+          "timeUp": "Time's Up!",
+          "almostDone": "Almost Done!"
+        },
+        "notifications": {
+          "workoutStart": "Workout Starting",
+          "restStart": "Rest Period",
+          "workoutComplete": "Workout Complete!",
+          "halfwayPoint": "Halfway There!",
+          "lastRound": "Last Round!",
+          "getReady": "Get Ready!",
+          "timeWarning": "Time Warning",
+          "nextExercise": "Next Exercise Coming Up"
+        },
+        "status": {
+          "running": "Running",
+          "paused": "Paused",
+          "stopped": "Stopped",
+          "completed": "Completed",
+          "ready": "Ready",
+          "counting": "Counting",
+          "waiting": "Waiting"
+        }
+      }
     }
   },
   "organizations": {
@@ -375,6 +940,59 @@
         "leaderboards": "Group leaderboards",
         "motivation": "Mutual motivation"
       }
+    }
+  },
+  "offline": {
+    "status": {
+      "online": "Online",
+      "offline": "Offline",
+      "syncing": "Syncing",
+      "connected": "Connected",
+      "disconnected": "Disconnected"
+    },
+    "indicator": {
+      "youreOffline": "You're Offline",
+      "backOnline": "Back Online",
+      "syncingData": "Syncing Data",
+      "workoutsSaved": "Your workout data is being saved locally",
+      "willSync": "Data will sync automatically",
+      "uploadingData": "Uploading your offline workout data"
+    },
+    "actions": {
+      "syncNow": "Sync Now",
+      "goOnline": "Go Online",
+      "forceOffline": "Force Offline",
+      "tryAgain": "Try Again",
+      "dismiss": "Dismiss",
+      "updateNow": "Update Now",
+      "later": "Later"
+    },
+    "stats": {
+      "localData": "Local Data",
+      "workouts": "Workouts",
+      "unsynced": "Unsynced",
+      "lastSync": "Last Sync",
+      "offlineSince": "Offline since",
+      "connectedAt": "Connected"
+    },
+    "connection": {
+      "poor": "Poor",
+      "slow": "Slow",
+      "good": "Good",
+      "excellent": "Excellent",
+      "unstable": "Unstable Connection",
+      "slowConnection": "Slow Connection",
+      "offlineMode": "Offline Mode",
+      "forceOffline": "Force Offline"
+    },
+    "messages": {
+      "workoutContinue": "Don't worry! You can still continue your workout session.",
+      "progressSaved": "Your progress will be saved locally and synced when you're back online.",
+      "dataWillSync": "Your workout data will be saved locally and will sync when you reconnect.",
+      "syncComplete": "All data has been synced successfully!",
+      "syncFailed": "Some data couldn't be synced. We'll try again automatically.",
+      "updateAvailable": "A new version of the app is ready.",
+      "updateDescription": "Refresh to get the latest features and improvements."
     }
   }
 }

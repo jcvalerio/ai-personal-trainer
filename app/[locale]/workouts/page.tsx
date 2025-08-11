@@ -4,11 +4,11 @@
  */
 'use client'
 
-import { Suspense } from 'react'
+import { Suspense, useCallback } from 'react'
 import { use } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { Dumbbell, Plus, Calendar, BarChart3, Library, Sparkles, Filter } from 'lucide-react'
+import { Dumbbell, Plus, Calendar, BarChart3, Library, Sparkles, Filter, Play, LayoutDashboard } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
@@ -172,20 +172,20 @@ const mockSessions = [
 export default function WorkoutsPage({ params }: WorkoutsPageProps) {
   const t = useTranslations('workouts')
   const { locale } = use(params)
-  const handleStartWorkout = (workoutId: string) => {
+  const handleStartWorkout = useCallback((workoutId: string) => {
     // Navigate to workout session or create new session
     console.log('Starting workout:', workoutId)
-  }
+  }, [])
 
-  const handleStartSession = (sessionId: string) => {
+  const handleStartSession = useCallback((sessionId: string) => {
     // Navigate to active session
     console.log('Starting session:', sessionId)
-  }
+  }, [])
 
-  const handleContinueSession = (sessionId: string) => {
+  const handleContinueSession = useCallback((sessionId: string) => {
     // Navigate to active session
     console.log('Continuing session:', sessionId)
-  }
+  }, [])
 
   return (
     <TranslationErrorBoundary>
@@ -268,7 +268,7 @@ export default function WorkoutsPage({ params }: WorkoutsPageProps) {
                     </Link>
                   </Button>
                   <Button variant="outline" asChild className="w-full justify-start">
-                    <Link href={createLocalizedPath('workouts/plans/new', locale as 'en' | 'es')}>
+                    <Link href={createLocalizedPath('workouts/create-manual', locale as 'en' | 'es')}>
                       <Plus className="w-4 h-4 mr-2" />
 {t('buttons.createCustom')}
                     </Link>
@@ -277,6 +277,18 @@ export default function WorkoutsPage({ params }: WorkoutsPageProps) {
                     <Link href={createLocalizedPath('exercises', locale as 'en' | 'es')}>
                       <Library className="w-4 h-4 mr-2" />
                       {t('buttons.browseExercises')}
+                    </Link>
+                  </Button>
+                  <Button variant="outline" asChild className="w-full justify-start">
+                    <Link href={createLocalizedPath('workouts/session', locale as 'en' | 'es')}>
+                      <Play className="w-4 h-4 mr-2" />
+                      Demo Session
+                    </Link>
+                  </Button>
+                  <Button variant="outline" asChild className="w-full justify-start">
+                    <Link href={createLocalizedPath('workouts/dashboard', locale as 'en' | 'es')}>
+                      <LayoutDashboard className="w-4 h-4 mr-2" />
+                      Advanced Dashboard
                     </Link>
                   </Button>
                 </CardContent>

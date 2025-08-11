@@ -281,6 +281,12 @@ export interface SessionExercise {
   status: SessionExerciseStatus
   completedAt?: Date
   notes?: string
+  /** Timer protocol for this exercise */
+  timerProtocol?: 'tabata' | 'emom' | 'amrap' | 'strength' | 'custom'
+  /** Timer configuration JSON */
+  timerConfig?: Record<string, any>
+  /** Real-time execution data */
+  executionData?: Record<string, any>
   createdAt: Date
   updatedAt: Date
 }
@@ -294,6 +300,14 @@ export interface SetPerformanceData {
   restSeconds?: number
   perceivedExertion?: number
   formRating?: number
+  /** Tempo/speed for the set */
+  tempo?: string
+  /** Range of motion quality (1-5) */
+  rangeOfMotion?: number
+  /** Set completion timestamp */
+  timestamp?: Date
+  /** Additional set-specific notes */
+  setNotes?: string
 }
 
 export interface WorkoutSession {
@@ -668,6 +682,69 @@ export interface WorkoutRecommendation {
   difficulty: FitnessLevel
   estimatedBenefit: number
   implementationSteps: string[]
+}
+
+// Custom Plan Creation Types
+export interface CustomPlanFormData {
+  // Basic Info
+  name: string
+  description: string
+  durationWeeks: number
+  sessionsPerWeek: number
+  fitnessGoals: string[]
+  targetFitnessLevel: FitnessLevel
+  estimatedSessionDuration: number
+
+  // Weekly Schedule
+  weeklySchedule: WeeklySchedule
+
+  // Session Templates
+  sessionTemplates: SessionTemplate[]
+  
+  // Additional Settings
+  isTemplate: boolean
+  isPublic: boolean
+}
+
+export interface SessionTemplate {
+  id: string
+  name: string
+  description: string
+  sessionType: SessionType
+  estimatedDuration: number
+  targetMuscleGroups: string[]
+  exerciseStructure: ExerciseStructure[]
+  difficulty: FitnessLevel
+  equipmentRequired: string[]
+  notes?: string
+}
+
+export interface ExerciseStructure {
+  id: string
+  exerciseId?: string
+  exerciseName: string
+  exerciseType: ExerciseType
+  phase: ExercisePhase
+  sets: number
+  repsMin: number
+  repsMax: number
+  weightPercentage?: number
+  restSeconds: number
+  durationSeconds?: number
+  notes?: string
+  alternatives: string[]
+}
+
+export interface WeekScheduleData {
+  [day: string]: DayScheduleData
+}
+
+export interface DayScheduleData {
+  type: DayScheduleType
+  sessionTemplateId?: string
+  sessionName?: string
+  duration?: number
+  notes?: string
 }
 
 // Export utility type helpers

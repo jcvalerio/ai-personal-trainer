@@ -5,6 +5,7 @@
 
 'use client'
 
+import { useCallback } from 'react'
 import Link from 'next/link'
 import { UserButton } from '@clerk/nextjs'
 import { Dumbbell, Plus, Search, Filter, MoreVertical, Play } from 'lucide-react'
@@ -104,9 +105,9 @@ const mockPlans = [
 ]
 
 export default function WorkoutPlansPage() {
-  const handleStartWorkout = (workoutId: string) => {
+  const handleStartWorkout = useCallback((workoutId: string) => {
     console.log('Starting workout:', workoutId)
-  }
+  }, [])
 
   const activePlans = mockPlans.filter(plan => plan.status === 'active')
   const draftPlans = mockPlans.filter(plan => plan.status === 'draft')

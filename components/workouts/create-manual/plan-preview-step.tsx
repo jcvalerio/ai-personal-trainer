@@ -1,0 +1,418 @@
+/**
+ * Plan Preview Step Component
+ * Final step in the custom workout plan creation wizard
+ */
+'use client'
+
+import { useTranslations } from 'next-intl'
+import { Check, Calendar, Dumbbell, Clock, Target, Users, Globe, AlertTriangle } from 'lucide-react'
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+
+import type { CustomPlanFormData } from '@/types/workouts'
+import type { PlanPreviewStepProps } from '@/types/workout-forms'
+
+export function PlanPreviewStep({ data, onUpdate }: PlanPreviewStepProps) {
+  const t = useTranslations('createPlan.steps.preview')
+
+  // Calculate plan statistics
+  const totalSessions = Object.values(data.weeklySchedule).reduce((total, weekSchedule: any) => {
+    if (!weekSchedule) {return total}
+    return total + weekSchedule.filter((day: any) => day.type === 'workout').length
+  }, 0)
+
+  const totalRestDays = data.durationWeeks * 7 - totalSessions
+  const totalProgramHours = Math.round((totalSessions * data.estimatedSessionDuration) / 60)
+  const averageSessionsPerWeek = Math.round((totalSessions / data.durationWeeks) * 10) / 10
+
+  const allTargetMuscles = [...new Set(data.sessionTemplates.flatMap(template => template.targetMuscleGroups))]
+  const totalExercises = data.sessionTemplates.reduce((total, template) => total + template.exerciseStructure.length, 0)
+  
+  // Validation checks
+  const validationIssues: string[] = []
+  
+  if (!data.name.trim()) {
+    validationIssues.push(t('validation.missingName'))
+  }
+  
+  if (data.fitnessGoals.length === 0) {
+    validationIssues.push(t('validation.noGoals'))
+  }
+  
+  if (data.sessionTemplates.length === 0) {
+    validationIssues.push(t('validation.noTemplates'))
+  }
+  
+  if (totalSessions === 0) {
+    validationIssues.push(t('validation.noWorkouts'))
+  }
+
+  if (averageSessionsPerWeek < 1) {
+    validationIssues.push(t('validation.tooFewSessions'))
+  }
+
+  const hasValidationIssues = validationIssues.length > 0
+
+  return (
+    <div className="space-y-6">
+      {/* Validation Status */}
+      {hasValidationIssues ? (
+        <Card className="border-red-200 bg-red-50">
+          <CardHeader>
+            <CardTitle className="flex items-center text-red-800">
+              <AlertTriangle className="w-5 h-5 mr-2" />
+              {t('validation.title')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="list-disc list-inside text-red-700 space-y-1">
+              {validationIssues.map((issue, index) => (
+                <li key={index} className="text-sm">{issue}</li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="border-green-200 bg-green-50">
+          <CardHeader>
+            <CardTitle className="flex items-center text-green-800">
+              <Check className="w-5 h-5 mr-2" />
+              {t('validation.ready')}
+            </CardTitle>
+            <CardDescription className="text-green-700">
+              {t('validation.readyDescription')}
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      )}
+
+      {/* Plan Overview */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Target className="w-5 h-5 mr-2 text-blue-600" />
+            {t('overview.title')}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Basic Info */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-medium text-gray-900 text-lg">{data.name}</h3>
+                {data.description && (
+                  <p className="text-gray-600 mt-1">{data.description}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">{t('overview.duration')}</span>
+                  <span className="font-medium">
+                    {t('overview.durationValue', { weeks: data.durationWeeks })}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">{t('overview.targetLevel')}</span>
+                  <Badge variant="secondary">
+                    {t(`fitnessLevel.${data.targetFitnessLevel}`)}
+                  </Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">{t('overview.sessionDuration')}</span>
+                  <span className="font-medium">{data.estimatedSessionDuration} {t('overview.minutes')}</span>
+                </div>
+              </div>
+
+              {/* Fitness Goals */}
+              <div>
+                <div className="text-sm text-gray-600 mb-2">{t('overview.goals')}</div>
+                <div className="flex flex-wrap gap-1">
+                  {data.fitnessGoals.map(goal => (
+                    <Badge key={goal} variant="default" className="text-xs">
+                      {t(`goals.${goal}`)}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Statistics */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-blue-50 rounded-lg p-4 text-center">
+                <div className="text-2xl font-bold text-blue-700">{totalSessions}</div>
+                <div className="text-blue-600 text-sm">{t('stats.totalWorkouts')}</div>
+              </div>
+              <div className="bg-green-50 rounded-lg p-4 text-center">
+                <div className="text-2xl font-bold text-green-700">{totalProgramHours}h</div>
+                <div className="text-green-600 text-sm">{t('stats.totalHours')}</div>
+              </div>
+              <div className="bg-purple-50 rounded-lg p-4 text-center">
+                <div className="text-2xl font-bold text-purple-700">{averageSessionsPerWeek}</div>
+                <div className="text-purple-600 text-sm">{t('stats.avgPerWeek')}</div>
+              </div>
+              <div className="bg-orange-50 rounded-lg p-4 text-center">
+                <div className="text-2xl font-bold text-orange-700">{totalRestDays}</div>
+                <div className="text-orange-600 text-sm">{t('stats.restDays')}</div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Weekly Schedule Preview */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Calendar className="w-5 h-5 mr-2 text-blue-600" />
+            {t('schedule.title')}
+          </CardTitle>
+          <CardDescription>
+            {t('schedule.description')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {Array.from({ length: Math.min(data.durationWeeks, 4) }, (_, weekIndex) => {
+              const weekKey = `week${weekIndex + 1}`
+              const weekSchedule = data.weeklySchedule[weekKey] || []
+              const weekWorkouts = weekSchedule.filter((day: any) => day.type === 'workout')
+
+              return (
+                <div key={weekIndex} className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-medium">
+                      {t('schedule.week', { number: weekIndex + 1 })}
+                    </h4>
+                    <Badge variant="outline">
+                      {weekWorkouts.length} {t('schedule.workouts')}
+                    </Badge>
+                  </div>
+                  
+                  <div className="grid grid-cols-7 gap-2 text-xs">
+                    {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, dayIndex) => {
+                      const dayData = weekSchedule[dayIndex]
+                      const isWorkout = dayData?.type === 'workout'
+                      const isActiveRecovery = dayData?.type === 'active_recovery'
+                      
+                      return (
+                        <div
+                          key={day}
+                          className={`
+                            p-2 rounded text-center
+                            ${isWorkout ? 'bg-blue-100 text-blue-800' : ''}
+                            ${isActiveRecovery ? 'bg-green-100 text-green-800' : ''}
+                            ${!isWorkout && !isActiveRecovery ? 'bg-gray-100 text-gray-600' : ''}
+                          `}
+                        >
+                          <div className="font-medium">{day}</div>
+                          <div className="mt-1 truncate">
+                            {isWorkout ? (
+                              dayData.sessionName || t('schedule.workout')
+                            ) : isActiveRecovery ? (
+                              t('schedule.recovery')
+                            ) : (
+                              t('schedule.rest')
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
+            
+            {data.durationWeeks > 4 && (
+              <div className="text-center text-gray-500 text-sm">
+                ... {t('schedule.moreWeeks', { count: data.durationWeeks - 4 })}
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Session Templates Preview */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Dumbbell className="w-5 h-5 mr-2 text-blue-600" />
+            {t('templates.title')}
+          </CardTitle>
+          <CardDescription>
+            {t('templates.description')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {data.sessionTemplates.map((template) => (
+              <Card key={template.id} className="bg-gray-50">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium truncate">{template.name}</h4>
+                      <p className="text-sm text-gray-600 line-clamp-1">
+                        {template.description}
+                      </p>
+                    </div>
+                    <Badge variant="secondary" className="ml-2">
+                      {t(`difficulty.${template.difficulty}`)}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center">
+                      <Clock className="w-4 h-4 mr-1 text-gray-500" />
+                      <span>{template.estimatedDuration}m</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Dumbbell className="w-4 h-4 mr-1 text-gray-500" />
+                      <span>{template.exerciseStructure.length} exercises</span>
+                    </div>
+                  </div>
+                  
+                  {template.targetMuscleGroups.length > 0 && (
+                    <div>
+                      <div className="text-xs text-gray-600 mb-1">{t('templates.muscles')}</div>
+                      <div className="flex flex-wrap gap-1">
+                        {template.targetMuscleGroups.slice(0, 3).map(muscle => (
+                          <Badge key={muscle} variant="outline" className="text-xs">
+                            {t(`muscles.${muscle}`)}
+                          </Badge>
+                        ))}
+                        {template.targetMuscleGroups.length > 3 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{template.targetMuscleGroups.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Template Summary */}
+          <Separator className="my-6" />
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div>
+              <div className="text-xl font-bold text-gray-900">{data.sessionTemplates.length}</div>
+              <div className="text-gray-600 text-sm">{t('templates.summary.totalTemplates')}</div>
+            </div>
+            <div>
+              <div className="text-xl font-bold text-gray-900">{totalExercises}</div>
+              <div className="text-gray-600 text-sm">{t('templates.summary.totalExercises')}</div>
+            </div>
+            <div>
+              <div className="text-xl font-bold text-gray-900">{allTargetMuscles.length}</div>
+              <div className="text-gray-600 text-sm">{t('templates.summary.muscleGroups')}</div>
+            </div>
+            <div>
+              <div className="text-xl font-bold text-gray-900">
+                {Math.round(data.sessionTemplates.reduce((avg, template) => avg + template.estimatedDuration, 0) / data.sessionTemplates.length) || 0}m
+              </div>
+              <div className="text-gray-600 text-sm">{t('templates.summary.avgDuration')}</div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Plan Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Users className="w-5 h-5 mr-2 text-blue-600" />
+            {t('settings.title')}
+          </CardTitle>
+          <CardDescription>
+            {t('settings.description')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                <Users className="w-4 h-4 text-blue-600" />
+              </div>
+              <div>
+                <div className="font-medium">{t('settings.template.title')}</div>
+                <div className="text-sm text-gray-600">{t('settings.template.description')}</div>
+              </div>
+            </div>
+            <Button
+              variant={data.isTemplate ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => onUpdate({ isTemplate: !data.isTemplate })}
+            >
+              {data.isTemplate ? t('settings.template.enabled') : t('settings.template.disabled')}
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="flex items-center">
+              <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                <Globe className="w-4 h-4 text-green-600" />
+              </div>
+              <div>
+                <div className="font-medium">{t('settings.public.title')}</div>
+                <div className="text-sm text-gray-600">{t('settings.public.description')}</div>
+              </div>
+            </div>
+            <Button
+              variant={data.isPublic ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => onUpdate({ isPublic: !data.isPublic })}
+            >
+              {data.isPublic ? t('settings.public.enabled') : t('settings.public.disabled')}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Final Summary */}
+      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+        <CardContent className="pt-6">
+          <div className="text-center">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              {t('summary.title')}
+            </h3>
+            <p className="text-gray-600 mb-4">
+              {t('summary.description', { 
+                weeks: data.durationWeeks,
+                sessions: totalSessions,
+                hours: totalProgramHours
+              })}
+            </p>
+            
+            {hasValidationIssues && (
+              <div className="bg-red-100 border border-red-200 rounded-lg p-3 mb-4">
+                <p className="text-red-800 text-sm">
+                  {t('summary.validationWarning')}
+                </p>
+              </div>
+            )}
+            
+            <div className="flex flex-wrap justify-center gap-2">
+              {data.fitnessGoals.slice(0, 4).map(goal => (
+                <Badge key={goal} variant="default">
+                  {t(`goals.${goal}`)}
+                </Badge>
+              ))}
+              {data.fitnessGoals.length > 4 && (
+                <Badge variant="outline">
+                  +{data.fitnessGoals.length - 4} {t('summary.moreGoals')}
+                </Badge>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}

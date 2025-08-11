@@ -2,7 +2,9 @@
  * Individual Workout Plan Detail Page
  * View and manage a specific workout plan
  */
+'use client'
 
+import { useCallback } from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { UserButton } from '@clerk/nextjs'
@@ -198,13 +200,13 @@ export default function WorkoutPlanDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  const handleStartSession = (sessionId: string) => {
+  const handleStartSession = useCallback((sessionId: string) => {
     console.log('Starting session:', sessionId)
-  }
+  }, [])
 
-  const handleContinueSession = (sessionId: string) => {
+  const handleContinueSession = useCallback((sessionId: string) => {
     console.log('Continuing session:', sessionId)
-  }
+  }, [])
 
   const getStatusColor = (status: string) => {
     switch (status) {

@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
+import { ServiceWorkerProvider, ServiceWorkerUpdatePrompt } from '@/components/providers/service-worker-provider'
+import { OfflineIndicator } from '@/components/ui/offline-indicator'
 
 import './globals.css'
 
@@ -141,20 +143,26 @@ export default function RootLayout({
     >
       <html lang='en' className={inter.variable}>
         <body className={`${inter.className} antialiased`}>
-          <div className='min-h-screen min-h-dvh bg-gray-50'>
-            {/* Skip to main content for accessibility */}
-            <a
-              href='#main-content'
-              className='sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium'
-            >
-              Skip to main content
-            </a>
-            
-            {/* Main application content */}
-            <main id='main-content' className='relative'>
-              {children}
-            </main>
-          </div>
+          <ServiceWorkerProvider enableDevelopment={false}>
+            <div className='min-h-screen min-h-dvh bg-gray-50'>
+              {/* Skip to main content for accessibility */}
+              <a
+                href='#main-content'
+                className='sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 bg-blue-600 text-white px-4 py-2 rounded-lg font-medium'
+              >
+                Skip to main content
+              </a>
+              
+              {/* Main application content */}
+              <main id='main-content' className='relative'>
+                {children}
+              </main>
+              
+              {/* Offline capabilities */}
+              <OfflineIndicator position="floating" />
+              <ServiceWorkerUpdatePrompt />
+            </div>
+          </ServiceWorkerProvider>
           
           {/* Development tools - only in development */}
           {process.env.NODE_ENV === 'development' && (

@@ -128,6 +128,34 @@ export function throttle<T extends (...args: any[]) => any>(
 export const isBrowser = typeof window !== 'undefined'
 
 /**
+ * Hydration-safe time formatting to prevent SSR/client mismatches
+ * Returns a static format on server, dynamic format after hydration
+ */
+export function formatTimeHydrationSafe(
+  date: Date | string | number,
+  isHydrated: boolean,
+  dynamicFormat: () => string,
+  staticFormat: string
+): string {
+  if (!isHydrated) {
+    return staticFormat
+  }
+  try {
+    return dynamicFormat()
+  } catch {
+    return staticFormat
+  }
+}
+
+/**
+ * Hook-safe check for hydration status
+ * Prevents hydration mismatches by providing consistent server/client state
+ */
+export function getHydrationSafeDate(): Date | null {
+  return isBrowser ? new Date() : null
+}
+
+/**
  * Check if the user is on a mobile device
  */
 export function isMobileDevice(): boolean {

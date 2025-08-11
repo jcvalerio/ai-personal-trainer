@@ -309,6 +309,88 @@
   "workouts": {
     "title": "Tus Entrenamientos",
     "subtitle": "Rastrea tu viaje fitness y logra tus objetivos",
+    "createPlan": {
+      "title": "Crear Plan de Entrenamiento Personalizado",
+      "subtitle": "Diseña tu programa de entrenamiento personalizado",
+      "steps": {
+        "templates": {
+          "title": "Plantillas de Sesión",
+          "description": "Crea plantillas de sesión de entrenamiento que definen ejercicios, series y repeticiones",
+          "actions": {
+            "createNew": "Crear Nueva Plantilla"
+          },
+          "empty": {
+            "title": "Aún No Hay Plantillas de Sesión", 
+            "description": "Crea plantillas de sesión para definir la estructura de tu entrenamiento. Puedes empezar con una plantilla predefinida o crear una desde cero.",
+            "useTemplate": "Usar Plantilla",
+            "createFromScratch": "Crear Desde Cero"
+          }
+        }
+      },
+      "schedule": {
+        "title": "Horario Semanal",
+        "description": "Arrastra y suelta sesiones para construir tu horario de entrenamiento semanal.",
+        "addSession": "Agregar Sesión",
+        "stats": {
+          "sessions": "Sesiones",
+          "totalTime": "Tiempo Total",
+          "avgDuration": "Duración Prom.",
+          "restDays": "Días de Descanso"
+        },
+        "days": {
+          "monday": "Lunes",
+          "tuesday": "Martes",
+          "wednesday": "Miércoles",
+          "thursday": "Jueves", 
+          "friday": "Viernes",
+          "saturday": "Sábado",
+          "sunday": "Domingo"
+        },
+        "dropZone": {
+          "empty": "No hay sesiones programadas",
+          "instruction": "Arrastra sesiones aquí o agrega nuevas"
+        }
+      },
+      "templates": {
+        "title": "Plantillas de Sesión",
+        "description": "Crea plantillas de sesión de entrenamiento que definen ejercicios, series y repeticiones",
+        "fields": {
+          "name": "Nombre de Plantilla",
+          "namePlaceholder": "ej., Día de Empuje Tren Superior",
+          "description": "Descripción",
+          "descriptionPlaceholder": "Describe el enfoque y approach de esta sesión...",
+          "duration": "Duración (minutos)",
+          "sessionType": "Tipo de Sesión",
+          "difficulty": "Nivel de Dificultad"
+        },
+        "sessionType": {
+          "workout": "Entrenamiento",
+          "assessment": "Evaluación", 
+          "recovery": "Recuperación"
+        },
+        "difficulty": {
+          "beginner": "Principiante",
+          "intermediate": "Intermedio",
+          "advanced": "Avanzado"
+        },
+        "dialog": {
+          "createTemplate": "Crear Plantilla de Sesión",
+          "editTemplate": "Editar Plantilla de Sesión",
+          "description": "Configura los detalles de tu plantilla de sesión",
+          "cancel": "Cancelar",
+          "save": "Guardar Plantilla"
+        },
+        "empty": {
+          "title": "Aún No Hay Plantillas de Sesión",
+          "description": "Crea plantillas de sesión para definir la estructura de tu entrenamiento. Puedes empezar con una plantilla predefinida o crear una desde cero.",
+          "useTemplate": "Usar Plantilla",
+          "createFromScratch": "Crear Desde Cero"
+        },
+        "actions": {
+          "createNew": "Crear Nueva Plantilla"
+        }
+      }
+    },
     "dashboard": "Panel de Entrenamientos",
     "buttons": {
       "filter": "Filtrar",
@@ -357,6 +439,158 @@
       "startSession": "Iniciar Sesión",
       "continue": "Continuar",
       "viewResults": "Ver Resultados"
+    },
+    "session": {
+      "backToWorkouts": "Volver a Entrenamientos",
+      "startSession": "Iniciar Sesión",
+      "sessionDescription": "¿Listo para comenzar tu sesión de entrenamiento?",
+      "todaysWorkout": "Entrenamiento de Hoy",
+      "beginWorkout": "Comenzar Entrenamiento",
+      "sessionInProgress": "Sesión en Progreso",
+      "exercise": "Ejercicio",
+      "of": "de",
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "complete": "Completar",
+      "set": "Serie",
+      "round": "Ronda",
+      "start": "Iniciar",
+      "stop": "Detener",
+      "skip": "Saltar",
+      "soundOn": "Sonido Activado",
+      "soundOff": "Sonido Desactivado",
+      "restPeriod": "Período de Descanso",
+      "skipRest": "Saltar Descanso",
+      "targetReps": "Repeticiones Objetivo",
+      "targetWeight": "Peso Objetivo",
+      "targetDuration": "Duración Objetivo",
+      "weight": "Peso",
+      "reps": "Repeticiones",
+      "duration": "Duración",
+      "distance": "Distancia",
+      "notes": "Notas",
+      "optional": "opcional",
+      "addNotes": "Agregar notas sobre esta serie...",
+      "completeSet": "Completar Serie",
+      "completedSets": "Series Completadas",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "sessionComplete": "¡Sesión Completada!",
+      "sessionCompleteDescription": "¡Felicidades por completar tu entrenamiento!",
+      "finishSession": "Finalizar Sesión",
+      "noActiveSession": "No hay sesión activa",
+      "timer": {
+        "set": "Serie",
+        "round": "Ronda",
+        "start": "Iniciar",
+        "stop": "Detener",
+        "skip": "Saltar",
+        "soundOn": "Sonido Activado",
+        "soundOff": "Sonido Desactivado",
+        "timer": {
+          "tabata": {
+            "phase": {
+              "ready": "Prepárate",
+              "work": "Trabajo",
+              "rest": "Descanso",
+              "set_break": "Descanso de Serie",
+              "completed": "Completado",
+              "paused": "Pausado",
+              "stopped": "Detenido"
+            }
+          }
+        },
+        "controls": {
+          "start": "Iniciar",
+          "pause": "Pausar",
+          "resume": "Reanudar",
+          "stop": "Detener",
+          "reset": "Reiniciar",
+          "restart": "Empezar de Nuevo",
+          "skipRest": "Saltar Descanso",
+          "addTime": "Agregar Tiempo",
+          "soundToggle": "Alternar Sonido",
+          "soundOn": "Sonido Activado",
+          "soundOff": "Sonido Desactivado"
+        },
+        "display": {
+          "minutes": "min",
+          "seconds": "seg",
+          "rounds": "Ronda {current} de {total}",
+          "sets": "Serie {current} de {total}",
+          "exercise": "Ejercicio {current} de {total}",
+          "timeRemaining": "Tiempo Restante",
+          "nextUp": "Siguiente: {exercise}",
+          "restTime": "Tiempo de Descanso",
+          "workTime": "Tiempo de Trabajo",
+          "totalTime": "Tiempo Total",
+          "elapsedTime": "Tiempo Transcurrido"
+        },
+        "tabata": {
+          "title": "Cronómetro Tabata",
+          "rounds": "Rondas",
+          "workTime": "Tiempo de Trabajo",
+          "restTime": "Tiempo de Descanso",
+          "setBreak": "Descanso de Serie",
+          "phase": {
+            "ready": "Prepárate",
+            "work": "Trabajo",
+            "rest": "Descanso",
+            "set_break": "Descanso de Serie",
+            "completed": "Completado",
+            "paused": "Pausado",
+            "stopped": "Detenido"
+          },
+          "settings": {
+            "workDuration": "Duración de Trabajo (segundos)",
+            "restDuration": "Duración de Descanso (segundos)",
+            "rounds": "Número de Rondas",
+            "sets": "Número de Series",
+            "setBreakDuration": "Duración de Descanso de Serie (segundos)",
+            "preparationTime": "Tiempo de Preparación (segundos)"
+          }
+        },
+        "interval": {
+          "title": "Cronómetro de Intervalos",
+          "intervals": "Intervalos",
+          "highIntensity": "Alta Intensidad",
+          "lowIntensity": "Baja Intensidad",
+          "warmUp": "Calentamiento",
+          "coolDown": "Enfriamiento"
+        },
+        "stopwatch": {
+          "title": "Cronómetro",
+          "lapTime": "Tiempo de Vuelta",
+          "splitTime": "Tiempo Parcial",
+          "lap": "Vuelta {number}",
+          "reset": "Reiniciar"
+        },
+        "countdown": {
+          "title": "Cuenta Regresiva",
+          "setTime": "Establecer Tiempo",
+          "timeUp": "¡Se Acabó el Tiempo!",
+          "almostDone": "¡Casi Terminamos!"
+        },
+        "notifications": {
+          "workoutStart": "Iniciando Entrenamiento",
+          "restStart": "Período de Descanso",
+          "workoutComplete": "¡Entrenamiento Completado!",
+          "halfwayPoint": "¡A Mitad de Camino!",
+          "lastRound": "¡Última Ronda!",
+          "getReady": "¡Prepárate!",
+          "timeWarning": "Advertencia de Tiempo",
+          "nextExercise": "Próximo Ejercicio"
+        },
+        "status": {
+          "running": "En Marcha",
+          "paused": "Pausado",
+          "stopped": "Detenido",
+          "completed": "Completado",
+          "ready": "Listo",
+          "counting": "Contando",
+          "waiting": "Esperando"
+        }
+      }
     }
   },
   "organizations": {
@@ -374,6 +608,624 @@
         "familyChallenges": "Desafíos fitness familiares",
         "leaderboards": "Tablas de clasificación grupales",
         "motivation": "Motivación mutua"
+      }
+    }
+  },
+  "offline": {
+    "status": {
+      "online": "En Línea",
+      "offline": "Sin Conexión",
+      "syncing": "Sincronizando",
+      "connected": "Conectado",
+      "disconnected": "Desconectado"
+    },
+    "indicator": {
+      "youreOffline": "Estás Sin Conexión",
+      "backOnline": "De Vuelta En Línea",
+      "syncingData": "Sincronizando Datos",
+      "workoutsSaved": "Tus datos de entrenamiento se están guardando localmente",
+      "willSync": "Los datos se sincronizarán automáticamente",
+      "uploadingData": "Subiendo tus datos de entrenamiento sin conexión"
+    },
+    "actions": {
+      "syncNow": "Sincronizar Ahora",
+      "goOnline": "Ir En Línea",
+      "forceOffline": "Forzar Sin Conexión",
+      "tryAgain": "Intentar de Nuevo",
+      "dismiss": "Descartar",
+      "updateNow": "Actualizar Ahora",
+      "later": "Más Tarde"
+    },
+    "stats": {
+      "localData": "Datos Locales",
+      "workouts": "Entrenamientos",
+      "unsynced": "Sin Sincronizar",
+      "lastSync": "Última Sincronización",
+      "offlineSince": "Sin conexión desde",
+      "connectedAt": "Conectado"
+    },
+    "connection": {
+      "poor": "Mala",
+      "slow": "Lenta",
+      "good": "Buena",
+      "excellent": "Excelente",
+      "unstable": "Conexión Inestable",
+      "slowConnection": "Conexión Lenta",
+      "offlineMode": "Modo Sin Conexión",
+      "forceOffline": "Forzar Sin Conexión"
+    },
+    "messages": {
+      "workoutContinue": "¡No te preocupes! Puedes continuar tu sesión de entrenamiento.",
+      "progressSaved": "Tu progreso se guardará localmente y se sincronizará cuando vuelvas a estar en línea.",
+      "dataWillSync": "Tus datos de entrenamiento se guardarán localmente y se sincronizarán cuando te reconectes.",
+      "syncComplete": "¡Todos los datos se han sincronizado exitosamente!",
+      "syncFailed": "Algunos datos no se pudieron sincronizar. Lo intentaremos automáticamente de nuevo.",
+      "updateAvailable": "Una nueva versión de la aplicación está lista.",
+      "updateDescription": "Actualiza para obtener las últimas características y mejoras."
+    }
+  },
+  "createPlan": {
+    "title": "Crear Plan de Entrenamiento Personalizado",
+    "subtitle": "Diseña tu programa de entrenamiento personalizado",
+    "common": {
+      "back": "Atrás",
+      "next": "Siguiente",
+      "previous": "Anterior",
+      "save": "Guardar",
+      "cancel": "Cancelar"
+    },
+    "navigation": {
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "creating": "Creando...",
+      "createPlan": "Crear Plan",
+      "stepProgress": "Paso {current} de {total}"
+    },
+    "schedule": {
+      "title": "Horario Semanal",
+      "description": "Arrastra y suelta sesiones para construir tu horario de entrenamiento semanal.",
+      "addSession": "Agregar Sesión",
+      "stats": {
+        "sessions": "Sesiones",
+        "totalTime": "Tiempo Total",
+        "avgDuration": "Duración Prom.",
+        "restDays": "Días de Descanso"
+      },
+      "days": {
+        "monday": "Lunes",
+        "tuesday": "Martes", 
+        "wednesday": "Miércoles",
+        "thursday": "Jueves",
+        "friday": "Viernes",
+        "saturday": "Sábado",
+        "sunday": "Domingo"
+      },
+      "dropZone": {
+        "empty": "No hay sesiones programadas",
+        "instruction": "Arrastra sesiones aquí o agrega nuevas"
+      },
+      "editor": {
+        "title": "Editar Sesión",
+        "sessionName": "Nombre de la Sesión",
+        "sessionNamePlaceholder": "ej., Fuerza Tren Superior",
+        "sessionType": "Tipo de Sesión",
+        "duration": "Duración (minutos)",
+        "durationHint": "Recomendado: 30-90 minutos",
+        "save": "Guardar Sesión",
+        "cancel": "Cancelar"
+      },
+      "defaultSession": {
+        "name": "Nueva Sesión de Entrenamiento"
+      }
+    },
+    "steps": {
+      "basics": {
+        "title": "Fundamentos del Plan",
+        "description": "Establece la base de tu plan de entrenamiento con nombre, objetivos y estructura",
+        "fields": {
+          "name": {
+            "label": "Nombre del Plan",
+            "placeholder": "ej., 4 Semanas Enfoque Tren Inferior",
+            "help": "Elige un nombre descriptivo para tu plan de entrenamiento"
+          },
+          "description": {
+            "label": "Descripción",
+            "placeholder": "Describe el propósito y enfoque de tu plan...",
+            "help": "Opcional: Agrega detalles sobre los objetivos y metodología de tu plan"
+          },
+          "duration": {
+            "label": "Duración",
+            "weeks": "{count} semanas"
+          },
+          "sessionsPerWeek": {
+            "label": "Sesiones por Semana",
+            "sessions": "{count} sesiones"
+          },
+          "sessionDuration": {
+            "label": "Duración de Sesión",
+            "minutes": "{count} minutos"
+          }
+        },
+        "programConfig": {
+          "title": "Configuración del Programa",
+          "description": "Define la estructura y duración de tu programa de entrenamiento",
+          "overview": {
+            "title": "Resumen del Programa",
+            "weeks": "semanas",
+            "sessionsWeek": "sesiones/semana",
+            "hoursWeek": "horas/semana",
+            "totalHours": "horas totales"
+          }
+        },
+        "fitnessGoals": {
+          "title": "Objetivos de Fitness",
+          "description": "Selecciona tus objetivos de entrenamiento principales (elige múltiples)",
+          "selectAtLeastOne": "Por favor selecciona al menos un objetivo de fitness",
+          "options": {
+            "strength": {
+              "name": "Fuerza",
+              "description": "Construir fuerza muscular"
+            },
+            "muscle_gain": {
+              "name": "Ganancia Muscular",
+              "description": "Aumentar masa muscular"
+            },
+            "fat_loss": {
+              "name": "Pérdida de Grasa",
+              "description": "Reducir grasa corporal"
+            },
+            "cardio": {
+              "name": "Cardiovascular",
+              "description": "Mejorar salud del corazón"
+            },
+            "endurance": {
+              "name": "Resistencia",
+              "description": "Construir aguante"
+            },
+            "flexibility": {
+              "name": "Flexibilidad",
+              "description": "Mejorar movilidad"
+            },
+            "sports_performance": {
+              "name": "Rendimiento Deportivo",
+              "description": "Mejora atlética"
+            },
+            "general_fitness": {
+              "name": "Fitness General",
+              "description": "Salud general"
+            }
+          }
+        },
+        "fitnessLevel": {
+          "title": "Nivel de Fitness Objetivo",
+          "description": "Elige el nivel de fitness para el que está diseñado este plan",
+          "levels": {
+            "beginner": {
+              "name": "Principiante",
+              "description": "Nuevo en el fitness o regresando después de un descanso"
+            },
+            "intermediate": {
+              "name": "Intermedio",
+              "description": "Rutina de ejercicio regular, familiarizado con técnicas"
+            },
+            "advanced": {
+              "name": "Avanzado",
+              "description": "Experimentado con movimientos complejos y alta intensidad"
+            }
+          }
+        },
+        "summary": {
+          "title": "Resumen del Plan",
+          "planName": "Nombre del Plan:",
+          "duration": "Duración:",
+          "goals": "Objetivos:",
+          "level": "Nivel:",
+          "notSet": "No establecido",
+          "durationValue": "{weeks} semanas, {sessions} sesiones/semana",
+          "noGoals": "No hay objetivos seleccionados"
+        }
+      },
+      "schedule": {
+        "title": "Horario Semanal",
+        "description": "Planifica tu horario de entrenamiento semanal y días de descanso",
+        "weekSelector": {
+          "title": "Constructor de Horario Semanal",
+          "description": "Configura el horario de entrenamiento de cada semana",
+          "week": "Semana {number}"
+        },
+        "stats": {
+          "workouts": "Entrenamientos",
+          "totalTime": "Tiempo Total",
+          "restDays": "Días de Descanso",
+          "avgDuration": "Promedio mins"
+        },
+        "copyWeek": {
+          "label": "Copiar de:",
+          "week": "Semana {number}"
+        },
+        "days": {
+          "monday": "Lunes",
+          "tuesday": "Martes",
+          "wednesday": "Miércoles",
+          "thursday": "Jueves",
+          "friday": "Viernes",
+          "saturday": "Sábado",
+          "sunday": "Domingo"
+        },
+        "dayTypes": {
+          "workout": "Entrenamiento",
+          "rest": "Descanso",
+          "active_recovery": "Recuperación Activa"
+        },
+        "dayConfig": {
+          "type": "Tipo de Día",
+          "sessionName": "Nombre de Sesión",
+          "sessionNamePlaceholder": "ej., Empuje Tren Superior",
+          "duration": "Duración (min)",
+          "durationHelp": "Dejar vacío para usar por defecto"
+        },
+        "activeRecovery": {
+          "description": "Actividad ligera como caminar, yoga o estiramientos"
+        },
+        "restDay": {
+          "description": "Descanso completo y recuperación"
+        },
+        "summary": {
+          "title": "Resumen del Horario",
+          "totalWorkouts": "Total Entrenamientos",
+          "totalWeeks": "Total Semanas",
+          "avgWorkoutsWeek": "Promedio/Semana",
+          "totalHours": "Total Horas"
+        },
+        "warnings": {
+          "lowWorkoutFrequency": "Baja frecuencia de entrenamiento. Considera agregar más días de entrenamiento.",
+          "tooManyWorkouts": "Demasiados entrenamientos programados. Considera agregar más días de descanso."
+        }
+      },
+      "templates": {
+        "title": "Plantillas de Sesión",
+        "description": "Crea plantillas de sesión de entrenamiento que definen ejercicios, series y repeticiones",
+        "predefined": {
+          "select": "Agregar desde plantillas",
+          "lower_body_quad_focus": {
+            "name": "Tren Inferior - Enfoque Cuádriceps",
+            "description": "Énfasis en cuádriceps con corrección de desbalances"
+          },
+          "upper_body_push": {
+            "name": "Tren Superior - Empuje",
+            "description": "Desarrollo de pecho, hombros y tríceps"
+          }
+        },
+        "actions": {
+          "createNew": "Crear Nueva Plantilla"
+        },
+        "empty": {
+          "title": "Aún No Hay Plantillas de Sesión",
+          "description": "Crea plantillas de sesión para definir la estructura de tu entrenamiento. Puedes empezar con una plantilla predefinida o crear una desde cero.",
+          "useTemplate": "Usar Plantilla",
+          "createFromScratch": "Crear Desde Cero"
+        },
+        "untitled": "Plantilla Sin Título",
+        "noDescription": "No se proporcionó descripción",
+        "stats": {
+          "minutes": "minutos",
+          "exercises": "ejercicios",
+          "muscleGroups": "grupos musculares"
+        },
+        "exercisePreview": "Vista Previa de Ejercicios:",
+        "moreExercises": "más ejercicios",
+        "fields": {
+          "name": "Nombre de Plantilla",
+          "namePlaceholder": "ej., Día de Empuje Tren Superior",
+          "description": "Descripción",
+          "descriptionPlaceholder": "Describe el enfoque y approach de esta sesión...",
+          "duration": "Duración (minutos)",
+          "sessionType": "Tipo de Sesión",
+          "difficulty": "Nivel de Dificultad",
+          "muscleGroups": "Grupos Musculares Objetivo"
+        },
+        "sessionType": {
+          "workout": "Entrenamiento",
+          "assessment": "Evaluación",
+          "recovery": "Recuperación"
+        },
+        "difficulty": {
+          "beginner": "Principiante",
+          "intermediate": "Intermedio",
+          "advanced": "Avanzado"
+        },
+        "muscleGroups": {
+          "chest": "Pecho",
+          "back": "Espalda",
+          "shoulders": "Hombros",
+          "arms": "Brazos",
+          "biceps": "Bíceps",
+          "triceps": "Tríceps",
+          "legs": "Piernas",
+          "quadriceps": "Cuádriceps",
+          "hamstrings": "Isquiotibiales",
+          "glutes": "Glúteos",
+          "calves": "Pantorrillas",
+          "core": "Core",
+          "abs": "Abdominales",
+          "cardio": "Cardio",
+          "full_body": "Cuerpo Completo"
+        },
+        "dialog": {
+          "createTemplate": "Crear Plantilla de Sesión",
+          "editTemplate": "Editar Plantilla de Sesión",
+          "description": "Configura los detalles de tu plantilla de sesión",
+          "cancel": "Cancelar",
+          "save": "Guardar Plantilla"
+        },
+        "summary": {
+          "title": "Resumen de Plantillas",
+          "totalTemplates": "Total Plantillas",
+          "avgDuration": "Duración Promedio (min)",
+          "totalExercises": "Total Ejercicios",
+          "muscleGroupsCovered": "Grupos Musculares"
+        }
+      },
+      "preview": {
+        "title": "Vista Previa del Plan",
+        "description": "Revisa tu plan de entrenamiento completo antes de crearlo",
+        "validation": {
+          "title": "Problemas de Validación",
+          "ready": "Plan Listo para Crear",
+          "readyDescription": "¡Tu plan de entrenamiento se ve genial y está listo para ser creado!",
+          "missingName": "El nombre del plan es requerido",
+          "noGoals": "Al menos un objetivo de fitness debe ser seleccionado",
+          "noTemplates": "Al menos una plantilla de sesión es requerida",
+          "noWorkouts": "No hay sesiones de entrenamiento programadas",
+          "tooFewSessions": "Frecuencia de entrenamiento muy baja (menos de 1 por semana)"
+        },
+        "overview": {
+          "title": "Resumen del Plan",
+          "duration": "Duración",
+          "durationValue": "{weeks} semanas",
+          "targetLevel": "Nivel Objetivo",
+          "sessionDuration": "Duración de Sesión",
+          "minutes": "minutos",
+          "goals": "Objetivos de Fitness"
+        },
+        "stats": {
+          "totalWorkouts": "Total Entrenamientos",
+          "totalHours": "Total Horas",
+          "avgPerWeek": "Promedio/Semana",
+          "restDays": "Días de Descanso"
+        },
+        "schedule": {
+          "title": "Vista Previa del Horario Semanal",
+          "description": "Resumen de tu horario de entrenamiento (mostrando las primeras 4 semanas)",
+          "week": "Semana {number}",
+          "workouts": "entrenamientos",
+          "workout": "Entrenamiento",
+          "recovery": "Recuperación",
+          "rest": "Descanso",
+          "moreWeeks": "y {count} semanas más..."
+        },
+        "templates": {
+          "title": "Plantillas de Sesión",
+          "description": "Tus plantillas de sesión de entrenamiento configuradas",
+          "muscles": "Músculos",
+          "summary": {
+            "totalTemplates": "Plantillas",
+            "totalExercises": "Ejercicios",
+            "muscleGroups": "Grupos Musculares",
+            "avgDuration": "Duración Promedio"
+          }
+        },
+        "settings": {
+          "title": "Configuración del Plan",
+          "description": "Configura opciones de compartir y plantilla",
+          "template": {
+            "title": "Guardar como Plantilla",
+            "description": "Permitir a otros usar este plan como plantilla",
+            "enabled": "Plantilla",
+            "disabled": "Personal"
+          },
+          "public": {
+            "title": "Hacer Público",
+            "description": "Compartir este plan con la comunidad",
+            "enabled": "Público",
+            "disabled": "Privado"
+          }
+        },
+        "summary": {
+          "title": "¡Listo para Crear tu Plan!",
+          "description": "Tu programa de {weeks} semanas con {sessions} sesiones totales ({hours} horas) está listo para comenzar.",
+          "validationWarning": "Por favor corrige los problemas de validación arriba antes de crear tu plan.",
+          "moreGoals": "más objetivos"
+        },
+        "fitnessLevel": {
+          "beginner": "Principiante",
+          "intermediate": "Intermedio",
+          "advanced": "Avanzado"
+        },
+        "goals": {
+          "strength": "Fuerza",
+          "muscle_gain": "Ganancia Muscular",
+          "fat_loss": "Pérdida de Grasa",
+          "cardio": "Cardio",
+          "endurance": "Resistencia",
+          "flexibility": "Flexibilidad",
+          "sports_performance": "Deportes",
+          "general_fitness": "Fitness General"
+        },
+        "muscles": {
+          "chest": "Pecho",
+          "back": "Espalda",
+          "shoulders": "Hombros",
+          "arms": "Brazos",
+          "biceps": "Bíceps",
+          "triceps": "Tríceps",
+          "legs": "Piernas",
+          "quadriceps": "Cuádriceps",
+          "hamstrings": "Isquiotibiales",
+          "glutes": "Glúteos",
+          "calves": "Pantorrillas",
+          "core": "Core",
+          "abs": "Abdominales",
+          "cardio": "Cardio",
+          "full_body": "Cuerpo Completo"
+        },
+        "difficulty": {
+          "beginner": "Principiante",
+          "intermediate": "Intermedio",
+          "advanced": "Avanzado"
+        }
+      }
+    },
+    "session": {
+      "backToWorkouts": "Volver a Entrenamientos",
+      "startSession": "Iniciar Sesión",
+      "sessionDescription": "¿Listo para comenzar tu sesión de entrenamiento?",
+      "todaysWorkout": "Entrenamiento de Hoy",
+      "beginWorkout": "Comenzar Entrenamiento",
+      "sessionInProgress": "Sesión en Progreso",
+      "exercise": "Ejercicio",
+      "of": "de",
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "complete": "Completar",
+      "set": "Serie",
+      "round": "Ronda",
+      "start": "Iniciar",
+      "stop": "Detener",
+      "skip": "Saltar",
+      "soundOn": "Sonido Activado",
+      "soundOff": "Sonido Desactivado",
+      "restPeriod": "Período de Descanso",
+      "skipRest": "Saltar Descanso",
+      "targetReps": "Repeticiones Objetivo",
+      "targetWeight": "Peso Objetivo",
+      "targetDuration": "Duración Objetivo",
+      "weight": "Peso",
+      "reps": "Repeticiones",
+      "duration": "Duración",
+      "distance": "Distancia",
+      "notes": "Notas",
+      "optional": "opcional",
+      "addNotes": "Agregar notas sobre esta serie...",
+      "completeSet": "Completar Serie",
+      "completedSets": "Series Completadas",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "sessionComplete": "¡Sesión Completada!",
+      "sessionCompleteDescription": "¡Felicidades por completar tu entrenamiento!",
+      "finishSession": "Finalizar Sesión",
+      "noActiveSession": "No hay sesión activa",
+      "timer": {
+        "set": "Serie",
+        "round": "Ronda",
+        "start": "Iniciar",
+        "stop": "Detener",
+        "skip": "Saltar",
+        "soundOn": "Sonido Activado",
+        "soundOff": "Sonido Desactivado",
+        "timer": {
+          "tabata": {
+            "phase": {
+              "ready": "Prepárate",
+              "work": "Trabajo",
+              "rest": "Descanso",
+              "set_break": "Descanso de Serie",
+              "completed": "Completado",
+              "paused": "Pausado",
+              "stopped": "Detenido"
+            }
+          }
+        },
+        "controls": {
+          "start": "Iniciar",
+          "pause": "Pausar",
+          "resume": "Reanudar",
+          "stop": "Detener",
+          "reset": "Reiniciar",
+          "restart": "Empezar de Nuevo",
+          "skipRest": "Saltar Descanso",
+          "addTime": "Agregar Tiempo",
+          "soundToggle": "Alternar Sonido",
+          "soundOn": "Sonido Activado",
+          "soundOff": "Sonido Desactivado"
+        },
+        "display": {
+          "minutes": "min",
+          "seconds": "seg",
+          "rounds": "Ronda {current} de {total}",
+          "sets": "Serie {current} de {total}",
+          "exercise": "Ejercicio {current} de {total}",
+          "timeRemaining": "Tiempo Restante",
+          "nextUp": "Siguiente: {exercise}",
+          "restTime": "Tiempo de Descanso",
+          "workTime": "Tiempo de Trabajo",
+          "totalTime": "Tiempo Total",
+          "elapsedTime": "Tiempo Transcurrido"
+        },
+        "tabata": {
+          "title": "Cronómetro Tabata",
+          "rounds": "Rondas",
+          "workTime": "Tiempo de Trabajo",
+          "restTime": "Tiempo de Descanso",
+          "setBreak": "Descanso de Serie",
+          "phase": {
+            "ready": "Prepárate",
+            "work": "Trabajo",
+            "rest": "Descanso",
+            "set_break": "Descanso de Serie",
+            "completed": "Completado",
+            "paused": "Pausado",
+            "stopped": "Detenido"
+          },
+          "settings": {
+            "workDuration": "Duración de Trabajo (segundos)",
+            "restDuration": "Duración de Descanso (segundos)",
+            "rounds": "Número de Rondas",
+            "sets": "Número de Series",
+            "setBreakDuration": "Duración de Descanso de Serie (segundos)",
+            "preparationTime": "Tiempo de Preparación (segundos)"
+          }
+        },
+        "interval": {
+          "title": "Cronómetro de Intervalos",
+          "intervals": "Intervalos",
+          "highIntensity": "Alta Intensidad",
+          "lowIntensity": "Baja Intensidad",
+          "warmUp": "Calentamiento",
+          "coolDown": "Enfriamiento"
+        },
+        "stopwatch": {
+          "title": "Cronómetro",
+          "lapTime": "Tiempo de Vuelta",
+          "splitTime": "Tiempo Parcial",
+          "lap": "Vuelta {number}",
+          "reset": "Reiniciar"
+        },
+        "countdown": {
+          "title": "Cuenta Regresiva",
+          "setTime": "Establecer Tiempo",
+          "timeUp": "¡Se Acabó el Tiempo!",
+          "almostDone": "¡Casi Terminamos!"
+        },
+        "notifications": {
+          "workoutStart": "Iniciando Entrenamiento",
+          "restStart": "Período de Descanso",
+          "workoutComplete": "¡Entrenamiento Completado!",
+          "halfwayPoint": "¡A Mitad de Camino!",
+          "lastRound": "¡Última Ronda!",
+          "getReady": "¡Prepárate!",
+          "timeWarning": "Advertencia de Tiempo",
+          "nextExercise": "Próximo Ejercicio"
+        },
+        "status": {
+          "running": "En Marcha",
+          "paused": "Pausado",
+          "stopped": "Detenido",
+          "completed": "Completado",
+          "ready": "Listo",
+          "counting": "Contando",
+          "waiting": "Esperando"
+        }
       }
     }
   }

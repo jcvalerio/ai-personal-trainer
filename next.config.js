@@ -30,7 +30,17 @@ const nextConfig = {
     },
   },
 
-  // PWA Configuration will be added in Phase 2
+  // PWA Configuration for offline capability
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Register service worker
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+      }
+    }
+    return config
+  },
   
   // Performance optimizations
   compiler: {
