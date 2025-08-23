@@ -2,175 +2,192 @@
  * Service Worker Provider
  * Handles service worker registration and communication
  */
-'use client'
+'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 interface ServiceWorkerContextType {
-  isSupported: boolean
-  isRegistered: boolean
-  isUpdateAvailable: boolean
-  registration: ServiceWorkerRegistration | null
-  
+  isSupported: boolean;
+  isRegistered: boolean;
+  isUpdateAvailable: boolean;
+  registration: ServiceWorkerRegistration | null;
+
   // Actions
-  updateServiceWorker: () => void
-  unregisterServiceWorker: () => Promise<boolean>
+  updateServiceWorker: () => void;
+  unregisterServiceWorker: () => Promise<boolean>;
 }
 
-const ServiceWorkerContext = createContext<ServiceWorkerContextType | undefined>(undefined)
+const ServiceWorkerContext = createContext<
+  ServiceWorkerContextType | undefined
+>(undefined);
 
 interface ServiceWorkerProviderProps {
-  children: React.ReactNode
-  swUrl?: string
-  enableDevelopment?: boolean
+  children: React.ReactNode;
+  swUrl?: string;
+  enableDevelopment?: boolean;
 }
 
-export function ServiceWorkerProvider({ 
-  children, 
+export function ServiceWorkerProvider({
+  children,
   swUrl = '/sw.js',
-  enableDevelopment = false 
+  enableDevelopment = false,
 }: ServiceWorkerProviderProps) {
-  const [isSupported, setIsSupported] = useState(false)
-  const [isRegistered, setIsRegistered] = useState(false)
-  const [isUpdateAvailable, setIsUpdateAvailable] = useState(false)
-  const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null)
+  const [isSupported, setIsSupported] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
+  const [registration, setRegistration] =
+    useState<ServiceWorkerRegistration | null>(null);
 
   // Check service worker support
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const supported = 'serviceWorker' in navigator
-      setIsSupported(supported)
-      
+      const supported = 'serviceWorker' in navigator;
+      setIsSupported(supported);
+
       if (supported) {
-        console.log('SW: Service Worker supported')
+        console.log('SW: Service Worker supported');
       } else {
-        console.warn('SW: Service Worker not supported')
+        console.warn('SW: Service Worker not supported');
       }
     }
-  }, [])
+  }, []);
 
   // Register service worker
   useEffect(() => {
-    if (!isSupported) {return}
+    if (!isSupported) {
+      return;
+    }
 
     // Only register in production or if explicitly enabled in development
-    const isProduction = process.env.NODE_ENV === 'production'
+    const isProduction = process.env.NODE_ENV === 'production';
     if (!isProduction && !enableDevelopment) {
-      console.log('SW: Skipping registration in development')
-      return
+      console.log('SW: Skipping registration in development');
+      return;
     }
 
     const registerServiceWorker = async () => {
       try {
-        console.log('SW: Registering service worker...')
-        
+        console.log('SW: Registering service worker...');
+
         const reg = await navigator.serviceWorker.register(swUrl, {
           scope: '/',
-          updateViaCache: 'none'
-        })
+          updateViaCache: 'none',
+        });
 
-        setRegistration(reg)
-        setIsRegistered(true)
-        console.log('SW: Service worker registered successfully')
+        setRegistration(reg);
+        setIsRegistered(true);
+        console.log('SW: Service worker registered successfully');
 
         // Listen for updates
         reg.addEventListener('updatefound', () => {
-          console.log('SW: Update found')
-          const newWorker = reg.installing
-          
+          console.log('SW: Update found');
+          const newWorker = reg.installing;
+
           if (newWorker) {
             newWorker.addEventListener('statechange', () => {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                console.log('SW: New version available')
-                setIsUpdateAvailable(true)
+              if (
+                newWorker.state === 'installed' &&
+                navigator.serviceWorker.controller
+              ) {
+                console.log('SW: New version available');
+                setIsUpdateAvailable(true);
               }
-            })
+            });
           }
-        })
+        });
 
         // Check for existing controller
         if (reg.active && !navigator.serviceWorker.controller) {
-          window.location.reload()
+          window.location.reload();
         }
-
       } catch (error) {
-        console.error('SW: Registration failed:', error)
-        setIsRegistered(false)
+        console.error('SW: Registration failed:', error);
+        setIsRegistered(false);
       }
-    }
+    };
 
-    registerServiceWorker()
-  }, [isSupported, swUrl, enableDevelopment])
+    registerServiceWorker();
+  }, [isSupported, swUrl, enableDevelopment]);
 
   // Listen for service worker messages
   useEffect(() => {
-    if (!isSupported) {return}
+    if (!isSupported) {
+      return;
+    }
 
     const handleMessage = (event: MessageEvent) => {
-      console.log('SW: Received message:', event.data)
-      
+      console.log('SW: Received message:', event.data);
+
       if (event.data?.type) {
         switch (event.data.type) {
           case 'SW_UPDATE_READY':
-            setIsUpdateAvailable(true)
-            break
+            setIsUpdateAvailable(true);
+            break;
           case 'SW_CACHE_UPDATED':
-            console.log('SW: Cache updated')
-            break
+            console.log('SW: Cache updated');
+            break;
           case 'OFFLINE_STATUS':
-            console.log('SW: Offline status:', event.data.payload)
-            break
+            console.log('SW: Offline status:', event.data.payload);
+            break;
         }
       }
-    }
+    };
 
-    navigator.serviceWorker.addEventListener('message', handleMessage)
-    
+    navigator.serviceWorker.addEventListener('message', handleMessage);
+
     return () => {
-      navigator.serviceWorker.removeEventListener('message', handleMessage)
-    }
-  }, [isSupported])
+      navigator.serviceWorker.removeEventListener('message', handleMessage);
+    };
+  }, [isSupported]);
 
   // Listen for controller change (new SW activated)
   useEffect(() => {
-    if (!isSupported) {return}
+    if (!isSupported) {
+      return;
+    }
 
     const handleControllerChange = () => {
-      console.log('SW: Controller changed, reloading...')
-      window.location.reload()
-    }
+      console.log('SW: Controller changed, reloading...');
+      window.location.reload();
+    };
 
-    navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange)
+    navigator.serviceWorker.addEventListener(
+      'controllerchange',
+      handleControllerChange
+    );
 
     return () => {
-      navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange)
-    }
-  }, [isSupported])
+      navigator.serviceWorker.removeEventListener(
+        'controllerchange',
+        handleControllerChange
+      );
+    };
+  }, [isSupported]);
 
   // Actions
   const updateServiceWorker = () => {
     if (registration?.waiting) {
-      console.log('SW: Activating new service worker...')
-      registration.waiting.postMessage({ type: 'SKIP_WAITING' })
+      console.log('SW: Activating new service worker...');
+      registration.waiting.postMessage({ type: 'SKIP_WAITING' });
     }
-  }
+  };
 
   const unregisterServiceWorker = async (): Promise<boolean> => {
     if (registration) {
       try {
-        const unregistered = await registration.unregister()
+        const unregistered = await registration.unregister();
         if (unregistered) {
-          console.log('SW: Service worker unregistered')
-          setIsRegistered(false)
-          setRegistration(null)
-          return true
+          console.log('SW: Service worker unregistered');
+          setIsRegistered(false);
+          setRegistration(null);
+          return true;
         }
       } catch (error) {
-        console.error('SW: Unregistration failed:', error)
+        console.error('SW: Unregistration failed:', error);
       }
     }
-    return false
-  }
+    return false;
+  };
 
   const contextValue: ServiceWorkerContextType = {
     isSupported,
@@ -178,92 +195,96 @@ export function ServiceWorkerProvider({
     isUpdateAvailable,
     registration,
     updateServiceWorker,
-    unregisterServiceWorker
-  }
+    unregisterServiceWorker,
+  };
 
   return (
     <ServiceWorkerContext.Provider value={contextValue}>
       {children}
     </ServiceWorkerContext.Provider>
-  )
+  );
 }
 
 // Custom hook to use service worker context
 export function useServiceWorker() {
-  const context = useContext(ServiceWorkerContext)
+  const context = useContext(ServiceWorkerContext);
   if (!context) {
-    throw new Error('useServiceWorker must be used within a ServiceWorkerProvider')
+    throw new Error(
+      'useServiceWorker must be used within a ServiceWorkerProvider'
+    );
   }
-  return context
+  return context;
 }
 
 // Hook for service worker communication
 export function useServiceWorkerMessaging() {
-  const { registration } = useServiceWorker()
+  const { registration } = useServiceWorker();
 
   const sendMessage = (message: any) => {
     if (navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage(message)
+      navigator.serviceWorker.controller.postMessage(message);
     } else {
-      console.warn('SW: No service worker controller available')
+      console.warn('SW: No service worker controller available');
     }
-  }
+  };
 
   const requestSync = (tag: string) => {
     if (registration && 'sync' in window.ServiceWorkerRegistration.prototype) {
-      return (registration as any).sync.register(tag)
+      return (registration as any).sync.register(tag);
     } else {
-      console.warn('SW: Background Sync not supported')
-      return Promise.reject(new Error('Background Sync not supported'))
+      console.warn('SW: Background Sync not supported');
+      return Promise.reject(new Error('Background Sync not supported'));
     }
-  }
+  };
 
   return {
     sendMessage,
     requestSync,
-    canSync: registration && 'sync' in window.ServiceWorkerRegistration.prototype
-  }
+    canSync:
+      registration && 'sync' in window.ServiceWorkerRegistration.prototype,
+  };
 }
 
 // Component to show update prompt
 export function ServiceWorkerUpdatePrompt() {
-  const { isUpdateAvailable, updateServiceWorker } = useServiceWorker()
-  const [isDismissed, setIsDismissed] = useState(false)
+  const { isUpdateAvailable, updateServiceWorker } = useServiceWorker();
+  const [isDismissed, setIsDismissed] = useState(false);
 
   if (!isUpdateAvailable || isDismissed) {
-    return null
+    return null;
   }
 
   return (
-    <div className="fixed top-4 right-4 z-50 bg-blue-600 text-white p-4 rounded-lg shadow-lg max-w-sm">
-      <div className="flex items-start gap-3">
-        <div className="flex-1">
-          <h3 className="font-medium text-sm">App Update Available</h3>
-          <p className="text-xs opacity-90 mt-1">
-            A new version of the app is ready. Refresh to get the latest features and improvements.
+    <div className='fixed right-4 top-4 z-50 max-w-sm rounded-lg bg-blue-600 p-4 text-white shadow-lg'>
+      <div className='flex items-start gap-3'>
+        <div className='flex-1'>
+          <h3 className='text-sm font-medium'>App Update Available</h3>
+          <p className='mt-1 text-xs opacity-90'>
+            A new version of the app is ready. Refresh to get the latest
+            features and improvements.
           </p>
         </div>
         <button
           onClick={() => setIsDismissed(true)}
-          className="text-white/80 hover:text-white text-lg leading-none"
+          className='text-lg leading-none text-white/80 hover:text-white'
         >
           ×
         </button>
       </div>
-      <div className="flex gap-2 mt-3">
+      <div className='mt-3 flex gap-2'>
         <button
           onClick={updateServiceWorker}
-          className="px-3 py-1 bg-white/20 hover:bg-white/30 rounded text-xs font-medium transition-colors"
+          className='rounded bg-white/20 px-3 py-1 text-xs font-medium transition-colors hover:bg-white/30'
         >
           Update Now
         </button>
         <button
           onClick={() => setIsDismissed(true)}
-          className="px-3 py-1 text-white/80 hover:text-white text-xs transition-colors"
+          className='px-3 py-1 text-xs text-white/80 transition-colors hover:text-white'
         >
           Later
         </button>
       </div>
     </div>
-  )
+  );
 }

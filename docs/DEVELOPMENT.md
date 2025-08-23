@@ -10,6 +10,7 @@ This guide will help you set up and contribute to the AI Personal Trainer PWA pr
    - Git
 
 2. **Setup**
+
    ```bash
    git clone https://github.com/yourusername/ai-personal-trainer.git
    cd ai-personal-trainer
@@ -17,10 +18,11 @@ This guide will help you set up and contribute to the AI Personal Trainer PWA pr
    ```
 
 3. **Development**
+
    ```bash
    pnpm dev
    ```
-   
+
    The app will be available at http://localhost:3000
 
 ## 📁 Project Structure
@@ -52,12 +54,14 @@ ai-personal-trainer/
 ## 🛠️ Development Workflow
 
 ### 1. Branch Naming Convention
+
 - `feature/description` - New features
 - `fix/description` - Bug fixes
 - `docs/description` - Documentation updates
 - `refactor/description` - Code refactoring
 
 ### 2. Commit Message Format
+
 ```
 type(scope): description
 
@@ -68,6 +72,7 @@ docs: update development setup guide
 ```
 
 ### 3. Pull Request Process
+
 1. Create a feature branch from `main`
 2. Make your changes following the coding standards
 3. Write tests for new functionality
@@ -78,18 +83,21 @@ docs: update development setup guide
 ## 🧪 Testing
 
 ### Unit Tests (Coming in Phase 2)
+
 ```bash
 pnpm test          # Run tests
 pnpm test:ui       # Run tests with UI
 ```
 
 ### E2E Tests (Coming in Phase 2)
+
 ```bash
 pnpm test:e2e      # Run E2E tests
 pnpm test:e2e:ui   # Run E2E tests with UI
 ```
 
 ### Manual Testing Checklist
+
 - [ ] Mobile responsiveness (iPhone 14 Pro, Android)
 - [ ] PWA functionality (install, offline)
 - [ ] Accessibility (screen readers, keyboard nav)
@@ -99,12 +107,14 @@ pnpm test:e2e:ui   # Run E2E tests with UI
 ## 🎨 Code Style
 
 ### TypeScript
+
 - Use strict mode configuration
 - Define interfaces for all data structures
 - Use type-safe APIs and proper error handling
 - Avoid `any` type unless absolutely necessary
 
 ### React Components
+
 ```typescript
 // Good: Functional component with proper typing
 interface ButtonProps {
@@ -115,7 +125,7 @@ interface ButtonProps {
 
 export function Button({ variant, onClick, children }: ButtonProps) {
   return (
-    <button 
+    <button
       className={cn('btn', `btn-${variant}`)}
       onClick={onClick}
     >
@@ -126,6 +136,7 @@ export function Button({ variant, onClick, children }: ButtonProps) {
 ```
 
 ### Styling
+
 - Use Tailwind CSS utility classes
 - Follow mobile-first responsive design
 - Use semantic HTML elements
@@ -133,6 +144,7 @@ export function Button({ variant, onClick, children }: ButtonProps) {
 - Implement proper focus states
 
 ### File Organization
+
 - Keep components small and focused
 - Use barrel exports for clean imports
 - Group related functionality in directories
@@ -154,6 +166,7 @@ pnpm analyze       # Analyze bundle size
 ## 📱 Mobile Development
 
 ### PWA Requirements
+
 - Responsive design (320px to 1920px)
 - Touch-friendly interactions (44px targets)
 - Fast loading (< 3s on 3G)
@@ -161,6 +174,7 @@ pnpm analyze       # Analyze bundle size
 - Install prompts
 
 ### Testing on Devices
+
 1. Use Chrome DevTools mobile simulation
 2. Test on actual devices when possible
 3. Verify PWA features work correctly
@@ -169,11 +183,13 @@ pnpm analyze       # Analyze bundle size
 ## 🚀 Deployment
 
 ### Staging
+
 - Automatic deployment on PR to `main`
 - Preview URLs provided in PR comments
 - Test all changes before merging
 
 ### Production
+
 - Automatic deployment on merge to `main`
 - Runs full CI/CD pipeline
 - Monitors Core Web Vitals
@@ -182,6 +198,7 @@ pnpm analyze       # Analyze bundle size
 ## 🔐 Environment Variables
 
 Create `.env.local` file:
+
 ```env
 # Required for development
 NODE_ENV=development
@@ -201,12 +218,14 @@ ANTHROPIC_API_KEY=sk-ant-...
 ## 🐛 Debugging
 
 ### Development Tools
+
 - React Developer Tools
 - Next.js debugger configuration
 - TypeScript error checking
 - ESLint warnings and errors
 
 ### Common Issues
+
 1. **Build fails**: Check TypeScript errors and dependencies
 2. **Styles not applying**: Verify Tailwind configuration
 3. **Hot reload not working**: Restart dev server
@@ -215,17 +234,20 @@ ANTHROPIC_API_KEY=sk-ant-...
 ## 📚 Learning Resources
 
 ### Technology Stack
+
 - [Next.js 15 Documentation](https://nextjs.org/docs)
 - [TypeScript Handbook](https://www.typescriptlang.org/docs/)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 - [React Documentation](https://react.dev/)
 
 ### PWA Development
+
 - [PWA Builder](https://www.pwabuilder.com/)
 - [Web.dev PWA Guide](https://web.dev/progressive-web-apps/)
 - [Workbox (Service Workers)](https://developers.google.com/web/tools/workbox)
 
 ### AI Integration
+
 - [Anthropic Claude API](https://docs.anthropic.com/claude/docs)
 - [OpenAI API Documentation](https://platform.openai.com/docs)
 
@@ -239,11 +261,13 @@ ANTHROPIC_API_KEY=sk-ant-...
 ## 📈 Performance Guidelines
 
 ### Core Web Vitals Targets
+
 - **LCP (Largest Contentful Paint)**: < 2.5s
 - **FID (First Input Delay)**: < 100ms
 - **CLS (Cumulative Layout Shift)**: < 0.1
 
 ### Best Practices
+
 - Optimize images (use Next.js Image component)
 - Lazy load below-the-fold content
 - Minimize bundle size (analyze with `pnpm analyze`)
@@ -251,6 +275,7 @@ ANTHROPIC_API_KEY=sk-ant-...
 - Implement progressive loading states
 
 ### Mobile Performance
+
 - Target 60fps animations
 - Optimize for 3G networks
 - Implement proper loading states

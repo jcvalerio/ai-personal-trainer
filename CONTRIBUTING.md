@@ -5,6 +5,7 @@ Thank you for your interest in contributing to the AI Personal Trainer PWA! This
 ## 🌟 How to Contribute
 
 We welcome contributions in many forms:
+
 - 🐛 Bug reports and fixes
 - ✨ New features and enhancements
 - 📝 Documentation improvements
@@ -32,6 +33,7 @@ We welcome contributions in many forms:
 ## 📋 Development Process
 
 ### Before You Start
+
 - Check existing issues to avoid duplicate work
 - Create an issue for major changes to discuss the approach
 - Review the [Development Guide](./docs/DEVELOPMENT.md)
@@ -40,12 +42,14 @@ We welcome contributions in many forms:
 ### Code Standards
 
 #### TypeScript
+
 - Use strict mode and proper typing
 - Avoid `any` type unless absolutely necessary
 - Define interfaces for all data structures
 - Use meaningful variable and function names
 
 #### React Components
+
 ```typescript
 // ✅ Good: Proper typing and structure
 interface ButtonProps {
@@ -57,7 +61,7 @@ interface ButtonProps {
 
 export function Button({ variant, onClick, children, disabled = false }: ButtonProps) {
   return (
-    <button 
+    <button
       className={cn('btn', `btn-${variant}`, disabled && 'btn-disabled')}
       onClick={onClick}
       disabled={disabled}
@@ -74,6 +78,7 @@ export function Button(props) {
 ```
 
 #### Styling Guidelines
+
 - Use Tailwind CSS utility classes
 - Follow mobile-first responsive design
 - Ensure 44px minimum touch targets
@@ -81,6 +86,7 @@ export function Button(props) {
 - Use semantic HTML elements
 
 #### Accessibility Requirements
+
 - All interactive elements must be keyboard accessible
 - Proper ARIA labels and roles
 - Color contrast ratio of at least 4.5:1
@@ -90,6 +96,7 @@ export function Button(props) {
 ### Code Quality Checks
 
 Before submitting your PR, ensure:
+
 ```bash
 pnpm type-check    # TypeScript compilation
 pnpm lint          # ESLint checks
@@ -100,6 +107,7 @@ pnpm build         # Production build
 ## 🧪 Testing Requirements
 
 ### Manual Testing Checklist
+
 - [ ] **Mobile responsiveness**: Test on various screen sizes
 - [ ] **PWA functionality**: Install prompt, offline behavior
 - [ ] **Cross-browser**: Chrome, Firefox, Safari, Edge
@@ -107,14 +115,16 @@ pnpm build         # Production build
 - [ ] **Performance**: Core Web Vitals, loading times
 
 ### Test Coverage (Phase 2+)
+
 - Write unit tests for new functions and components
-- Add integration tests for complex workflows  
+- Add integration tests for complex workflows
 - Include E2E tests for critical user journeys
 - Maintain >80% test coverage
 
 ## 📝 Documentation Standards
 
 ### Code Documentation
+
 ```typescript
 /**
  * Calculate the total calories burned during a workout session
@@ -124,8 +134,8 @@ pnpm build         # Production build
  * @returns Total calories burned
  */
 export function calculateCaloriesBurned(
-  exercises: SessionExercise[], 
-  userWeight: number, 
+  exercises: SessionExercise[],
+  userWeight: number,
   duration: number
 ): number {
   // Implementation...
@@ -133,10 +143,11 @@ export function calculateCaloriesBurned(
 ```
 
 ### Component Documentation
+
 ```typescript
 /**
  * WorkoutCard displays a summary of a workout session
- * 
+ *
  * @example
  * <WorkoutCard
  *   workout={workoutData}
@@ -146,15 +157,16 @@ export function calculateCaloriesBurned(
  */
 interface WorkoutCardProps {
   /** Workout data to display */
-  workout: WorkoutSession
+  workout: WorkoutSession;
   /** Callback when start button is clicked */
-  onStart: (workoutId: string) => void
+  onStart: (workoutId: string) => void;
   /** Card display variant */
-  variant?: 'default' | 'compact'
+  variant?: 'default' | 'compact';
 }
 ```
 
 ### Specification Updates
+
 - Update relevant specs when changing functionality
 - Document new database schema changes
 - Update API documentation for endpoint changes
@@ -163,6 +175,7 @@ interface WorkoutCardProps {
 ## 🔄 Pull Request Process
 
 ### PR Requirements
+
 1. **Clear title and description** explaining the changes
 2. **Link to related issues** using "Closes #123"
 3. **Screenshots** for UI changes
@@ -170,7 +183,9 @@ interface WorkoutCardProps {
 5. **Performance impact assessment** for significant changes
 
 ### PR Template Checklist
+
 Use our [PR template](.github/pull_request_template.md) and ensure:
+
 - [ ] Code follows project style guidelines
 - [ ] Self-review completed
 - [ ] Tests pass locally
@@ -179,6 +194,7 @@ Use our [PR template](.github/pull_request_template.md) and ensure:
 - [ ] Mobile functionality verified
 
 ### Review Process
+
 1. **Automated checks** must pass (CI/CD pipeline)
 2. **Code review** by at least one maintainer
 3. **Testing verification** on preview deployment
@@ -188,6 +204,7 @@ Use our [PR template](.github/pull_request_template.md) and ensure:
 ## 🚨 Security Guidelines
 
 ### Data Protection
+
 - Never commit API keys, passwords, or secrets
 - Use environment variables for sensitive data
 - Implement proper input validation
@@ -195,6 +212,7 @@ Use our [PR template](.github/pull_request_template.md) and ensure:
 - Sanitize all user inputs, especially for AI prompts
 
 ### Authentication & Authorization
+
 - Respect user permissions and roles
 - Implement proper session management
 - Use secure HTTP headers
@@ -204,71 +222,89 @@ Use our [PR template](.github/pull_request_template.md) and ensure:
 ## 🐛 Bug Reports
 
 ### Before Reporting
+
 1. Check existing issues for duplicates
 2. Test on the latest version
 3. Reproduce the issue consistently
 4. Gather relevant information
 
 ### Bug Report Template
+
 ```markdown
 ## Bug Description
+
 Clear description of the issue
 
 ## Steps to Reproduce
+
 1. Go to...
 2. Click on...
 3. See error...
 
 ## Expected Behavior
+
 What should happen
 
 ## Actual Behavior
+
 What actually happens
 
 ## Environment
+
 - Device: iPhone 14 Pro / Desktop
 - Browser: Safari 17.1
 - OS: iOS 17.1
 - App version: v0.1.0
 
 ## Screenshots
+
 [Add screenshots if applicable]
 
 ## Additional Context
+
 Any other relevant information
 ```
 
 ## ✨ Feature Requests
 
 ### Before Requesting
+
 - Check if the feature aligns with project goals
 - Review existing issues and discussions
 - Consider the implementation complexity
 - Think about user impact and benefits
 
 ### Feature Request Template
+
 ```markdown
 ## Feature Description
+
 Clear description of the proposed feature
 
 ## Problem Statement
+
 What problem does this solve?
 
 ## Proposed Solution
+
 How should this feature work?
 
 ## Alternative Solutions
+
 Other ways to solve this problem
 
 ## User Stories
+
 - As a [user type], I want [goal] so that [benefit]
 
 ## Implementation Notes
+
 Technical considerations or constraints
 
 ## Priority
+
 - [ ] Low
-- [ ] Medium  
+- [ ] Medium
 - [ ] High
 - [ ] Critical
 ```
@@ -276,6 +312,7 @@ Technical considerations or constraints
 ## 📱 Mobile-First Development
 
 ### Design Principles
+
 - Start with mobile (320px) and scale up
 - Touch-friendly interactions (44px minimum)
 - Fast loading on slow networks
@@ -283,6 +320,7 @@ Technical considerations or constraints
 - Offline-first approach
 
 ### Testing Requirements
+
 - Test on actual mobile devices when possible
 - Use Chrome DevTools device simulation
 - Verify PWA installation works
@@ -292,6 +330,7 @@ Technical considerations or constraints
 ## 🤝 Community Guidelines
 
 ### Code of Conduct
+
 - Be respectful and inclusive
 - Welcome newcomers and help them learn
 - Focus on constructive feedback
@@ -299,6 +338,7 @@ Technical considerations or constraints
 - Address conflicts professionally
 
 ### Communication
+
 - Use clear, concise language
 - Provide helpful context in issues and PRs
 - Respond to feedback promptly
@@ -308,6 +348,7 @@ Technical considerations or constraints
 ## 🏆 Recognition
 
 We appreciate all contributions! Contributors will be:
+
 - Listed in project credits
 - Mentioned in release notes for significant contributions
 - Invited to join the core contributor team for consistent contributions

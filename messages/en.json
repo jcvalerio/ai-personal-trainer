@@ -19,7 +19,7 @@
     "description": "Transform your fitness journey with AI-powered workout plans, real-time guidance, and progress tracking. Perfect for families and gym partnerships.",
     "benefits": {
       "aiPlans": "AI-Generated Workout Plans",
-      "equipment": "Equipment Identification", 
+      "equipment": "Equipment Identification",
       "familySharing": "Family Progress Sharing",
       "gymReady": "Gym Partnership Ready"
     },
@@ -335,7 +335,7 @@
       },
       "days": {
         "monday": "Monday",
-        "tuesday": "Tuesday", 
+        "tuesday": "Tuesday",
         "wednesday": "Wednesday",
         "thursday": "Thursday",
         "friday": "Friday",
@@ -487,7 +487,7 @@
         },
         "days": {
           "monday": "Monday",
-          "tuesday": "Tuesday", 
+          "tuesday": "Tuesday",
           "wednesday": "Wednesday",
           "thursday": "Thursday",
           "friday": "Friday",
@@ -632,7 +632,7 @@
         },
         "stats": {
           "totalWorkouts": "Total Workouts",
-          "totalHours": "Total Hours", 
+          "totalHours": "Total Hours",
           "avgPerWeek": "Avg/Week",
           "restDays": "Rest Days"
         },
@@ -681,7 +681,7 @@
         },
         "fitnessLevel": {
           "beginner": "Beginner",
-          "intermediate": "Intermediate", 
+          "intermediate": "Intermediate",
           "advanced": "Advanced"
         },
         "goals": {
@@ -760,7 +760,7 @@
     "sessions": {
       "today": "Today",
       "targetMuscles": "Target Muscles",
-      "progress": "Progress", 
+      "progress": "Progress",
       "started": "Started",
       "completed": "Completed",
       "duration": "Duration",
@@ -793,7 +793,7 @@
       "restPeriod": "Rest Period",
       "skipRest": "Skip Rest",
       "targetReps": "Target Reps",
-      "targetWeight": "Target Weight", 
+      "targetWeight": "Target Weight",
       "targetDuration": "Target Duration",
       "weight": "Weight",
       "reps": "Reps",

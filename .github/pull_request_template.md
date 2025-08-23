@@ -77,6 +77,7 @@ Related to #(issue number)
 ## 👀 Review Focus Areas
 
 Please pay special attention to:
+
 - [ ] Code quality and maintainability
 - [ ] Security implications
 - [ ] Performance impact

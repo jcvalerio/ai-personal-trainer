@@ -32,18 +32,21 @@ Each specification follows this structure:
 ## Critical Implementation Notes
 
 ### Security Requirements (All Phases)
+
 - Rate limiting on all public endpoints
 - Input validation using Zod schemas
 - Row-level security for multi-tenant data
 - Prompt injection protection for AI endpoints
 
 ### Performance Requirements (All Phases)
+
 - Core Web Vitals: LCP <2.5s, FID <100ms, CLS <0.1
 - Database queries optimized with proper indexing
 - Async processing for AI operations (no blocking UI)
 - Aggressive caching at multiple levels
 
 ### Scalability Requirements (All Phases)
+
 - Multi-tenant architecture from day one
 - Connection pooling for database efficiency
 - Horizontal scaling preparation
@@ -52,13 +55,15 @@ Each specification follows this structure:
 ## Phase Overview
 
 ### Phase 1: Foundation & Security
+
 - Multi-tenant architecture setup
 - Authentication with Clerk organizations
 - Database schema with RLS
 - Security middleware and validation
 - **Target**: Secure, scalable foundation
 
-### Phase 2: Core Features  
+### Phase 2: Core Features
+
 - AI workout generation (async)
 - Equipment database with QR codes
 - Session tracking system
@@ -66,6 +71,7 @@ Each specification follows this structure:
 - **Target**: MVP functionality for families
 
 ### Phase 3: Business Features
+
 - Gym dashboard and analytics
 - Equipment booking system
 - White-label branding
@@ -73,6 +79,7 @@ Each specification follows this structure:
 - **Target**: B2B partnership ready
 
 ### Phase 4: Production Ready
+
 - Performance optimization
 - Monitoring and observability
 - Load testing validation

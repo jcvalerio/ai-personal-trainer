@@ -18,7 +18,7 @@ const colors = {
   magenta: '\x1b[35m',
   cyan: '\x1b[36m',
   reset: '\x1b[0m',
-  bold: '\x1b[1m'
+  bold: '\x1b[1m',
 };
 
 const verbose = process.argv.includes('--verbose');
@@ -38,7 +38,9 @@ const envChecks: EnvCheck[] = [
     required: true,
     description: 'NeonDB connection string',
     example: 'postgresql://user:password@ep-xxx.us-east-1.aws.neon.tech/neondb',
-    validator: (val) => val.includes('postgresql://') || 'Must be a valid PostgreSQL connection string'
+    validator: (val) =>
+      val.includes('postgresql://') ||
+      'Must be a valid PostgreSQL connection string',
   },
 
   // Authentication (Clerk)
@@ -47,20 +49,20 @@ const envChecks: EnvCheck[] = [
     required: true,
     description: 'Clerk publishable key (public)',
     example: 'pk_test_...',
-    validator: (val) => val.startsWith('pk_') || 'Must start with pk_'
+    validator: (val) => val.startsWith('pk_') || 'Must start with pk_',
   },
   {
     key: 'CLERK_SECRET_KEY',
     required: true,
     description: 'Clerk secret key (private)',
     example: 'sk_test_...',
-    validator: (val) => val.startsWith('sk_') || 'Must start with sk_'
+    validator: (val) => val.startsWith('sk_') || 'Must start with sk_',
   },
   {
     key: 'CLERK_WEBHOOK_SECRET',
     required: false,
     description: 'Clerk webhook secret for user sync',
-    example: 'whsec_...'
+    example: 'whsec_...',
   },
 
   // OpenAI/AI Service
@@ -69,7 +71,7 @@ const envChecks: EnvCheck[] = [
     required: true,
     description: 'OpenAI API key for AI workout generation',
     example: 'sk-...',
-    validator: (val) => val.startsWith('sk-') || 'Must start with sk-'
+    validator: (val) => val.startsWith('sk-') || 'Must start with sk-',
   },
 
   // Monitoring (Optional)
@@ -77,13 +79,13 @@ const envChecks: EnvCheck[] = [
     key: 'SENTRY_DSN',
     required: false,
     description: 'Sentry DSN for error tracking',
-    example: 'https://...@sentry.io/...'
+    example: 'https://...@sentry.io/...',
   },
   {
     key: 'POSTHOG_KEY',
     required: false,
     description: 'PostHog key for analytics',
-    example: 'phc_...'
+    example: 'phc_...',
   },
 
   // App Configuration
@@ -92,15 +94,17 @@ const envChecks: EnvCheck[] = [
     required: false,
     description: 'Public app URL (used for webhooks and redirects)',
     example: 'http://localhost:3000',
-    validator: (val) => val.startsWith('http') || 'Must be a valid URL'
+    validator: (val) => val.startsWith('http') || 'Must be a valid URL',
   },
   {
     key: 'NODE_ENV',
     required: false,
     description: 'Node environment',
     example: 'development',
-    validator: (val) => ['development', 'production', 'test'].includes(val) || 'Must be development, production, or test'
-  }
+    validator: (val) =>
+      ['development', 'production', 'test'].includes(val) ||
+      'Must be development, production, or test',
+  },
 ];
 
 function log(message: string, color: string = colors.reset) {
@@ -131,7 +135,10 @@ function validateEnvironment(): boolean {
   }
 
   if (!envFileLoaded) {
-    log('⚠️  No .env files found. Using system environment variables only.', colors.yellow);
+    log(
+      '⚠️  No .env files found. Using system environment variables only.',
+      colors.yellow
+    );
   }
 
   let allValid = true;
@@ -166,14 +173,18 @@ function validateEnvironment(): boolean {
         if (validation === true) {
           logVerbose(`✅ ${check.key}`, colors.green);
           if (verbose) {
-            const maskedValue = check.key.includes('SECRET') || check.key.includes('KEY')
-              ? value.substring(0, 8) + '...'
-              : value;
+            const maskedValue =
+              check.key.includes('SECRET') || check.key.includes('KEY')
+                ? value.substring(0, 8) + '...'
+                : value;
             logVerbose(`   Value: ${maskedValue}`, colors.cyan);
           }
         } else {
           log(`❌ ${check.key} (INVALID)`, colors.red);
-          log(`   ${typeof validation === 'string' ? validation : 'Invalid value'}`, colors.red);
+          log(
+            `   ${typeof validation === 'string' ? validation : 'Invalid value'}`,
+            colors.red
+          );
           if (check.required) {
             allValid = false;
           }
@@ -181,9 +192,10 @@ function validateEnvironment(): boolean {
       } else {
         logVerbose(`✅ ${check.key}`, colors.green);
         if (verbose) {
-          const maskedValue = check.key.includes('SECRET') || check.key.includes('KEY')
-            ? value.substring(0, 8) + '...'
-            : value;
+          const maskedValue =
+            check.key.includes('SECRET') || check.key.includes('KEY')
+              ? value.substring(0, 8) + '...'
+              : value;
           logVerbose(`   Value: ${maskedValue}`, colors.cyan);
         }
       }
@@ -192,14 +204,20 @@ function validateEnvironment(): boolean {
 
   log('');
   log(`${colors.bold}Summary:${colors.reset}`);
-  
+
   if (allValid) {
     log(`✅ All required environment variables are valid!`, colors.green);
     if (optionalMissing > 0) {
-      log(`⚠️  ${optionalMissing} optional variables missing (features may be limited)`, colors.yellow);
+      log(
+        `⚠️  ${optionalMissing} optional variables missing (features may be limited)`,
+        colors.yellow
+      );
     }
   } else {
-    log(`❌ ${criticalMissing} required environment variables missing or invalid`, colors.red);
+    log(
+      `❌ ${criticalMissing} required environment variables missing or invalid`,
+      colors.red
+    );
     if (optionalMissing > 0) {
       log(`⚠️  ${optionalMissing} optional variables missing`, colors.yellow);
     }
@@ -221,7 +239,9 @@ function validateEnvironment(): boolean {
 
 // Additional development environment checks
 function checkDevelopmentEnvironment(): void {
-  log(`${colors.blue}${colors.bold}🛠️  Development Environment Check${colors.reset}`);
+  log(
+    `${colors.blue}${colors.bold}🛠️  Development Environment Check${colors.reset}`
+  );
   log('=====================================');
 
   // Check Node.js version
@@ -253,7 +273,7 @@ function checkDevelopmentEnvironment(): void {
 // Main execution
 async function main() {
   const isValid = validateEnvironment();
-  
+
   if (verbose) {
     log('');
     checkDevelopmentEnvironment();

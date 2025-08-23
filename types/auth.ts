@@ -3,237 +3,245 @@
  * Specific to Clerk integration and multi-tenant architecture
  */
 
-import { UserRole } from './index'
+import { UserRole } from './index';
 
 // Define OrganizationType directly here to avoid import issues
-export type OrganizationType = 'family' | 'gym'
+export type OrganizationType = 'family' | 'gym';
 
 // Clerk-specific types
 export interface ClerkUserMetadata {
-  role: UserRole
-  organizationId?: string
-  organizationType?: OrganizationType
-  hasCompletedOnboarding: boolean
-  fitnessLevel?: 'beginner' | 'intermediate' | 'advanced'
-  primaryGoals?: string[]
+  role: UserRole;
+  organizationId?: string;
+  organizationType?: OrganizationType;
+  hasCompletedOnboarding: boolean;
+  fitnessLevel?: 'beginner' | 'intermediate' | 'advanced';
+  primaryGoals?: string[];
 }
 
 export interface ClerkOrganizationMetadata {
-  type: OrganizationType
-  maxMembers: number
-  subscriptionTier: 'free' | 'premium' | 'enterprise'
+  type: OrganizationType;
+  maxMembers: number;
+  subscriptionTier: 'free' | 'premium' | 'enterprise';
   brandingConfig?: {
-    logo?: string
-    primaryColor?: string
-    secondaryColor?: string
-  }
+    logo?: string;
+    primaryColor?: string;
+    secondaryColor?: string;
+  };
 }
 
 // Organization membership types
-export type OrganizationRole = 'member' | 'admin' | 'owner'
+export type OrganizationRole = 'member' | 'admin' | 'owner';
 
 export interface OrganizationMembership {
-  id: string
-  organizationId: string
-  userId: string
-  role: OrganizationRole
-  invitedBy?: string
-  invitedAt?: Date | undefined
-  joinedAt: Date
-  isActive: boolean
-  permissions?: string[]
+  id: string;
+  organizationId: string;
+  userId: string;
+  role: OrganizationRole;
+  invitedBy?: string;
+  invitedAt?: Date | undefined;
+  joinedAt: Date;
+  isActive: boolean;
+  permissions?: string[];
 }
 
 // Authentication session types
 export interface AuthSession {
-  user: SessionUser
-  organization?: SessionOrganization
-  permissions: Permission[]
-  isAuthenticated: boolean
-  hasCompletedOnboarding: boolean
+  user: SessionUser;
+  organization?: SessionOrganization;
+  permissions: Permission[];
+  isAuthenticated: boolean;
+  hasCompletedOnboarding: boolean;
 }
 
 export interface SessionUser {
-  id: string
-  clerkUserId: string
-  email: string
-  displayName: string
-  avatarUrl?: string
-  role: UserRole
-  fitnessLevel?: 'beginner' | 'intermediate' | 'advanced'
-  createdAt: Date
+  id: string;
+  clerkUserId: string;
+  email: string;
+  displayName: string;
+  avatarUrl?: string;
+  role: UserRole;
+  fitnessLevel?: 'beginner' | 'intermediate' | 'advanced';
+  createdAt: Date;
 }
 
 export interface SessionOrganization {
-  id: string
-  clerkOrgId: string
-  name: string
-  type: OrganizationType
-  role: OrganizationRole
+  id: string;
+  clerkOrgId: string;
+  name: string;
+  type: OrganizationType;
+  role: OrganizationRole;
   brandingConfig?: {
-    logo?: string
-    primaryColor?: string
-    secondaryColor?: string
-  }
+    logo?: string;
+    primaryColor?: string;
+    secondaryColor?: string;
+  };
 }
 
 // Permission system
 export interface Permission {
-  resource: string
-  action: string
-  conditions?: Record<string, any>
+  resource: string;
+  action: string;
+  conditions?: Record<string, any>;
 }
 
 // Onboarding flow types
 export interface OnboardingData {
-  step: 'profile' | 'fitness' | 'goals' | 'organization' | 'complete'
+  step: 'profile' | 'fitness' | 'goals' | 'organization' | 'complete';
   profileData?: {
-    displayName: string
-    avatarUrl?: string
-  }
+    displayName: string;
+    avatarUrl?: string;
+  };
   fitnessData?: {
-    fitnessLevel: 'beginner' | 'intermediate' | 'advanced'
-    heightCm?: number
-    weightKg?: number
-    birthDate?: Date
-  }
+    fitnessLevel: 'beginner' | 'intermediate' | 'advanced';
+    heightCm?: number;
+    weightKg?: number;
+    birthDate?: Date;
+  };
   goalsData?: {
-    primaryGoals: string[]
-    workoutPreference: 'home' | 'gym' | 'outdoor' | 'mixed'
-    availableHours: number
-  }
+    primaryGoals: string[];
+    workoutPreference: 'home' | 'gym' | 'outdoor' | 'mixed';
+    availableHours: number;
+  };
   organizationData?: {
-    action: 'create' | 'join' | 'skip'
-    organizationType?: OrganizationType
-    organizationName?: string
-    joinCode?: string
-  }
+    action: 'create' | 'join' | 'skip';
+    organizationType?: OrganizationType;
+    organizationName?: string;
+    joinCode?: string;
+  };
 }
 
 export interface OnboardingStepProps {
-  data: OnboardingData
-  updateData: (updates: Partial<OnboardingData>) => void
-  nextStep: () => void
-  prevStep: () => void
-  isLoading?: boolean
-  error?: string
+  data: OnboardingData;
+  updateData: (updates: Partial<OnboardingData>) => void;
+  nextStep: () => void;
+  prevStep: () => void;
+  isLoading?: boolean;
+  error?: string;
 }
 
 // Invitation system types
 export interface OrganizationInvite {
-  id: string
-  organizationId: string
-  organizationName: string
-  organizationType: OrganizationType
-  inviterName: string
-  inviterEmail: string
-  inviteeEmail: string
-  role: OrganizationRole
-  inviteCode: string
-  expiresAt: Date
-  acceptedAt?: Date | undefined
-  rejectedAt?: Date | undefined
-  status: 'pending' | 'accepted' | 'rejected' | 'expired'
-  createdAt: Date
+  id: string;
+  organizationId: string;
+  organizationName: string;
+  organizationType: OrganizationType;
+  inviterName: string;
+  inviterEmail: string;
+  inviteeEmail: string;
+  role: OrganizationRole;
+  inviteCode: string;
+  expiresAt: Date;
+  acceptedAt?: Date | undefined;
+  rejectedAt?: Date | undefined;
+  status: 'pending' | 'accepted' | 'rejected' | 'expired';
+  createdAt: Date;
 }
 
 export interface InviteMemberForm {
-  email: string
-  role: OrganizationRole
-  customMessage?: string | undefined
+  email: string;
+  role: OrganizationRole;
+  customMessage?: string | undefined;
 }
 
 // API request/response types
 export interface CreateUserProfileRequest {
-  displayName: string
-  fitnessLevel: 'beginner' | 'intermediate' | 'advanced'
-  heightCm?: number
-  weightKg?: number
-  birthDate?: string
-  primaryGoals: string[]
+  displayName: string;
+  fitnessLevel: 'beginner' | 'intermediate' | 'advanced';
+  heightCm?: number;
+  weightKg?: number;
+  birthDate?: string;
+  primaryGoals: string[];
   preferences?: {
-    units?: 'metric' | 'imperial'
-    workoutReminders?: boolean
-    theme?: 'light' | 'dark' | 'auto'
-  }
+    units?: 'metric' | 'imperial';
+    workoutReminders?: boolean;
+    theme?: 'light' | 'dark' | 'auto';
+  };
 }
 
 export interface CreateOrganizationRequest {
-  name: string
-  description?: string | undefined
-  type: OrganizationType
-  maxMembers?: number
+  name: string;
+  description?: string | undefined;
+  type: OrganizationType;
+  maxMembers?: number;
   brandingConfig?: {
-    logo?: string
-    primaryColor?: string
-    secondaryColor?: string
-  }
+    logo?: string;
+    primaryColor?: string;
+    secondaryColor?: string;
+  };
   settings?: {
-    allowMemberInvites?: boolean
-    requireApprovalForJoining?: boolean
-    shareEquipmentDatabase?: boolean
-    enableLeaderboards?: boolean
-  }
+    allowMemberInvites?: boolean;
+    requireApprovalForJoining?: boolean;
+    shareEquipmentDatabase?: boolean;
+    enableLeaderboards?: boolean;
+  };
 }
 
-export interface UpdateUserProfileRequest extends Partial<CreateUserProfileRequest> {
-  organizationId?: string
-  role?: UserRole
+export interface UpdateUserProfileRequest
+  extends Partial<CreateUserProfileRequest> {
+  organizationId?: string;
+  role?: UserRole;
 }
 
 export interface JoinOrganizationRequest {
-  inviteCode?: string
-  organizationId?: string
-  message?: string
+  inviteCode?: string;
+  organizationId?: string;
+  message?: string;
 }
 
 // Clerk webhook event types
 export interface ClerkWebhookEvent {
-  type: 'user.created' | 'user.updated' | 'user.deleted' |
-        'organization.created' | 'organization.updated' | 'organization.deleted' |
-        'organizationMembership.created' | 'organizationMembership.updated' | 'organizationMembership.deleted'
-  data: any
-  object: string
-  timestamp: number
+  type:
+    | 'user.created'
+    | 'user.updated'
+    | 'user.deleted'
+    | 'organization.created'
+    | 'organization.updated'
+    | 'organization.deleted'
+    | 'organizationMembership.created'
+    | 'organizationMembership.updated'
+    | 'organizationMembership.deleted';
+  data: any;
+  object: string;
+  timestamp: number;
 }
 
 export interface ClerkUserWebhookData {
-  id: string
+  id: string;
   email_addresses: Array<{
-    email_address: string
-    id: string
-  }>
-  first_name?: string
-  last_name?: string
-  image_url?: string
-  public_metadata?: Record<string, any>
-  private_metadata?: Record<string, any>
-  unsafe_metadata?: Record<string, any>
-  created_at: number
-  updated_at: number
+    email_address: string;
+    id: string;
+  }>;
+  first_name?: string;
+  last_name?: string;
+  image_url?: string;
+  public_metadata?: Record<string, any>;
+  private_metadata?: Record<string, any>;
+  unsafe_metadata?: Record<string, any>;
+  created_at: number;
+  updated_at: number;
 }
 
 export interface ClerkOrganizationWebhookData {
-  id: string
-  name: string
-  slug: string
-  public_metadata?: Record<string, any>
-  private_metadata?: Record<string, any>
-  created_at: number
-  updated_at: number
-  members_count?: number
+  id: string;
+  name: string;
+  slug: string;
+  public_metadata?: Record<string, any>;
+  private_metadata?: Record<string, any>;
+  created_at: number;
+  updated_at: number;
+  members_count?: number;
 }
 
 // Error types
 export interface AuthError {
-  code: AuthErrorCode
-  message: string
-  details?: Record<string, any> | undefined
+  code: AuthErrorCode;
+  message: string;
+  details?: Record<string, any> | undefined;
 }
 
-export type AuthErrorCode = 
+export type AuthErrorCode =
   | 'UNAUTHORIZED'
-  | 'FORBIDDEN' 
+  | 'FORBIDDEN'
   | 'USER_NOT_FOUND'
   | 'ORGANIZATION_NOT_FOUND'
   | 'INVITE_EXPIRED'
@@ -263,30 +271,32 @@ export type AuthErrorCode =
   | 'INVALID_EMAIL'
   | 'ALREADY_MEMBER'
   | 'CONFIRMATION_REQUIRED'
-  | 'CANNOT_REMOVE_OWNER'
+  | 'CANNOT_REMOVE_OWNER';
 
 // Utility types for authentication
 export type AuthenticatedRoute = {
-  requireAuth: true
-  requireOnboarding?: boolean
-  allowedRoles?: UserRole[]
-  allowedOrganizationTypes?: OrganizationType[]
-  requiredPermissions?: Permission[]
-}
+  requireAuth: true;
+  requireOnboarding?: boolean;
+  allowedRoles?: UserRole[];
+  allowedOrganizationTypes?: OrganizationType[];
+  requiredPermissions?: Permission[];
+};
 
 export type PublicRoute = {
-  requireAuth: false
-}
+  requireAuth: false;
+};
 
-export type RouteConfig = AuthenticatedRoute | PublicRoute
+export type RouteConfig = AuthenticatedRoute | PublicRoute;
 
 // Type guards
-export function isAuthenticatedRoute(route: RouteConfig): route is AuthenticatedRoute {
-  return route.requireAuth === true
+export function isAuthenticatedRoute(
+  route: RouteConfig
+): route is AuthenticatedRoute {
+  return route.requireAuth === true;
 }
 
 export function isPublicRoute(route: RouteConfig): route is PublicRoute {
-  return route.requireAuth === false
+  return route.requireAuth === false;
 }
 
 // Constants
@@ -326,7 +336,7 @@ export const DEFAULT_PERMISSIONS = {
     { resource: 'gym_analytics', action: 'read' },
     { resource: 'gym_billing', action: 'manage' },
   ],
-} as const
+} as const;
 
 export const ORGANIZATION_LIMITS = {
   FAMILY: {
@@ -339,4 +349,4 @@ export const ORGANIZATION_LIMITS = {
     PREMIUM: { maxMembers: 200 },
     ENTERPRISE: { maxMembers: 1000 },
   },
-} as const
+} as const;

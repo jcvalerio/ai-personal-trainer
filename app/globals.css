@@ -9,12 +9,12 @@
   --color-primary-foreground: 255 255 255;
   --color-secondary: 241 245 249; /* slate-100 */
   --color-secondary-foreground: 15 23 42; /* slate-900 */
-  
+
   /* Status colors */
   --color-success: 16 185 129; /* emerald-500 */
   --color-warning: 245 158 11; /* amber-500 */
   --color-error: 239 68 68; /* red-500 */
-  
+
   /* Neutral colors */
   --color-background: 255 255 255;
   --color-foreground: 15 23 42; /* slate-900 */
@@ -22,7 +22,7 @@
   --color-muted-foreground: 100 116 139; /* slate-500 */
   --color-border: 226 232 240; /* slate-200 */
   --color-input: 226 232 240; /* slate-200 */
-  
+
   /* Spacing for touch targets */
   --touch-target-min: 44px;
   --safe-area-inset-top: env(safe-area-inset-top);
@@ -58,8 +58,9 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
-               'Helvetica Neue', Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
   line-height: 1.5;
   color: rgb(var(--color-foreground));
   background-color: rgb(var(--color-background));
@@ -137,42 +138,42 @@ button {
   .text-balance {
     text-wrap: balance;
   }
-  
+
   .text-pretty {
     text-wrap: pretty;
   }
-  
+
   /* Layout utilities */
   .container-safe {
-    @apply container mx-auto px-4 safe-area-left safe-area-right;
+    @apply safe-area-left safe-area-right container mx-auto px-4;
   }
-  
+
   /* Animation utilities */
   .animate-in {
     animation: fadeIn 0.3s ease-in-out;
   }
-  
+
   .animate-out {
     animation: fadeOut 0.3s ease-in-out;
   }
-  
+
   /* Interactive states */
   .interactive {
     @apply touch-target transition-all duration-200 ease-in-out;
     @apply hover:scale-[1.02] active:scale-[0.98];
   }
-  
+
   /* Status indicators */
   .status-success {
-    @apply bg-success-50 text-success-700 border border-success-200;
+    @apply border border-success-200 bg-success-50 text-success-700;
   }
-  
+
   .status-warning {
-    @apply bg-warning-50 text-warning-700 border border-warning-200;
+    @apply border border-warning-200 bg-warning-50 text-warning-700;
   }
-  
+
   .status-error {
-    @apply bg-error-50 text-error-700 border border-error-200;
+    @apply border border-error-200 bg-error-50 text-error-700;
   }
 }
 
@@ -182,80 +183,80 @@ button {
   .btn {
     @apply inline-flex items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-200;
     @apply touch-target focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2;
-    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply disabled:cursor-not-allowed disabled:opacity-50;
   }
-  
+
   .btn-primary {
     @apply btn bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700;
     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
   }
-  
+
   .btn-secondary {
     @apply btn bg-gray-100 text-gray-900 hover:bg-gray-200 active:bg-gray-300;
   }
-  
+
   .btn-outline {
     @apply btn border border-gray-300 text-gray-700 hover:bg-gray-50 active:bg-gray-100;
   }
-  
+
   /* Card component */
   .card {
-    @apply bg-white rounded-2xl border border-gray-200 shadow-soft overflow-hidden;
+    @apply overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-soft;
   }
-  
+
   .card-header {
-    @apply px-6 py-4 border-b border-gray-200;
+    @apply border-b border-gray-200 px-6 py-4;
   }
-  
+
   .card-content {
     @apply px-6 py-4;
   }
-  
+
   .card-footer {
-    @apply px-6 py-4 border-t border-gray-200;
+    @apply border-t border-gray-200 px-6 py-4;
   }
-  
+
   /* Input styles */
   .input {
-    @apply w-full px-4 py-3 text-base bg-white border border-gray-300 rounded-xl;
+    @apply w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base;
     @apply focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-offset-0;
-    @apply placeholder:text-gray-500 transition-all duration-200;
+    @apply transition-all duration-200 placeholder:text-gray-500;
     min-height: var(--touch-target-min);
   }
-  
+
   /* Loading states */
   .loading {
     @apply animate-pulse;
   }
-  
+
   .skeleton {
-    @apply loading bg-gray-200 rounded;
+    @apply loading rounded bg-gray-200;
   }
 }
 
 /* Dark mode adjustments */
 @media (prefers-color-scheme: dark) {
   .card {
-    @apply bg-slate-800 border-slate-700;
+    @apply border-slate-700 bg-slate-800;
   }
-  
+
   .card-header,
   .card-footer {
     @apply border-slate-700;
   }
-  
+
   .input {
-    @apply bg-slate-800 border-slate-700 text-slate-100 placeholder:text-slate-400;
+    @apply border-slate-700 bg-slate-800 text-slate-100 placeholder:text-slate-400;
   }
-  
+
   .btn-secondary {
     @apply bg-slate-800 text-slate-100 hover:bg-slate-700 active:bg-slate-600;
   }
-  
+
   .btn-outline {
     @apply border-slate-700 text-slate-300 hover:bg-slate-800 active:bg-slate-700;
   }
-  
+
   .skeleton {
     @apply bg-slate-700;
   }

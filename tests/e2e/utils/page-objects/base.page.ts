@@ -1,37 +1,37 @@
-import { expect, Page } from '@playwright/test'
+import { expect, Page } from '@playwright/test';
 
 /**
  * Base page class with common utilities and methods
  */
 export abstract class BasePage {
-  protected readonly page: Page
-  protected readonly baseUrl: string
+  protected readonly page: Page;
+  protected readonly baseUrl: string;
 
   constructor(page: Page) {
-    this.page = page
-    this.baseUrl = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000'
+    this.page = page;
+    this.baseUrl = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
   }
 
   /**
    * Navigate to a specific URL
    */
   async goto(path: string = '/'): Promise<void> {
-    await this.page.goto(`${this.baseUrl}${path}`)
+    await this.page.goto(`${this.baseUrl}${path}`);
   }
 
   /**
    * Wait for page to be ready
    */
   async waitForPageLoad(): Promise<void> {
-    await this.page.waitForLoadState('networkidle')
-    await this.page.waitForFunction(() => document.readyState === 'complete')
+    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForFunction(() => document.readyState === 'complete');
   }
 
   /**
    * Wait for an element to be visible
    */
   async waitForElement(selector: string, timeout = 10000): Promise<void> {
-    await this.page.waitForSelector(selector, { state: 'visible', timeout })
+    await this.page.waitForSelector(selector, { state: 'visible', timeout });
   }
 
   /**
@@ -42,19 +42,21 @@ export abstract class BasePage {
       (searchText) => document.body.innerText.includes(searchText),
       text,
       { timeout }
-    )
+    );
   }
 
   /**
    * Take a screenshot with automatic naming
    */
   async takeScreenshot(name?: string): Promise<void> {
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-    const screenshotName = name ? `${name}-${timestamp}` : `screenshot-${timestamp}`
-    await this.page.screenshot({ 
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const screenshotName = name
+      ? `${name}-${timestamp}`
+      : `screenshot-${timestamp}`;
+    await this.page.screenshot({
       path: `test-results/screenshots/${screenshotName}.png`,
-      fullPage: true 
-    })
+      fullPage: true,
+    });
   }
 
   /**
@@ -62,10 +64,13 @@ export abstract class BasePage {
    */
   async elementExists(selector: string): Promise<boolean> {
     try {
-      await this.page.waitForSelector(selector, { state: 'visible', timeout: 1000 })
-      return true
+      await this.page.waitForSelector(selector, {
+        state: 'visible',
+        timeout: 1000,
+      });
+      return true;
     } catch {
-      return false
+      return false;
     }
   }
 
@@ -73,30 +78,32 @@ export abstract class BasePage {
    * Get current URL
    */
   getCurrentUrl(): string {
-    return this.page.url()
+    return this.page.url();
   }
 
   /**
    * Assert current URL matches expected path
    */
   async assertUrlPath(expectedPath: string): Promise<void> {
-    const currentUrl = new URL(this.page.url())
-    expect(currentUrl.pathname).toBe(expectedPath)
+    const currentUrl = new URL(this.page.url());
+    expect(currentUrl.pathname).toBe(expectedPath);
   }
 
   /**
    * Fill form field with retry logic
    */
   async fillField(selector: string, value: string): Promise<void> {
-    const field = this.page.locator(selector)
-    await field.waitFor({ state: 'visible' })
-    await field.clear()
-    await field.fill(value)
-    
+    const field = this.page.locator(selector);
+    await field.waitFor({ state: 'visible' });
+    await field.clear();
+    await field.fill(value);
+
     // Verify the field was filled correctly
-    const fieldValue = await field.inputValue()
+    const fieldValue = await field.inputValue();
     if (fieldValue !== value) {
-      throw new Error(`Failed to fill field ${selector}. Expected: ${value}, Got: ${fieldValue}`)
+      throw new Error(
+        `Failed to fill field ${selector}. Expected: ${value}, Got: ${fieldValue}`
+      );
     }
   }
 
@@ -104,9 +111,9 @@ export abstract class BasePage {
    * Click element with retry logic
    */
   async clickElement(selector: string): Promise<void> {
-    const element = this.page.locator(selector)
-    await element.waitFor({ state: 'visible' })
-    await element.click()
+    const element = this.page.locator(selector);
+    await element.waitFor({ state: 'visible' });
+    await element.click();
   }
 
   /**
@@ -115,8 +122,8 @@ export abstract class BasePage {
   async waitForNavigation(action: () => Promise<void>): Promise<void> {
     await Promise.all([
       this.page.waitForNavigation({ waitUntil: 'networkidle' }),
-      action()
-    ])
+      action(),
+    ]);
   }
 
   /**
@@ -129,22 +136,22 @@ export abstract class BasePage {
       '[role="alert"]',
       '.text-red-500',
       '.text-red-600',
-      '.text-destructive'
-    ]
+      '.text-destructive',
+    ];
 
-    const errors: string[] = []
-    
+    const errors: string[] = [];
+
     for (const selector of errorSelectors) {
-      const elements = await this.page.locator(selector).all()
+      const elements = await this.page.locator(selector).all();
       for (const element of elements) {
-        const text = await element.textContent()
+        const text = await element.textContent();
         if (text?.trim()) {
-          errors.push(text.trim())
+          errors.push(text.trim());
         }
       }
     }
 
-    return errors
+    return errors;
   }
 
   /**
@@ -156,12 +163,15 @@ export abstract class BasePage {
       '[data-testid="loading"]',
       '.loading',
       '.spinner',
-      '.animate-spin'
-    ]
+      '.animate-spin',
+    ];
 
     for (const selector of loadingSelectors) {
       try {
-        await this.page.waitForSelector(selector, { state: 'hidden', timeout: 5000 })
+        await this.page.waitForSelector(selector, {
+          state: 'hidden',
+          timeout: 5000,
+        });
       } catch {
         // Loading indicator might not exist, continue
       }
@@ -172,14 +182,14 @@ export abstract class BasePage {
    * Get page title
    */
   async getTitle(): Promise<string> {
-    return await this.page.title()
+    return await this.page.title();
   }
 
   /**
    * Assert page title contains expected text
    */
   async assertTitleContains(expectedText: string): Promise<void> {
-    const title = await this.getTitle()
-    expect(title).toContain(expectedText)
+    const title = await this.getTitle();
+    expect(title).toContain(expectedText);
   }
 }

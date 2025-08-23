@@ -8,7 +8,7 @@ This testing framework provides complete E2E test coverage for the workout syste
 
 - **Authentication flow** using provided test credentials
 - **User onboarding** and profile creation
-- **Workout dashboard** navigation and functionality  
+- **Workout dashboard** navigation and functionality
 - **Workout plan** creation and management
 - **Exercise library** browsing and search
 - **Session tracking** and real-time updates
@@ -50,12 +50,14 @@ tests/e2e/
 ### Environment Setup
 
 1. **Set test credentials** (provided by user):
+
    ```bash
    export CLERK_CLAUDE_TEST_USER_EMAIL="appttitude@gmail.com"
    export CLERK_CLAUDE_TEST_USER_PASSWORD="JuanK@1979"
    ```
 
 2. **Install Playwright browsers**:
+
    ```bash
    pnpm test:e2e:install
    ```
@@ -68,6 +70,7 @@ tests/e2e/
 ## 🧪 Test Commands
 
 ### Basic Commands
+
 ```bash
 # Run all E2E tests
 pnpm test:e2e
@@ -83,11 +86,12 @@ pnpm test:e2e:report
 ```
 
 ### Specific Test Suites
+
 ```bash
 # Authentication tests only
 pnpm test:e2e:auth
 
-# Dashboard tests only  
+# Dashboard tests only
 pnpm test:e2e:dashboard
 
 # Workout management tests
@@ -101,6 +105,7 @@ pnpm test:e2e:progress
 ```
 
 ### Advanced Commands
+
 ```bash
 # Use custom test runner script
 ./tests/e2e/run-tests.sh [test-type] [options]
@@ -114,10 +119,12 @@ pnpm test:e2e:progress
 ## 🔧 Configuration
 
 ### Main Configuration
+
 - `playwright.config.ts` - Main Playwright configuration
 - `playwright-simple.config.ts` - Simplified config for basic tests
 
 ### Environment Files
+
 - `.env.test` - Test-specific environment variables
 - Test credentials should be set as environment variables
 
@@ -130,10 +137,10 @@ pnpm test:e2e:progress
   fullyParallel: true,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  
+
   // Browser projects
   projects: ['chromium', 'firefox', 'webkit', 'Mobile Chrome', 'Mobile Safari'],
-  
+
   // Auto-start dev server
   webServer: {
     command: 'pnpm run dev',
@@ -146,47 +153,52 @@ pnpm test:e2e:progress
 ## 🏗️ Test Architecture
 
 ### Page Object Models
+
 Organized page objects for maintainable tests:
 
 ```typescript
 // Example usage
-import { SignInPage, DashboardPage } from './utils/page-objects'
+import { SignInPage, DashboardPage } from './utils/page-objects';
 
-const signInPage = new SignInPage(page)
-await signInPage.signIn(email, password)
+const signInPage = new SignInPage(page);
+await signInPage.signIn(email, password);
 
-const dashboard = new DashboardPage(page)
-await dashboard.verifyUserAuthenticated()
+const dashboard = new DashboardPage(page);
+await dashboard.verifyUserAuthenticated();
 ```
 
 ### Test Utilities
 
 #### Authentication Utils
-```typescript
-import { AuthUtils } from './utils/auth.utils'
 
-const authUtils = new AuthUtils(page)
-await authUtils.signIn()  // Uses provided test credentials
-await authUtils.verifyAuthenticated()
-await authUtils.signOut()
+```typescript
+import { AuthUtils } from './utils/auth.utils';
+
+const authUtils = new AuthUtils(page);
+await authUtils.signIn(); // Uses provided test credentials
+await authUtils.verifyAuthenticated();
+await authUtils.signOut();
 ```
 
-#### Test Data Utils  
-```typescript
-import { TestDataUtils } from './utils/test-data.utils'
+#### Test Data Utils
 
-const testData = new TestDataUtils(page)
-const workoutPlans = testData.generateWorkoutPlans()
-const planId = await testData.createWorkoutPlan(workoutPlans[0])
+```typescript
+import { TestDataUtils } from './utils/test-data.utils';
+
+const testData = new TestDataUtils(page);
+const workoutPlans = testData.generateWorkoutPlans();
+const planId = await testData.createWorkoutPlan(workoutPlans[0]);
 ```
 
 ### Authentication Flow
 
 Tests use the provided credentials:
-- **Email**: `appttitude@gmail.com` 
+
+- **Email**: `appttitude@gmail.com`
 - **Password**: `JuanK@1979`
 
 The framework handles:
+
 1. Sign-in with test credentials
 2. Onboarding completion if needed
 3. Authentication state management
@@ -195,6 +207,7 @@ The framework handles:
 ## 📊 Test Coverage
 
 ### Authentication Tests
+
 - ✅ Sign-in page loading and form validation
 - ✅ Successful authentication with valid credentials
 - ✅ Error handling for invalid credentials
@@ -204,7 +217,8 @@ The framework handles:
 - ✅ Protected route redirection
 - ✅ Session persistence across reloads
 
-### Dashboard Tests  
+### Dashboard Tests
+
 - ✅ Dashboard loading and content display
 - ✅ Welcome message and user info
 - ✅ Workout summary and statistics
@@ -216,6 +230,7 @@ The framework handles:
 - ✅ Performance and error handling
 
 ### Workout Management Tests
+
 - ✅ Workout listing and display
 - ✅ Search and filtering functionality
 - ✅ Workout selection and details
@@ -226,6 +241,7 @@ The framework handles:
 - ✅ API integration for workout data
 
 ### Exercise Library Tests
+
 - ✅ Exercise library browsing
 - ✅ Exercise search functionality
 - ✅ Category filtering
@@ -235,6 +251,7 @@ The framework handles:
 - ✅ Navigation integration
 
 ### Progress Tracking Tests
+
 - ✅ Progress overview display
 - ✅ Workout statistics
 - ✅ Progress charts and visualizations
@@ -248,6 +265,7 @@ The framework handles:
 ## 🛠️ Debugging
 
 ### Test Failures
+
 1. **Check screenshots** in `test-results/screenshots/`
 2. **Review videos** in test results
 3. **Use trace viewer**:
@@ -256,12 +274,14 @@ The framework handles:
    ```
 
 ### Debug Mode
+
 ```bash
 # Run single test in debug mode
 pnpm exec playwright test --debug tests/e2e/auth/authentication.spec.ts
 ```
 
-### Headed Mode  
+### Headed Mode
+
 ```bash
 # Run with browser visible
 pnpm test:e2e:headed
@@ -270,11 +290,13 @@ pnpm test:e2e:headed
 ## 📈 CI/CD Integration
 
 ### GitHub Actions
+
 Configured workflow: `.github/workflows/e2e-tests.yml`
 
 Features:
+
 - ✅ Multi-browser testing (Chrome, Firefox, Safari)
-- ✅ Parallel test execution  
+- ✅ Parallel test execution
 - ✅ Test result artifacts
 - ✅ Screenshot capture on failures
 - ✅ HTML report generation
@@ -282,6 +304,7 @@ Features:
 - ✅ GitHub Pages report deployment
 
 ### Environment Variables for CI
+
 Required secrets in GitHub repository:
 
 ```bash
@@ -306,6 +329,7 @@ CLERK_WEBHOOK_SECRET=whsec_...
 ## 📝 Best Practices
 
 ### Writing Tests
+
 1. **Use Page Object Models** for maintainable tests
 2. **Wait for elements** properly with Playwright's auto-waiting
 3. **Use data attributes** (`data-testid`) for reliable selectors
@@ -314,6 +338,7 @@ CLERK_WEBHOOK_SECRET=whsec_...
 6. **Clean up test data** after test runs
 
 ### Test Organization
+
 1. **Group related tests** in describe blocks
 2. **Use descriptive test names** that explain the scenario
 3. **Keep tests independent** - no dependencies between tests
@@ -321,8 +346,9 @@ CLERK_WEBHOOK_SECRET=whsec_...
 5. **Parallel execution safe** - no shared state
 
 ### Error Handling
+
 1. **Graceful degradation** when features not available
-2. **Meaningful error messages** in test failures  
+2. **Meaningful error messages** in test failures
 3. **Screenshot and video** capture for debugging
 4. **Retry logic** for flaky network operations
 5. **Proper timeout handling** for different operations
@@ -332,6 +358,7 @@ CLERK_WEBHOOK_SECRET=whsec_...
 ### Common Issues
 
 **Environment Variable Issues**:
+
 ```bash
 # Check if variables are set
 echo $CLERK_CLAUDE_TEST_USER_EMAIL
@@ -339,6 +366,7 @@ echo $CLERK_CLAUDE_TEST_USER_PASSWORD
 ```
 
 **Server Not Running**:
+
 ```bash
 # Ensure dev server is running
 pnpm dev
@@ -348,12 +376,14 @@ SKIP_SERVER_START=true pnpm test:e2e
 ```
 
 **Browser Installation**:
+
 ```bash
 # Reinstall Playwright browsers
 pnpm exec playwright install --force
 ```
 
 **Test Timeouts**:
+
 - Check network connectivity
 - Verify server is responsive
 - Increase timeout in configuration if needed
@@ -361,7 +391,7 @@ pnpm exec playwright install --force
 ## 📚 Resources
 
 - [Playwright Documentation](https://playwright.dev)
-- [Test Best Practices](https://playwright.dev/docs/best-practices)  
+- [Test Best Practices](https://playwright.dev/docs/best-practices)
 - [Page Object Model](https://playwright.dev/docs/pom)
 - [CI/CD Integration](https://playwright.dev/docs/ci-intro)
 
@@ -370,7 +400,7 @@ pnpm exec playwright install --force
 The E2E testing framework is now fully configured with:
 
 - ✅ **Comprehensive test coverage** for all workout system features
-- ✅ **Robust authentication testing** with provided test credentials  
+- ✅ **Robust authentication testing** with provided test credentials
 - ✅ **Maintainable architecture** using page object models
 - ✅ **CI/CD integration** with GitHub Actions
 - ✅ **Multiple test execution options** for different scenarios

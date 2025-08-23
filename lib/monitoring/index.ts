@@ -1,12 +1,16 @@
 /**
  * Monitoring and Analytics Configuration
- * 
+ *
  * Centralized configuration for all monitoring, analytics, and error tracking.
  * Supports Sentry, PostHog, and custom performance monitoring.
  */
 
 import { initSentry, setUserContext, addContextTags } from './sentry';
-import { initWebVitals, trackPageLoad, ApiPerformanceMonitor } from './performance';
+import {
+  initWebVitals,
+  trackPageLoad,
+  ApiPerformanceMonitor,
+} from './performance';
 
 // PostHog configuration (if available)
 let posthog: any = null;
@@ -17,15 +21,15 @@ let posthog: any = null;
 export async function initMonitoring() {
   // Initialize Sentry for error tracking
   await initSentry();
-  
+
   // Initialize Web Vitals tracking
   initWebVitals();
-  
+
   // Initialize PostHog for analytics (client-side only)
   if (typeof window !== 'undefined') {
     initPostHog();
   }
-  
+
   console.log('✅ Monitoring systems initialized');
 }
 
@@ -33,40 +37,45 @@ export async function initMonitoring() {
  * Initialize PostHog analytics
  */
 async function initPostHog() {
-  if (!process.env.NEXT_PUBLIC_POSTHOG_KEY || !process.env.NEXT_PUBLIC_POSTHOG_HOST) {
+  if (
+    !process.env.NEXT_PUBLIC_POSTHOG_KEY ||
+    !process.env.NEXT_PUBLIC_POSTHOG_HOST
+  ) {
     return;
   }
-  
+
   try {
     // Use dynamic import with string to avoid TypeScript module resolution
     const moduleName = 'posthog-js';
-    const posthogModule = await import(/* webpackIgnore: true */ moduleName).catch(() => null);
+    const posthogModule = await import(
+      /* webpackIgnore: true */ moduleName
+    ).catch(() => null);
     if (!posthogModule) {
       console.warn('PostHog not available - analytics disabled');
       return;
     }
-    
+
     const posthogLib = posthogModule.default;
-    
+
     posthogLib.init(process.env.NEXT_PUBLIC_POSTHOG_KEY, {
       api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST,
-      
+
       // Privacy settings
       respect_dnt: true,
       opt_out_capturing_by_default: false,
-      
+
       // Performance settings
       loaded: (posthogInstance: any) => {
         posthog = posthogInstance;
-        
+
         // Track page views automatically
         posthogInstance.capture('$pageview');
       },
-      
+
       // Feature flags
       bootstrap: {
-        featureFlags: {}
-      }
+        featureFlags: {},
+      },
     });
   } catch (error) {
     console.warn('PostHog initialization failed:', error);
@@ -85,22 +94,22 @@ export function setMonitoringUser(user: {
 }) {
   // Set Sentry user context
   setUserContext(user);
-  
+
   // Set PostHog user context
   if (posthog && typeof window !== 'undefined') {
     posthog.identify(user.id, {
       email: user.email,
       username: user.username,
       subscription: user.subscription,
-      organization_id: user.organizationId
+      organization_id: user.organizationId,
     });
   }
-  
+
   // Add context tags for better error tracking
   addContextTags({
     user_id: user.id,
     subscription: user.subscription || 'free',
-    organization_id: user.organizationId || 'personal'
+    organization_id: user.organizationId || 'personal',
   });
 }
 
@@ -116,12 +125,12 @@ export function trackEvent(
   if (posthog && typeof window !== 'undefined') {
     posthog.capture(eventName, properties);
   }
-  
+
   // Track in Sentry as breadcrumb
   import('./sentry').then(({ trackEvent: sentryTrack }) => {
     sentryTrack(eventName, properties);
   });
-  
+
   // Console log in development
   if (process.env.NODE_ENV === 'development') {
     console.log(`📊 Event: ${eventName}`, properties);
@@ -137,55 +146,63 @@ export const WorkoutTracking = {
       trackEvent('workout_generation_started', {
         exercise_count: exerciseCount,
         difficulty,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     },
-    
+
     completed: (duration: number, exerciseCount: number, success: boolean) => {
       trackEvent('workout_generation_completed', {
         duration,
         exercise_count: exerciseCount,
         success,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     },
-    
+
     failed: (error: string, context?: Record<string, any>) => {
       trackEvent('workout_generation_failed', {
         error,
         ...context,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
-    }
+    },
   },
-  
+
   session: {
     started: (workoutId: string, exerciseCount: number) => {
       trackEvent('workout_session_started', {
         workout_id: workoutId,
         exercise_count: exerciseCount,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     },
-    
-    completed: (workoutId: string, duration: number, exercisesCompleted: number) => {
+
+    completed: (
+      workoutId: string,
+      duration: number,
+      exercisesCompleted: number
+    ) => {
       trackEvent('workout_session_completed', {
         workout_id: workoutId,
         duration,
         exercises_completed: exercisesCompleted,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
     },
-    
-    abandoned: (workoutId: string, timeSpent: number, exercisesCompleted: number) => {
+
+    abandoned: (
+      workoutId: string,
+      timeSpent: number,
+      exercisesCompleted: number
+    ) => {
       trackEvent('workout_session_abandoned', {
         workout_id: workoutId,
         time_spent: timeSpent,
         exercises_completed: exercisesCompleted,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       });
-    }
-  }
+    },
+  },
 };
 
 /**
@@ -195,34 +212,38 @@ export const EngagementTracking = {
   pageView: (pageName: string, properties?: Record<string, any>) => {
     trackEvent('page_view', {
       page_name: pageName,
-      ...properties
+      ...properties,
     });
-    
+
     // Also track page load performance
     trackPageLoad(pageName);
   },
-  
+
   buttonClick: (buttonName: string, context?: string) => {
     trackEvent('button_click', {
       button_name: buttonName,
-      context
+      context,
     });
   },
-  
+
   featureUsed: (featureName: string, properties?: Record<string, any>) => {
     trackEvent('feature_used', {
       feature_name: featureName,
-      ...properties
+      ...properties,
     });
   },
-  
-  error: (errorType: string, errorMessage: string, context?: Record<string, any>) => {
+
+  error: (
+    errorType: string,
+    errorMessage: string,
+    context?: Record<string, any>
+  ) => {
     trackEvent('user_error', {
       error_type: errorType,
       error_message: errorMessage,
-      ...context
+      ...context,
     });
-  }
+  },
 };
 
 /**
@@ -232,16 +253,19 @@ export const PerformanceTracking = {
   apiCall: ApiPerformanceMonitor.getInstance().trackApiCall.bind(
     ApiPerformanceMonitor.getInstance()
   ),
-  
-  databaseQuery: async <T>(queryName: string, query: () => Promise<T>): Promise<T> => {
+
+  databaseQuery: async <T>(
+    queryName: string,
+    query: () => Promise<T>
+  ): Promise<T> => {
     const { trackDatabaseQuery } = await import('./performance');
     return trackDatabaseQuery(queryName, query);
   },
-  
+
   workoutGeneration: async <T>(operation: () => Promise<T>): Promise<T> => {
     const { trackWorkoutGeneration } = await import('./performance');
     return trackWorkoutGeneration(operation);
-  }
+  },
 };
 
 /**
@@ -259,23 +283,26 @@ export async function reportError(
 ) {
   const { reportError: sentryReport } = await import('./sentry');
   sentryReport(error, context);
-  
+
   // Also track as event
   trackEvent('error_occurred', {
     error_message: error.message,
     error_stack: error.stack,
-    ...context
+    ...context,
   });
 }
 
 /**
  * Feature flag support (via PostHog)
  */
-export function getFeatureFlag(flagName: string, defaultValue = false): boolean {
+export function getFeatureFlag(
+  flagName: string,
+  defaultValue = false
+): boolean {
   if (posthog && typeof window !== 'undefined') {
     return posthog.isFeatureEnabled(flagName) ?? defaultValue;
   }
-  
+
   // Fallback to environment variables
   const envVar = `FEATURE_${flagName.toUpperCase()}`;
   return process.env[envVar] === 'true' || defaultValue;
@@ -288,7 +315,7 @@ export function getExperimentVariant(experimentName: string): string | null {
   if (posthog && typeof window !== 'undefined') {
     return posthog.getFeatureFlag(experimentName);
   }
-  
+
   return null;
 }
 
@@ -303,9 +330,9 @@ export function cleanupMonitoring() {
 
 // Export individual systems for direct use
 export { initSentry, setUserContext, addContextTags } from './sentry';
-export { 
-  initWebVitals, 
-  trackPageLoad, 
+export {
+  initWebVitals,
+  trackPageLoad,
   ApiPerformanceMonitor,
-  PERFORMANCE_THRESHOLDS 
+  PERFORMANCE_THRESHOLDS,
 } from './performance';

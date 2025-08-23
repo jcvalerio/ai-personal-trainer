@@ -4,9 +4,9 @@
  * template browsing, progress analytics, and dashboard state management
  */
 
-import { FitnessLevel, SubscriptionTier, UserProfile } from './index'
-import { 
-  WorkoutPlan, 
+import { FitnessLevel, SubscriptionTier, UserProfile } from './index';
+import {
+  WorkoutPlan,
   WorkoutSession,
   WorkoutStatus,
   SessionStatus,
@@ -14,9 +14,9 @@ import {
   UserAchievement,
   AchievementType,
   ProgressMeasurement,
-  MeasurementType
-} from './workouts'
-import { SessionExecution } from './session-execution'
+  MeasurementType,
+} from './workouts';
+import { SessionExecution } from './session-execution';
 
 // ================================
 // Plan Management Dashboard Types
@@ -25,19 +25,23 @@ import { SessionExecution } from './session-execution'
 /**
  * Enhanced Plan Status with Dashboard-specific states
  */
-export type PlanManagementStatus = WorkoutStatus | 'scheduled' | 'overdue' | 'modified'
+export type PlanManagementStatus =
+  | WorkoutStatus
+  | 'scheduled'
+  | 'overdue'
+  | 'modified';
 
 /**
  * Plan Priority Levels for Dashboard Organization
  */
-export type PlanPriority = 'low' | 'medium' | 'high' | 'critical'
+export type PlanPriority = 'low' | 'medium' | 'high' | 'critical';
 
 /**
  * Plan Management Actions
  */
-export type PlanAction = 
+export type PlanAction =
   | 'duplicate'
-  | 'archive' 
+  | 'archive'
   | 'restore'
   | 'delete'
   | 'export'
@@ -45,22 +49,22 @@ export type PlanAction =
   | 'publish'
   | 'unpublish'
   | 'modify'
-  | 'schedule'
+  | 'schedule';
 
 /**
  * Enhanced Workout Plan for Dashboard Management
  */
 export interface DashboardWorkoutPlan extends WorkoutPlan {
   /** Plan management metadata */
-  management: PlanManagement
+  management: PlanManagement;
   /** Dashboard-specific display properties */
-  display: PlanDisplayProps
+  display: PlanDisplayProps;
   /** Usage and performance statistics */
-  statistics: PlanStatistics
+  statistics: PlanStatistics;
   /** Social and sharing information */
-  social: PlanSocialData
+  social: PlanSocialData;
   /** Template-specific properties */
-  template?: TemplateProperties
+  template?: TemplateProperties;
 }
 
 /**
@@ -68,19 +72,19 @@ export interface DashboardWorkoutPlan extends WorkoutPlan {
  */
 export interface PlanManagement {
   /** Management priority level */
-  priority: PlanPriority
+  priority: PlanPriority;
   /** Tags for organization and filtering */
-  tags: string[]
+  tags: string[];
   /** Custom categories beyond default classification */
-  customCategories: string[]
+  customCategories: string[];
   /** Plan ownership and sharing settings */
-  ownership: PlanOwnership
+  ownership: PlanOwnership;
   /** Version control and change tracking */
-  versioning: PlanVersioning
+  versioning: PlanVersioning;
   /** Compliance and validation status */
-  compliance: PlanCompliance
+  compliance: PlanCompliance;
   /** Archival and retention settings */
-  retention: RetentionSettings
+  retention: RetentionSettings;
 }
 
 /**
@@ -88,17 +92,17 @@ export interface PlanManagement {
  */
 export interface PlanOwnership {
   /** Original creator */
-  createdBy: string
+  createdBy: string;
   /** Current owner (may differ from creator) */
-  ownerId: string
+  ownerId: string;
   /** Users with edit permissions */
-  editors: string[]
+  editors: string[];
   /** Users with view permissions */
-  viewers: string[]
+  viewers: string[];
   /** Organization permissions */
-  organizationAccess: OrganizationAccess
+  organizationAccess: OrganizationAccess;
   /** Public visibility settings */
-  publicAccess: PublicAccessSettings
+  publicAccess: PublicAccessSettings;
 }
 
 /**
@@ -106,15 +110,15 @@ export interface PlanOwnership {
  */
 export interface OrganizationAccess {
   /** Can organization members view */
-  canView: boolean
+  canView: boolean;
   /** Can organization members copy/use */
-  canUse: boolean
+  canUse: boolean;
   /** Can organization admins edit */
-  canEdit: boolean
+  canEdit: boolean;
   /** Require approval for use */
-  requireApproval: boolean
+  requireApproval: boolean;
   /** Role-based restrictions */
-  roleRestrictions: Record<string, string[]>
+  roleRestrictions: Record<string, string[]>;
 }
 
 /**
@@ -122,15 +126,15 @@ export interface OrganizationAccess {
  */
 export interface PublicAccessSettings {
   /** Is plan publicly visible */
-  isPublic: boolean
+  isPublic: boolean;
   /** Allow public cloning/copying */
-  allowCloning: boolean
+  allowCloning: boolean;
   /** Require attribution when shared */
-  requireAttribution: boolean
+  requireAttribution: boolean;
   /** Content licensing terms */
-  license?: ContentLicense
+  license?: ContentLicense;
   /** Age and content restrictions */
-  restrictions: ContentRestrictions
+  restrictions: ContentRestrictions;
 }
 
 /**
@@ -138,11 +142,11 @@ export interface PublicAccessSettings {
  */
 export interface ContentLicense {
   /** License type */
-  type: 'cc0' | 'cc_by' | 'cc_by_sa' | 'cc_by_nc' | 'proprietary' | 'custom'
+  type: 'cc0' | 'cc_by' | 'cc_by_sa' | 'cc_by_nc' | 'proprietary' | 'custom';
   /** License text or URL */
-  text?: string
+  text?: string;
   /** Attribution requirements */
-  attribution: AttributionRequirements
+  attribution: AttributionRequirements;
 }
 
 /**
@@ -150,13 +154,13 @@ export interface ContentLicense {
  */
 export interface AttributionRequirements {
   /** Required attribution text */
-  text: string
+  text: string;
   /** Link back required */
-  linkRequired: boolean
+  linkRequired: boolean;
   /** Creator name display required */
-  nameRequired: boolean
+  nameRequired: boolean;
   /** Modification notification required */
-  notifyOnModification: boolean
+  notifyOnModification: boolean;
 }
 
 /**
@@ -164,15 +168,15 @@ export interface AttributionRequirements {
  */
 export interface ContentRestrictions {
   /** Minimum age requirement */
-  minimumAge?: number
+  minimumAge?: number;
   /** Fitness level requirements */
-  minimumFitnessLevel?: FitnessLevel
+  minimumFitnessLevel?: FitnessLevel;
   /** Equipment access requirements */
-  requiredEquipment?: string[]
+  requiredEquipment?: string[];
   /** Medical clearance requirements */
-  medicalClearance?: string[]
+  medicalClearance?: string[];
   /** Geographic restrictions */
-  geoRestrictions?: string[]
+  geoRestrictions?: string[];
 }
 
 /**
@@ -180,17 +184,17 @@ export interface ContentRestrictions {
  */
 export interface PlanVersioning {
   /** Current version number */
-  currentVersion: string
+  currentVersion: string;
   /** Version history */
-  versionHistory: PlanVersion[]
+  versionHistory: PlanVersion[];
   /** Change tracking enabled */
-  trackChanges: boolean
+  trackChanges: boolean;
   /** Automatic versioning on significant changes */
-  autoVersion: boolean
+  autoVersion: boolean;
   /** Branch information for collaborative editing */
-  branches: PlanBranch[]
+  branches: PlanBranch[];
   /** Merge conflicts if any */
-  conflicts: PlanConflict[]
+  conflicts: PlanConflict[];
 }
 
 /**
@@ -198,23 +202,23 @@ export interface PlanVersioning {
  */
 export interface PlanVersion {
   /** Version identifier */
-  version: string
+  version: string;
   /** Version display name */
-  name?: string
+  name?: string;
   /** Creation timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Creator user ID */
-  createdBy: string
+  createdBy: string;
   /** Change summary */
-  changesSummary: string
+  changesSummary: string;
   /** Detailed change log */
-  changeLog: PlanChange[]
+  changeLog: PlanChange[];
   /** Version tags */
-  tags: string[]
+  tags: string[];
   /** Is this a stable release */
-  isStable: boolean
+  isStable: boolean;
   /** Can this version be restored */
-  canRestore: boolean
+  canRestore: boolean;
 }
 
 /**
@@ -222,21 +226,21 @@ export interface PlanVersion {
  */
 export interface PlanBranch {
   /** Branch identifier */
-  branchId: string
+  branchId: string;
   /** Branch name */
-  name: string
+  name: string;
   /** Base version */
-  baseVersion: string
+  baseVersion: string;
   /** Branch creator */
-  createdBy: string
+  createdBy: string;
   /** Creation timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Branch description */
-  description?: string
+  description?: string;
   /** Is branch active */
-  isActive: boolean
+  isActive: boolean;
   /** Can branch be merged */
-  canMerge: boolean
+  canMerge: boolean;
 }
 
 /**
@@ -244,21 +248,21 @@ export interface PlanBranch {
  */
 export interface PlanChange {
   /** Change type */
-  type: 'add' | 'modify' | 'delete' | 'move' | 'metadata'
+  type: 'add' | 'modify' | 'delete' | 'move' | 'metadata';
   /** Affected entity type */
-  entityType: 'exercise' | 'session' | 'schedule' | 'metadata' | 'settings'
+  entityType: 'exercise' | 'session' | 'schedule' | 'metadata' | 'settings';
   /** Entity identifier */
-  entityId?: string
+  entityId?: string;
   /** Change description */
-  description: string
+  description: string;
   /** Previous value (for modifications) */
-  previousValue?: any
+  previousValue?: any;
   /** New value */
-  newValue?: any
+  newValue?: any;
   /** Change timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** User who made the change */
-  changedBy: string
+  changedBy: string;
 }
 
 /**
@@ -266,23 +270,23 @@ export interface PlanChange {
  */
 export interface PlanConflict {
   /** Conflict identifier */
-  conflictId: string
+  conflictId: string;
   /** Conflicting entity */
-  entityType: string
+  entityType: string;
   /** Entity identifier */
-  entityId: string
+  entityId: string;
   /** Base version value */
-  baseValue: any
+  baseValue: any;
   /** Current version value */
-  currentValue: any
+  currentValue: any;
   /** Incoming change value */
-  incomingValue: any
+  incomingValue: any;
   /** Conflict resolution status */
-  resolved: boolean
+  resolved: boolean;
   /** Resolution method if resolved */
-  resolution?: 'use_current' | 'use_incoming' | 'merge_custom' | 'manual'
+  resolution?: 'use_current' | 'use_incoming' | 'merge_custom' | 'manual';
   /** Custom resolution data */
-  customResolution?: any
+  customResolution?: any;
 }
 
 /**
@@ -290,17 +294,17 @@ export interface PlanConflict {
  */
 export interface PlanCompliance {
   /** Validation status */
-  isValid: boolean
+  isValid: boolean;
   /** Last validation timestamp */
-  lastValidated: Date
+  lastValidated: Date;
   /** Validation errors */
-  validationErrors: ValidationError[]
+  validationErrors: ValidationError[];
   /** Validation warnings */
-  validationWarnings: ValidationWarning[]
+  validationWarnings: ValidationWarning[];
   /** Compliance with organizational standards */
-  organizationCompliance: ComplianceStatus
+  organizationCompliance: ComplianceStatus;
   /** Safety and medical compliance */
-  safetyCompliance: SafetyCompliance
+  safetyCompliance: SafetyCompliance;
 }
 
 /**
@@ -308,19 +312,19 @@ export interface PlanCompliance {
  */
 export interface ValidationError {
   /** Error code */
-  code: string
+  code: string;
   /** Error message */
-  message: string
+  message: string;
   /** Severity level */
-  severity: 'error' | 'warning' | 'info'
+  severity: 'error' | 'warning' | 'info';
   /** Affected entity */
-  entityType: string
+  entityType: string;
   /** Entity identifier */
-  entityId?: string
+  entityId?: string;
   /** Suggested fix */
-  suggestedFix?: string
+  suggestedFix?: string;
   /** Is error blocking */
-  isBlocking: boolean
+  isBlocking: boolean;
 }
 
 /**
@@ -328,11 +332,11 @@ export interface ValidationError {
  */
 export interface ValidationWarning extends Omit<ValidationError, 'severity'> {
   /** Warning category */
-  category: 'performance' | 'safety' | 'usability' | 'best_practice'
+  category: 'performance' | 'safety' | 'usability' | 'best_practice';
   /** Can warning be dismissed */
-  canDismiss: boolean
+  canDismiss: boolean;
   /** Warning dismissal status */
-  dismissed: boolean
+  dismissed: boolean;
 }
 
 /**
@@ -340,17 +344,17 @@ export interface ValidationWarning extends Omit<ValidationError, 'severity'> {
  */
 export interface ComplianceStatus {
   /** Complies with organization standards */
-  compliant: boolean
+  compliant: boolean;
   /** Compliance percentage */
-  complianceScore: number
+  complianceScore: number;
   /** Non-compliant items */
-  violations: ComplianceViolation[]
+  violations: ComplianceViolation[];
   /** Last compliance check */
-  lastChecked: Date
+  lastChecked: Date;
   /** Required approval status */
-  approvalRequired: boolean
+  approvalRequired: boolean;
   /** Approval status */
-  approvalStatus?: 'pending' | 'approved' | 'rejected'
+  approvalStatus?: 'pending' | 'approved' | 'rejected';
 }
 
 /**
@@ -358,15 +362,15 @@ export interface ComplianceStatus {
  */
 export interface ComplianceViolation {
   /** Violation type */
-  type: string
+  type: string;
   /** Violation description */
-  description: string
+  description: string;
   /** Severity level */
-  severity: 'low' | 'medium' | 'high' | 'critical'
+  severity: 'low' | 'medium' | 'high' | 'critical';
   /** Resolution required */
-  resolutionRequired: boolean
+  resolutionRequired: boolean;
   /** Suggested resolution */
-  suggestedResolution?: string
+  suggestedResolution?: string;
 }
 
 /**
@@ -374,15 +378,15 @@ export interface ComplianceViolation {
  */
 export interface SafetyCompliance {
   /** Safety rating */
-  safetyRating: number
+  safetyRating: number;
   /** Safety concerns */
-  concerns: SafetyConcern[]
+  concerns: SafetyConcern[];
   /** Required disclaimers */
-  disclaimers: string[]
+  disclaimers: string[];
   /** Medical clearance requirements */
-  medicalClearance: string[]
+  medicalClearance: string[];
   /** Equipment safety checks */
-  equipmentSafety: EquipmentSafetyCheck[]
+  equipmentSafety: EquipmentSafetyCheck[];
 }
 
 /**
@@ -390,15 +394,19 @@ export interface SafetyCompliance {
  */
 export interface SafetyConcern {
   /** Concern type */
-  type: 'injury_risk' | 'equipment_hazard' | 'medical_condition' | 'intensity_warning'
+  type:
+    | 'injury_risk'
+    | 'equipment_hazard'
+    | 'medical_condition'
+    | 'intensity_warning';
   /** Concern description */
-  description: string
+  description: string;
   /** Risk level */
-  riskLevel: 'low' | 'medium' | 'high' | 'severe'
+  riskLevel: 'low' | 'medium' | 'high' | 'severe';
   /** Affected populations */
-  affectedPopulations: string[]
+  affectedPopulations: string[];
   /** Mitigation strategies */
-  mitigations: string[]
+  mitigations: string[];
 }
 
 /**
@@ -406,15 +414,15 @@ export interface SafetyConcern {
  */
 export interface EquipmentSafetyCheck {
   /** Equipment ID */
-  equipmentId: string
+  equipmentId: string;
   /** Safety status */
-  status: 'safe' | 'caution' | 'unsafe'
+  status: 'safe' | 'caution' | 'unsafe';
   /** Safety notes */
-  notes: string[]
+  notes: string[];
   /** Last safety inspection */
-  lastInspected?: Date
+  lastInspected?: Date;
   /** Inspection due date */
-  inspectionDue?: Date
+  inspectionDue?: Date;
 }
 
 /**
@@ -422,17 +430,21 @@ export interface EquipmentSafetyCheck {
  */
 export interface RetentionSettings {
   /** Automatic archival enabled */
-  autoArchive: boolean
+  autoArchive: boolean;
   /** Days before archival */
-  archiveAfterDays?: number
+  archiveAfterDays?: number;
   /** Automatic deletion enabled */
-  autoDelete: boolean
+  autoDelete: boolean;
   /** Days before deletion */
-  deleteAfterDays?: number
+  deleteAfterDays?: number;
   /** Retention policy reason */
-  retentionReason: 'regulatory' | 'business' | 'user_preference' | 'storage_limits'
+  retentionReason:
+    | 'regulatory'
+    | 'business'
+    | 'user_preference'
+    | 'storage_limits';
   /** Data export before deletion */
-  exportBeforeDeletion: boolean
+  exportBeforeDeletion: boolean;
 }
 
 /**
@@ -440,21 +452,21 @@ export interface RetentionSettings {
  */
 export interface PlanDisplayProps {
   /** Display order/priority */
-  displayOrder: number
+  displayOrder: number;
   /** Pinned to top of dashboard */
-  isPinned: boolean
+  isPinned: boolean;
   /** Featured/highlighted status */
-  isFeatured: boolean
+  isFeatured: boolean;
   /** Color coding for visual organization */
-  colorTheme?: PlanColorTheme
+  colorTheme?: PlanColorTheme;
   /** Custom display icon */
-  customIcon?: string
+  customIcon?: string;
   /** Display in compact mode */
-  compactDisplay: boolean
+  compactDisplay: boolean;
   /** Progress visualization preferences */
-  progressVisualization: ProgressVisualizationSettings
+  progressVisualization: ProgressVisualizationSettings;
   /** Dashboard widget configuration */
-  widgetConfig: DashboardWidgetConfig
+  widgetConfig: DashboardWidgetConfig;
 }
 
 /**
@@ -462,15 +474,15 @@ export interface PlanDisplayProps {
  */
 export interface PlanColorTheme {
   /** Primary color */
-  primary: string
+  primary: string;
   /** Secondary color */
-  secondary?: string
+  secondary?: string;
   /** Background color */
-  background?: string
+  background?: string;
   /** Text color */
-  text?: string
+  text?: string;
   /** Accent color */
-  accent?: string
+  accent?: string;
 }
 
 /**
@@ -478,15 +490,15 @@ export interface PlanColorTheme {
  */
 export interface ProgressVisualizationSettings {
   /** Chart type preference */
-  chartType: 'line' | 'bar' | 'circle' | 'gauge'
+  chartType: 'line' | 'bar' | 'circle' | 'gauge';
   /** Show percentage complete */
-  showPercentage: boolean
+  showPercentage: boolean;
   /** Show time remaining */
-  showTimeRemaining: boolean
+  showTimeRemaining: boolean;
   /** Show streak information */
-  showStreak: boolean
+  showStreak: boolean;
   /** Animation enabled */
-  animated: boolean
+  animated: boolean;
 }
 
 /**
@@ -494,17 +506,17 @@ export interface ProgressVisualizationSettings {
  */
 export interface DashboardWidgetConfig {
   /** Widget size */
-  size: 'small' | 'medium' | 'large' | 'extra_large'
+  size: 'small' | 'medium' | 'large' | 'extra_large';
   /** Widget position */
-  position: WidgetPosition
+  position: WidgetPosition;
   /** Show quick actions */
-  showQuickActions: boolean
+  showQuickActions: boolean;
   /** Show statistics */
-  showStatistics: boolean
+  showStatistics: boolean;
   /** Show recent sessions */
-  showRecentSessions: boolean
+  showRecentSessions: boolean;
   /** Refresh interval in minutes */
-  refreshIntervalMinutes: number
+  refreshIntervalMinutes: number;
 }
 
 /**
@@ -512,13 +524,13 @@ export interface DashboardWidgetConfig {
  */
 export interface WidgetPosition {
   /** Grid row */
-  row: number
+  row: number;
   /** Grid column */
-  column: number
+  column: number;
   /** Widget span (width) */
-  colSpan: number
+  colSpan: number;
   /** Widget span (height) */
-  rowSpan: number
+  rowSpan: number;
 }
 
 /**
@@ -526,13 +538,13 @@ export interface WidgetPosition {
  */
 export interface PlanStatistics {
   /** Total usage metrics */
-  usage: PlanUsageMetrics
+  usage: PlanUsageMetrics;
   /** Performance metrics */
-  performance: PlanPerformanceMetrics
+  performance: PlanPerformanceMetrics;
   /** Social engagement metrics */
-  engagement: PlanEngagementMetrics
+  engagement: PlanEngagementMetrics;
   /** Temporal statistics */
-  temporal: TemporalStatistics
+  temporal: TemporalStatistics;
 }
 
 /**
@@ -540,21 +552,21 @@ export interface PlanStatistics {
  */
 export interface PlanUsageMetrics {
   /** Total number of users */
-  totalUsers: number
+  totalUsers: number;
   /** Active users in last 30 days */
-  activeUsers: number
+  activeUsers: number;
   /** Total sessions completed */
-  totalSessions: number
+  totalSessions: number;
   /** Average sessions per user */
-  avgSessionsPerUser: number
+  avgSessionsPerUser: number;
   /** Plan completion rate */
-  completionRate: number
+  completionRate: number;
   /** Average time to completion */
-  avgCompletionDays: number
+  avgCompletionDays: number;
   /** Dropout rate and reasons */
-  dropoutRate: number
+  dropoutRate: number;
   /** Most common dropout points */
-  dropoutPoints: DropoutPoint[]
+  dropoutPoints: DropoutPoint[];
 }
 
 /**
@@ -562,11 +574,11 @@ export interface PlanUsageMetrics {
  */
 export interface DropoutPoint {
   /** Point in plan where dropout occurs */
-  point: 'week_1' | 'week_2' | 'month_1' | 'mid_plan' | 'near_end'
+  point: 'week_1' | 'week_2' | 'month_1' | 'mid_plan' | 'near_end';
   /** Percentage of users who drop out at this point */
-  dropoutPercentage: number
+  dropoutPercentage: number;
   /** Common reasons for dropout */
-  reasons: string[]
+  reasons: string[];
 }
 
 /**
@@ -574,17 +586,17 @@ export interface DropoutPoint {
  */
 export interface PlanPerformanceMetrics {
   /** Average user satisfaction rating */
-  avgSatisfactionRating: number
+  avgSatisfactionRating: number;
   /** Effectiveness score based on goal achievement */
-  effectivenessScore: number
+  effectivenessScore: number;
   /** Difficulty rating from users */
-  avgDifficultyRating: number
+  avgDifficultyRating: number;
   /** Exercise completion rates */
-  exerciseCompletionRates: Record<string, number>
+  exerciseCompletionRates: Record<string, number>;
   /** Most/least popular exercises */
-  exercisePopularity: ExercisePopularityMetric[]
+  exercisePopularity: ExercisePopularityMetric[];
   /** Common modifications made */
-  commonModifications: PlanModification[]
+  commonModifications: PlanModification[];
 }
 
 /**
@@ -592,17 +604,17 @@ export interface PlanPerformanceMetrics {
  */
 export interface ExercisePopularityMetric {
   /** Exercise ID */
-  exerciseId: string
+  exerciseId: string;
   /** Exercise name */
-  exerciseName: string
+  exerciseName: string;
   /** Completion rate */
-  completionRate: number
+  completionRate: number;
   /** User satisfaction rating */
-  avgRating: number
+  avgRating: number;
   /** Number of times modified */
-  modificationsCount: number
+  modificationsCount: number;
   /** Popularity rank */
-  popularityRank: number
+  popularityRank: number;
 }
 
 /**
@@ -610,15 +622,19 @@ export interface ExercisePopularityMetric {
  */
 export interface PlanModification {
   /** Modification type */
-  type: 'exercise_substitution' | 'volume_adjustment' | 'schedule_change' | 'difficulty_adjustment'
+  type:
+    | 'exercise_substitution'
+    | 'volume_adjustment'
+    | 'schedule_change'
+    | 'difficulty_adjustment';
   /** Description of modification */
-  description: string
+  description: string;
   /** Frequency of this modification */
-  frequency: number
+  frequency: number;
   /** Success rate of modification */
-  successRate: number
+  successRate: number;
   /** User fitness levels that commonly make this modification */
-  commonFitnessLevels: FitnessLevel[]
+  commonFitnessLevels: FitnessLevel[];
 }
 
 /**
@@ -626,19 +642,19 @@ export interface PlanModification {
  */
 export interface PlanEngagementMetrics {
   /** Number of shares */
-  shareCount: number
+  shareCount: number;
   /** Number of clones/copies */
-  cloneCount: number
+  cloneCount: number;
   /** Star/favorite count */
-  favoriteCount: number
+  favoriteCount: number;
   /** Comment/review count */
-  reviewCount: number
+  reviewCount: number;
   /** Average rating from reviews */
-  avgRating: number
+  avgRating: number;
   /** Social media mentions */
-  socialMentions: number
+  socialMentions: number;
   /** Community discussions */
-  discussionCount: number
+  discussionCount: number;
 }
 
 /**
@@ -646,13 +662,13 @@ export interface PlanEngagementMetrics {
  */
 export interface TemporalStatistics {
   /** Usage trends over time */
-  usageTrends: TemporalDataPoint[]
+  usageTrends: TemporalDataPoint[];
   /** Seasonal usage patterns */
-  seasonalPatterns: SeasonalPattern[]
+  seasonalPatterns: SeasonalPattern[];
   /** Peak usage times */
-  peakTimes: PeakUsageTime[]
+  peakTimes: PeakUsageTime[];
   /** Growth metrics */
-  growth: GrowthMetrics
+  growth: GrowthMetrics;
 }
 
 /**
@@ -660,13 +676,13 @@ export interface TemporalStatistics {
  */
 export interface TemporalDataPoint {
   /** Time period */
-  period: Date
+  period: Date;
   /** Value for this period */
-  value: number
+  value: number;
   /** Percentage change from previous period */
-  changePercent: number
+  changePercent: number;
   /** Trend direction */
-  trend: 'up' | 'down' | 'stable'
+  trend: 'up' | 'down' | 'stable';
 }
 
 /**
@@ -674,13 +690,13 @@ export interface TemporalDataPoint {
  */
 export interface SeasonalPattern {
   /** Season identifier */
-  season: 'spring' | 'summer' | 'fall' | 'winter' | 'new_year' | 'beach_season'
+  season: 'spring' | 'summer' | 'fall' | 'winter' | 'new_year' | 'beach_season';
   /** Usage multiplier (1.0 = average) */
-  usageMultiplier: number
+  usageMultiplier: number;
   /** Most popular plan types during this season */
-  popularPlanTypes: string[]
+  popularPlanTypes: string[];
   /** Seasonal completion rate */
-  completionRate: number
+  completionRate: number;
 }
 
 /**
@@ -688,13 +704,13 @@ export interface SeasonalPattern {
  */
 export interface PeakUsageTime {
   /** Time period type */
-  type: 'hour_of_day' | 'day_of_week' | 'day_of_month' | 'month_of_year'
+  type: 'hour_of_day' | 'day_of_week' | 'day_of_month' | 'month_of_year';
   /** Time value */
-  value: number
+  value: number;
   /** Usage intensity */
-  intensity: number
+  intensity: number;
   /** Geographic region (if applicable) */
-  region?: string
+  region?: string;
 }
 
 /**
@@ -702,15 +718,15 @@ export interface PeakUsageTime {
  */
 export interface GrowthMetrics {
   /** User growth rate (monthly) */
-  userGrowthRate: number
+  userGrowthRate: number;
   /** Session growth rate (monthly) */
-  sessionGrowthRate: number
+  sessionGrowthRate: number;
   /** Engagement growth rate */
-  engagementGrowthRate: number
+  engagementGrowthRate: number;
   /** Viral coefficient (users referred per user) */
-  viralCoefficient: number
+  viralCoefficient: number;
   /** Customer lifetime value */
-  customerLifetimeValue: number
+  customerLifetimeValue: number;
 }
 
 /**
@@ -718,13 +734,13 @@ export interface GrowthMetrics {
  */
 export interface PlanSocialData {
   /** Social sharing settings */
-  sharing: SocialSharingSettings
+  sharing: SocialSharingSettings;
   /** Community data */
-  community: CommunityData
+  community: CommunityData;
   /** Reviews and ratings */
-  reviews: PlanReview[]
+  reviews: PlanReview[];
   /** Social proof metrics */
-  socialProof: SocialProofMetrics
+  socialProof: SocialProofMetrics;
 }
 
 /**
@@ -732,17 +748,17 @@ export interface PlanSocialData {
  */
 export interface SocialSharingSettings {
   /** Can be shared publicly */
-  allowPublicSharing: boolean
+  allowPublicSharing: boolean;
   /** Share to social media platforms */
-  socialMediaEnabled: boolean
+  socialMediaEnabled: boolean;
   /** Generate share links */
-  shareLinksEnabled: boolean
+  shareLinksEnabled: boolean;
   /** Social media platforms enabled */
-  platforms: SocialMediaPlatform[]
+  platforms: SocialMediaPlatform[];
   /** Custom share message */
-  shareMessage?: string
+  shareMessage?: string;
   /** Share analytics enabled */
-  trackSharing: boolean
+  trackSharing: boolean;
 }
 
 /**
@@ -750,13 +766,19 @@ export interface SocialSharingSettings {
  */
 export interface SocialMediaPlatform {
   /** Platform name */
-  platform: 'facebook' | 'twitter' | 'instagram' | 'linkedin' | 'tiktok' | 'youtube'
+  platform:
+    | 'facebook'
+    | 'twitter'
+    | 'instagram'
+    | 'linkedin'
+    | 'tiktok'
+    | 'youtube';
   /** Platform enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Custom message for this platform */
-  customMessage?: string
+  customMessage?: string;
   /** Platform-specific hashtags */
-  hashtags: string[]
+  hashtags: string[];
 }
 
 /**
@@ -764,15 +786,15 @@ export interface SocialMediaPlatform {
  */
 export interface CommunityData {
   /** Community discussions */
-  discussions: CommunityDiscussion[]
+  discussions: CommunityDiscussion[];
   /** User-generated content */
-  userContent: UserGeneratedContent[]
+  userContent: UserGeneratedContent[];
   /** Community challenges */
-  challenges: CommunityChallenge[]
+  challenges: CommunityChallenge[];
   /** Community moderators */
-  moderators: string[]
+  moderators: string[];
   /** Community guidelines */
-  guidelines: string[]
+  guidelines: string[];
 }
 
 /**
@@ -780,29 +802,29 @@ export interface CommunityData {
  */
 export interface CommunityDiscussion {
   /** Discussion ID */
-  id: string
+  id: string;
   /** Discussion title */
-  title: string
+  title: string;
   /** Discussion content */
-  content: string
+  content: string;
   /** Author user ID */
-  authorId: string
+  authorId: string;
   /** Author display name */
-  authorName: string
+  authorName: string;
   /** Creation timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Last updated */
-  updatedAt: Date
+  updatedAt: Date;
   /** Number of replies */
-  replyCount: number
+  replyCount: number;
   /** Number of likes */
-  likeCount: number
+  likeCount: number;
   /** Discussion tags */
-  tags: string[]
+  tags: string[];
   /** Is discussion pinned */
-  isPinned: boolean
+  isPinned: boolean;
   /** Is discussion locked */
-  isLocked: boolean
+  isLocked: boolean;
 }
 
 /**
@@ -810,27 +832,27 @@ export interface CommunityDiscussion {
  */
 export interface UserGeneratedContent {
   /** Content ID */
-  id: string
+  id: string;
   /** Content type */
-  type: 'video' | 'photo' | 'blog_post' | 'success_story' | 'modification'
+  type: 'video' | 'photo' | 'blog_post' | 'success_story' | 'modification';
   /** Content title */
-  title: string
+  title: string;
   /** Content description */
-  description: string
+  description: string;
   /** Content URL */
-  contentUrl: string
+  contentUrl: string;
   /** Author user ID */
-  authorId: string
+  authorId: string;
   /** Creation timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Content tags */
-  tags: string[]
+  tags: string[];
   /** Like count */
-  likeCount: number
+  likeCount: number;
   /** View count */
-  viewCount: number
+  viewCount: number;
   /** Is content featured */
-  isFeatured: boolean
+  isFeatured: boolean;
 }
 
 /**
@@ -838,25 +860,25 @@ export interface UserGeneratedContent {
  */
 export interface CommunityChallenge {
   /** Challenge ID */
-  id: string
+  id: string;
   /** Challenge name */
-  name: string
+  name: string;
   /** Challenge description */
-  description: string
+  description: string;
   /** Challenge type */
-  type: 'completion' | 'consistency' | 'performance' | 'social'
+  type: 'completion' | 'consistency' | 'performance' | 'social';
   /** Start date */
-  startDate: Date
+  startDate: Date;
   /** End date */
-  endDate: Date
+  endDate: Date;
   /** Participant count */
-  participantCount: number
+  participantCount: number;
   /** Challenge rules */
-  rules: string[]
+  rules: string[];
   /** Prizes/rewards */
-  rewards: ChallengeReward[]
+  rewards: ChallengeReward[];
   /** Leaderboard */
-  leaderboard: ChallengeLeaderboard[]
+  leaderboard: ChallengeLeaderboard[];
 }
 
 /**
@@ -864,15 +886,15 @@ export interface CommunityChallenge {
  */
 export interface ChallengeReward {
   /** Reward type */
-  type: 'badge' | 'points' | 'discount' | 'physical' | 'recognition'
+  type: 'badge' | 'points' | 'discount' | 'physical' | 'recognition';
   /** Reward description */
-  description: string
+  description: string;
   /** Reward value */
-  value?: number
+  value?: number;
   /** Reward criteria */
-  criteria: string
+  criteria: string;
   /** Is reward claimed */
-  claimed: boolean
+  claimed: boolean;
 }
 
 /**
@@ -880,15 +902,15 @@ export interface ChallengeReward {
  */
 export interface ChallengeLeaderboard {
   /** Rank position */
-  rank: number
+  rank: number;
   /** User ID */
-  userId: string
+  userId: string;
   /** User display name */
-  userName: string
+  userName: string;
   /** User score/progress */
-  score: number
+  score: number;
   /** Last update timestamp */
-  lastUpdated: Date
+  lastUpdated: Date;
 }
 
 /**
@@ -896,29 +918,29 @@ export interface ChallengeLeaderboard {
  */
 export interface PlanReview {
   /** Review ID */
-  id: string
+  id: string;
   /** Reviewer user ID */
-  reviewerId: string
+  reviewerId: string;
   /** Reviewer name */
-  reviewerName: string
+  reviewerName: string;
   /** Review rating (1-5) */
-  rating: number
+  rating: number;
   /** Review title */
-  title?: string
+  title?: string;
   /** Review content */
-  content: string
+  content: string;
   /** Review timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Review helpful votes */
-  helpfulVotes: number
+  helpfulVotes: number;
   /** Review tags */
-  tags: string[]
+  tags: string[];
   /** Reviewer fitness level */
-  reviewerFitnessLevel: FitnessLevel
+  reviewerFitnessLevel: FitnessLevel;
   /** Plan completion percentage when reviewed */
-  completionPercentage: number
+  completionPercentage: number;
   /** Review verification status */
-  verified: boolean
+  verified: boolean;
 }
 
 /**
@@ -926,17 +948,17 @@ export interface PlanReview {
  */
 export interface SocialProofMetrics {
   /** Total user count */
-  totalUsers: number
+  totalUsers: number;
   /** Success stories count */
-  successStories: number
+  successStories: number;
   /** Average goal achievement rate */
-  goalAchievementRate: number
+  goalAchievementRate: number;
   /** Celebrity/influencer endorsements */
-  endorsements: EndorsementData[]
+  endorsements: EndorsementData[];
   /** Expert/trainer validations */
-  expertValidations: ExpertValidation[]
+  expertValidations: ExpertValidation[];
   /** Media mentions */
-  mediaMentions: MediaMention[]
+  mediaMentions: MediaMention[];
 }
 
 /**
@@ -944,17 +966,17 @@ export interface SocialProofMetrics {
  */
 export interface EndorsementData {
   /** Endorser name */
-  name: string
+  name: string;
   /** Endorser title/role */
-  title: string
+  title: string;
   /** Endorsement text */
-  endorsement: string
+  endorsement: string;
   /** Endorser photo URL */
-  photoUrl?: string
+  photoUrl?: string;
   /** Endorser verification status */
-  verified: boolean
+  verified: boolean;
   /** Endorsement date */
-  date: Date
+  date: Date;
 }
 
 /**
@@ -962,17 +984,17 @@ export interface EndorsementData {
  */
 export interface ExpertValidation {
   /** Expert name */
-  expertName: string
+  expertName: string;
   /** Expert credentials */
-  credentials: string[]
+  credentials: string[];
   /** Expert organization */
-  organization?: string
+  organization?: string;
   /** Validation statement */
-  validation: string
+  validation: string;
   /** Validation date */
-  validatedAt: Date
+  validatedAt: Date;
   /** Expert rating */
-  rating?: number
+  rating?: number;
 }
 
 /**
@@ -980,17 +1002,17 @@ export interface ExpertValidation {
  */
 export interface MediaMention {
   /** Media outlet name */
-  outlet: string
+  outlet: string;
   /** Article/mention title */
-  title: string
+  title: string;
   /** Article URL */
-  url?: string
+  url?: string;
   /** Publication date */
-  publishedAt: Date
+  publishedAt: Date;
   /** Mention sentiment */
-  sentiment: 'positive' | 'neutral' | 'negative'
+  sentiment: 'positive' | 'neutral' | 'negative';
   /** Reach/audience size */
-  reach?: number
+  reach?: number;
 }
 
 /**
@@ -998,25 +1020,25 @@ export interface MediaMention {
  */
 export interface TemplateProperties {
   /** Template category */
-  category: TemplateCategory
+  category: TemplateCategory;
   /** Template subcategory */
-  subcategory?: string
+  subcategory?: string;
   /** Template difficulty level */
-  templateDifficulty: FitnessLevel
+  templateDifficulty: FitnessLevel;
   /** Customization options */
-  customization: TemplateCustomization
+  customization: TemplateCustomization;
   /** Template marketplace data */
-  marketplace: TemplateMarketplaceData
+  marketplace: TemplateMarketplaceData;
   /** Template usage statistics */
-  templateStats: TemplateUsageStats
+  templateStats: TemplateUsageStats;
 }
 
 /**
  * Template Categories
  */
-export type TemplateCategory = 
+export type TemplateCategory =
   | 'strength_training'
-  | 'cardio_fitness' 
+  | 'cardio_fitness'
   | 'weight_loss'
   | 'muscle_building'
   | 'athletic_performance'
@@ -1032,26 +1054,26 @@ export type TemplateCategory =
   | 'martial_arts'
   | 'dance_fitness'
   | 'seasonal_programs'
-  | 'challenge_programs'
+  | 'challenge_programs';
 
 /**
  * Template Customization Options
  */
 export interface TemplateCustomization {
   /** Can customize duration */
-  allowDurationChange: boolean
+  allowDurationChange: boolean;
   /** Can customize frequency */
-  allowFrequencyChange: boolean
+  allowFrequencyChange: boolean;
   /** Can substitute exercises */
-  allowExerciseSubstitution: boolean
+  allowExerciseSubstitution: boolean;
   /** Can modify intensity */
-  allowIntensityModification: boolean
+  allowIntensityModification: boolean;
   /** Can add/remove rest days */
-  allowScheduleModification: boolean
+  allowScheduleModification: boolean;
   /** Customization difficulty level */
-  customizationComplexity: 'simple' | 'intermediate' | 'advanced'
+  customizationComplexity: 'simple' | 'intermediate' | 'advanced';
   /** Preset customization options */
-  presetOptions: PresetCustomization[]
+  presetOptions: PresetCustomization[];
 }
 
 /**
@@ -1059,13 +1081,13 @@ export interface TemplateCustomization {
  */
 export interface PresetCustomization {
   /** Option name */
-  name: string
+  name: string;
   /** Option description */
-  description: string
+  description: string;
   /** Changes applied by this option */
-  changes: CustomizationChange[]
+  changes: CustomizationChange[];
   /** Suitability criteria */
-  suitableFor: SuitabilityCriteria
+  suitableFor: SuitabilityCriteria;
 }
 
 /**
@@ -1073,15 +1095,15 @@ export interface PresetCustomization {
  */
 export interface CustomizationChange {
   /** Change type */
-  type: 'duration' | 'frequency' | 'exercise' | 'intensity' | 'schedule'
+  type: 'duration' | 'frequency' | 'exercise' | 'intensity' | 'schedule';
   /** Target entity */
-  target: string
+  target: string;
   /** Change action */
-  action: 'increase' | 'decrease' | 'replace' | 'add' | 'remove' | 'modify'
+  action: 'increase' | 'decrease' | 'replace' | 'add' | 'remove' | 'modify';
   /** Change value */
-  value: any
+  value: any;
   /** Change description */
-  description: string
+  description: string;
 }
 
 /**
@@ -1089,15 +1111,15 @@ export interface CustomizationChange {
  */
 export interface SuitabilityCriteria {
   /** Recommended fitness levels */
-  fitnessLevels: FitnessLevel[]
+  fitnessLevels: FitnessLevel[];
   /** Time availability requirements */
-  timeRequirements: TimeRequirement[]
+  timeRequirements: TimeRequirement[];
   /** Equipment requirements */
-  equipmentNeeded: string[]
+  equipmentNeeded: string[];
   /** Physical limitations considerations */
-  limitations: string[]
+  limitations: string[];
   /** Goal alignment */
-  goals: string[]
+  goals: string[];
 }
 
 /**
@@ -1105,15 +1127,15 @@ export interface SuitabilityCriteria {
  */
 export interface TimeRequirement {
   /** Requirement type */
-  type: 'total_duration' | 'session_length' | 'frequency' | 'flexibility'
+  type: 'total_duration' | 'session_length' | 'frequency' | 'flexibility';
   /** Minimum value */
-  min?: number
+  min?: number;
   /** Maximum value */
-  max?: number
+  max?: number;
   /** Unit of measurement */
-  unit: 'minutes' | 'hours' | 'days' | 'weeks' | 'sessions_per_week'
+  unit: 'minutes' | 'hours' | 'days' | 'weeks' | 'sessions_per_week';
   /** Flexibility score (1-5) */
-  flexibility: number
+  flexibility: number;
 }
 
 /**
@@ -1121,15 +1143,15 @@ export interface TimeRequirement {
  */
 export interface TemplateMarketplaceData {
   /** Template pricing */
-  pricing: TemplatePricing
+  pricing: TemplatePricing;
   /** Template promotion data */
-  promotions: TemplatePromotion[]
+  promotions: TemplatePromotion[];
   /** Template bundle information */
-  bundles: TemplateBundle[]
+  bundles: TemplateBundle[];
   /** Marketplace visibility */
-  visibility: MarketplaceVisibility
+  visibility: MarketplaceVisibility;
   /** Content quality metrics */
-  quality: ContentQualityMetrics
+  quality: ContentQualityMetrics;
 }
 
 /**
@@ -1137,17 +1159,17 @@ export interface TemplateMarketplaceData {
  */
 export interface TemplatePricing {
   /** Is template free */
-  isFree: boolean
+  isFree: boolean;
   /** Base price */
-  basePrice?: number
+  basePrice?: number;
   /** Currency */
-  currency?: string
+  currency?: string;
   /** Pricing tiers */
-  tiers: PricingTier[]
+  tiers: PricingTier[];
   /** Subscription options */
-  subscriptions: SubscriptionOption[]
+  subscriptions: SubscriptionOption[];
   /** Bulk pricing options */
-  bulkPricing: BulkPricingOption[]
+  bulkPricing: BulkPricingOption[];
 }
 
 /**
@@ -1155,15 +1177,15 @@ export interface TemplatePricing {
  */
 export interface PricingTier {
   /** Tier name */
-  name: string
+  name: string;
   /** Tier price */
-  price: number
+  price: number;
   /** What's included */
-  includes: string[]
+  includes: string[];
   /** Tier limitations */
-  limitations: string[]
+  limitations: string[];
   /** Recommended for */
-  recommendedFor: string[]
+  recommendedFor: string[];
 }
 
 /**
@@ -1171,13 +1193,13 @@ export interface PricingTier {
  */
 export interface SubscriptionOption {
   /** Subscription type */
-  type: 'monthly' | 'quarterly' | 'annual' | 'lifetime'
+  type: 'monthly' | 'quarterly' | 'annual' | 'lifetime';
   /** Subscription price */
-  price: number
+  price: number;
   /** Savings compared to one-time purchase */
-  savings?: number
+  savings?: number;
   /** Subscription benefits */
-  benefits: string[]
+  benefits: string[];
 }
 
 /**
@@ -1185,13 +1207,13 @@ export interface SubscriptionOption {
  */
 export interface BulkPricingOption {
   /** Minimum quantity */
-  minQuantity: number
+  minQuantity: number;
   /** Price per unit at this quantity */
-  pricePerUnit: number
+  pricePerUnit: number;
   /** Discount percentage */
-  discountPercent: number
+  discountPercent: number;
   /** Target customer type */
-  targetCustomer: 'gym' | 'trainer' | 'organization' | 'reseller'
+  targetCustomer: 'gym' | 'trainer' | 'organization' | 'reseller';
 }
 
 /**
@@ -1199,29 +1221,29 @@ export interface BulkPricingOption {
  */
 export interface TemplatePromotion {
   /** Promotion ID */
-  id: string
+  id: string;
   /** Promotion type */
-  type: 'discount' | 'bundle' | 'free_trial' | 'upgrade' | 'seasonal'
+  type: 'discount' | 'bundle' | 'free_trial' | 'upgrade' | 'seasonal';
   /** Promotion title */
-  title: string
+  title: string;
   /** Promotion description */
-  description: string
+  description: string;
   /** Discount value */
-  discountValue?: number
+  discountValue?: number;
   /** Discount type */
-  discountType?: 'percentage' | 'fixed_amount'
+  discountType?: 'percentage' | 'fixed_amount';
   /** Promotion start date */
-  startDate: Date
+  startDate: Date;
   /** Promotion end date */
-  endDate: Date
+  endDate: Date;
   /** Promotion code */
-  code?: string
+  code?: string;
   /** Maximum uses */
-  maxUses?: number
+  maxUses?: number;
   /** Current use count */
-  currentUses: number
+  currentUses: number;
   /** Target audience */
-  targetAudience: string[]
+  targetAudience: string[];
 }
 
 /**
@@ -1229,23 +1251,23 @@ export interface TemplatePromotion {
  */
 export interface TemplateBundle {
   /** Bundle ID */
-  id: string
+  id: string;
   /** Bundle name */
-  name: string
+  name: string;
   /** Bundle description */
-  description: string
+  description: string;
   /** Included template IDs */
-  templateIds: string[]
+  templateIds: string[];
   /** Bundle price */
-  price: number
+  price: number;
   /** Individual total price */
-  individualPrice: number
+  individualPrice: number;
   /** Savings amount */
-  savings: number
+  savings: number;
   /** Bundle theme/category */
-  theme: string
+  theme: string;
   /** Bundle difficulty progression */
-  difficultyProgression: boolean
+  difficultyProgression: boolean;
 }
 
 /**
@@ -1253,17 +1275,17 @@ export interface TemplateBundle {
  */
 export interface MarketplaceVisibility {
   /** Is featured on marketplace */
-  featured: boolean
+  featured: boolean;
   /** Search visibility */
-  searchVisible: boolean
+  searchVisible: boolean;
   /** Category placement */
-  categoryPlacement: number
+  categoryPlacement: number;
   /** Geographic availability */
-  geoAvailability: string[]
+  geoAvailability: string[];
   /** Language availability */
-  languages: string[]
+  languages: string[];
   /** Subscription tier requirements */
-  subscriptionRequirements: SubscriptionTier[]
+  subscriptionRequirements: SubscriptionTier[];
 }
 
 /**
@@ -1271,17 +1293,17 @@ export interface MarketplaceVisibility {
  */
 export interface ContentQualityMetrics {
   /** Overall quality score */
-  qualityScore: number
+  qualityScore: number;
   /** Content completeness */
-  completeness: number
+  completeness: number;
   /** Accuracy rating */
-  accuracy: number
+  accuracy: number;
   /** User engagement score */
-  engagement: number
+  engagement: number;
   /** Expert validation score */
-  expertValidation: number
+  expertValidation: number;
   /** Quality flags */
-  qualityFlags: QualityFlag[]
+  qualityFlags: QualityFlag[];
 }
 
 /**
@@ -1289,13 +1311,19 @@ export interface ContentQualityMetrics {
  */
 export interface QualityFlag {
   /** Flag type */
-  type: 'high_quality' | 'verified' | 'popular' | 'trending' | 'editor_choice' | 'award_winner'
+  type:
+    | 'high_quality'
+    | 'verified'
+    | 'popular'
+    | 'trending'
+    | 'editor_choice'
+    | 'award_winner';
   /** Flag description */
-  description: string
+  description: string;
   /** Flag date awarded */
-  awardedAt: Date
+  awardedAt: Date;
   /** Flag expiry date */
-  expiresAt?: Date
+  expiresAt?: Date;
 }
 
 /**
@@ -1303,17 +1331,17 @@ export interface QualityFlag {
  */
 export interface TemplateUsageStats {
   /** Total downloads/uses */
-  totalUses: number
+  totalUses: number;
   /** Active users (last 30 days) */
-  activeUsers: number
+  activeUsers: number;
   /** Completion rate */
-  completionRate: number
+  completionRate: number;
   /** User satisfaction rating */
-  satisfactionRating: number
+  satisfactionRating: number;
   /** Most common customizations */
-  popularCustomizations: CustomizationStats[]
+  popularCustomizations: CustomizationStats[];
   /** Success rate metrics */
-  successMetrics: TemplateSuccessMetrics
+  successMetrics: TemplateSuccessMetrics;
 }
 
 /**
@@ -1321,13 +1349,13 @@ export interface TemplateUsageStats {
  */
 export interface CustomizationStats {
   /** Customization type */
-  type: string
+  type: string;
   /** Usage frequency */
-  frequency: number
+  frequency: number;
   /** Success rate of this customization */
-  successRate: number
+  successRate: number;
   /** User feedback on this customization */
-  userFeedback: number
+  userFeedback: number;
 }
 
 /**
@@ -1335,15 +1363,15 @@ export interface CustomizationStats {
  */
 export interface TemplateSuccessMetrics {
   /** Goal achievement rate */
-  goalAchievementRate: number
+  goalAchievementRate: number;
   /** Average improvement metrics */
-  avgImprovements: Record<string, number>
+  avgImprovements: Record<string, number>;
   /** User retention rate */
-  retentionRate: number
+  retentionRate: number;
   /** Referral rate */
-  referralRate: number
+  referralRate: number;
   /** Success story count */
-  successStoryCount: number
+  successStoryCount: number;
 }
 
 // ================================
@@ -1355,29 +1383,29 @@ export interface TemplateSuccessMetrics {
  */
 export interface BulkPlanOperation {
   /** Operation type */
-  operation: BulkOperationType
+  operation: BulkOperationType;
   /** Plan IDs to operate on */
-  planIds: string[]
+  planIds: string[];
   /** Operation parameters */
-  parameters: BulkOperationParameters
+  parameters: BulkOperationParameters;
   /** Operation metadata */
-  metadata: OperationMetadata
+  metadata: OperationMetadata;
 }
 
 /**
  * Bulk Operation Types
  */
-export type BulkOperationType = 
+export type BulkOperationType =
   | 'archive'
   | 'restore'
-  | 'delete' 
+  | 'delete'
   | 'export'
   | 'duplicate'
   | 'update_tags'
   | 'update_category'
   | 'change_ownership'
   | 'update_permissions'
-  | 'validate'
+  | 'validate';
 
 /**
  * Bulk Operation Parameters
@@ -1385,36 +1413,36 @@ export type BulkOperationType =
 export interface BulkOperationParameters {
   /** Archive/delete parameters */
   archive?: {
-    reason: string
-    preserveData: boolean
-  }
+    reason: string;
+    preserveData: boolean;
+  };
   /** Export parameters */
   export?: {
-    format: 'json' | 'csv' | 'pdf' | 'zip'
-    includeStatistics: boolean
-    includeUserData: boolean
-  }
+    format: 'json' | 'csv' | 'pdf' | 'zip';
+    includeStatistics: boolean;
+    includeUserData: boolean;
+  };
   /** Tag update parameters */
   updateTags?: {
-    action: 'add' | 'remove' | 'replace'
-    tags: string[]
-  }
+    action: 'add' | 'remove' | 'replace';
+    tags: string[];
+  };
   /** Category update parameters */
   updateCategory?: {
-    category: string
-    subcategory?: string
-  }
+    category: string;
+    subcategory?: string;
+  };
   /** Ownership change parameters */
   changeOwnership?: {
-    newOwnerId: string
-    transferType: 'full' | 'collaborative'
-    notifyUsers: boolean
-  }
+    newOwnerId: string;
+    transferType: 'full' | 'collaborative';
+    notifyUsers: boolean;
+  };
   /** Permission update parameters */
   updatePermissions?: {
-    permissions: Partial<PlanOwnership>
-    inheritFromParent: boolean
-  }
+    permissions: Partial<PlanOwnership>;
+    inheritFromParent: boolean;
+  };
 }
 
 /**
@@ -1422,19 +1450,19 @@ export interface BulkOperationParameters {
  */
 export interface OperationMetadata {
   /** Operation ID */
-  operationId: string
+  operationId: string;
   /** Initiated by user ID */
-  initiatedBy: string
+  initiatedBy: string;
   /** Operation timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Operation reason/context */
-  reason: string
+  reason: string;
   /** Expected duration */
-  estimatedDuration?: number
+  estimatedDuration?: number;
   /** Operation priority */
-  priority: 'low' | 'normal' | 'high' | 'urgent'
+  priority: 'low' | 'normal' | 'high' | 'urgent';
   /** Rollback capability */
-  canRollback: boolean
+  canRollback: boolean;
 }
 
 /**
@@ -1442,49 +1470,49 @@ export interface OperationMetadata {
  */
 export interface PlanSearchFilters {
   /** Text search query */
-  query?: string
+  query?: string;
   /** Search in specific fields */
-  searchFields: SearchField[]
+  searchFields: SearchField[];
   /** Plan status filters */
-  status: PlanManagementStatus[]
+  status: PlanManagementStatus[];
   /** Plan ownership filters */
-  ownership: OwnershipFilter
+  ownership: OwnershipFilter;
   /** Date range filters */
-  dateRange: DateRangeFilter
+  dateRange: DateRangeFilter;
   /** Category and classification filters */
-  classification: ClassificationFilter
+  classification: ClassificationFilter;
   /** Performance filters */
-  performance: PerformanceFilter
+  performance: PerformanceFilter;
   /** Social and engagement filters */
-  social: SocialFilter
+  social: SocialFilter;
   /** Advanced filters */
-  advanced: AdvancedFilter
+  advanced: AdvancedFilter;
 }
 
 /**
  * Search Fields
  */
-export type SearchField = 
+export type SearchField =
   | 'name'
   | 'description'
   | 'tags'
   | 'creator'
   | 'exercises'
   | 'notes'
-  | 'reviews'
+  | 'reviews';
 
 /**
  * Ownership Filter
  */
 export interface OwnershipFilter {
   /** Filter by owner */
-  ownedBy?: 'me' | 'others' | 'organization' | 'public'
+  ownedBy?: 'me' | 'others' | 'organization' | 'public';
   /** Filter by creator */
-  createdBy?: string[]
+  createdBy?: string[];
   /** Filter by sharing status */
-  sharingStatus?: 'private' | 'shared' | 'public'
+  sharingStatus?: 'private' | 'shared' | 'public';
   /** Filter by permissions */
-  permissions?: 'can_view' | 'can_edit' | 'can_share'
+  permissions?: 'can_view' | 'can_edit' | 'can_share';
 }
 
 /**
@@ -1492,13 +1520,13 @@ export interface OwnershipFilter {
  */
 export interface DateRangeFilter {
   /** Creation date range */
-  created?: DateRange
+  created?: DateRange;
   /** Last updated date range */
-  updated?: DateRange
+  updated?: DateRange;
   /** Last used date range */
-  lastUsed?: DateRange
+  lastUsed?: DateRange;
   /** Completion date range */
-  completed?: DateRange
+  completed?: DateRange;
 }
 
 /**
@@ -1506,11 +1534,17 @@ export interface DateRangeFilter {
  */
 export interface DateRange {
   /** Start date */
-  from: Date
+  from: Date;
   /** End date */
-  to: Date
+  to: Date;
   /** Relative date options */
-  preset?: 'today' | 'yesterday' | 'last_week' | 'last_month' | 'last_year' | 'custom'
+  preset?:
+    | 'today'
+    | 'yesterday'
+    | 'last_week'
+    | 'last_month'
+    | 'last_year'
+    | 'custom';
 }
 
 /**
@@ -1518,17 +1552,17 @@ export interface DateRange {
  */
 export interface ClassificationFilter {
   /** Fitness level targets */
-  fitnessLevel: FitnessLevel[]
+  fitnessLevel: FitnessLevel[];
   /** Goal categories */
-  goals: string[]
+  goals: string[];
   /** Exercise types included */
-  exerciseTypes: ExerciseType[]
+  exerciseTypes: ExerciseType[];
   /** Equipment requirements */
-  equipment: EquipmentFilter
+  equipment: EquipmentFilter;
   /** Plan duration ranges */
-  duration: DurationFilter
+  duration: DurationFilter;
   /** Template categories */
-  templateCategories: TemplateCategory[]
+  templateCategories: TemplateCategory[];
 }
 
 /**
@@ -1536,13 +1570,13 @@ export interface ClassificationFilter {
  */
 export interface EquipmentFilter {
   /** Required equipment */
-  required?: string[]
+  required?: string[];
   /** Optional equipment */
-  optional?: string[]
+  optional?: string[];
   /** No equipment needed */
-  bodyweightOnly?: boolean
+  bodyweightOnly?: boolean;
   /** Equipment categories */
-  categories?: string[]
+  categories?: string[];
 }
 
 /**
@@ -1550,19 +1584,19 @@ export interface EquipmentFilter {
  */
 export interface DurationFilter {
   /** Minimum duration in weeks */
-  minWeeks?: number
+  minWeeks?: number;
   /** Maximum duration in weeks */
-  maxWeeks?: number
+  maxWeeks?: number;
   /** Sessions per week range */
   sessionsPerWeek?: {
-    min: number
-    max: number
-  }
+    min: number;
+    max: number;
+  };
   /** Session duration range */
   sessionDuration?: {
-    min: number
-    max: number
-  }
+    min: number;
+    max: number;
+  };
 }
 
 /**
@@ -1570,21 +1604,21 @@ export interface DurationFilter {
  */
 export interface PerformanceFilter {
   /** Minimum completion rate */
-  minCompletionRate?: number
+  minCompletionRate?: number;
   /** Minimum user rating */
-  minRating?: number
+  minRating?: number;
   /** Minimum success rate */
-  minSuccessRate?: number
+  minSuccessRate?: number;
   /** Usage volume thresholds */
   usageThresholds?: {
-    minUsers: number
-    minSessions: number
-  }
+    minUsers: number;
+    minSessions: number;
+  };
   /** Quality metrics */
   quality?: {
-    minQualityScore: number
-    hasValidation: boolean
-  }
+    minQualityScore: number;
+    hasValidation: boolean;
+  };
 }
 
 /**
@@ -1593,22 +1627,22 @@ export interface PerformanceFilter {
 export interface SocialFilter {
   /** Minimum social engagement */
   minEngagement?: {
-    shares: number
-    favorites: number
-    reviews: number
-  }
+    shares: number;
+    favorites: number;
+    reviews: number;
+  };
   /** Community features */
   community?: {
-    hasDiscussions: boolean
-    hasChallenges: boolean
-    hasUserContent: boolean
-  }
+    hasDiscussions: boolean;
+    hasChallenges: boolean;
+    hasUserContent: boolean;
+  };
   /** Social proof requirements */
   socialProof?: {
-    hasEndorsements: boolean
-    hasExpertValidation: boolean
-    hasMediaMentions: boolean
-  }
+    hasEndorsements: boolean;
+    hasExpertValidation: boolean;
+    hasMediaMentions: boolean;
+  };
 }
 
 /**
@@ -1616,25 +1650,25 @@ export interface SocialFilter {
  */
 export interface AdvancedFilter {
   /** Custom field filters */
-  customFields?: Record<string, any>
+  customFields?: Record<string, any>;
   /** Compliance requirements */
   compliance?: {
-    organizationCompliant: boolean
-    safetyValidated: boolean
-    medicalApproved: boolean
-  }
+    organizationCompliant: boolean;
+    safetyValidated: boolean;
+    medicalApproved: boolean;
+  };
   /** Version control filters */
   versioning?: {
-    hasVersionHistory: boolean
-    isLatestVersion: boolean
-    hasActiveBranches: boolean
-  }
+    hasVersionHistory: boolean;
+    isLatestVersion: boolean;
+    hasActiveBranches: boolean;
+  };
   /** Marketplace filters */
   marketplace?: {
-    isPaid: boolean
-    isPromoted: boolean
-    inBundle: boolean
-  }
+    isPaid: boolean;
+    isPromoted: boolean;
+    inBundle: boolean;
+  };
 }
 
 /**
@@ -1642,15 +1676,15 @@ export interface AdvancedFilter {
  */
 export interface PlanSearchResults {
   /** Matching plans */
-  plans: DashboardWorkoutPlan[]
+  plans: DashboardWorkoutPlan[];
   /** Total count of matches */
-  totalCount: number
+  totalCount: number;
   /** Search execution metadata */
-  searchMetadata: SearchMetadata
+  searchMetadata: SearchMetadata;
   /** Faceted search results */
-  facets: SearchFacets
+  facets: SearchFacets;
   /** Search suggestions */
-  suggestions: SearchSuggestion[]
+  suggestions: SearchSuggestion[];
 }
 
 /**
@@ -1658,15 +1692,15 @@ export interface PlanSearchResults {
  */
 export interface SearchMetadata {
   /** Search execution time in milliseconds */
-  executionTime: number
+  executionTime: number;
   /** Search query hash for caching */
-  queryHash: string
+  queryHash: string;
   /** Search timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Result ranking algorithm used */
-  rankingAlgorithm: string
+  rankingAlgorithm: string;
   /** Search quality score */
-  qualityScore: number
+  qualityScore: number;
 }
 
 /**
@@ -1674,17 +1708,17 @@ export interface SearchMetadata {
  */
 export interface SearchFacets {
   /** Status facets */
-  status: FacetResult[]
+  status: FacetResult[];
   /** Category facets */
-  categories: FacetResult[]
+  categories: FacetResult[];
   /** Fitness level facets */
-  fitnessLevels: FacetResult[]
+  fitnessLevels: FacetResult[];
   /** Duration facets */
-  durations: FacetResult[]
+  durations: FacetResult[];
   /** Rating facets */
-  ratings: FacetResult[]
+  ratings: FacetResult[];
   /** Creator facets */
-  creators: FacetResult[]
+  creators: FacetResult[];
 }
 
 /**
@@ -1692,11 +1726,11 @@ export interface SearchFacets {
  */
 export interface FacetResult {
   /** Facet value */
-  value: string
+  value: string;
   /** Count of matching items */
-  count: number
+  count: number;
   /** Is this facet currently selected */
-  selected: boolean
+  selected: boolean;
 }
 
 /**
@@ -1704,13 +1738,13 @@ export interface FacetResult {
  */
 export interface SearchSuggestion {
   /** Suggestion text */
-  text: string
+  text: string;
   /** Suggestion type */
-  type: 'query' | 'filter' | 'category' | 'creator'
+  type: 'query' | 'filter' | 'category' | 'creator';
   /** Suggestion confidence score */
-  confidence: number
+  confidence: number;
   /** Expected result count */
-  expectedResults: number
+  expectedResults: number;
 }
 
 // ================================
@@ -1722,52 +1756,52 @@ export interface SearchSuggestion {
  */
 export interface MultiSelectState {
   /** Currently selected plan IDs */
-  selectedPlanIds: Set<string>
+  selectedPlanIds: Set<string>;
   /** Select all state */
-  selectAllState: SelectAllState
+  selectAllState: SelectAllState;
   /** Available bulk actions */
-  availableActions: BulkAction[]
+  availableActions: BulkAction[];
   /** Bulk operation in progress */
-  operationInProgress: boolean
+  operationInProgress: boolean;
   /** Current bulk operation */
-  currentOperation?: BulkPlanOperation
+  currentOperation?: BulkPlanOperation;
   /** Operation progress */
-  operationProgress?: OperationProgress
+  operationProgress?: OperationProgress;
 }
 
 /**
  * Select All State
  */
-export type SelectAllState = 'none' | 'partial' | 'all' | 'indeterminate'
+export type SelectAllState = 'none' | 'partial' | 'all' | 'indeterminate';
 
 /**
  * Bulk Action Configuration
  */
 export interface BulkAction {
   /** Action identifier */
-  id: BulkOperationType
+  id: BulkOperationType;
   /** Display label */
-  label: string
+  label: string;
   /** Action description */
-  description: string
+  description: string;
   /** Action icon */
-  icon: string
+  icon: string;
   /** Action color theme */
-  color: 'primary' | 'secondary' | 'danger' | 'warning' | 'success'
+  color: 'primary' | 'secondary' | 'danger' | 'warning' | 'success';
   /** Action requires confirmation */
-  requiresConfirmation: boolean
+  requiresConfirmation: boolean;
   /** Confirmation message */
-  confirmationMessage?: string
+  confirmationMessage?: string;
   /** Action is destructive */
-  isDestructive: boolean
+  isDestructive: boolean;
   /** Minimum selection count */
-  minSelectionCount: number
+  minSelectionCount: number;
   /** Maximum selection count */
-  maxSelectionCount?: number
+  maxSelectionCount?: number;
   /** Action availability predicate */
-  isAvailable: (plans: DashboardWorkoutPlan[]) => boolean
+  isAvailable: (plans: DashboardWorkoutPlan[]) => boolean;
   /** Action keyboard shortcut */
-  shortcut?: string
+  shortcut?: string;
 }
 
 /**
@@ -1775,25 +1809,25 @@ export interface BulkAction {
  */
 export interface OperationProgress {
   /** Current step */
-  currentStep: number
+  currentStep: number;
   /** Total steps */
-  totalSteps: number
+  totalSteps: number;
   /** Progress percentage */
-  percentage: number
+  percentage: number;
   /** Current step description */
-  stepDescription: string
+  stepDescription: string;
   /** Processed items */
-  processedItems: number
+  processedItems: number;
   /** Total items to process */
-  totalItems: number
+  totalItems: number;
   /** Operation start time */
-  startTime: Date
+  startTime: Date;
   /** Estimated completion time */
-  estimatedCompletion?: Date
+  estimatedCompletion?: Date;
   /** Errors encountered */
-  errors: OperationError[]
+  errors: OperationError[];
   /** Warnings encountered */
-  warnings: OperationWarning[]
+  warnings: OperationWarning[];
 }
 
 /**
@@ -1801,17 +1835,17 @@ export interface OperationProgress {
  */
 export interface OperationError {
   /** Item that caused the error */
-  itemId: string
+  itemId: string;
   /** Error code */
-  code: string
+  code: string;
   /** Error message */
-  message: string
+  message: string;
   /** Error severity */
-  severity: 'low' | 'medium' | 'high' | 'critical'
+  severity: 'low' | 'medium' | 'high' | 'critical';
   /** Can error be retried */
-  canRetry: boolean
+  canRetry: boolean;
   /** Suggested fix */
-  suggestedFix?: string
+  suggestedFix?: string;
 }
 
 /**
@@ -1819,15 +1853,15 @@ export interface OperationError {
  */
 export interface OperationWarning {
   /** Item that triggered the warning */
-  itemId: string
+  itemId: string;
   /** Warning code */
-  code: string
+  code: string;
   /** Warning message */
-  message: string
+  message: string;
   /** Can warning be ignored */
-  canIgnore: boolean
+  canIgnore: boolean;
   /** Warning resolution */
-  resolution?: string
+  resolution?: string;
 }
 
 // ================================
@@ -1839,19 +1873,19 @@ export interface OperationWarning {
  */
 export interface PlanDashboardState {
   /** UI state */
-  ui: DashboardUIState
+  ui: DashboardUIState;
   /** Data state */
-  data: DashboardDataState
+  data: DashboardDataState;
   /** Filter and search state */
-  filters: DashboardFilterState
+  filters: DashboardFilterState;
   /** Multi-select state */
-  multiSelect: MultiSelectState
+  multiSelect: MultiSelectState;
   /** User preferences */
-  preferences: DashboardPreferences
+  preferences: DashboardPreferences;
   /** Real-time updates */
-  realtime: RealtimeState
+  realtime: RealtimeState;
   /** Performance monitoring */
-  performance: PerformanceState
+  performance: PerformanceState;
 }
 
 /**
@@ -1859,42 +1893,42 @@ export interface PlanDashboardState {
  */
 export interface DashboardUIState {
   /** Current view mode */
-  viewMode: DashboardViewMode
+  viewMode: DashboardViewMode;
   /** Layout configuration */
-  layout: DashboardLayout
+  layout: DashboardLayout;
   /** Loading states */
-  loading: LoadingStates
+  loading: LoadingStates;
   /** Error states */
-  errors: ErrorStates
+  errors: ErrorStates;
   /** Modal and dialog states */
-  modals: ModalStates
+  modals: ModalStates;
   /** Notification states */
-  notifications: NotificationState[]
+  notifications: NotificationState[];
 }
 
 /**
  * Dashboard View Modes
  */
-export type DashboardViewMode = 
-  | 'grid'      // Grid view with cards
-  | 'list'      // List view with detailed rows
-  | 'table'     // Table view with sortable columns
-  | 'kanban'    // Kanban board by status
-  | 'calendar'  // Calendar view with scheduled plans
-  | 'analytics' // Analytics and charts view
+export type DashboardViewMode =
+  | 'grid' // Grid view with cards
+  | 'list' // List view with detailed rows
+  | 'table' // Table view with sortable columns
+  | 'kanban' // Kanban board by status
+  | 'calendar' // Calendar view with scheduled plans
+  | 'analytics'; // Analytics and charts view
 
 /**
  * Dashboard Layout Configuration
  */
 export interface DashboardLayout {
   /** Sidebar configuration */
-  sidebar: SidebarConfig
+  sidebar: SidebarConfig;
   /** Main content area configuration */
-  mainArea: MainAreaConfig
+  mainArea: MainAreaConfig;
   /** Widget configurations */
-  widgets: WidgetConfig[]
+  widgets: WidgetConfig[];
   /** Responsive breakpoints */
-  breakpoints: ResponsiveBreakpoints
+  breakpoints: ResponsiveBreakpoints;
 }
 
 /**
@@ -1902,15 +1936,15 @@ export interface DashboardLayout {
  */
 export interface SidebarConfig {
   /** Is sidebar visible */
-  visible: boolean
+  visible: boolean;
   /** Is sidebar collapsed */
-  collapsed: boolean
+  collapsed: boolean;
   /** Sidebar width */
-  width: number
+  width: number;
   /** Sidebar sections */
-  sections: SidebarSection[]
+  sections: SidebarSection[];
   /** Sidebar position */
-  position: 'left' | 'right'
+  position: 'left' | 'right';
 }
 
 /**
@@ -1918,17 +1952,22 @@ export interface SidebarConfig {
  */
 export interface SidebarSection {
   /** Section identifier */
-  id: string
+  id: string;
   /** Section title */
-  title: string
+  title: string;
   /** Section icon */
-  icon?: string
+  icon?: string;
   /** Is section expanded */
-  expanded: boolean
+  expanded: boolean;
   /** Section order */
-  order: number
+  order: number;
   /** Section content type */
-  contentType: 'filters' | 'quick_actions' | 'statistics' | 'recent_plans' | 'favorites'
+  contentType:
+    | 'filters'
+    | 'quick_actions'
+    | 'statistics'
+    | 'recent_plans'
+    | 'favorites';
 }
 
 /**
@@ -1936,17 +1975,17 @@ export interface SidebarSection {
  */
 export interface MainAreaConfig {
   /** Content padding */
-  padding: string
+  padding: string;
   /** Show header */
-  showHeader: boolean
+  showHeader: boolean;
   /** Header height */
-  headerHeight: number
+  headerHeight: number;
   /** Show footer */
-  showFooter: boolean
+  showFooter: boolean;
   /** Content scroll behavior */
-  scrollBehavior: 'auto' | 'smooth'
+  scrollBehavior: 'auto' | 'smooth';
   /** Virtual scrolling enabled */
-  virtualScrolling: boolean
+  virtualScrolling: boolean;
 }
 
 /**
@@ -1954,25 +1993,25 @@ export interface MainAreaConfig {
  */
 export interface WidgetConfig {
   /** Widget identifier */
-  id: string
+  id: string;
   /** Widget type */
-  type: WidgetType
+  type: WidgetType;
   /** Widget position */
-  position: WidgetPosition
+  position: WidgetPosition;
   /** Widget size */
-  size: WidgetSize
+  size: WidgetSize;
   /** Widget configuration */
-  config: WidgetSpecificConfig
+  config: WidgetSpecificConfig;
   /** Is widget visible */
-  visible: boolean
+  visible: boolean;
   /** Widget refresh interval */
-  refreshInterval?: number
+  refreshInterval?: number;
 }
 
 /**
  * Widget Types
  */
-export type WidgetType = 
+export type WidgetType =
   | 'plan_stats'
   | 'recent_activity'
   | 'progress_chart'
@@ -1981,153 +2020,153 @@ export type WidgetType =
   | 'upcoming_sessions'
   | 'achievements'
   | 'community_feed'
-  | 'analytics_summary'
+  | 'analytics_summary';
 
 /**
  * Widget Size
  */
 export interface WidgetSize {
   /** Width in grid units */
-  width: number
+  width: number;
   /** Height in grid units */
-  height: number
+  height: number;
   /** Minimum width */
-  minWidth?: number
+  minWidth?: number;
   /** Minimum height */
-  minHeight?: number
+  minHeight?: number;
   /** Is widget resizable */
-  resizable: boolean
+  resizable: boolean;
 }
 
 /**
  * Widget-Specific Configuration
  */
-export type WidgetSpecificConfig = 
+export type WidgetSpecificConfig =
   | PlanStatsWidgetConfig
   | RecentActivityWidgetConfig
   | ProgressChartWidgetConfig
-  | QuickActionsWidgetConfig
+  | QuickActionsWidgetConfig;
 
 /**
  * Plan Stats Widget Configuration
  */
 export interface PlanStatsWidgetConfig {
   /** Stats to display */
-  statsToShow: PlanStatType[]
+  statsToShow: PlanStatType[];
   /** Time period for stats */
-  timePeriod: 'day' | 'week' | 'month' | 'quarter' | 'year' | 'all_time'
+  timePeriod: 'day' | 'week' | 'month' | 'quarter' | 'year' | 'all_time';
   /** Chart type */
-  chartType: 'pie' | 'bar' | 'line' | 'donut' | 'gauge'
+  chartType: 'pie' | 'bar' | 'line' | 'donut' | 'gauge';
   /** Show percentages */
-  showPercentages: boolean
+  showPercentages: boolean;
 }
 
 /**
  * Plan Stat Types
  */
-export type PlanStatType = 
+export type PlanStatType =
   | 'total_plans'
   | 'active_plans'
   | 'completed_plans'
   | 'completion_rate'
   | 'avg_session_duration'
   | 'total_sessions'
-  | 'streak_days'
+  | 'streak_days';
 
 /**
  * Recent Activity Widget Configuration
  */
 export interface RecentActivityWidgetConfig {
   /** Number of activities to show */
-  itemCount: number
+  itemCount: number;
   /** Activity types to include */
-  activityTypes: ActivityType[]
+  activityTypes: ActivityType[];
   /** Show activity details */
-  showDetails: boolean
+  showDetails: boolean;
   /** Auto-refresh enabled */
-  autoRefresh: boolean
+  autoRefresh: boolean;
 }
 
 /**
  * Activity Types
  */
-export type ActivityType = 
+export type ActivityType =
   | 'session_completed'
   | 'plan_started'
   | 'plan_completed'
   | 'achievement_earned'
   | 'plan_shared'
-  | 'plan_modified'
+  | 'plan_modified';
 
 /**
  * Progress Chart Widget Configuration
  */
 export interface ProgressChartWidgetConfig {
   /** Metrics to track */
-  metrics: ProgressMetric[]
+  metrics: ProgressMetric[];
   /** Chart style */
-  chartStyle: 'line' | 'area' | 'bar' | 'scatter'
+  chartStyle: 'line' | 'area' | 'bar' | 'scatter';
   /** Time range */
-  timeRange: 'week' | 'month' | 'quarter' | 'year'
+  timeRange: 'week' | 'month' | 'quarter' | 'year';
   /** Show trend lines */
-  showTrend: boolean
+  showTrend: boolean;
   /** Compare periods */
-  comparePeriods: boolean
+  comparePeriods: boolean;
 }
 
 /**
  * Progress Metrics
  */
-export type ProgressMetric = 
+export type ProgressMetric =
   | 'weight'
   | 'body_fat'
   | 'muscle_mass'
   | 'strength_score'
   | 'endurance_score'
   | 'flexibility_score'
-  | 'overall_fitness'
+  | 'overall_fitness';
 
 /**
  * Quick Actions Widget Configuration
  */
 export interface QuickActionsWidgetConfig {
   /** Actions to show */
-  actions: QuickActionType[]
+  actions: QuickActionType[];
   /** Action layout */
-  layout: 'grid' | 'list' | 'compact'
+  layout: 'grid' | 'list' | 'compact';
   /** Show action labels */
-  showLabels: boolean
+  showLabels: boolean;
   /** Custom actions */
-  customActions: CustomQuickAction[]
+  customActions: CustomQuickAction[];
 }
 
 /**
  * Quick Action Types
  */
-export type QuickActionType = 
+export type QuickActionType =
   | 'create_plan'
   | 'start_session'
   | 'view_progress'
   | 'browse_templates'
   | 'sync_data'
-  | 'share_achievement'
+  | 'share_achievement';
 
 /**
  * Custom Quick Action
  */
 export interface CustomQuickAction {
   /** Action ID */
-  id: string
+  id: string;
   /** Action label */
-  label: string
+  label: string;
   /** Action icon */
-  icon: string
+  icon: string;
   /** Action URL or handler */
-  action: string | (() => void)
+  action: string | (() => void);
   /** Action color */
-  color: string
+  color: string;
   /** Action availability condition */
-  condition?: () => boolean
+  condition?: () => boolean;
 }
 
 /**
@@ -2135,15 +2174,15 @@ export interface CustomQuickAction {
  */
 export interface ResponsiveBreakpoints {
   /** Mobile breakpoint */
-  mobile: number
+  mobile: number;
   /** Tablet breakpoint */
-  tablet: number
+  tablet: number;
   /** Desktop breakpoint */
-  desktop: number
+  desktop: number;
   /** Large desktop breakpoint */
-  desktopLg: number
+  desktopLg: number;
   /** Extra large screen breakpoint */
-  desktopXl: number
+  desktopXl: number;
 }
 
 /**
@@ -2151,15 +2190,15 @@ export interface ResponsiveBreakpoints {
  */
 export interface DashboardDataState {
   /** Plans data */
-  plans: PlanDataState
+  plans: PlanDataState;
   /** Sessions data */
-  sessions: SessionDataState
+  sessions: SessionDataState;
   /** Progress data */
-  progress: ProgressDataState
+  progress: ProgressDataState;
   /** Analytics data */
-  analytics: AnalyticsDataState
+  analytics: AnalyticsDataState;
   /** Cache state */
-  cache: CacheState
+  cache: CacheState;
 }
 
 /**
@@ -2167,17 +2206,17 @@ export interface DashboardDataState {
  */
 export interface PlanDataState {
   /** All loaded plans */
-  items: DashboardWorkoutPlan[]
+  items: DashboardWorkoutPlan[];
   /** Plan loading state */
-  loading: boolean
+  loading: boolean;
   /** Plan error state */
-  error?: string
+  error?: string;
   /** Total plan count */
-  totalCount: number
+  totalCount: number;
   /** Last fetch timestamp */
-  lastFetch?: Date
+  lastFetch?: Date;
   /** Data freshness score */
-  freshnessScore: number
+  freshnessScore: number;
 }
 
 /**
@@ -2185,15 +2224,15 @@ export interface PlanDataState {
  */
 export interface SessionDataState {
   /** Recent sessions */
-  recentSessions: WorkoutSession[]
+  recentSessions: WorkoutSession[];
   /** Active session */
-  activeSession?: SessionExecution
+  activeSession?: SessionExecution;
   /** Sessions loading state */
-  loading: boolean
+  loading: boolean;
   /** Sessions error state */
-  error?: string
+  error?: string;
   /** Session statistics */
-  statistics: SessionStatistics
+  statistics: SessionStatistics;
 }
 
 /**
@@ -2201,17 +2240,17 @@ export interface SessionDataState {
  */
 export interface SessionStatistics {
   /** Total sessions this period */
-  totalSessions: number
+  totalSessions: number;
   /** Completed sessions this period */
-  completedSessions: number
+  completedSessions: number;
   /** Average session duration */
-  avgDuration: number
+  avgDuration: number;
   /** Current streak days */
-  streakDays: number
+  streakDays: number;
   /** Sessions by status */
-  sessionsByStatus: Record<SessionStatus, number>
+  sessionsByStatus: Record<SessionStatus, number>;
   /** Weekly session pattern */
-  weeklyPattern: number[]
+  weeklyPattern: number[];
 }
 
 /**
@@ -2219,17 +2258,17 @@ export interface SessionStatistics {
  */
 export interface ProgressDataState {
   /** Progress measurements */
-  measurements: ProgressMeasurement[]
+  measurements: ProgressMeasurement[];
   /** Achievement data */
-  achievements: UserAchievement[]
+  achievements: UserAchievement[];
   /** Progress trends */
-  trends: ProgressTrend[]
+  trends: ProgressTrend[];
   /** Progress goals */
-  goals: ProgressGoal[]
+  goals: ProgressGoal[];
   /** Loading state */
-  loading: boolean
+  loading: boolean;
   /** Error state */
-  error?: string
+  error?: string;
 }
 
 /**
@@ -2237,15 +2276,15 @@ export interface ProgressDataState {
  */
 export interface ProgressTrend {
   /** Measurement type */
-  type: MeasurementType
+  type: MeasurementType;
   /** Trend direction */
-  direction: 'up' | 'down' | 'stable'
+  direction: 'up' | 'down' | 'stable';
   /** Trend percentage */
-  changePercent: number
+  changePercent: number;
   /** Trend period */
-  period: 'week' | 'month' | 'quarter'
+  period: 'week' | 'month' | 'quarter';
   /** Trend confidence */
-  confidence: number
+  confidence: number;
 }
 
 /**
@@ -2253,23 +2292,23 @@ export interface ProgressTrend {
  */
 export interface ProgressGoal {
   /** Goal ID */
-  id: string
+  id: string;
   /** Goal type */
-  type: MeasurementType | 'performance' | 'consistency' | 'achievement'
+  type: MeasurementType | 'performance' | 'consistency' | 'achievement';
   /** Goal description */
-  description: string
+  description: string;
   /** Target value */
-  targetValue: number
+  targetValue: number;
   /** Current value */
-  currentValue: number
+  currentValue: number;
   /** Goal unit */
-  unit: string
+  unit: string;
   /** Target date */
-  targetDate: Date
+  targetDate: Date;
   /** Goal status */
-  status: 'on_track' | 'behind' | 'achieved' | 'at_risk'
+  status: 'on_track' | 'behind' | 'achieved' | 'at_risk';
   /** Progress percentage */
-  progressPercent: number
+  progressPercent: number;
 }
 
 /**
@@ -2277,17 +2316,17 @@ export interface ProgressGoal {
  */
 export interface AnalyticsDataState {
   /** Performance analytics */
-  performance: PerformanceAnalytics
+  performance: PerformanceAnalytics;
   /** Usage analytics */
-  usage: UsageAnalytics
+  usage: UsageAnalytics;
   /** Social analytics */
-  social: SocialAnalytics
+  social: SocialAnalytics;
   /** Loading state */
-  loading: boolean
+  loading: boolean;
   /** Error state */
-  error?: string
+  error?: string;
   /** Last update timestamp */
-  lastUpdate: Date
+  lastUpdate: Date;
 }
 
 /**
@@ -2295,13 +2334,13 @@ export interface AnalyticsDataState {
  */
 export interface PerformanceAnalytics {
   /** Overall performance score */
-  overallScore: number
+  overallScore: number;
   /** Performance by category */
-  categoryScores: Record<string, number>
+  categoryScores: Record<string, number>;
   /** Performance trends */
-  trends: PerformanceTrendData[]
+  trends: PerformanceTrendData[];
   /** Performance benchmarks */
-  benchmarks: PerformanceBenchmark[]
+  benchmarks: PerformanceBenchmark[];
 }
 
 /**
@@ -2309,11 +2348,11 @@ export interface PerformanceAnalytics {
  */
 export interface PerformanceTrendData {
   /** Date */
-  date: Date
+  date: Date;
   /** Performance score */
-  score: number
+  score: number;
   /** Category breakdown */
-  categoryBreakdown: Record<string, number>
+  categoryBreakdown: Record<string, number>;
 }
 
 /**
@@ -2321,15 +2360,15 @@ export interface PerformanceTrendData {
  */
 export interface PerformanceBenchmark {
   /** Benchmark name */
-  name: string
+  name: string;
   /** User's value */
-  userValue: number
+  userValue: number;
   /** Benchmark value */
-  benchmarkValue: number
+  benchmarkValue: number;
   /** Percentile ranking */
-  percentile: number
+  percentile: number;
   /** Comparison group */
-  comparisonGroup: string
+  comparisonGroup: string;
 }
 
 /**
@@ -2337,13 +2376,13 @@ export interface PerformanceBenchmark {
  */
 export interface UsageAnalytics {
   /** Daily usage patterns */
-  dailyPatterns: UsagePattern[]
+  dailyPatterns: UsagePattern[];
   /** Weekly usage patterns */
-  weeklyPatterns: UsagePattern[]
+  weeklyPatterns: UsagePattern[];
   /** Monthly usage patterns */
-  monthlyPatterns: UsagePattern[]
+  monthlyPatterns: UsagePattern[];
   /** Feature usage statistics */
-  featureUsage: FeatureUsageStats[]
+  featureUsage: FeatureUsageStats[];
 }
 
 /**
@@ -2351,13 +2390,13 @@ export interface UsageAnalytics {
  */
 export interface UsagePattern {
   /** Period identifier */
-  period: string
+  period: string;
   /** Usage count */
-  usage: number
+  usage: number;
   /** Duration in minutes */
-  duration: number
+  duration: number;
   /** Activities performed */
-  activities: string[]
+  activities: string[];
 }
 
 /**
@@ -2365,15 +2404,15 @@ export interface UsagePattern {
  */
 export interface FeatureUsageStats {
   /** Feature name */
-  feature: string
+  feature: string;
   /** Usage count */
-  usageCount: number
+  usageCount: number;
   /** Last used */
-  lastUsed: Date
+  lastUsed: Date;
   /** Usage trend */
-  trend: 'increasing' | 'decreasing' | 'stable'
+  trend: 'increasing' | 'decreasing' | 'stable';
   /** Feature satisfaction rating */
-  satisfactionRating: number
+  satisfactionRating: number;
 }
 
 /**
@@ -2381,11 +2420,11 @@ export interface FeatureUsageStats {
  */
 export interface SocialAnalytics {
   /** Social engagement metrics */
-  engagement: SocialEngagementMetrics
+  engagement: SocialEngagementMetrics;
   /** Community participation */
-  participation: CommunityParticipation
+  participation: CommunityParticipation;
   /** Social influence scores */
-  influence: SocialInfluence
+  influence: SocialInfluence;
 }
 
 /**
@@ -2393,15 +2432,15 @@ export interface SocialAnalytics {
  */
 export interface SocialEngagementMetrics {
   /** Plans shared */
-  sharesCount: number
+  sharesCount: number;
   /** Comments/reviews given */
-  commentsCount: number
+  commentsCount: number;
   /** Likes/favorites received */
-  likesReceived: number
+  likesReceived: number;
   /** Social connections */
-  connectionsCount: number
+  connectionsCount: number;
   /** Engagement rate */
-  engagementRate: number
+  engagementRate: number;
 }
 
 /**
@@ -2409,15 +2448,15 @@ export interface SocialEngagementMetrics {
  */
 export interface CommunityParticipation {
   /** Community discussions participated */
-  discussionsParticipated: number
+  discussionsParticipated: number;
   /** Challenges joined */
-  challengesJoined: number
+  challengesJoined: number;
   /** User content created */
-  contentCreated: number
+  contentCreated: number;
   /** Help/advice given */
-  helpGiven: number
+  helpGiven: number;
   /** Community reputation score */
-  reputationScore: number
+  reputationScore: number;
 }
 
 /**
@@ -2425,15 +2464,15 @@ export interface CommunityParticipation {
  */
 export interface SocialInfluence {
   /** Followers count */
-  followersCount: number
+  followersCount: number;
   /** Following count */
-  followingCount: number
+  followingCount: number;
   /** Influence score */
-  influenceScore: number
+  influenceScore: number;
   /** Viral coefficient */
-  viralCoefficient: number
+  viralCoefficient: number;
   /** Reach metrics */
-  reach: ReachMetrics
+  reach: ReachMetrics;
 }
 
 /**
@@ -2441,13 +2480,13 @@ export interface SocialInfluence {
  */
 export interface ReachMetrics {
   /** Direct reach */
-  directReach: number
+  directReach: number;
   /** Extended reach */
-  extendedReach: number
+  extendedReach: number;
   /** Viral reach */
-  viralReach: number
+  viralReach: number;
   /** Geographic reach */
-  geographicReach: string[]
+  geographicReach: string[];
 }
 
 /**
@@ -2455,13 +2494,13 @@ export interface ReachMetrics {
  */
 export interface CacheState {
   /** Cache entries */
-  entries: CacheEntry[]
+  entries: CacheEntry[];
   /** Total cache size */
-  totalSize: number
+  totalSize: number;
   /** Cache hit rate */
-  hitRate: number
+  hitRate: number;
   /** Cache cleanup needed */
-  needsCleanup: boolean
+  needsCleanup: boolean;
 }
 
 /**
@@ -2469,17 +2508,17 @@ export interface CacheState {
  */
 export interface CacheEntry {
   /** Cache key */
-  key: string
+  key: string;
   /** Cached data */
-  data: any
+  data: any;
   /** Cache timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Expiry timestamp */
-  expires: Date
+  expires: Date;
   /** Access count */
-  accessCount: number
+  accessCount: number;
   /** Entry size in bytes */
-  size: number
+  size: number;
 }
 
 /**
@@ -2487,15 +2526,15 @@ export interface CacheEntry {
  */
 export interface DashboardFilterState {
   /** Active filters */
-  active: PlanSearchFilters
+  active: PlanSearchFilters;
   /** Saved filter sets */
-  saved: SavedFilterSet[]
+  saved: SavedFilterSet[];
   /** Filter history */
-  history: FilterHistoryEntry[]
+  history: FilterHistoryEntry[];
   /** Quick filter presets */
-  quickFilters: QuickFilter[]
+  quickFilters: QuickFilter[];
   /** Smart filter suggestions */
-  suggestions: FilterSuggestion[]
+  suggestions: FilterSuggestion[];
 }
 
 /**
@@ -2503,19 +2542,19 @@ export interface DashboardFilterState {
  */
 export interface SavedFilterSet {
   /** Filter set ID */
-  id: string
+  id: string;
   /** Filter set name */
-  name: string
+  name: string;
   /** Filter configuration */
-  filters: PlanSearchFilters
+  filters: PlanSearchFilters;
   /** Is set global (shared) */
-  isGlobal: boolean
+  isGlobal: boolean;
   /** Creation timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Usage count */
-  usageCount: number
+  usageCount: number;
   /** Last used timestamp */
-  lastUsed: Date
+  lastUsed: Date;
 }
 
 /**
@@ -2523,15 +2562,15 @@ export interface SavedFilterSet {
  */
 export interface FilterHistoryEntry {
   /** History entry ID */
-  id: string
+  id: string;
   /** Filter configuration */
-  filters: PlanSearchFilters
+  filters: PlanSearchFilters;
   /** Result count */
-  resultCount: number
+  resultCount: number;
   /** Usage timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Execution time */
-  executionTime: number
+  executionTime: number;
 }
 
 /**
@@ -2539,19 +2578,19 @@ export interface FilterHistoryEntry {
  */
 export interface QuickFilter {
   /** Filter ID */
-  id: string
+  id: string;
   /** Filter label */
-  label: string
+  label: string;
   /** Filter description */
-  description: string
+  description: string;
   /** Filter configuration */
-  filters: Partial<PlanSearchFilters>
+  filters: Partial<PlanSearchFilters>;
   /** Filter icon */
-  icon?: string
+  icon?: string;
   /** Filter color */
-  color?: string
+  color?: string;
   /** Is filter active */
-  active: boolean
+  active: boolean;
 }
 
 /**
@@ -2559,19 +2598,23 @@ export interface QuickFilter {
  */
 export interface FilterSuggestion {
   /** Suggestion ID */
-  id: string
+  id: string;
   /** Suggestion type */
-  type: 'similar_plans' | 'related_goals' | 'popular_filters' | 'personal_patterns'
+  type:
+    | 'similar_plans'
+    | 'related_goals'
+    | 'popular_filters'
+    | 'personal_patterns';
   /** Suggestion label */
-  label: string
+  label: string;
   /** Suggestion description */
-  description: string
+  description: string;
   /** Filter to apply */
-  filters: Partial<PlanSearchFilters>
+  filters: Partial<PlanSearchFilters>;
   /** Suggestion confidence */
-  confidence: number
+  confidence: number;
   /** Expected improvement */
-  expectedImprovement: string
+  expectedImprovement: string;
 }
 
 /**
@@ -2579,21 +2622,21 @@ export interface FilterSuggestion {
  */
 export interface DashboardPreferences {
   /** Default view mode */
-  defaultViewMode: DashboardViewMode
+  defaultViewMode: DashboardViewMode;
   /** Plans per page */
-  plansPerPage: number
+  plansPerPage: number;
   /** Auto-refresh enabled */
-  autoRefresh: boolean
+  autoRefresh: boolean;
   /** Auto-refresh interval */
-  autoRefreshInterval: number
+  autoRefreshInterval: number;
   /** Notification preferences */
-  notifications: DashboardNotificationPreferences
+  notifications: DashboardNotificationPreferences;
   /** Privacy preferences */
-  privacy: DashboardPrivacyPreferences
+  privacy: DashboardPrivacyPreferences;
   /** Accessibility preferences */
-  accessibility: DashboardAccessibilityPreferences
+  accessibility: DashboardAccessibilityPreferences;
   /** Performance preferences */
-  performance: DashboardPerformancePreferences
+  performance: DashboardPerformancePreferences;
 }
 
 /**
@@ -2601,19 +2644,19 @@ export interface DashboardPreferences {
  */
 export interface DashboardNotificationPreferences {
   /** Show success notifications */
-  showSuccess: boolean
+  showSuccess: boolean;
   /** Show error notifications */
-  showErrors: boolean
+  showErrors: boolean;
   /** Show warning notifications */
-  showWarnings: boolean
+  showWarnings: boolean;
   /** Show info notifications */
-  showInfo: boolean
+  showInfo: boolean;
   /** Notification duration */
-  duration: number
+  duration: number;
   /** Notification position */
-  position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+  position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
   /** Sound notifications */
-  soundEnabled: boolean
+  soundEnabled: boolean;
 }
 
 /**
@@ -2621,15 +2664,15 @@ export interface DashboardNotificationPreferences {
  */
 export interface DashboardPrivacyPreferences {
   /** Share usage analytics */
-  shareAnalytics: boolean
+  shareAnalytics: boolean;
   /** Share performance data */
-  sharePerformance: boolean
+  sharePerformance: boolean;
   /** Allow plan recommendations */
-  allowRecommendations: boolean
+  allowRecommendations: boolean;
   /** Show in leaderboards */
-  showInLeaderboards: boolean
+  showInLeaderboards: boolean;
   /** Allow social features */
-  allowSocialFeatures: boolean
+  allowSocialFeatures: boolean;
 }
 
 /**
@@ -2637,17 +2680,17 @@ export interface DashboardPrivacyPreferences {
  */
 export interface DashboardAccessibilityPreferences {
   /** High contrast mode */
-  highContrast: boolean
+  highContrast: boolean;
   /** Large text */
-  largeText: boolean
+  largeText: boolean;
   /** Reduced motion */
-  reducedMotion: boolean
+  reducedMotion: boolean;
   /** Screen reader support */
-  screenReader: boolean
+  screenReader: boolean;
   /** Keyboard navigation */
-  keyboardNavigation: boolean
+  keyboardNavigation: boolean;
   /** Focus indicators */
-  focusIndicators: boolean
+  focusIndicators: boolean;
 }
 
 /**
@@ -2655,15 +2698,15 @@ export interface DashboardAccessibilityPreferences {
  */
 export interface DashboardPerformancePreferences {
   /** Enable virtual scrolling */
-  virtualScrolling: boolean
+  virtualScrolling: boolean;
   /** Image lazy loading */
-  lazyLoading: boolean
+  lazyLoading: boolean;
   /** Prefetch data */
-  prefetchData: boolean
+  prefetchData: boolean;
   /** Cache duration */
-  cacheDuration: number
+  cacheDuration: number;
   /** Optimize for slow connections */
-  optimizeForSlowConnection: boolean
+  optimizeForSlowConnection: boolean;
 }
 
 /**
@@ -2671,17 +2714,17 @@ export interface DashboardPerformancePreferences {
  */
 export interface LoadingStates {
   /** Plans loading */
-  plans: boolean
+  plans: boolean;
   /** Sessions loading */
-  sessions: boolean
+  sessions: boolean;
   /** Analytics loading */
-  analytics: boolean
+  analytics: boolean;
   /** Bulk operation loading */
-  bulkOperation: boolean
+  bulkOperation: boolean;
   /** Export loading */
-  export: boolean
+  export: boolean;
   /** Search loading */
-  search: boolean
+  search: boolean;
 }
 
 /**
@@ -2689,17 +2732,17 @@ export interface LoadingStates {
  */
 export interface ErrorStates {
   /** Plans error */
-  plans?: string
+  plans?: string;
   /** Sessions error */
-  sessions?: string
+  sessions?: string;
   /** Analytics error */
-  analytics?: string
+  analytics?: string;
   /** Bulk operation error */
-  bulkOperation?: string
+  bulkOperation?: string;
   /** Export error */
-  export?: string
+  export?: string;
   /** Search error */
-  search?: string
+  search?: string;
 }
 
 /**
@@ -2707,15 +2750,15 @@ export interface ErrorStates {
  */
 export interface ModalStates {
   /** Plan details modal */
-  planDetails: ModalState<PlanDetailsModalProps>
+  planDetails: ModalState<PlanDetailsModalProps>;
   /** Bulk operation confirmation modal */
-  bulkConfirmation: ModalState<BulkConfirmationModalProps>
+  bulkConfirmation: ModalState<BulkConfirmationModalProps>;
   /** Filter editor modal */
-  filterEditor: ModalState<FilterEditorModalProps>
+  filterEditor: ModalState<FilterEditorModalProps>;
   /** Export options modal */
-  exportOptions: ModalState<ExportOptionsModalProps>
+  exportOptions: ModalState<ExportOptionsModalProps>;
   /** Share plan modal */
-  sharePlan: ModalState<SharePlanModalProps>
+  sharePlan: ModalState<SharePlanModalProps>;
 }
 
 /**
@@ -2723,13 +2766,13 @@ export interface ModalStates {
  */
 export interface ModalState<T = any> {
   /** Is modal open */
-  isOpen: boolean
+  isOpen: boolean;
   /** Modal props */
-  props?: T
+  props?: T;
   /** Modal loading state */
-  loading: boolean
+  loading: boolean;
   /** Modal error state */
-  error?: string
+  error?: string;
 }
 
 /**
@@ -2737,11 +2780,11 @@ export interface ModalState<T = any> {
  */
 export interface PlanDetailsModalProps {
   /** Plan ID */
-  planId: string
+  planId: string;
   /** Initial tab */
-  initialTab?: 'overview' | 'sessions' | 'progress' | 'analytics' | 'settings'
+  initialTab?: 'overview' | 'sessions' | 'progress' | 'analytics' | 'settings';
   /** Read-only mode */
-  readOnly?: boolean
+  readOnly?: boolean;
 }
 
 /**
@@ -2749,13 +2792,13 @@ export interface PlanDetailsModalProps {
  */
 export interface BulkConfirmationModalProps {
   /** Operation to confirm */
-  operation: BulkPlanOperation
+  operation: BulkPlanOperation;
   /** Affected plans */
-  affectedPlans: DashboardWorkoutPlan[]
+  affectedPlans: DashboardWorkoutPlan[];
   /** Confirmation callback */
-  onConfirm: () => void
+  onConfirm: () => void;
   /** Cancellation callback */
-  onCancel: () => void
+  onCancel: () => void;
 }
 
 /**
@@ -2763,13 +2806,13 @@ export interface BulkConfirmationModalProps {
  */
 export interface FilterEditorModalProps {
   /** Current filters */
-  currentFilters: PlanSearchFilters
+  currentFilters: PlanSearchFilters;
   /** Available filter options */
-  filterOptions: FilterOptionSet
+  filterOptions: FilterOptionSet;
   /** Save callback */
-  onSave: (filters: PlanSearchFilters) => void
+  onSave: (filters: PlanSearchFilters) => void;
   /** Cancel callback */
-  onCancel: () => void
+  onCancel: () => void;
 }
 
 /**
@@ -2777,15 +2820,15 @@ export interface FilterEditorModalProps {
  */
 export interface FilterOptionSet {
   /** Available statuses */
-  statuses: SelectOption[]
+  statuses: SelectOption[];
   /** Available categories */
-  categories: SelectOption[]
+  categories: SelectOption[];
   /** Available fitness levels */
-  fitnessLevels: SelectOption[]
+  fitnessLevels: SelectOption[];
   /** Available creators */
-  creators: SelectOption[]
+  creators: SelectOption[];
   /** Available equipment */
-  equipment: SelectOption[]
+  equipment: SelectOption[];
 }
 
 /**
@@ -2793,15 +2836,15 @@ export interface FilterOptionSet {
  */
 export interface SelectOption {
   /** Option value */
-  value: string
+  value: string;
   /** Option label */
-  label: string
+  label: string;
   /** Option description */
-  description?: string
+  description?: string;
   /** Option count */
-  count?: number
+  count?: number;
   /** Option disabled state */
-  disabled?: boolean
+  disabled?: boolean;
 }
 
 /**
@@ -2809,11 +2852,11 @@ export interface SelectOption {
  */
 export interface ExportOptionsModalProps {
   /** Plans to export */
-  planIds: string[]
+  planIds: string[];
   /** Export callback */
-  onExport: (options: ExportOptions) => void
+  onExport: (options: ExportOptions) => void;
   /** Cancel callback */
-  onCancel: () => void
+  onCancel: () => void;
 }
 
 /**
@@ -2821,17 +2864,17 @@ export interface ExportOptionsModalProps {
  */
 export interface ExportOptions {
   /** Export format */
-  format: 'json' | 'csv' | 'pdf' | 'xlsx'
+  format: 'json' | 'csv' | 'pdf' | 'xlsx';
   /** Include statistics */
-  includeStatistics: boolean
+  includeStatistics: boolean;
   /** Include user data */
-  includeUserData: boolean
+  includeUserData: boolean;
   /** Include social data */
-  includeSocialData: boolean
+  includeSocialData: boolean;
   /** Date range */
-  dateRange?: DateRange
+  dateRange?: DateRange;
   /** Compression enabled */
-  compress: boolean
+  compress: boolean;
 }
 
 /**
@@ -2839,11 +2882,11 @@ export interface ExportOptions {
  */
 export interface SharePlanModalProps {
   /** Plan to share */
-  plan: DashboardWorkoutPlan
+  plan: DashboardWorkoutPlan;
   /** Share callback */
-  onShare: (options: ShareOptions) => void
+  onShare: (options: ShareOptions) => void;
   /** Cancel callback */
-  onCancel: () => void
+  onCancel: () => void;
 }
 
 /**
@@ -2851,15 +2894,15 @@ export interface SharePlanModalProps {
  */
 export interface ShareOptions {
   /** Share method */
-  method: 'link' | 'email' | 'social' | 'copy'
+  method: 'link' | 'email' | 'social' | 'copy';
   /** Share permissions */
-  permissions: 'view' | 'copy' | 'edit'
+  permissions: 'view' | 'copy' | 'edit';
   /** Share message */
-  message?: string
+  message?: string;
   /** Expiration date */
-  expiresAt?: Date
+  expiresAt?: Date;
   /** Require registration */
-  requireRegistration: boolean
+  requireRegistration: boolean;
 }
 
 /**
@@ -2867,21 +2910,21 @@ export interface ShareOptions {
  */
 export interface NotificationState {
   /** Notification ID */
-  id: string
+  id: string;
   /** Notification type */
-  type: 'success' | 'error' | 'warning' | 'info'
+  type: 'success' | 'error' | 'warning' | 'info';
   /** Notification title */
-  title: string
+  title: string;
   /** Notification message */
-  message: string
+  message: string;
   /** Show timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Is notification dismissible */
-  dismissible: boolean
+  dismissible: boolean;
   /** Auto-dismiss timeout */
-  timeout?: number
+  timeout?: number;
   /** Notification actions */
-  actions?: NotificationAction[]
+  actions?: NotificationAction[];
 }
 
 /**
@@ -2889,11 +2932,11 @@ export interface NotificationState {
  */
 export interface NotificationAction {
   /** Action label */
-  label: string
+  label: string;
   /** Action callback */
-  action: () => void
+  action: () => void;
   /** Action style */
-  style?: 'primary' | 'secondary' | 'danger'
+  style?: 'primary' | 'secondary' | 'danger';
 }
 
 /**
@@ -2901,15 +2944,15 @@ export interface NotificationAction {
  */
 export interface RealtimeState {
   /** Connection status */
-  connected: boolean
+  connected: boolean;
   /** Last ping timestamp */
-  lastPing?: Date
+  lastPing?: Date;
   /** Pending updates */
-  pendingUpdates: RealtimeUpdate[]
+  pendingUpdates: RealtimeUpdate[];
   /** Update subscriptions */
-  subscriptions: RealtimeSubscription[]
+  subscriptions: RealtimeSubscription[];
   /** Connection quality */
-  connectionQuality: 'excellent' | 'good' | 'poor' | 'disconnected'
+  connectionQuality: 'excellent' | 'good' | 'poor' | 'disconnected';
 }
 
 /**
@@ -2917,17 +2960,21 @@ export interface RealtimeState {
  */
 export interface RealtimeUpdate {
   /** Update ID */
-  id: string
+  id: string;
   /** Update type */
-  type: 'plan_updated' | 'session_completed' | 'achievement_earned' | 'plan_shared'
+  type:
+    | 'plan_updated'
+    | 'session_completed'
+    | 'achievement_earned'
+    | 'plan_shared';
   /** Update data */
-  data: any
+  data: any;
   /** Update timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Update priority */
-  priority: 'low' | 'normal' | 'high'
+  priority: 'low' | 'normal' | 'high';
   /** Update processed */
-  processed: boolean
+  processed: boolean;
 }
 
 /**
@@ -2935,15 +2982,15 @@ export interface RealtimeUpdate {
  */
 export interface RealtimeSubscription {
   /** Subscription ID */
-  id: string
+  id: string;
   /** Subscription type */
-  type: 'user_plans' | 'shared_plans' | 'community_activity'
+  type: 'user_plans' | 'shared_plans' | 'community_activity';
   /** Subscription parameters */
-  parameters: any
+  parameters: any;
   /** Subscription active */
-  active: boolean
+  active: boolean;
   /** Last update received */
-  lastUpdate?: Date
+  lastUpdate?: Date;
 }
 
 /**
@@ -2951,11 +2998,11 @@ export interface RealtimeSubscription {
  */
 export interface PerformanceState {
   /** Performance metrics */
-  metrics: PerformanceMetrics
+  metrics: PerformanceMetrics;
   /** Performance alerts */
-  alerts: PerformanceAlert[]
+  alerts: PerformanceAlert[];
   /** Performance optimizations */
-  optimizations: PerformanceOptimization[]
+  optimizations: PerformanceOptimization[];
 }
 
 /**
@@ -2963,19 +3010,19 @@ export interface PerformanceState {
  */
 export interface PerformanceMetrics {
   /** Page load time */
-  pageLoadTime: number
+  pageLoadTime: number;
   /** Initial render time */
-  initialRenderTime: number
+  initialRenderTime: number;
   /** Time to interactive */
-  timeToInteractive: number
+  timeToInteractive: number;
   /** First contentful paint */
-  firstContentfulPaint: number
+  firstContentfulPaint: number;
   /** Largest contentful paint */
-  largestContentfulPaint: number
+  largestContentfulPaint: number;
   /** Memory usage */
-  memoryUsage: number
+  memoryUsage: number;
   /** CPU usage */
-  cpuUsage: number
+  cpuUsage: number;
 }
 
 /**
@@ -2983,17 +3030,17 @@ export interface PerformanceMetrics {
  */
 export interface PerformanceAlert {
   /** Alert ID */
-  id: string
+  id: string;
   /** Alert type */
-  type: 'slow_loading' | 'high_memory' | 'poor_connection' | 'cache_miss'
+  type: 'slow_loading' | 'high_memory' | 'poor_connection' | 'cache_miss';
   /** Alert message */
-  message: string
+  message: string;
   /** Alert severity */
-  severity: 'low' | 'medium' | 'high'
+  severity: 'low' | 'medium' | 'high';
   /** Alert timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Alert acknowledged */
-  acknowledged: boolean
+  acknowledged: boolean;
 }
 
 /**
@@ -3001,17 +3048,17 @@ export interface PerformanceAlert {
  */
 export interface PerformanceOptimization {
   /** Optimization ID */
-  id: string
+  id: string;
   /** Optimization type */
-  type: 'image_compression' | 'code_splitting' | 'caching' | 'prefetching'
+  type: 'image_compression' | 'code_splitting' | 'caching' | 'prefetching';
   /** Optimization description */
-  description: string
+  description: string;
   /** Performance impact */
-  impact: number
+  impact: number;
   /** Implementation complexity */
-  complexity: 'low' | 'medium' | 'high'
+  complexity: 'low' | 'medium' | 'high';
   /** Optimization enabled */
-  enabled: boolean
+  enabled: boolean;
 }
 
 // Export all types
@@ -3022,5 +3069,5 @@ export type {
   MultiSelectState,
   PlanDashboardState,
   BulkPlanOperation,
-  PlanSearchResults
-}
+  PlanSearchResults,
+};

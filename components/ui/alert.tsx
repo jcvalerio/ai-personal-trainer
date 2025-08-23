@@ -2,18 +2,12 @@
  * Alert and notification components
  * Used for displaying important messages to users
  */
-'use client'
+'use client';
 
-import * as React from 'react'
-import { cva, type VariantProps } from 'class-variance-authority'
-import { 
-  CheckCircle, 
-  AlertTriangle, 
-  AlertCircle, 
-  Info, 
-  X 
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
+import * as React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { CheckCircle, AlertTriangle, AlertCircle, Info, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const alertVariants = cva(
   'relative w-full rounded-lg border px-4 py-3 text-sm',
@@ -31,12 +25,12 @@ const alertVariants = cva(
       variant: 'default',
     },
   }
-)
+);
 
 interface AlertProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof alertVariants> {
-  onDismiss?: () => void
+  onDismiss?: () => void;
 }
 
 const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
@@ -44,47 +38,43 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
     const getIcon = () => {
       switch (variant) {
         case 'success':
-          return <CheckCircle className="h-4 w-4" />
+          return <CheckCircle className='h-4 w-4' />;
         case 'destructive':
-          return <AlertCircle className="h-4 w-4" />
+          return <AlertCircle className='h-4 w-4' />;
         case 'warning':
-          return <AlertTriangle className="h-4 w-4" />
+          return <AlertTriangle className='h-4 w-4' />;
         case 'info':
-          return <Info className="h-4 w-4" />
+          return <Info className='h-4 w-4' />;
         default:
-          return <Info className="h-4 w-4" />
+          return <Info className='h-4 w-4' />;
       }
-    }
+    };
 
     return (
       <div
         ref={ref}
-        role="alert"
+        role='alert'
         className={cn(alertVariants({ variant }), className)}
         {...props}
       >
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 mt-0.5">
-            {getIcon()}
-          </div>
-          <div className="flex-1 min-w-0">
-            {children}
-          </div>
+        <div className='flex items-start gap-3'>
+          <div className='mt-0.5 flex-shrink-0'>{getIcon()}</div>
+          <div className='min-w-0 flex-1'>{children}</div>
           {onDismiss && (
             <button
               onClick={onDismiss}
-              className="flex-shrink-0 ml-2 opacity-70 hover:opacity-100 transition-opacity"
-              aria-label="Dismiss alert"
+              className='ml-2 flex-shrink-0 opacity-70 transition-opacity hover:opacity-100'
+              aria-label='Dismiss alert'
             >
-              <X className="h-4 w-4" />
+              <X className='h-4 w-4' />
             </button>
           )}
         </div>
       </div>
-    )
+    );
   }
-)
-Alert.displayName = 'Alert'
+);
+Alert.displayName = 'Alert';
 
 const AlertTitle = React.forwardRef<
   HTMLParagraphElement,
@@ -95,8 +85,8 @@ const AlertTitle = React.forwardRef<
     className={cn('mb-1 font-medium leading-none tracking-tight', className)}
     {...props}
   />
-))
-AlertTitle.displayName = 'AlertTitle'
+));
+AlertTitle.displayName = 'AlertTitle';
 
 const AlertDescription = React.forwardRef<
   HTMLParagraphElement,
@@ -107,92 +97,114 @@ const AlertDescription = React.forwardRef<
     className={cn('text-sm [&_p]:leading-relaxed', className)}
     {...props}
   />
-))
-AlertDescription.displayName = 'AlertDescription'
+));
+AlertDescription.displayName = 'AlertDescription';
 
 // Convenient preset alert components
 interface SimpleAlertProps {
-  title?: string
-  children: React.ReactNode
-  onDismiss?: () => void
-  className?: string
+  title?: string;
+  children: React.ReactNode;
+  onDismiss?: () => void;
+  className?: string;
 }
 
-export function SuccessAlert({ title = 'Success', children, onDismiss, className }: SimpleAlertProps) {
+export function SuccessAlert({
+  title = 'Success',
+  children,
+  onDismiss,
+  className,
+}: SimpleAlertProps) {
   return (
-    <Alert variant="success" onDismiss={onDismiss} className={className}>
+    <Alert variant='success' onDismiss={onDismiss} className={className}>
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>{children}</AlertDescription>
     </Alert>
-  )
+  );
 }
 
-export function ErrorAlert({ title = 'Error', children, onDismiss, className }: SimpleAlertProps) {
+export function ErrorAlert({
+  title = 'Error',
+  children,
+  onDismiss,
+  className,
+}: SimpleAlertProps) {
   return (
-    <Alert variant="destructive" onDismiss={onDismiss} className={className}>
+    <Alert variant='destructive' onDismiss={onDismiss} className={className}>
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>{children}</AlertDescription>
     </Alert>
-  )
+  );
 }
 
-export function WarningAlert({ title = 'Warning', children, onDismiss, className }: SimpleAlertProps) {
+export function WarningAlert({
+  title = 'Warning',
+  children,
+  onDismiss,
+  className,
+}: SimpleAlertProps) {
   return (
-    <Alert variant="warning" onDismiss={onDismiss} className={className}>
+    <Alert variant='warning' onDismiss={onDismiss} className={className}>
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>{children}</AlertDescription>
     </Alert>
-  )
+  );
 }
 
-export function InfoAlert({ title = 'Information', children, onDismiss, className }: SimpleAlertProps) {
+export function InfoAlert({
+  title = 'Information',
+  children,
+  onDismiss,
+  className,
+}: SimpleAlertProps) {
   return (
-    <Alert variant="info" onDismiss={onDismiss} className={className}>
+    <Alert variant='info' onDismiss={onDismiss} className={className}>
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>{children}</AlertDescription>
     </Alert>
-  )
+  );
 }
 
 // Toast-style notifications (would typically be used with a toast provider)
 interface ToastAlertProps extends SimpleAlertProps {
-  duration?: number
-  onClose?: () => void
+  duration?: number;
+  onClose?: () => void;
 }
 
-export function ToastAlert({ 
-  title, 
-  children, 
-  onDismiss, 
-  duration = 5000, 
+export function ToastAlert({
+  title,
+  children,
+  onDismiss,
+  duration = 5000,
   onClose,
-  className 
-}: ToastAlertProps & { variant?: 'success' | 'destructive' | 'warning' | 'info' }) {
+  className,
+}: ToastAlertProps & {
+  variant?: 'success' | 'destructive' | 'warning' | 'info';
+}) {
   React.useEffect(() => {
     if (duration > 0) {
       const timer = setTimeout(() => {
-        onDismiss?.()
-        onClose?.()
-      }, duration)
-      
-      return () => clearTimeout(timer)
+        onDismiss?.();
+        onClose?.();
+      }, duration);
+
+      return () => clearTimeout(timer);
     }
-    return // Explicit return for when duration <= 0
-  }, [duration, onDismiss, onClose])
+    return; // Explicit return for when duration <= 0
+  }, [duration, onDismiss, onClose]);
 
   return (
-    <Alert 
-      variant="info" 
-      onDismiss={onDismiss} 
+    <Alert
+      variant='info'
+      onDismiss={onDismiss}
       className={cn(
-        'fixed bottom-4 right-4 w-96 shadow-lg border z-50',
+        'fixed bottom-4 right-4 z-50 w-96 border shadow-lg',
         className
       )}
     >
       {title && <AlertTitle>{title}</AlertTitle>}
       <AlertDescription>{children}</AlertDescription>
     </Alert>
-  )
+  );
 }
 
-export { Alert, AlertTitle, AlertDescription }
+export { Alert, AlertTitle, AlertDescription };

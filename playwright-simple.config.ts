@@ -1,34 +1,34 @@
-import { defineConfig, devices } from '@playwright/test'
+import { defineConfig, devices } from '@playwright/test';
 
 /**
  * Simple Playwright config for basic validation without server dependency
  */
 export default defineConfig({
   testDir: './tests/e2e',
-  
+
   /* Run tests in files in parallel */
   fullyParallel: true,
-  
+
   /* Retry configuration */
   retries: 0,
-  
+
   /* Workers configuration */
   workers: 1,
-  
+
   /* Reporter to use */
   reporter: [['list']],
-  
+
   /* Shared settings */
   use: {
     /* Collect trace when retrying the failed test */
     trace: 'on-first-retry',
-    
+
     /* Take screenshot on failure */
     screenshot: 'only-on-failure',
-    
+
     /* Timeout for each action */
     actionTimeout: 10000,
-    
+
     /* Timeout for navigation */
     navigationTimeout: 30000,
   },
@@ -54,4 +54,4 @@ export default defineConfig({
 
   /* Output folder */
   outputDir: 'test-results',
-})
+});

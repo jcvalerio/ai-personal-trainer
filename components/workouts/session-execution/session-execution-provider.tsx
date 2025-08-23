@@ -2,358 +2,590 @@
  * Session Execution Context Provider
  * Manages workout session state, progress tracking, and real-time updates
  */
-'use client'
+'use client';
 
-import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react'
-import { 
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useCallback,
+  useEffect,
+} from 'react';
+import {
   SessionExecution,
   SessionExecutionAction,
   ExecutingExercise,
-  LiveSet,
   TimerState,
   SessionProgress,
-  SessionSettings
-} from '@/types/session-execution'
-import { SessionExercise } from '@/types/workouts'
+  SessionExecutionSettings,
+} from '@/types/session-execution';
+import { SessionExercise, SetPerformanceData } from '@/types/workouts';
 
 interface SessionExecutionContextType {
-  session: SessionExecution | null
-  currentExercise: ExecutingExercise | null
-  progress: SessionProgress
-  settings: SessionSettings
-  
+  session: SessionExecution | null;
+  currentExercise: ExecutingExercise | null;
+  progress: SessionProgress;
+  settings: SessionExecutionSettings;
+
   // Actions
-  startSession: (exercises: SessionExercise[], settings?: Partial<SessionSettings>) => void
-  pauseSession: () => void
-  resumeSession: () => void
-  completeSession: () => void
-  nextExercise: () => void
-  previousExercise: () => void
-  completeSet: (setData: LiveSet) => void
-  updateTimer: (timerState: TimerState) => void
-  updateSettings: (settings: Partial<SessionSettings>) => void
+  startSession: (
+    exercises: SessionExercise[],
+    settings?: Partial<SessionExecutionSettings>
+  ) => void;
+  pauseSession: () => void;
+  resumeSession: () => void;
+  completeSession: () => void;
+  nextExercise: () => void;
+  previousExercise: () => void;
+  completeSet: (setData: SetPerformanceData) => void;
+  updateTimer: (timerState: Partial<TimerState>) => void;
+  updateSettings: (settings: Partial<SessionExecutionSettings>) => void;
 }
 
-const SessionExecutionContext = createContext<SessionExecutionContextType | undefined>(undefined)
+const SessionExecutionContext = createContext<
+  SessionExecutionContextType | undefined
+>(undefined);
 
 // Default settings
-const DEFAULT_SESSION_SETTINGS: SessionSettings = {
+const DEFAULT_SESSION_SETTINGS: SessionExecutionSettings = {
+  autoAdvance: true,
+  autoStartRest: true,
+  showMotivation: true,
+  vibrateOnPhaseChange: true,
+  keepScreenOn: true,
+  useGPS: false,
+  savePhotos: false,
+  syncWearables: true,
   audioEnabled: true,
   vibrateEnabled: true,
-  voiceEnabled: true,
-  autoAdvance: true,
-  restPeriods: {
-    betweenSets: 60,
-    betweenExercises: 120,
-    betweenCircuits: 180
-  },
-  accessibility: {
-    highContrast: false,
-    largeText: false,
-    reducedMotion: false,
-    screenReader: false
-  },
-  quickActions: {
-    skipRest: true,
-    addWeight: true,
-    adjustReps: true,
-    markComplete: true
-  }
-}
+  restPeriods: [60, 90, 120],
+};
 
 // Initial state
 const initialState: SessionExecution = {
   sessionId: '',
-  sessionType: 'strength',
   status: 'idle',
-  currentExerciseIndex: 0,
-  currentSetIndex: 0,
-  exercises: [],
-  elapsedTime: 0,
-  startTime: null,
-  endTime: null,
-  pausedTime: 0,
-  activeTimer: null,
-  performance: {
-    setsCompleted: 0,
-    totalSets: 0,
+  currentSet: 0,
+  timerState: {
+    protocol: 'strength',
+    phase: 'ready',
+    currentRound: 1,
+    totalRounds: 1,
+    timeRemaining: 0,
+    phaseTotal: 0,
+    elapsedTime: 0,
+    isRunning: false,
+    isPaused: false,
+  },
+  progress: {
+    completionPercentage: 0,
     exercisesCompleted: 0,
     totalExercises: 0,
-    totalVolume: 0,
-    averageIntensity: 0,
-    personalRecords: []
+    setsCompleted: 0,
+    totalSets: 0,
+    currentPhase: 'main',
+    phaseProgress: {
+      warm_up: { completion: 0, totalExercises: 0, completedExercises: 0 },
+      main: { completion: 0, totalExercises: 0, completedExercises: 0 },
+      cool_down: { completion: 0, totalExercises: 0, completedExercises: 0 },
+    },
+    estimatedTimeRemaining: 0,
+    overallProgress: 0,
+    timeElapsed: 0,
   },
-  settings: DEFAULT_SESSION_SETTINGS
-}
+  performance: {
+    totalVolume: 0,
+    totalReps: 0,
+    avgPerceivedExertion: 0,
+    avgFormRating: 0,
+    sessionDuration: 0,
+    activeWorkTime: 0,
+    totalRestTime: 0,
+    personalRecords: [],
+    vsPlanned: {
+      volumePercentage: 0,
+      repsPercentage: 0,
+      weightPercentage: 0,
+      durationPercentage: 0,
+      overallRating: 'met',
+    },
+    setsCompleted: 0,
+    totalExercises: 0,
+    exercisesCompleted: 0,
+    totalSets: 0,
+  },
+  interaction: {
+    inputMode: 'touch',
+    touchState: {
+      swipeEnabled: true,
+      swipeSensitivity: 0.7,
+      touchFeedback: true,
+      largeTouchTargets: false,
+      preventAccidental: true,
+    },
+    quickActions: [],
+    accessibility: {
+      highContrast: false,
+      largeText: false,
+      screenReader: false,
+      reduceMotion: false,
+      voiceAnnouncements: false,
+      simplifiedUI: false,
+      colorBlindSupport: false,
+    },
+    oneHandedMode: false,
+  },
+  timestamps: {
+    createdAt: new Date(),
+    lastUpdated: new Date(),
+  },
+  offline: {
+    isOffline: false,
+    isDirty: false,
+    pendingSync: [],
+    hasConflicts: false,
+    storageInfo: {
+      usedMB: 0,
+      availableMB: 1000,
+      quotaMB: 1024,
+      usagePercentage: 0,
+      needsCleanup: false,
+    },
+  },
+  settings: DEFAULT_SESSION_SETTINGS,
+  exercises: [],
+  currentExerciseIndex: 0,
+};
 
 // Reducer for session state management
 function sessionExecutionReducer(
-  state: SessionExecution, 
+  state: SessionExecution,
   action: SessionExecutionAction
 ): SessionExecution {
   switch (action.type) {
     case 'START_SESSION':
+      const exercises = action.payload?.exercises || [];
       return {
         ...state,
-        sessionId: action.payload.sessionId,
-        sessionType: action.payload.sessionType,
-        exercises: action.payload.exercises,
         status: 'active',
+        exercises,
+        currentExerciseIndex: 0,
+        currentSet: 1,
         startTime: new Date(),
-        settings: { ...state.settings, ...action.payload.settings },
+        timestamps: {
+          ...state.timestamps,
+          startedAt: new Date(),
+          lastUpdated: new Date(),
+        },
+        progress: {
+          ...state.progress,
+          totalExercises: exercises.length,
+          totalSets: exercises.reduce(
+            (sum: number, ex: SessionExercise) =>
+              sum + (ex.sets || ex.plannedSets || 0),
+            0
+          ),
+        },
         performance: {
           ...state.performance,
-          totalExercises: action.payload.exercises.length,
-          totalSets: action.payload.exercises.reduce((sum, ex) => sum + ex.sets, 0)
-        }
-      }
+          totalExercises: exercises.length,
+          totalSets: exercises.reduce(
+            (sum: number, ex: SessionExercise) =>
+              sum + (ex.sets || ex.plannedSets || 0),
+            0
+          ),
+        },
+      };
 
     case 'PAUSE_SESSION':
       return {
         ...state,
         status: 'paused',
-        activeTimer: state.activeTimer ? { ...state.activeTimer, isRunning: false, isPaused: true } : null
-      }
+        timerState: {
+          ...state.timerState,
+          isRunning: false,
+          isPaused: true,
+        },
+        timestamps: {
+          ...state.timestamps,
+          pausedAt: new Date(),
+          lastUpdated: new Date(),
+        },
+      };
 
     case 'RESUME_SESSION':
       return {
         ...state,
         status: 'active',
-        activeTimer: state.activeTimer ? { ...state.activeTimer, isRunning: true, isPaused: false } : null
-      }
+        timerState: {
+          ...state.timerState,
+          isRunning: true,
+          isPaused: false,
+        },
+        timestamps: {
+          ...state.timestamps,
+          resumedAt: new Date(),
+          lastUpdated: new Date(),
+        },
+      };
 
     case 'COMPLETE_SESSION':
       return {
         ...state,
         status: 'completed',
         endTime: new Date(),
-        activeTimer: null
-      }
+        timerState: {
+          ...state.timerState,
+          isRunning: false,
+          phase: 'completed',
+        },
+        timestamps: {
+          ...state.timestamps,
+          completedAt: new Date(),
+          lastUpdated: new Date(),
+        },
+      };
 
     case 'NEXT_EXERCISE':
-      const nextIndex = Math.min(state.currentExerciseIndex + 1, state.exercises.length - 1)
+      const nextIndex = Math.min(
+        state.currentExerciseIndex + 1,
+        state.exercises.length - 1
+      );
       return {
         ...state,
         currentExerciseIndex: nextIndex,
-        currentSetIndex: 0,
-        activeTimer: null,
-        performance: nextIndex > state.currentExerciseIndex ? {
+        currentSet: 1,
+        progress: {
+          ...state.progress,
+          exercisesCompleted:
+            nextIndex > state.currentExerciseIndex
+              ? state.progress.exercisesCompleted + 1
+              : state.progress.exercisesCompleted,
+        },
+        performance: {
           ...state.performance,
-          exercisesCompleted: state.performance.exercisesCompleted + 1
-        } : state.performance
-      }
+          exercisesCompleted:
+            nextIndex > state.currentExerciseIndex
+              ? state.performance.exercisesCompleted + 1
+              : state.performance.exercisesCompleted,
+        },
+        timestamps: {
+          ...state.timestamps,
+          lastUpdated: new Date(),
+        },
+      };
 
     case 'PREVIOUS_EXERCISE':
-      const prevIndex = Math.max(state.currentExerciseIndex - 1, 0)
+      const prevIndex = Math.max(state.currentExerciseIndex - 1, 0);
       return {
         ...state,
         currentExerciseIndex: prevIndex,
-        currentSetIndex: 0,
-        activeTimer: null
-      }
+        currentSet: 1,
+        timestamps: {
+          ...state.timestamps,
+          lastUpdated: new Date(),
+        },
+      };
 
     case 'COMPLETE_SET':
-      const currentExercise = state.exercises[state.currentExerciseIndex]
-      if (!currentExercise) {return state}
-
-      const updatedExercise = {
-        ...currentExercise,
-        completedSets: [...(currentExercise.completedSets || []), action.payload.setData]
+      const currentExercise = state.exercises[state.currentExerciseIndex];
+      if (!currentExercise || !action.payload) {
+        return state;
       }
 
-      const updatedExercises = [...state.exercises]
-      updatedExercises[state.currentExerciseIndex] = updatedExercise
+      const setData = action.payload.data || action.payload.setData;
+      const updatedSetData = [...(currentExercise.setData || []), setData];
 
-      const isExerciseComplete = updatedExercise.completedSets.length >= currentExercise.sets
-      const newSetIndex = isExerciseComplete ? 0 : state.currentSetIndex + 1
+      const updatedExercises = [...state.exercises];
+      updatedExercises[state.currentExerciseIndex] = {
+        ...currentExercise,
+        setData: updatedSetData,
+        completedSets: updatedSetData.length,
+      };
+
+      const totalVolume =
+        setData.weight && setData.reps ? setData.weight * setData.reps : 0;
 
       return {
         ...state,
         exercises: updatedExercises,
-        currentSetIndex: newSetIndex,
+        currentSet: state.currentSet + 1,
+        progress: {
+          ...state.progress,
+          setsCompleted: state.progress.setsCompleted + 1,
+        },
         performance: {
           ...state.performance,
           setsCompleted: state.performance.setsCompleted + 1,
-          totalVolume: state.performance.totalVolume + (action.payload.setData.weight || 0) * (action.payload.setData.reps || 0)
-        }
-      }
+          totalVolume: state.performance.totalVolume + totalVolume,
+          totalReps: state.performance.totalReps + (setData.reps || 0),
+        },
+        timestamps: {
+          ...state.timestamps,
+          lastUpdated: new Date(),
+        },
+      };
 
     case 'UPDATE_TIMER':
       return {
         ...state,
-        activeTimer: action.payload.timerState,
-        elapsedTime: state.elapsedTime + (action.payload.timerState.elapsedTime || 0)
-      }
+        timerState: {
+          ...state.timerState,
+          ...action.payload,
+        },
+        timestamps: {
+          ...state.timestamps,
+          lastUpdated: new Date(),
+        },
+      };
 
     case 'UPDATE_SETTINGS':
       return {
         ...state,
-        settings: { ...state.settings, ...action.payload.settings }
-      }
+        settings: {
+          ...state.settings,
+          ...action.payload,
+        },
+        timestamps: {
+          ...state.timestamps,
+          lastUpdated: new Date(),
+        },
+      };
 
     case 'UPDATE_ELAPSED_TIME':
       return {
         ...state,
-        elapsedTime: action.payload.elapsedTime
-      }
+        elapsedTime: action.payload,
+        progress: {
+          ...state.progress,
+          timeElapsed: action.payload / 1000 / 60, // Convert to minutes
+        },
+        timestamps: {
+          ...state.timestamps,
+          lastUpdated: new Date(),
+        },
+      };
 
     default:
-      return state
+      return state;
   }
 }
 
 // Custom hook to use session execution context
 export function useSessionExecution() {
-  const context = useContext(SessionExecutionContext)
+  const context = useContext(SessionExecutionContext);
   if (!context) {
-    throw new Error('useSessionExecution must be used within a SessionExecutionProvider')
+    throw new Error(
+      'useSessionExecution must be used within a SessionExecutionProvider'
+    );
   }
-  return context
+  return context;
 }
 
 // Provider component
-export function SessionExecutionProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(sessionExecutionReducer, initialState)
-  
-  // Calculate current exercise
-  const currentExercise: ExecutingExercise | null = state.exercises[state.currentExerciseIndex] || null
+export function SessionExecutionProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [state, dispatch] = useReducer(sessionExecutionReducer, initialState);
 
-  // Calculate progress
-  const progress: SessionProgress = {
-    exerciseProgress: state.exercises.length > 0 
-      ? state.currentExerciseIndex / state.exercises.length 
-      : 0,
-    setProgress: currentExercise 
-      ? (currentExercise.completedSets?.length || 0) / currentExercise.sets
-      : 0,
-    overallProgress: state.performance.totalSets > 0 
-      ? state.performance.setsCompleted / state.performance.totalSets 
-      : 0,
-    timeElapsed: state.elapsedTime,
-    estimatedTimeRemaining: 0 // Calculate based on remaining exercises and average time per set
-  }
+  // Calculate current exercise
+  const exercise = state.exercises[state.currentExerciseIndex];
+  const currentExercise: ExecutingExercise | null = exercise
+    ? {
+        ...exercise,
+        liveSets: (exercise.setData || []).map((set) => ({
+          ...set,
+          startedAt: new Date(),
+          completedAt: new Date(),
+          liveReps: set.reps,
+          isActive: false,
+          isCompleted: true,
+          liveNotes: set.setNotes || '',
+          quality: {
+            form: set.formRating || 3,
+            completion: 100,
+            tempo: 3,
+            rangeOfMotion: 3,
+            overall: 3,
+          },
+        })),
+        currentSetIndex: state.currentSet - 1,
+        timerConfig: {
+          protocol: 'strength',
+          readyCountdown: 3,
+          audioConfig: {
+            enabled: true,
+            volume: 0.8,
+            events: {},
+            useTTS: false,
+          },
+          hapticConfig: {
+            enabled: false,
+            events: {},
+          },
+          strength: {
+            restSeconds: 90,
+            totalSets: 3,
+            autoStartRest: true,
+            transitionSeconds: 30,
+          },
+        },
+        startedAt: new Date(),
+        liveMetrics: {
+          totalReps: (exercise.setData || []).reduce(
+            (sum, set) => sum + set.reps,
+            0
+          ),
+          totalVolume: (exercise.setData || []).reduce(
+            (sum, set) => sum + (set.weight || 0) * set.reps,
+            0
+          ),
+          avgRestTime: 90,
+          exerciseDuration: 0,
+          exertionTrend: [5],
+          formConsistency: 3,
+        },
+        name: exercise.name || '',
+        description: '',
+        sets: exercise.sets || exercise.plannedSets || 3,
+        targetReps: exercise.plannedReps || 10,
+        targetWeight: exercise.plannedWeightKg || 0,
+        completedSets: exercise.completedSets || 0,
+      }
+    : null;
+
+  // Use existing progress from state
+  const progress: SessionProgress = state.progress;
 
   // Actions
-  const startSession = useCallback((
-    exercises: SessionExercise[], 
-    settings?: Partial<SessionSettings>
-  ) => {
-    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    
-    // Convert SessionExercise to ExecutingExercise
-    const executingExercises: ExecutingExercise[] = exercises.map(exercise => ({
-      ...exercise,
-      completedSets: [],
-      startTime: null,
-      endTime: null,
-      notes: []
-    }))
-
-    dispatch({
-      type: 'START_SESSION',
-      payload: {
-        sessionId,
-        sessionType: 'strength', // TODO: Determine from exercises
-        exercises: executingExercises,
-        settings: settings || {}
-      }
-    })
-  }, [])
+  const startSession = useCallback(
+    (
+      exercises: SessionExercise[],
+      settings?: Partial<SessionExecutionSettings>
+    ) => {
+      dispatch({
+        type: 'START_SESSION',
+        payload: {
+          exercises,
+          settings: settings || {},
+        },
+      });
+    },
+    []
+  );
 
   const pauseSession = useCallback(() => {
-    dispatch({ type: 'PAUSE_SESSION' })
-  }, [])
+    dispatch({ type: 'PAUSE_SESSION' });
+  }, []);
 
   const resumeSession = useCallback(() => {
-    dispatch({ type: 'RESUME_SESSION' })
-  }, [])
+    dispatch({ type: 'RESUME_SESSION' });
+  }, []);
 
   const completeSession = useCallback(() => {
-    dispatch({ type: 'COMPLETE_SESSION' })
-  }, [])
+    dispatch({ type: 'COMPLETE_SESSION' });
+  }, []);
 
   const nextExercise = useCallback(() => {
-    dispatch({ type: 'NEXT_EXERCISE' })
-  }, [])
+    dispatch({ type: 'NEXT_EXERCISE' });
+  }, []);
 
   const previousExercise = useCallback(() => {
-    dispatch({ type: 'PREVIOUS_EXERCISE' })
-  }, [])
+    dispatch({ type: 'PREVIOUS_EXERCISE' });
+  }, []);
 
-  const completeSet = useCallback((setData: LiveSet) => {
-    dispatch({
-      type: 'COMPLETE_SET',
-      payload: { setData }
-    })
-  }, [])
+  const completeSet = useCallback(
+    (setData: SetPerformanceData) => {
+      dispatch({
+        type: 'COMPLETE_SET',
+        payload: {
+          setIndex: state.currentSet - 1,
+          data: setData,
+        },
+      });
+    },
+    [state.currentSet]
+  );
 
-  const updateTimer = useCallback((timerState: TimerState) => {
+  const updateTimer = useCallback((timerState: Partial<TimerState>) => {
     dispatch({
       type: 'UPDATE_TIMER',
-      payload: { timerState }
-    })
-  }, [])
+      payload: timerState,
+    });
+  }, []);
 
-  const updateSettings = useCallback((settings: Partial<SessionSettings>) => {
-    dispatch({
-      type: 'UPDATE_SETTINGS',
-      payload: { settings }
-    })
-  }, [])
+  const updateSettings = useCallback(
+    (settings: Partial<SessionExecutionSettings>) => {
+      dispatch({
+        type: 'UPDATE_SETTINGS',
+        payload: settings,
+      });
+    },
+    []
+  );
 
   // Timer for elapsed time tracking
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null
+    let interval: NodeJS.Timeout | null = null;
 
     if (state.status === 'active' && state.startTime) {
       interval = setInterval(() => {
-        const now = Date.now()
-        const elapsed = now - state.startTime!.getTime() - state.pausedTime
-        
+        const now = Date.now();
+        const elapsed =
+          now - state.startTime!.getTime() - (state.pausedTime || 0);
+
         dispatch({
           type: 'UPDATE_ELAPSED_TIME',
-          payload: { elapsedTime: elapsed }
-        })
-      }, 1000)
+          payload: elapsed,
+        });
+      }, 1000);
     }
 
     return () => {
       if (interval) {
-        clearInterval(interval)
+        clearInterval(interval);
       }
-    }
-  }, [state.status, state.startTime, state.pausedTime])
+    };
+  }, [state.status, state.startTime, state.pausedTime]);
 
   // Persist session state to localStorage
   useEffect(() => {
     if (state.status !== 'idle') {
       try {
-        localStorage.setItem('workoutSession', JSON.stringify({
-          ...state,
-          startTime: state.startTime?.toISOString(),
-          endTime: state.endTime?.toISOString()
-        }))
+        localStorage.setItem(
+          'workoutSession',
+          JSON.stringify({
+            ...state,
+            startTime: state.startTime?.toISOString(),
+            endTime: state.endTime?.toISOString(),
+          })
+        );
       } catch (error) {
-        console.warn('Failed to persist session state:', error)
+        console.warn('Failed to persist session state:', error);
       }
     }
-  }, [state])
+  }, [state]);
 
   // Load session state from localStorage on mount
   useEffect(() => {
     try {
-      const savedSession = localStorage.getItem('workoutSession')
+      const savedSession = localStorage.getItem('workoutSession');
       if (savedSession) {
-        const parsedSession = JSON.parse(savedSession)
-        if (parsedSession.status === 'active' || parsedSession.status === 'paused') {
+        const parsedSession = JSON.parse(savedSession);
+        if (
+          parsedSession.status === 'active' ||
+          parsedSession.status === 'paused'
+        ) {
           // Restore session with date conversion
           // TODO: Implement session restoration logic
         }
       }
     } catch (error) {
-      console.warn('Failed to restore session state:', error)
+      console.warn('Failed to restore session state:', error);
     }
-  }, [])
+  }, []);
 
   const contextValue: SessionExecutionContextType = {
     session: state,
@@ -368,12 +600,12 @@ export function SessionExecutionProvider({ children }: { children: React.ReactNo
     previousExercise,
     completeSet,
     updateTimer,
-    updateSettings
-  }
+    updateSettings,
+  };
 
   return (
     <SessionExecutionContext.Provider value={contextValue}>
       {children}
     </SessionExecutionContext.Provider>
-  )
+  );
 }

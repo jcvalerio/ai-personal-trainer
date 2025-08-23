@@ -3,20 +3,26 @@
  * Handles user progress measurements and achievements
  */
 
-import { BaseService, ServiceContext, ServiceResult, PaginationParams, PaginatedResult } from './base'
-import { 
+import {
+  BaseService,
+  ServiceContext,
+  ServiceResult,
+  PaginationParams,
+  PaginatedResult,
+} from './base';
+import {
   ProgressMeasurement,
   UserAchievement,
   CreateProgressMeasurementRequest,
   CreateUserAchievementRequest,
   ProgressMeasurementFilters,
   UserAchievementFilters,
-  ProgressStats
-} from '@/types/workouts'
+  ProgressStats,
+} from '@/types/workouts';
 
 export class ProgressService extends BaseService {
   constructor() {
-    super('progress_service')
+    super('progress_service');
   }
 
   // Progress Measurements Operations
@@ -29,10 +35,10 @@ export class ProgressService extends BaseService {
     context: ServiceContext
   ): Promise<ServiceResult<ProgressMeasurement>> {
     try {
-      this.validateContext(context)
-      this.validateRequiredFields(data, ['measurementType', 'value', 'unit'])
+      this.validateContext(context);
+      this.validateRequiredFields(data, ['measurementType', 'value', 'unit']);
 
-      const sanitizedData = this.sanitizeInput(data)
+      const sanitizedData = this.sanitizeInput(data);
 
       const result = await this.executeWithTransaction(async (client) => {
         const measurementResult = await client`
@@ -64,28 +70,36 @@ export class ProgressService extends BaseService {
             ${sanitizedData.photoUrl || null}
           )
           RETURNING *
-        `
+        `;
 
         if (measurementResult.length === 0) {
-          throw new Error('Failed to create progress measurement')
+          throw new Error('Failed to create progress measurement');
         }
 
-        return this.mapProgressMeasurementFromDb(measurementResult[0])
-      })
+        return this.mapProgressMeasurementFromDb(measurementResult[0]);
+      });
 
       // Check if the transaction was successful
       if (!result.success) {
-        return result
+        return result;
       }
 
-      await this.logEvent('measurement_created', 'Progress measurement created', context, { 
-        measurementId: result.data.id,
-        type: result.data.measurementType
-      })
+      await this.logEvent(
+        'measurement_created',
+        'Progress measurement created',
+        context,
+        {
+          measurementId: result.data.id,
+          type: result.data.measurementType,
+        }
+      );
 
-      return this.createSuccessResult(result.data, 'Progress measurement created successfully')
+      return this.createSuccessResult(
+        result.data,
+        'Progress measurement created successfully'
+      );
     } catch (error) {
-      return this.handleError(error, 'createProgressMeasurement')
+      return this.handleError(error, 'createProgressMeasurement');
     }
   }
 
@@ -98,42 +112,59 @@ export class ProgressService extends BaseService {
     pagination?: PaginationParams
   ): Promise<ServiceResult<PaginatedResult<ProgressMeasurement>>> {
     try {
-      this.validateContext(context)
+      this.validateContext(context);
 
-      const { clause: whereClause, values } = this.buildProgressMeasurementFilters(filters, context)
-      const offset = ((pagination?.page || 1) - 1) * (pagination?.limit || 20)
-      const limit = pagination?.limit || 20
-      const sortBy = pagination?.sortBy || 'measured_at'
-      const sortOrder = pagination?.sortOrder || 'desc'
+      const { clause: whereClause, values } =
+        this.buildProgressMeasurementFilters(filters, context);
+      const offset = ((pagination?.page || 1) - 1) * (pagination?.limit || 20);
+      const limit = pagination?.limit || 20;
+      const sortBy = pagination?.sortBy || 'measured_at';
+      const sortOrder = pagination?.sortOrder || 'desc';
 
       // Get total count
-      const countResult = await this.db.queryRaw(`
+      const countResult = await this.db.queryRaw<{ total: string }>(
+        `
         SELECT COUNT(*) as total
         FROM progress_measurements pm
         JOIN user_profiles up ON pm.user_id = up.id
         ${whereClause}
-      `, values)
+      `,
+        values
+      );
 
-      const total = parseInt(countResult[0].total as string)
+      const total = parseInt(countResult[0]!.total as string);
 
       // Get paginated results
-      const result = await this.db.queryRaw(`
+      const result = await this.db.queryRaw(
+        `
         SELECT pm.*
         FROM progress_measurements pm
         JOIN user_profiles up ON pm.user_id = up.id
         ${whereClause}
         ORDER BY pm.${sortBy} ${sortOrder.toUpperCase()}
         LIMIT $${values.length + 1} OFFSET $${values.length + 2}
-      `, [...values, limit, offset])
+      `,
+        [...values, limit, offset]
+      );
 
-      const measurements = result.map(row => this.mapProgressMeasurementFromDb(row))
-      const paginatedResult = this.applyPagination(measurements, total, pagination || {})
+      const measurements = result.map((row) =>
+        this.mapProgressMeasurementFromDb(row)
+      );
+      const paginatedResult = this.applyPagination(
+        measurements,
+        total,
+        pagination || {}
+      );
 
-      await this.logEvent('measurements_accessed', 'Progress measurements accessed', context)
+      await this.logEvent(
+        'measurements_accessed',
+        'Progress measurements accessed',
+        context
+      );
 
-      return this.createSuccessResult(paginatedResult)
+      return this.createSuccessResult(paginatedResult);
     } catch (error) {
-      return this.handleError(error, 'getProgressMeasurements')
+      return this.handleError(error, 'getProgressMeasurements');
     }
   }
 
@@ -145,11 +176,11 @@ export class ProgressService extends BaseService {
     timeframe?: 'week' | 'month' | 'quarter' | 'year'
   ): Promise<ServiceResult<ProgressStats>> {
     try {
-      this.validateContext(context)
+      this.validateContext(context);
 
-      const timeframeDays = this.getTimeframeDays(timeframe || 'month')
-      const startDate = new Date()
-      startDate.setDate(startDate.getDate() - timeframeDays)
+      const timeframeDays = this.getTimeframeDays(timeframe || 'month');
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - timeframeDays);
 
       const result = await this.db`
         SELECT 
@@ -167,17 +198,24 @@ export class ProgressService extends BaseService {
         AND pm.measured_at >= ${startDate.toISOString()}
         GROUP BY measurement_type, unit
         ORDER BY measurement_type
-      `
+      `;
 
       // Calculate trends for each measurement type
-      const trends = await this.calculateProgressTrends(context.userId, timeframeDays)
+      const trends = await this.calculateProgressTrends(
+        context.userId,
+        timeframeDays
+      );
 
       const stats: ProgressStats = {
         timeframe: timeframe || 'month',
         startDate,
         endDate: new Date(),
         measurementSummary: result.map((row: any) => ({
-          measurementType: row.measurement_type as 'weight' | 'body_fat' | 'muscle_mass' | 'circumference',
+          measurementType: row.measurement_type as
+            | 'weight'
+            | 'body_fat'
+            | 'muscle_mass'
+            | 'circumference',
           unit: row.unit as string,
           count: parseInt(row.measurement_count as string),
           average: parseFloat(row.average_value as string),
@@ -186,16 +224,20 @@ export class ProgressService extends BaseService {
           median: parseFloat(row.median_value as string),
           firstMeasurement: new Date(row.first_measurement as string),
           lastMeasurement: new Date(row.last_measurement as string),
-          trend: trends[row.measurement_type as string] || 'stable'
+          trend: trends[row.measurement_type as string] || 'stable',
         })),
-        overallTrend: this.calculateOverallTrend(trends)
-      }
+        overallTrend: this.calculateOverallTrend(trends),
+      };
 
-      await this.logEvent('stats_accessed', 'Progress statistics accessed', context)
+      await this.logEvent(
+        'stats_accessed',
+        'Progress statistics accessed',
+        context
+      );
 
-      return this.createSuccessResult(stats)
+      return this.createSuccessResult(stats);
     } catch (error) {
-      return this.handleError(error, 'getProgressStats')
+      return this.handleError(error, 'getProgressStats');
     }
   }
 
@@ -208,67 +250,93 @@ export class ProgressService extends BaseService {
     context: ServiceContext
   ): Promise<ServiceResult<ProgressMeasurement>> {
     try {
-      this.validateContext(context)
+      this.validateContext(context);
 
-      const sanitizedData = this.sanitizeInput(data)
-      const updates: string[] = []
-      const values: any[] = []
-      let paramIndex = 1
+      const sanitizedData = this.sanitizeInput(data);
+      const updates: string[] = [];
+      const values: any[] = [];
+      let paramIndex = 1;
 
       // Build dynamic update query
       const updateFields = [
-        'value', 'unit', 'measuredAt', 'measurementMethod', 'measurementDevice',
-        'bodyComposition', 'notes', 'photoUrl'
-      ]
+        'value',
+        'unit',
+        'measuredAt',
+        'measurementMethod',
+        'measurementDevice',
+        'bodyComposition',
+        'notes',
+        'photoUrl',
+      ];
 
-      updateFields.forEach(field => {
-        const dbField = this.camelToSnakeCase(field)
-        if (sanitizedData[field] !== undefined) {
+      const anySanitized = sanitizedData as Record<string, unknown>;
+      updateFields.forEach((field) => {
+        const dbField = this.camelToSnakeCase(field);
+        if (anySanitized[field] !== undefined) {
           if (field === 'bodyComposition') {
-            updates.push(`${dbField} = $${paramIndex++}`)
-            values.push(JSON.stringify(sanitizedData[field]))
+            updates.push(`${dbField} = $${paramIndex++}`);
+            values.push(JSON.stringify(anySanitized[field]));
           } else if (field === 'measuredAt') {
-            updates.push(`${dbField} = $${paramIndex++}`)
-            values.push(new Date(sanitizedData[field]))
+            updates.push(`${dbField} = $${paramIndex++}`);
+            values.push(
+              new Date(anySanitized[field] as string | number | Date)
+            );
           } else {
-            updates.push(`${dbField} = $${paramIndex++}`)
-            values.push(sanitizedData[field])
+            updates.push(`${dbField} = $${paramIndex++}`);
+            values.push(anySanitized[field]);
           }
         }
-      })
+      });
 
       if (updates.length === 0) {
-        const existing = await this.getProgressMeasurement(measurementId, context)
-        return existing.success 
+        const existing = await this.getProgressMeasurement(
+          measurementId,
+          context
+        );
+        return existing.success
           ? this.createSuccessResult(existing.data!, 'No changes to update')
-          : existing
+          : existing;
       }
 
-      values.push(measurementId)
+      values.push(measurementId);
 
-      const result = await this.db.queryRaw(`
+      const result = await this.db.queryRaw(
+        `
         UPDATE progress_measurements 
         SET ${updates.join(', ')}
         WHERE id = $${paramIndex} AND user_id = (
           SELECT id FROM user_profiles WHERE clerk_user_id = $${paramIndex + 1}
         )
         RETURNING *
-      `, [...values, context.userId])
+      `,
+        [...values, context.userId]
+      );
 
       if (result.length === 0) {
-        return this.createErrorResult('Progress measurement not found or access denied', 'NOT_FOUND')
+        return this.createErrorResult(
+          'Progress measurement not found or access denied',
+          'NOT_FOUND'
+        );
       }
 
-      const updatedMeasurement = this.mapProgressMeasurementFromDb(result[0])
+      const updatedMeasurement = this.mapProgressMeasurementFromDb(result[0]);
 
-      await this.logEvent('measurement_updated', 'Progress measurement updated', context, { 
-        measurementId,
-        updatedFields: Object.keys(sanitizedData)
-      })
+      await this.logEvent(
+        'measurement_updated',
+        'Progress measurement updated',
+        context,
+        {
+          measurementId,
+          updatedFields: Object.keys(sanitizedData),
+        }
+      );
 
-      return this.createSuccessResult(updatedMeasurement, 'Progress measurement updated successfully')
+      return this.createSuccessResult(
+        updatedMeasurement,
+        'Progress measurement updated successfully'
+      );
     } catch (error) {
-      return this.handleError(error, 'updateProgressMeasurement')
+      return this.handleError(error, 'updateProgressMeasurement');
     }
   }
 
@@ -280,24 +348,35 @@ export class ProgressService extends BaseService {
     context: ServiceContext
   ): Promise<ServiceResult<boolean>> {
     try {
-      this.validateContext(context)
+      this.validateContext(context);
 
       const result = await this.db`
         DELETE FROM progress_measurements 
         WHERE id = ${measurementId} AND user_id = (
           SELECT id FROM user_profiles WHERE clerk_user_id = ${context.userId}
         )
-      `
+      `;
 
       if (result.length === 0) {
-        return this.createErrorResult('Progress measurement not found or access denied', 'NOT_FOUND')
+        return this.createErrorResult(
+          'Progress measurement not found or access denied',
+          'NOT_FOUND'
+        );
       }
 
-      await this.logEvent('measurement_deleted', 'Progress measurement deleted', context, { measurementId })
+      await this.logEvent(
+        'measurement_deleted',
+        'Progress measurement deleted',
+        context,
+        { measurementId }
+      );
 
-      return this.createSuccessResult(true, 'Progress measurement deleted successfully')
+      return this.createSuccessResult(
+        true,
+        'Progress measurement deleted successfully'
+      );
     } catch (error) {
-      return this.handleError(error, 'deleteProgressMeasurement')
+      return this.handleError(error, 'deleteProgressMeasurement');
     }
   }
 
@@ -311,10 +390,14 @@ export class ProgressService extends BaseService {
     context: ServiceContext
   ): Promise<ServiceResult<UserAchievement>> {
     try {
-      this.validateContext(context)
-      this.validateRequiredFields(data, ['achievementType', 'achievementName', 'description'])
+      this.validateContext(context);
+      this.validateRequiredFields(data, [
+        'achievementType',
+        'achievementName',
+        'description',
+      ]);
 
-      const sanitizedData = this.sanitizeInput(data)
+      const sanitizedData = this.sanitizeInput(data);
 
       const result = await this.executeWithTransaction(async (client) => {
         const achievementResult = await client`
@@ -360,28 +443,36 @@ export class ProgressService extends BaseService {
             ${sanitizedData.isPublic || false}
           )
           RETURNING *
-        `
+        `;
 
         if (achievementResult.length === 0) {
-          throw new Error('Failed to create user achievement')
+          throw new Error('Failed to create user achievement');
         }
 
-        return this.mapUserAchievementFromDb(achievementResult[0])
-      })
+        return this.mapUserAchievementFromDb(achievementResult[0]);
+      });
 
       // Check if the transaction was successful
       if (!result.success) {
-        return result
+        return result;
       }
 
-      await this.logEvent('achievement_created', 'User achievement created', context, { 
-        achievementId: result.data.id,
-        type: result.data.achievementType
-      })
+      await this.logEvent(
+        'achievement_created',
+        'User achievement created',
+        context,
+        {
+          achievementId: result.data.id,
+          type: result.data.achievementType,
+        }
+      );
 
-      return this.createSuccessResult(result.data, 'Achievement created successfully')
+      return this.createSuccessResult(
+        result.data,
+        'Achievement created successfully'
+      );
     } catch (error) {
-      return this.handleError(error, 'createUserAchievement')
+      return this.handleError(error, 'createUserAchievement');
     }
   }
 
@@ -394,42 +485,61 @@ export class ProgressService extends BaseService {
     pagination?: PaginationParams
   ): Promise<ServiceResult<PaginatedResult<UserAchievement>>> {
     try {
-      this.validateContext(context)
+      this.validateContext(context);
 
-      const { clause: whereClause, values } = this.buildUserAchievementFilters(filters, context)
-      const offset = ((pagination?.page || 1) - 1) * (pagination?.limit || 20)
-      const limit = pagination?.limit || 20
-      const sortBy = pagination?.sortBy || 'achieved_at'
-      const sortOrder = pagination?.sortOrder || 'desc'
+      const { clause: whereClause, values } = this.buildUserAchievementFilters(
+        filters,
+        context
+      );
+      const offset = ((pagination?.page || 1) - 1) * (pagination?.limit || 20);
+      const limit = pagination?.limit || 20;
+      const sortBy = pagination?.sortBy || 'achieved_at';
+      const sortOrder = pagination?.sortOrder || 'desc';
 
       // Get total count
-      const countResult = await this.db.queryRaw(`
+      const countResult = await this.db.queryRaw<{ total: string }>(
+        `
         SELECT COUNT(*) as total
         FROM user_achievements ua
         JOIN user_profiles up ON ua.user_id = up.id
         ${whereClause}
-      `, values)
+      `,
+        values
+      );
 
-      const total = parseInt(countResult[0].total as string)
+      const total = parseInt(countResult[0]!.total as string);
 
       // Get paginated results
-      const result = await this.db.queryRaw(`
+      const result = await this.db.queryRaw(
+        `
         SELECT ua.*
         FROM user_achievements ua
         JOIN user_profiles up ON ua.user_id = up.id
         ${whereClause}
         ORDER BY ua.${sortBy} ${sortOrder.toUpperCase()}
         LIMIT $${values.length + 1} OFFSET $${values.length + 2}
-      `, [...values, limit, offset])
+      `,
+        [...values, limit, offset]
+      );
 
-      const achievements = result.map(row => this.mapUserAchievementFromDb(row))
-      const paginatedResult = this.applyPagination(achievements, total, pagination || {})
+      const achievements = result.map((row) =>
+        this.mapUserAchievementFromDb(row)
+      );
+      const paginatedResult = this.applyPagination(
+        achievements,
+        total,
+        pagination || {}
+      );
 
-      await this.logEvent('achievements_accessed', 'User achievements accessed', context)
+      await this.logEvent(
+        'achievements_accessed',
+        'User achievements accessed',
+        context
+      );
 
-      return this.createSuccessResult(paginatedResult)
+      return this.createSuccessResult(paginatedResult);
     } catch (error) {
-      return this.handleError(error, 'getUserAchievements')
+      return this.handleError(error, 'getUserAchievements');
     }
   }
 
@@ -445,88 +555,103 @@ export class ProgressService extends BaseService {
       WHERE id = ${measurementId} AND user_id = (
         SELECT id FROM user_profiles WHERE clerk_user_id = ${context.userId}
       )
-    `
+    `;
 
     if (result.length === 0) {
-      return this.createErrorResult('Progress measurement not found', 'NOT_FOUND')
+      return this.createErrorResult(
+        'Progress measurement not found',
+        'NOT_FOUND'
+      );
     }
 
-    return this.createSuccessResult(this.mapProgressMeasurementFromDb(result[0]))
+    return this.createSuccessResult(
+      this.mapProgressMeasurementFromDb(result[0])
+    );
   }
 
-  private buildProgressMeasurementFilters(filters: ProgressMeasurementFilters = {}, context: ServiceContext) {
-    const conditions: string[] = []
-    const values: any[] = []
-    let paramIndex = 1
+  private buildProgressMeasurementFilters(
+    filters: ProgressMeasurementFilters = {},
+    context: ServiceContext
+  ) {
+    const conditions: string[] = [];
+    const values: any[] = [];
+    let paramIndex = 1;
 
     // Always filter by user
-    conditions.push(`pm.user_id = (SELECT id FROM user_profiles WHERE clerk_user_id = $${paramIndex++})`)
-    values.push(context.userId)
+    conditions.push(
+      `pm.user_id = (SELECT id FROM user_profiles WHERE clerk_user_id = $${paramIndex++})`
+    );
+    values.push(context.userId);
 
     if (filters.measurementType) {
-      conditions.push(`pm.measurement_type = $${paramIndex++}`)
-      values.push(filters.measurementType)
+      conditions.push(`pm.measurement_type = $${paramIndex++}`);
+      values.push(filters.measurementType);
     }
 
     if (filters.measurementLocation) {
-      conditions.push(`pm.measurement_location = $${paramIndex++}`)
-      values.push(filters.measurementLocation)
+      conditions.push(`pm.measurement_location = $${paramIndex++}`);
+      values.push(filters.measurementLocation);
     }
 
     if (filters.dateFrom) {
-      conditions.push(`pm.measured_at >= $${paramIndex++}`)
-      values.push(filters.dateFrom)
+      conditions.push(`pm.measured_at >= $${paramIndex++}`);
+      values.push(filters.dateFrom);
     }
 
     if (filters.dateTo) {
-      conditions.push(`pm.measured_at <= $${paramIndex++}`)
-      values.push(filters.dateTo)
+      conditions.push(`pm.measured_at <= $${paramIndex++}`);
+      values.push(filters.dateTo);
     }
 
     return {
       clause: conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '',
-      values
-    }
+      values,
+    };
   }
 
-  private buildUserAchievementFilters(filters: UserAchievementFilters = {}, context: ServiceContext) {
-    const conditions: string[] = []
-    const values: any[] = []
-    let paramIndex = 1
+  private buildUserAchievementFilters(
+    filters: UserAchievementFilters = {},
+    context: ServiceContext
+  ) {
+    const conditions: string[] = [];
+    const values: any[] = [];
+    let paramIndex = 1;
 
     // Filter by user or public achievements
-    conditions.push(`(ua.user_id = (SELECT id FROM user_profiles WHERE clerk_user_id = $${paramIndex++}) OR ua.is_public = true)`)
-    values.push(context.userId)
+    conditions.push(
+      `(ua.user_id = (SELECT id FROM user_profiles WHERE clerk_user_id = $${paramIndex++}) OR ua.is_public = true)`
+    );
+    values.push(context.userId);
 
     if (filters.achievementType) {
-      conditions.push(`ua.achievement_type = $${paramIndex++}`)
-      values.push(filters.achievementType)
+      conditions.push(`ua.achievement_type = $${paramIndex++}`);
+      values.push(filters.achievementType);
     }
 
     if (filters.category) {
-      conditions.push(`ua.category = $${paramIndex++}`)
-      values.push(filters.category)
+      conditions.push(`ua.category = $${paramIndex++}`);
+      values.push(filters.category);
     }
 
     if (filters.isMilestone !== undefined) {
-      conditions.push(`ua.is_milestone = $${paramIndex++}`)
-      values.push(filters.isMilestone)
+      conditions.push(`ua.is_milestone = $${paramIndex++}`);
+      values.push(filters.isMilestone);
     }
 
     if (filters.dateFrom) {
-      conditions.push(`ua.achieved_at >= $${paramIndex++}`)
-      values.push(filters.dateFrom)
+      conditions.push(`ua.achieved_at >= $${paramIndex++}`);
+      values.push(filters.dateFrom);
     }
 
     if (filters.dateTo) {
-      conditions.push(`ua.achieved_at <= $${paramIndex++}`)
-      values.push(filters.dateTo)
+      conditions.push(`ua.achieved_at <= $${paramIndex++}`);
+      values.push(filters.dateTo);
     }
 
     return {
       clause: conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '',
-      values
-    }
+      values,
+    };
   }
 
   private async calculateProgressTrends(userId: string, timeframeDays: number) {
@@ -548,45 +673,52 @@ export class ProgressService extends BaseService {
         AVG(CASE WHEN prev_value IS NOT NULL THEN value - prev_value ELSE 0 END) as avg_change
       FROM trend_data
       GROUP BY measurement_type
-    `
+    `;
 
-    const trends: Record<string, 'improving' | 'declining' | 'stable'> = {}
-    
+    const trends: Record<string, 'improving' | 'declining' | 'stable'> = {};
+
     result.forEach((row: any) => {
-      const avgChange = parseFloat(row.avg_change as string)
+      const avgChange = parseFloat(row.avg_change as string);
       if (avgChange > 0.1) {
-        trends[row.measurement_type as string] = 'improving'
+        trends[row.measurement_type as string] = 'improving';
       } else if (avgChange < -0.1) {
-        trends[row.measurement_type as string] = 'declining'
+        trends[row.measurement_type as string] = 'declining';
       } else {
-        trends[row.measurement_type as string] = 'stable'
+        trends[row.measurement_type as string] = 'stable';
       }
-    })
+    });
 
-    return trends
+    return trends;
   }
 
-  private calculateOverallTrend(trends: Record<string, 'improving' | 'declining' | 'stable'>): 'improving' | 'declining' | 'stable' {
-    const trendValues = Object.values(trends)
-    const improvingCount = trendValues.filter(t => t === 'improving').length
-    const decliningCount = trendValues.filter(t => t === 'declining').length
-    
+  private calculateOverallTrend(
+    trends: Record<string, 'improving' | 'declining' | 'stable'>
+  ): 'improving' | 'declining' | 'stable' {
+    const trendValues = Object.values(trends);
+    const improvingCount = trendValues.filter((t) => t === 'improving').length;
+    const decliningCount = trendValues.filter((t) => t === 'declining').length;
+
     if (improvingCount > decliningCount) {
-      return 'improving'
+      return 'improving';
     } else if (decliningCount > improvingCount) {
-      return 'declining'
+      return 'declining';
     } else {
-      return 'stable'
+      return 'stable';
     }
   }
 
   private getTimeframeDays(timeframe: string): number {
     switch (timeframe) {
-      case 'week': return 7
-      case 'month': return 30
-      case 'quarter': return 90
-      case 'year': return 365
-      default: return 30
+      case 'week':
+        return 7;
+      case 'month':
+        return 30;
+      case 'quarter':
+        return 90;
+      case 'year':
+        return 365;
+      default:
+        return 30;
     }
   }
 
@@ -608,8 +740,8 @@ export class ProgressService extends BaseService {
       isVerified: row.is_verified,
       verifiedBy: row.verified_by,
       confidenceScore: row.confidence_score,
-      createdAt: new Date(row.created_at)
-    }
+      createdAt: new Date(row.created_at),
+    };
   }
 
   private mapUserAchievementFromDb(row: any): UserAchievement {
@@ -624,8 +756,12 @@ export class ProgressService extends BaseService {
       unit: row.unit,
       category: row.category,
       achievedAt: new Date(row.achieved_at),
-      previousBest: row.previous_best ? parseFloat(row.previous_best) : undefined,
-      improvementPercentage: row.improvement_percentage ? parseFloat(row.improvement_percentage) : undefined,
+      previousBest: row.previous_best
+        ? parseFloat(row.previous_best)
+        : undefined,
+      improvementPercentage: row.improvement_percentage
+        ? parseFloat(row.improvement_percentage)
+        : undefined,
       relatedSessionId: row.related_session_id,
       relatedExerciseId: row.related_exercise_id,
       badgeIcon: row.badge_icon,
@@ -635,13 +771,13 @@ export class ProgressService extends BaseService {
       pointsAwarded: row.points_awarded,
       isPublic: row.is_public,
       sharedAt: row.shared_at ? new Date(row.shared_at) : undefined,
-      createdAt: new Date(row.created_at)
-    }
+      createdAt: new Date(row.created_at),
+    };
   }
 
   private camelToSnakeCase(str: string): string {
-    return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`)
+    return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
   }
 }
 
-export default ProgressService
+export default ProgressService;

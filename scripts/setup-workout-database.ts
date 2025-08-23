@@ -7,114 +7,145 @@
  * - Row Level Security (RLS) policies
  * - Helper functions and triggers
  * - Initial seed data for exercise library
- * 
+ *
  * Run with: npx tsx scripts/setup-workout-database.ts
  */
 
-import { config } from 'dotenv'
-import { resolve } from 'path'
-import { readFileSync } from 'fs'
+import { config } from 'dotenv';
+import { resolve } from 'path';
+import { readFileSync } from 'fs';
 
 // Load environment variables from .env.local
-config({ path: resolve(process.cwd(), '.env.local') })
+config({ path: resolve(process.cwd(), '.env.local') });
 
 // Dynamically import connection after env vars are loaded
 async function getDbConnections() {
-  const { getDb, checkDbConnection } = await import('../lib/db/connection')
-  return { db: getDb(), checkDbConnection }
+  const { getDb, checkDbConnection } = await import('../lib/db/connection');
+  return { db: getDb(), checkDbConnection };
 }
 
 async function setupWorkoutDatabase() {
   try {
-    console.log('🏋️  Setting up workout database schema...')
-    console.log('🔗 Checking database connection...')
-    
+    console.log('🏋️  Setting up workout database schema...');
+    console.log('🔗 Checking database connection...');
+
     // Get database connections after env vars are loaded
-    const { db, checkDbConnection } = await getDbConnections()
-    
-    const isConnected = await checkDbConnection()
+    const { db, checkDbConnection } = await getDbConnections();
+
+    const isConnected = await checkDbConnection();
     if (!isConnected) {
-      throw new Error('Failed to connect to database. Please check your DATABASE_URL environment variable.')
+      throw new Error(
+        'Failed to connect to database. Please check your DATABASE_URL environment variable.'
+      );
     }
 
-    console.log('✅ Database connection established')
-    
-    // Read the workout schema file
-    const schemaPath = resolve(process.cwd(), 'database/schema/workouts.sql')
-    const workoutSchema = readFileSync(schemaPath, 'utf8')
-    
-    console.log('🏗️  Creating workout system schema...')
-    
-    // Execute schema step by step for better error handling
-    await executeSchemaSteps(db)
-    
-    console.log('🌱 Populating exercise library with seed data...')
-    await populateExerciseLibrary(db)
-    
-    console.log('🧪 Testing database setup...')
-    await testDatabaseSetup(db)
-    
-    console.log('✅ Workout database setup complete!')
+    console.log('✅ Database connection established');
 
+    // Read the workout schema file
+    const schemaPath = resolve(process.cwd(), 'database/schema/workouts.sql');
+    const workoutSchema = readFileSync(schemaPath, 'utf8');
+
+    console.log('🏗️  Creating workout system schema...');
+
+    // Execute schema step by step for better error handling
+    await executeSchemaSteps(db);
+
+    console.log('🌱 Populating exercise library with seed data...');
+    await populateExerciseLibrary(db);
+
+    console.log('🧪 Testing database setup...');
+    await testDatabaseSetup(db);
+
+    console.log('✅ Workout database setup complete!');
   } catch (error) {
-    console.error('❌ Workout database setup failed:', error)
-    process.exit(1)
+    console.error('❌ Workout database setup failed:', error);
+    process.exit(1);
   }
 }
 
 async function executeSchemaSteps(db: any) {
   try {
     // Step 1: Create custom types
-    console.log('  📋 Creating custom types...')
-    
+    console.log('  📋 Creating custom types...');
+
     // First check if fitness_level exists, create if not
     const fitnessLevelExists = await db`
       SELECT EXISTS(
         SELECT 1 FROM pg_type 
         WHERE typname = 'fitness_level' AND typtype = 'e'
       ) as exists
-    `
-    
+    `;
+
     if (!fitnessLevelExists[0].exists) {
-      console.log('    🏃 Creating fitness_level enum...')
-      await db`CREATE TYPE fitness_level AS ENUM ('beginner', 'intermediate', 'advanced')`
+      console.log('    🏃 Creating fitness_level enum...');
+      await db`CREATE TYPE fitness_level AS ENUM ('beginner', 'intermediate', 'advanced')`;
     } else {
-      console.log('    ✅ fitness_level enum already exists')
+      console.log('    ✅ fitness_level enum already exists');
     }
-    
+
     // Create workout-specific types (skip if they already exist)
     const typesToCreate = [
-      { name: 'workout_status', values: ['draft', 'active', 'completed', 'paused', 'archived'] },
-      { name: 'session_status', values: ['scheduled', 'in_progress', 'completed', 'skipped', 'cancelled'] },
+      {
+        name: 'workout_status',
+        values: ['draft', 'active', 'completed', 'paused', 'archived'],
+      },
+      {
+        name: 'session_status',
+        values: [
+          'scheduled',
+          'in_progress',
+          'completed',
+          'skipped',
+          'cancelled',
+        ],
+      },
       { name: 'session_type', values: ['workout', 'assessment', 'recovery'] },
-      { name: 'exercise_type', values: ['strength', 'cardio', 'flexibility', 'sports'] },
+      {
+        name: 'exercise_type',
+        values: ['strength', 'cardio', 'flexibility', 'sports'],
+      },
       { name: 'exercise_phase', values: ['warm_up', 'main', 'cool_down'] },
-      { name: 'session_exercise_status', values: ['pending', 'in_progress', 'completed', 'skipped'] },
-      { name: 'measurement_type', values: ['weight', 'body_fat', 'muscle_mass', 'circumference'] },
-      { name: 'achievement_type', values: ['streak', 'milestone', 'pr', 'consistency'] },
-      { name: 'day_schedule_type', values: ['workout', 'rest', 'active_recovery'] },
-      { name: 'generation_status', values: ['pending', 'generating', 'completed', 'failed', 'cancelled'] }
-    ]
-    
+      {
+        name: 'session_exercise_status',
+        values: ['pending', 'in_progress', 'completed', 'skipped'],
+      },
+      {
+        name: 'measurement_type',
+        values: ['weight', 'body_fat', 'muscle_mass', 'circumference'],
+      },
+      {
+        name: 'achievement_type',
+        values: ['streak', 'milestone', 'pr', 'consistency'],
+      },
+      {
+        name: 'day_schedule_type',
+        values: ['workout', 'rest', 'active_recovery'],
+      },
+      {
+        name: 'generation_status',
+        values: ['pending', 'generating', 'completed', 'failed', 'cancelled'],
+      },
+    ];
+
     for (const type of typesToCreate) {
       try {
-        const values = type.values.map(v => `'${v}'`).join(', ')
-        await db.unsafe(`CREATE TYPE ${type.name} AS ENUM (${values})`)
-        console.log(`    ✅ Created ${type.name}`)
+        const values = type.values.map((v) => `'${v}'`).join(', ');
+        await db.unsafe(`CREATE TYPE ${type.name} AS ENUM (${values})`);
+        console.log(`    ✅ Created ${type.name}`);
       } catch (error: any) {
         if (error.code === '42710') {
-          console.log(`    ℹ️  Type ${type.name} already exists, skipping`)
+          console.log(`    ℹ️  Type ${type.name} already exists, skipping`);
         } else {
-          throw error
+          throw error;
         }
       }
     }
-    
-    console.log('  ✅ Custom types created successfully')
-    
+
+    console.log('  ✅ Custom types created successfully');
+
     // Step 2: Create equipment catalog table
-    console.log('  🏋️  Creating equipment catalog table...')
-    
+    console.log('  🏋️  Creating equipment catalog table...');
+
     await db`
       CREATE TABLE IF NOT EXISTS equipment_catalog (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -155,11 +186,11 @@ async function executeSchemaSteps(db: any) {
         CONSTRAINT valid_equipment_name CHECK (LENGTH(TRIM(name)) >= 2),
         CONSTRAINT valid_category CHECK (LENGTH(TRIM(category)) >= 2)
       )
-    `
-    
+    `;
+
     // Step 3: Create exercise library table
-    console.log('  📚 Creating exercise library table...')
-    
+    console.log('  📚 Creating exercise library table...');
+
     await db`
       CREATE TABLE IF NOT EXISTS exercise_library (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -213,11 +244,11 @@ async function executeSchemaSteps(db: any) {
         CONSTRAINT valid_primary_muscles CHECK (array_length(primary_muscle_groups, 1) > 0),
         CONSTRAINT valid_reps_range CHECK (default_reps_max IS NULL OR default_reps_max >= default_reps_min)
       )
-    `
-    
+    `;
+
     // Step 4: Create workout plans table
-    console.log('  📋 Creating workout plans table...')
-    
+    console.log('  📋 Creating workout plans table...');
+
     await db`
       CREATE TABLE IF NOT EXISTS workout_plans (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -275,11 +306,11 @@ async function executeSchemaSteps(db: any) {
         ),
         CONSTRAINT valid_goals CHECK (array_length(fitness_goals, 1) > 0)
       )
-    `
-    
+    `;
+
     // Step 5: Create workout sessions table
-    console.log('  🏃 Creating workout sessions table...')
-    
+    console.log('  🏃 Creating workout sessions table...');
+
     await db`
       CREATE TABLE IF NOT EXISTS workout_sessions (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -340,11 +371,11 @@ async function executeSchemaSteps(db: any) {
           (status != 'completed')
         )
       )
-    `
-    
+    `;
+
     // Step 6: Create session exercises table
-    console.log('  💪 Creating session exercises table...')
-    
+    console.log('  💪 Creating session exercises table...');
+
     await db`
       CREATE TABLE IF NOT EXISTS session_exercises (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -401,11 +432,11 @@ async function executeSchemaSteps(db: any) {
           (status != 'completed')
         )
       )
-    `
-    
+    `;
+
     // Step 7: Create remaining tables
-    console.log('  📊 Creating progress measurements table...')
-    
+    console.log('  📊 Creating progress measurements table...');
+
     await db`
       CREATE TABLE IF NOT EXISTS progress_measurements (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -444,8 +475,8 @@ async function executeSchemaSteps(db: any) {
           (measurement_type = 'circumference' AND measurement_location IS NOT NULL)
         )
       )
-    `
-    
+    `;
+
     await db`
       CREATE TABLE IF NOT EXISTS user_achievements (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -491,8 +522,8 @@ async function executeSchemaSteps(db: any) {
           improvement_percentage >= 0
         )
       )
-    `
-    
+    `;
+
     await db`
       CREATE TABLE IF NOT EXISTS workout_generation_jobs (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -546,107 +577,106 @@ async function executeSchemaSteps(db: any) {
           (completed_at IS NOT NULL AND processing_duration_ms IS NOT NULL AND processing_duration_ms > 0)
         )
       )
-    `
-    
-    console.log('  ✅ All tables created successfully')
-    
+    `;
+
+    console.log('  ✅ All tables created successfully');
+
     // Step 8: Create indexes
-    console.log('  📇 Creating indexes for performance optimization...')
-    await createIndexes(db)
-    
+    console.log('  📇 Creating indexes for performance optimization...');
+    await createIndexes(db);
+
     // Step 9: Enable RLS and create policies (optional for now)
-    console.log('  🔐 Setting up Row Level Security policies...')
+    console.log('  🔐 Setting up Row Level Security policies...');
     try {
-      await setupRLSPolicies(db)
+      await setupRLSPolicies(db);
     } catch (error) {
-      console.log('  ⚠️  RLS setup encountered issues, skipping for now...')
-      console.log('  ℹ️  You can set up RLS policies manually later if needed')
+      console.log('  ⚠️  RLS setup encountered issues, skipping for now...');
+      console.log('  ℹ️  You can set up RLS policies manually later if needed');
     }
-    
+
     // Step 10: Create helper functions and triggers
-    console.log('  ⚙️  Creating helper functions and triggers...')
-    await createHelperFunctions(db)
-    
+    console.log('  ⚙️  Creating helper functions and triggers...');
+    await createHelperFunctions(db);
   } catch (error) {
-    console.error('❌ Failed to execute workout schema:', error)
-    throw error
+    console.error('❌ Failed to execute workout schema:', error);
+    throw error;
   }
 }
 
 async function createIndexes(db: any) {
   // Equipment catalog indexes
-  await db`CREATE INDEX IF NOT EXISTS idx_equipment_catalog_category ON equipment_catalog(category, subcategory)`
-  await db`CREATE INDEX IF NOT EXISTS idx_equipment_catalog_active ON equipment_catalog(is_active, created_at) WHERE is_active = true`
-  await db`CREATE INDEX IF NOT EXISTS idx_equipment_catalog_slug ON equipment_catalog(slug) WHERE is_active = true`
-  
+  await db`CREATE INDEX IF NOT EXISTS idx_equipment_catalog_category ON equipment_catalog(category, subcategory)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_equipment_catalog_active ON equipment_catalog(is_active, created_at) WHERE is_active = true`;
+  await db`CREATE INDEX IF NOT EXISTS idx_equipment_catalog_slug ON equipment_catalog(slug) WHERE is_active = true`;
+
   // Exercise library indexes
-  await db`CREATE INDEX IF NOT EXISTS idx_exercise_library_type ON exercise_library(exercise_type)`
-  await db`CREATE INDEX IF NOT EXISTS idx_exercise_library_muscles ON exercise_library USING GIN (primary_muscle_groups)`
-  await db`CREATE INDEX IF NOT EXISTS idx_exercise_library_difficulty ON exercise_library(difficulty_level)`
-  await db`CREATE INDEX IF NOT EXISTS idx_exercise_library_equipment ON exercise_library USING GIN (equipment_required)`
-  await db`CREATE INDEX IF NOT EXISTS idx_exercise_library_active ON exercise_library(is_active, is_public, created_at)`
-  await db`CREATE INDEX IF NOT EXISTS idx_exercise_library_org ON exercise_library(organization_id) WHERE organization_id IS NOT NULL`
-  await db`CREATE INDEX IF NOT EXISTS idx_exercise_library_creator ON exercise_library(created_by) WHERE created_by IS NOT NULL`
-  
+  await db`CREATE INDEX IF NOT EXISTS idx_exercise_library_type ON exercise_library(exercise_type)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_exercise_library_muscles ON exercise_library USING GIN (primary_muscle_groups)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_exercise_library_difficulty ON exercise_library(difficulty_level)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_exercise_library_equipment ON exercise_library USING GIN (equipment_required)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_exercise_library_active ON exercise_library(is_active, is_public, created_at)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_exercise_library_org ON exercise_library(organization_id) WHERE organization_id IS NOT NULL`;
+  await db`CREATE INDEX IF NOT EXISTS idx_exercise_library_creator ON exercise_library(created_by) WHERE created_by IS NOT NULL`;
+
   // Workout plans indexes
-  await db`CREATE INDEX IF NOT EXISTS idx_workout_plans_user ON workout_plans(user_id, status, created_at)`
-  await db`CREATE INDEX IF NOT EXISTS idx_workout_plans_org ON workout_plans(organization_id, status, created_at)`
-  await db`CREATE INDEX IF NOT EXISTS idx_workout_plans_status ON workout_plans(status, started_at) WHERE is_active = true`
-  await db`CREATE INDEX IF NOT EXISTS idx_workout_plans_template ON workout_plans(is_template, template_category) WHERE is_template = true`
-  await db`CREATE INDEX IF NOT EXISTS idx_workout_plans_public ON workout_plans(is_public, is_featured) WHERE is_public = true`
-  
+  await db`CREATE INDEX IF NOT EXISTS idx_workout_plans_user ON workout_plans(user_id, status, created_at)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_workout_plans_org ON workout_plans(organization_id, status, created_at)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_workout_plans_status ON workout_plans(status, started_at) WHERE is_active = true`;
+  await db`CREATE INDEX IF NOT EXISTS idx_workout_plans_template ON workout_plans(is_template, template_category) WHERE is_template = true`;
+  await db`CREATE INDEX IF NOT EXISTS idx_workout_plans_public ON workout_plans(is_public, is_featured) WHERE is_public = true`;
+
   // Workout sessions indexes
-  await db`CREATE INDEX IF NOT EXISTS idx_workout_sessions_user ON workout_sessions(user_id, scheduled_date DESC)`
-  await db`CREATE INDEX IF NOT EXISTS idx_workout_sessions_plan ON workout_sessions(workout_plan_id, scheduled_date)`
-  await db`CREATE INDEX IF NOT EXISTS idx_workout_sessions_status ON workout_sessions(status, scheduled_date)`
-  await db`CREATE INDEX IF NOT EXISTS idx_workout_sessions_org ON workout_sessions(organization_id, scheduled_date DESC)`
-  await db`CREATE INDEX IF NOT EXISTS idx_workout_sessions_date_range ON workout_sessions(scheduled_date, status) WHERE is_active = true`
-  
+  await db`CREATE INDEX IF NOT EXISTS idx_workout_sessions_user ON workout_sessions(user_id, scheduled_date DESC)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_workout_sessions_plan ON workout_sessions(workout_plan_id, scheduled_date)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_workout_sessions_status ON workout_sessions(status, scheduled_date)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_workout_sessions_org ON workout_sessions(organization_id, scheduled_date DESC)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_workout_sessions_date_range ON workout_sessions(scheduled_date, status) WHERE is_active = true`;
+
   // Session exercises indexes
-  await db`CREATE INDEX IF NOT EXISTS idx_session_exercises_session ON session_exercises(session_id, order_index, exercise_phase)`
-  await db`CREATE INDEX IF NOT EXISTS idx_session_exercises_exercise ON session_exercises(exercise_id, status, completed_at)`
-  await db`CREATE INDEX IF NOT EXISTS idx_session_exercises_phase ON session_exercises(exercise_phase, status)`
-  
+  await db`CREATE INDEX IF NOT EXISTS idx_session_exercises_session ON session_exercises(session_id, order_index, exercise_phase)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_session_exercises_exercise ON session_exercises(exercise_id, status, completed_at)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_session_exercises_phase ON session_exercises(exercise_phase, status)`;
+
   // Progress measurements indexes
-  await db`CREATE INDEX IF NOT EXISTS idx_progress_measurements_user ON progress_measurements(user_id, measured_at DESC)`
-  await db`CREATE INDEX IF NOT EXISTS idx_progress_measurements_type ON progress_measurements(user_id, measurement_type, measured_at DESC)`
-  await db`CREATE INDEX IF NOT EXISTS idx_progress_measurements_location ON progress_measurements(user_id, measurement_location, measured_at DESC) WHERE measurement_location IS NOT NULL`
-  
+  await db`CREATE INDEX IF NOT EXISTS idx_progress_measurements_user ON progress_measurements(user_id, measured_at DESC)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_progress_measurements_type ON progress_measurements(user_id, measurement_type, measured_at DESC)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_progress_measurements_location ON progress_measurements(user_id, measurement_location, measured_at DESC) WHERE measurement_location IS NOT NULL`;
+
   // User achievements indexes
-  await db`CREATE INDEX IF NOT EXISTS idx_user_achievements_user ON user_achievements(user_id, achieved_at DESC)`
-  await db`CREATE INDEX IF NOT EXISTS idx_user_achievements_type ON user_achievements(achievement_type, achieved_at DESC)`
-  await db`CREATE INDEX IF NOT EXISTS idx_user_achievements_milestone ON user_achievements(is_milestone, achieved_at DESC) WHERE is_milestone = true`
-  await db`CREATE INDEX IF NOT EXISTS idx_user_achievements_public ON user_achievements(is_public, achieved_at DESC) WHERE is_public = true`
-  
+  await db`CREATE INDEX IF NOT EXISTS idx_user_achievements_user ON user_achievements(user_id, achieved_at DESC)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_user_achievements_type ON user_achievements(achievement_type, achieved_at DESC)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_user_achievements_milestone ON user_achievements(is_milestone, achieved_at DESC) WHERE is_milestone = true`;
+  await db`CREATE INDEX IF NOT EXISTS idx_user_achievements_public ON user_achievements(is_public, achieved_at DESC) WHERE is_public = true`;
+
   // Generation jobs indexes
-  await db`CREATE INDEX IF NOT EXISTS idx_generation_jobs_user ON workout_generation_jobs(user_id, created_at DESC)`
-  await db`CREATE INDEX IF NOT EXISTS idx_generation_jobs_status ON workout_generation_jobs(status, created_at)`
-  await db`CREATE INDEX IF NOT EXISTS idx_generation_jobs_type ON workout_generation_jobs(job_type, status, created_at)`
-  
-  console.log('    ✅ All indexes created successfully')
+  await db`CREATE INDEX IF NOT EXISTS idx_generation_jobs_user ON workout_generation_jobs(user_id, created_at DESC)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_generation_jobs_status ON workout_generation_jobs(status, created_at)`;
+  await db`CREATE INDEX IF NOT EXISTS idx_generation_jobs_type ON workout_generation_jobs(job_type, status, created_at)`;
+
+  console.log('    ✅ All indexes created successfully');
 }
 
 async function setupRLSPolicies(db: any) {
   // Enable RLS on all tables
-  await db`ALTER TABLE equipment_catalog ENABLE ROW LEVEL SECURITY`
-  await db`ALTER TABLE exercise_library ENABLE ROW LEVEL SECURITY`
-  await db`ALTER TABLE workout_plans ENABLE ROW LEVEL SECURITY`
-  await db`ALTER TABLE workout_sessions ENABLE ROW LEVEL SECURITY`
-  await db`ALTER TABLE session_exercises ENABLE ROW LEVEL SECURITY`
-  await db`ALTER TABLE progress_measurements ENABLE ROW LEVEL SECURITY`
-  await db`ALTER TABLE user_achievements ENABLE ROW LEVEL SECURITY`
-  await db`ALTER TABLE workout_generation_jobs ENABLE ROW LEVEL SECURITY`
-  
-  // Equipment catalog policies  
+  await db`ALTER TABLE equipment_catalog ENABLE ROW LEVEL SECURITY`;
+  await db`ALTER TABLE exercise_library ENABLE ROW LEVEL SECURITY`;
+  await db`ALTER TABLE workout_plans ENABLE ROW LEVEL SECURITY`;
+  await db`ALTER TABLE workout_sessions ENABLE ROW LEVEL SECURITY`;
+  await db`ALTER TABLE session_exercises ENABLE ROW LEVEL SECURITY`;
+  await db`ALTER TABLE progress_measurements ENABLE ROW LEVEL SECURITY`;
+  await db`ALTER TABLE user_achievements ENABLE ROW LEVEL SECURITY`;
+  await db`ALTER TABLE workout_generation_jobs ENABLE ROW LEVEL SECURITY`;
+
+  // Equipment catalog policies
   try {
     await db`
       CREATE POLICY "Equipment catalog is publicly readable" ON equipment_catalog
         FOR SELECT USING (is_active = true)
-    `
+    `;
   } catch (error: any) {
-    if (error.code !== '42710') throw error // Ignore if policy exists
+    if (error.code !== '42710') throw error; // Ignore if policy exists
   }
-  
+
   try {
     await db`
       CREATE POLICY "Org admins can manage equipment catalog" ON equipment_catalog
@@ -659,21 +689,24 @@ async function setupRLSPolicies(db: any) {
             AND om.is_active = true
           )
         )
-    `
+    `;
   } catch (error: any) {
-    if (error.code !== '42710') throw error // Ignore if policy exists
+    if (error.code !== '42710') throw error; // Ignore if policy exists
   }
-  
+
   // Exercise library policies
   try {
     await db`
       CREATE POLICY "Users can view public exercises" ON exercise_library
         FOR SELECT USING (is_active = true AND is_public = true)
-    `
+    `;
   } catch (error: any) {
-    if (error.code !== '42710') console.log('    ℹ️  Policy "Users can view public exercises" already exists')
+    if (error.code !== '42710')
+      console.log(
+        '    ℹ️  Policy "Users can view public exercises" already exists'
+      );
   }
-  
+
   try {
     await db`
       CREATE POLICY "Users can view their org's custom exercises" ON exercise_library
@@ -687,11 +720,12 @@ async function setupRLSPolicies(db: any) {
             AND om.is_active = true
           )
         )
-    `
+    `;
   } catch (error: any) {
-    if (error.code !== '42710') console.log('    ℹ️  Policy for org exercises already exists')
+    if (error.code !== '42710')
+      console.log('    ℹ️  Policy for org exercises already exists');
   }
-  
+
   try {
     await db`
       CREATE POLICY "Users can create exercises in their org" ON exercise_library
@@ -704,11 +738,12 @@ async function setupRLSPolicies(db: any) {
             AND om.is_active = true
           )
         )
-    `
+    `;
   } catch (error: any) {
-    if (error.code !== '42710') console.log('    ℹ️  Policy for creating exercises already exists')
+    if (error.code !== '42710')
+      console.log('    ℹ️  Policy for creating exercises already exists');
   }
-  
+
   try {
     await db`
       CREATE POLICY "Users can update exercises they created" ON exercise_library
@@ -718,11 +753,12 @@ async function setupRLSPolicies(db: any) {
             WHERE clerk_user_id = current_setting('app.clerk_user_id', true)
           )
         )
-    `
+    `;
   } catch (error: any) {
-    if (error.code !== '42710') console.log('    ℹ️  Policy for updating exercises already exists')
+    if (error.code !== '42710')
+      console.log('    ℹ️  Policy for updating exercises already exists');
   }
-  
+
   // Workout plans policies
   try {
     await db`
@@ -733,11 +769,14 @@ async function setupRLSPolicies(db: any) {
             WHERE clerk_user_id = current_setting('app.clerk_user_id', true)
           )
         )
-    `
+    `;
   } catch (error: any) {
-    if (error.code !== '42710') console.log('    ℹ️  Policy for viewing own workout plans already exists')
+    if (error.code !== '42710')
+      console.log(
+        '    ℹ️  Policy for viewing own workout plans already exists'
+      );
   }
-  
+
   try {
     await db`
       CREATE POLICY "Users can view org members' workout plans" ON workout_plans
@@ -750,11 +789,14 @@ async function setupRLSPolicies(db: any) {
             AND om.is_active = true
           )
         )
-    `
+    `;
   } catch (error: any) {
-    if (error.code !== '42710') console.log('    ℹ️  Policy for viewing org workout plans already exists')
+    if (error.code !== '42710')
+      console.log(
+        '    ℹ️  Policy for viewing org workout plans already exists'
+      );
   }
-  
+
   try {
     await db`
       CREATE POLICY "Users can create their own workout plans" ON workout_plans
@@ -764,11 +806,12 @@ async function setupRLSPolicies(db: any) {
             WHERE clerk_user_id = current_setting('app.clerk_user_id', true)
           )
         )
-    `
+    `;
   } catch (error: any) {
-    if (error.code !== '42710') console.log('    ℹ️  Policy for creating workout plans already exists')
+    if (error.code !== '42710')
+      console.log('    ℹ️  Policy for creating workout plans already exists');
   }
-  
+
   try {
     await db`
       CREATE POLICY "Users can update their own workout plans" ON workout_plans
@@ -778,15 +821,16 @@ async function setupRLSPolicies(db: any) {
             WHERE clerk_user_id = current_setting('app.clerk_user_id', true)
           )
         )
-    `
+    `;
   } catch (error: any) {
-    if (error.code !== '42710') console.log('    ℹ️  Policy for updating workout plans already exists')
+    if (error.code !== '42710')
+      console.log('    ℹ️  Policy for updating workout plans already exists');
   }
-  
+
   // Similar policies for other tables...
-  await createRemainingPolicies(db)
-  
-  console.log('    ✅ RLS policies created successfully')
+  await createRemainingPolicies(db);
+
+  console.log('    ✅ RLS policies created successfully');
 }
 
 async function createRemainingPolicies(db: any) {
@@ -800,11 +844,12 @@ async function createRemainingPolicies(db: any) {
             WHERE clerk_user_id = current_setting('app.clerk_user_id', true)
           )
         )
-    `
+    `;
   } catch (error: any) {
-    if (error.code !== '42710') console.log('    ℹ️  Policy for viewing own sessions already exists')
+    if (error.code !== '42710')
+      console.log('    ℹ️  Policy for viewing own sessions already exists');
   }
-  
+
   try {
     await db`
       CREATE POLICY "Trainers can view org members' sessions" ON workout_sessions
@@ -818,11 +863,14 @@ async function createRemainingPolicies(db: any) {
             AND om.is_active = true
           )
         )
-    `
+    `;
   } catch (error: any) {
-    if (error.code !== '42710') console.log('    ℹ️  Policy for trainers viewing sessions already exists')
+    if (error.code !== '42710')
+      console.log(
+        '    ℹ️  Policy for trainers viewing sessions already exists'
+      );
   }
-  
+
   try {
     await db`
       CREATE POLICY "Users can manage their own sessions" ON workout_sessions
@@ -832,19 +880,20 @@ async function createRemainingPolicies(db: any) {
             WHERE clerk_user_id = current_setting('app.clerk_user_id', true)
           )
         )
-    `
+    `;
   } catch (error: any) {
-    if (error.code !== '42710') console.log('    ℹ️  Policy for managing sessions already exists')
+    if (error.code !== '42710')
+      console.log('    ℹ️  Policy for managing sessions already exists');
   }
-  
+
   // Create basic policies only - can be expanded later
   const basicPolicies = [
     'session_exercises',
-    'progress_measurements', 
+    'progress_measurements',
     'user_achievements',
-    'workout_generation_jobs'
-  ]
-  
+    'workout_generation_jobs',
+  ];
+
   for (const table of basicPolicies) {
     try {
       await db`
@@ -855,10 +904,12 @@ async function createRemainingPolicies(db: any) {
               WHERE clerk_user_id = current_setting('app.clerk_user_id', true)
             )
           )
-      `.unsafe()
+      `.unsafe();
     } catch (error: any) {
       if (error.code !== '42710') {
-        console.log(`    ℹ️  Basic policy for ${table} may already exist or have an issue`)
+        console.log(
+          `    ℹ️  Basic policy for ${table} may already exist or have an issue`
+        );
       }
     }
   }
@@ -890,8 +941,8 @@ async function createHelperFunctions(db: any) {
         RETURN final_slug;
     END;
     $$ LANGUAGE plpgsql
-  `
-  
+  `;
+
   await db`
     CREATE OR REPLACE FUNCTION generate_equipment_slug(equipment_name TEXT) RETURNS TEXT AS $$
     DECLARE
@@ -916,8 +967,8 @@ async function createHelperFunctions(db: any) {
         RETURN final_slug;
     END;
     $$ LANGUAGE plpgsql
-  `
-  
+  `;
+
   // Trigger functions to set slugs
   await db`
     CREATE OR REPLACE FUNCTION set_exercise_slug() RETURNS TRIGGER AS $$
@@ -928,8 +979,8 @@ async function createHelperFunctions(db: any) {
         RETURN NEW;
     END;
     $$ LANGUAGE plpgsql
-  `
-  
+  `;
+
   await db`
     CREATE OR REPLACE FUNCTION set_equipment_slug() RETURNS TRIGGER AS $$
     BEGIN
@@ -939,21 +990,21 @@ async function createHelperFunctions(db: any) {
         RETURN NEW;
     END;
     $$ LANGUAGE plpgsql
-  `
-  
+  `;
+
   // Create triggers
-  await db`CREATE TRIGGER set_exercise_slug_trigger BEFORE INSERT ON exercise_library FOR EACH ROW EXECUTE FUNCTION set_exercise_slug()`
-  await db`CREATE TRIGGER set_equipment_slug_trigger BEFORE INSERT ON equipment_catalog FOR EACH ROW EXECUTE FUNCTION set_equipment_slug()`
-  
+  await db`CREATE TRIGGER set_exercise_slug_trigger BEFORE INSERT ON exercise_library FOR EACH ROW EXECUTE FUNCTION set_exercise_slug()`;
+  await db`CREATE TRIGGER set_equipment_slug_trigger BEFORE INSERT ON equipment_catalog FOR EACH ROW EXECUTE FUNCTION set_equipment_slug()`;
+
   // Update timestamp triggers
-  await db`CREATE TRIGGER update_equipment_catalog_updated_at BEFORE UPDATE ON equipment_catalog FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`
-  await db`CREATE TRIGGER update_exercise_library_updated_at BEFORE UPDATE ON exercise_library FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`
-  await db`CREATE TRIGGER update_workout_plans_updated_at BEFORE UPDATE ON workout_plans FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`
-  await db`CREATE TRIGGER update_workout_sessions_updated_at BEFORE UPDATE ON workout_sessions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`
-  await db`CREATE TRIGGER update_session_exercises_updated_at BEFORE UPDATE ON session_exercises FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`
-  await db`CREATE TRIGGER update_generation_jobs_updated_at BEFORE UPDATE ON workout_generation_jobs FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`
-  
-  console.log('    ✅ Helper functions and triggers created successfully')
+  await db`CREATE TRIGGER update_equipment_catalog_updated_at BEFORE UPDATE ON equipment_catalog FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`;
+  await db`CREATE TRIGGER update_exercise_library_updated_at BEFORE UPDATE ON exercise_library FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`;
+  await db`CREATE TRIGGER update_workout_plans_updated_at BEFORE UPDATE ON workout_plans FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`;
+  await db`CREATE TRIGGER update_workout_sessions_updated_at BEFORE UPDATE ON workout_sessions FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`;
+  await db`CREATE TRIGGER update_session_exercises_updated_at BEFORE UPDATE ON session_exercises FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`;
+  await db`CREATE TRIGGER update_generation_jobs_updated_at BEFORE UPDATE ON workout_generation_jobs FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()`;
+
+  console.log('    ✅ Helper functions and triggers created successfully');
 }
 
 async function populateExerciseLibrary(db: any) {
@@ -961,7 +1012,8 @@ async function populateExerciseLibrary(db: any) {
     {
       name: 'Push-Up',
       description: 'Classic bodyweight chest and arm exercise',
-      instructions: 'Start in plank position, lower body until chest nearly touches ground, push back up.',
+      instructions:
+        'Start in plank position, lower body until chest nearly touches ground, push back up.',
       exercise_type: 'strength',
       primary_muscle_groups: ['chest', 'shoulders', 'triceps'],
       secondary_muscle_groups: ['core'],
@@ -970,16 +1022,21 @@ async function populateExerciseLibrary(db: any) {
       default_reps_min: 8,
       default_reps_max: 15,
       default_rest_seconds: 60,
-      safety_tips: ['Keep body straight', 'Don\'t let hips sag', 'Full range of motion'],
+      safety_tips: [
+        'Keep body straight',
+        "Don't let hips sag",
+        'Full range of motion',
+      ],
       modifications: JSON.stringify({
         easier: ['Knee push-ups', 'Wall push-ups', 'Incline push-ups'],
-        harder: ['Diamond push-ups', 'One-arm push-ups', 'Decline push-ups']
-      })
+        harder: ['Diamond push-ups', 'One-arm push-ups', 'Decline push-ups'],
+      }),
     },
     {
       name: 'Bodyweight Squat',
       description: 'Fundamental lower body bodyweight exercise',
-      instructions: 'Stand with feet hip-width apart, lower hips back and down, return to standing.',
+      instructions:
+        'Stand with feet hip-width apart, lower hips back and down, return to standing.',
       exercise_type: 'strength',
       primary_muscle_groups: ['quadriceps', 'glutes'],
       secondary_muscle_groups: ['hamstrings', 'calves', 'core'],
@@ -988,16 +1045,21 @@ async function populateExerciseLibrary(db: any) {
       default_reps_min: 12,
       default_reps_max: 20,
       default_rest_seconds: 60,
-      safety_tips: ['Keep knees aligned with toes', 'Chest up', 'Weight on heels'],
+      safety_tips: [
+        'Keep knees aligned with toes',
+        'Chest up',
+        'Weight on heels',
+      ],
       modifications: JSON.stringify({
         easier: ['Chair-assisted squats', 'Partial range squats'],
-        harder: ['Jump squats', 'Pistol squats', 'Bulgarian split squats']
-      })
+        harder: ['Jump squats', 'Pistol squats', 'Bulgarian split squats'],
+      }),
     },
     {
       name: 'Running',
       description: 'Cardiovascular endurance exercise',
-      instructions: 'Maintain steady pace, proper running form, rhythmic breathing.',
+      instructions:
+        'Maintain steady pace, proper running form, rhythmic breathing.',
       exercise_type: 'cardio',
       primary_muscle_groups: ['legs', 'cardiovascular'],
       secondary_muscle_groups: ['core'],
@@ -1007,29 +1069,31 @@ async function populateExerciseLibrary(db: any) {
       safety_tips: ['Proper footwear', 'Warm up gradually', 'Stay hydrated'],
       modifications: JSON.stringify({
         easier: ['Walking', 'Walk-run intervals'],
-        harder: ['Hill running', 'Sprint intervals', 'Long distance running']
-      })
+        harder: ['Hill running', 'Sprint intervals', 'Long distance running'],
+      }),
     },
     {
       name: 'Plank',
       description: 'Core stabilization exercise',
-      instructions: 'Hold body straight in push-up position, engage core, breathe normally.',
+      instructions:
+        'Hold body straight in push-up position, engage core, breathe normally.',
       exercise_type: 'strength',
       primary_muscle_groups: ['core'],
       secondary_muscle_groups: ['shoulders', 'chest'],
       difficulty_level: 'beginner',
       default_duration_seconds: 60,
       default_rest_seconds: 60,
-      safety_tips: ['Keep body straight', 'Don\'t hold breath', 'Engage glutes'],
+      safety_tips: ['Keep body straight', "Don't hold breath", 'Engage glutes'],
       modifications: JSON.stringify({
         easier: ['Knee plank', 'Wall plank', 'Incline plank'],
-        harder: ['Side plank', 'Plank up-downs', 'Single-arm plank']
-      })
+        harder: ['Side plank', 'Plank up-downs', 'Single-arm plank'],
+      }),
     },
     {
       name: 'Jumping Jacks',
       description: 'Full-body cardiovascular exercise',
-      instructions: 'Jump while spreading legs and raising arms overhead, return to starting position.',
+      instructions:
+        'Jump while spreading legs and raising arms overhead, return to starting position.',
       exercise_type: 'cardio',
       primary_muscle_groups: ['legs', 'cardiovascular'],
       secondary_muscle_groups: ['shoulders', 'core'],
@@ -1041,11 +1105,11 @@ async function populateExerciseLibrary(db: any) {
       safety_tips: ['Land softly', 'Maintain rhythm', 'Stay hydrated'],
       modifications: JSON.stringify({
         easier: ['Step-touch', 'Half jacks', 'Seated jacks'],
-        harder: ['Star jumps', 'Cross jacks', 'Burpee jacks']
-      })
-    }
-  ]
-  
+        harder: ['Star jumps', 'Cross jacks', 'Burpee jacks'],
+      }),
+    },
+  ];
+
   for (const exercise of exerciseSeeds) {
     try {
       await db`
@@ -1061,12 +1125,14 @@ async function populateExerciseLibrary(db: any) {
           ${exercise.default_duration_seconds || null}, ${exercise.default_rest_seconds},
           ${exercise.safety_tips}, ${exercise.modifications}, true, true
         )
-      `
+      `;
     } catch (error) {
-      console.log(`    ⚠️  Exercise ${exercise.name} may already exist, skipping...`)
+      console.log(
+        `    ⚠️  Exercise ${exercise.name} may already exist, skipping...`
+      );
     }
   }
-  
+
   // Add some basic equipment
   const equipmentSeeds = [
     {
@@ -1086,9 +1152,9 @@ async function populateExerciseLibrary(db: any) {
       description: 'Elastic bands for resistance training',
       category: 'accessories',
       subcategory: 'bands',
-    }
-  ]
-  
+    },
+  ];
+
   for (const equipment of equipmentSeeds) {
     try {
       await db`
@@ -1098,13 +1164,15 @@ async function populateExerciseLibrary(db: any) {
           ${equipment.name}, ${equipment.description}, ${equipment.category}, 
           ${equipment.subcategory}, true, true
         )
-      `
+      `;
     } catch (error) {
-      console.log(`    ⚠️  Equipment ${equipment.name} may already exist, skipping...`)
+      console.log(
+        `    ⚠️  Equipment ${equipment.name} may already exist, skipping...`
+      );
     }
   }
-  
-  console.log('  ✅ Exercise library and equipment catalog populated')
+
+  console.log('  ✅ Exercise library and equipment catalog populated');
 }
 
 async function testDatabaseSetup(db: any) {
@@ -1116,21 +1184,27 @@ async function testDatabaseSetup(db: any) {
       WHERE table_schema = 'public' 
       AND table_name LIKE '%workout%' OR table_name IN ('equipment_catalog', 'exercise_library', 'progress_measurements', 'user_achievements')
       ORDER BY table_name
-    `
-    
-    console.log(`  📊 Found ${tables.length} workout-related tables:`)
-    tables.forEach(table => {
-      console.log(`    ✓ ${table.table_name}`)
-    })
-    
+    `;
+
+    console.log(`  📊 Found ${tables.length} workout-related tables:`);
+    tables.forEach((table) => {
+      console.log(`    ✓ ${table.table_name}`);
+    });
+
     // Test 2: Verify exercise library has data
-    const exerciseCount = await db`SELECT COUNT(*) as count FROM exercise_library`
-    console.log(`  📚 Exercise library contains ${exerciseCount[0].count} exercises`)
-    
+    const exerciseCount =
+      await db`SELECT COUNT(*) as count FROM exercise_library`;
+    console.log(
+      `  📚 Exercise library contains ${exerciseCount[0].count} exercises`
+    );
+
     // Test 3: Verify equipment catalog has data
-    const equipmentCount = await db`SELECT COUNT(*) as count FROM equipment_catalog`
-    console.log(`  🏋️  Equipment catalog contains ${equipmentCount[0].count} items`)
-    
+    const equipmentCount =
+      await db`SELECT COUNT(*) as count FROM equipment_catalog`;
+    console.log(
+      `  🏋️  Equipment catalog contains ${equipmentCount[0].count} items`
+    );
+
     // Test 4: Test RLS policies are enabled
     const rlsTables = await db`
       SELECT schemaname, tablename, rowsecurity 
@@ -1138,31 +1212,30 @@ async function testDatabaseSetup(db: any) {
       WHERE schemaname = 'public' 
       AND rowsecurity = true
       AND (tablename LIKE '%workout%' OR tablename IN ('equipment_catalog', 'exercise_library', 'progress_measurements', 'user_achievements'))
-    `
-    
-    console.log(`  🔐 RLS enabled on ${rlsTables.length} tables`)
-    
+    `;
+
+    console.log(`  🔐 RLS enabled on ${rlsTables.length} tables`);
+
     // Test 5: Verify helper functions exist
     const functions = await db`
       SELECT routine_name 
       FROM information_schema.routines 
       WHERE routine_schema = 'public' 
       AND routine_name LIKE '%exercise%' OR routine_name LIKE '%equipment%'
-    `
-    
-    console.log(`  ⚙️  Found ${functions.length} helper functions`)
-    
-    console.log('  ✅ Database setup tests passed!')
-    
+    `;
+
+    console.log(`  ⚙️  Found ${functions.length} helper functions`);
+
+    console.log('  ✅ Database setup tests passed!');
   } catch (error) {
-    console.error('  ❌ Database setup test failed:', error)
-    throw error
+    console.error('  ❌ Database setup test failed:', error);
+    throw error;
   }
 }
 
 // Run setup if this script is executed directly
 if (require.main === module) {
-  setupWorkoutDatabase()
+  setupWorkoutDatabase();
 }
 
-export { setupWorkoutDatabase }
+export { setupWorkoutDatabase };

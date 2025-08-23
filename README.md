@@ -9,6 +9,7 @@ Transform fitness coaching through AI, making personalized training accessible a
 ## 🏋️ Key Features
 
 ### For Families & Friends
+
 - **AI Workout Generation**: Personalized plans using Claude AI based on goals and available equipment
 - **Session Tracking**: Day-by-day workout execution with detailed exercise guidance
 - **Equipment Database**: Shared gym equipment identification and alternatives
@@ -16,6 +17,7 @@ Transform fitness coaching through AI, making personalized training accessible a
 - **Group Motivation**: Family leaderboards and shared progress
 
 ### For Gyms (B2B Partnership)
+
 - **White-label Branding**: Gym-branded apps for members
 - **Equipment Management**: QR code integration and booking system
 - **Member Analytics**: Usage metrics and engagement insights
@@ -55,6 +57,7 @@ pnpm dev
 ## 📱 Progressive Web App
 
 Optimized for mobile devices with:
+
 - Native-like experience on iOS and Android
 - Offline workout tracking capabilities
 - Push notifications for workout reminders
@@ -79,10 +82,12 @@ Optimized for mobile devices with:
 ## 📊 Business Model
 
 ### B2C (Direct to Consumer)
+
 - **Free Tier**: 5 users per family group
 - **Premium**: $5/month per family (unlimited members)
 
 ### B2B (Gym Partnerships)
+
 - **Small Gym** (50-100 members): $50-100/month
 - **Medium Gym** (100-300 members): $150-300/month
 - **Large Gym** (300+ members): $400+/month
@@ -91,24 +96,28 @@ Optimized for mobile devices with:
 ## 📈 Development Phases
 
 ### Phase 1: Foundation & Security (Weeks 1-2)
+
 - Multi-tenant architecture setup
 - Authentication and user management
 - Database schema with row-level security
 - Basic security measures (rate limiting, validation)
 
 ### Phase 2: Core Features (Weeks 3-4)
+
 - AI workout generation with async processing
 - Equipment database and QR code integration
 - Session tracking and progress measurement
 - PWA configuration and offline support
 
 ### Phase 3: Business Features (Weeks 5-6)
+
 - Gym dashboard and analytics
 - Equipment booking system
 - White-label branding capabilities
 - Business intelligence and reporting
 
 ### Phase 4: Production Ready (Weeks 7-8)
+
 - Performance optimization
 - Comprehensive monitoring
 - Load testing and scaling validation

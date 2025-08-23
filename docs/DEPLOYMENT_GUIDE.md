@@ -7,6 +7,7 @@ This guide provides step-by-step instructions for deploying the AI Personal Trai
 ## 📋 Prerequisites
 
 ### Required Accounts & Services
+
 - [Vercel Account](https://vercel.com) (Hobby or Pro tier)
 - [GitHub Account](https://github.com) (for repository hosting)
 - [NeonDB Account](https://neon.tech) (for production database)
@@ -15,6 +16,7 @@ This guide provides step-by-step instructions for deploying the AI Personal Trai
 - [PostHog Account](https://posthog.com) (optional, for analytics)
 
 ### Development Environment
+
 - Node.js ≥18.17.0
 - pnpm ≥8.0.0
 - Git configured
@@ -24,6 +26,7 @@ This guide provides step-by-step instructions for deploying the AI Personal Trai
 ### **Recommendation: Use Private Repository for Business Production**
 
 #### Benefits of Private Repository:
+
 1. **Intellectual Property Protection**
    - Business logic and algorithms remain confidential
    - Custom AI prompts and training data protected
@@ -45,6 +48,7 @@ This guide provides step-by-step instructions for deploying the AI Personal Trai
    - Client access for review without public exposure
 
 #### Limitations of Private Repository:
+
 1. **Cost Implications**
    - GitHub Private repos: Free for personal, $4/user/month for teams
    - Vercel Pro required for team features: $20/user/month
@@ -62,18 +66,19 @@ This guide provides step-by-step instructions for deploying the AI Personal Trai
 
 #### Cost Analysis for Scaling:
 
-| Tier | Team Size | GitHub Cost | Vercel Cost | Total/Month |
-|------|-----------|-------------|-------------|-------------|
-| Solo | 1 | $0 | $0-20 | $0-20 |
-| Small | 2-5 | $20-100 | $40-100 | $60-200 |
-| Medium | 6-10 | $120-200 | $120-200 | $240-400 |
-| Enterprise | 10+ | $210+ | $200+ | $410+ |
+| Tier       | Team Size | GitHub Cost | Vercel Cost | Total/Month |
+| ---------- | --------- | ----------- | ----------- | ----------- |
+| Solo       | 1         | $0          | $0-20       | $0-20       |
+| Small      | 2-5       | $20-100     | $40-100     | $60-200     |
+| Medium     | 6-10      | $120-200    | $120-200    | $240-400    |
+| Enterprise | 10+       | $210+       | $200+       | $410+       |
 
 ### **Recommendation for Your Use Case:**
 
 Given your context (AI Personal Trainer for families and gyms):
 
 ✅ **Use Private Repository** because:
+
 - Business has monetization potential
 - Contains sensitive fitness algorithms
 - Client data handling requires privacy
@@ -91,7 +96,7 @@ graph TB
     D --> F[Clerk Auth]
     D --> G[Sentry Monitoring]
     D --> H[PostHog Analytics]
-    
+
     I[Developer] --> A
     J[Friend Testers] --> C
     K[Production Users] --> D
@@ -102,6 +107,7 @@ graph TB
 ### Step 1: Repository Setup
 
 1. **Create Private GitHub Repository**
+
    ```bash
    # If not already done
    gh repo create my-ai-personal-trainer --private
@@ -118,23 +124,25 @@ graph TB
 ### Step 2: Environment Configuration
 
 1. **Copy Environment Template**
+
    ```bash
    cp .env.example .env.local
    ```
 
 2. **Configure Production Environment Variables**
+
    ```bash
    # Core Configuration
    NODE_ENV=production
    NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
-   
+
    # Database (Production NeonDB)
    DATABASE_URL=postgresql://username:password@your-endpoint.neon.tech/dbname?sslmode=require
-   
+
    # Authentication (Production Clerk)
    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_your_key
    CLERK_SECRET_KEY=sk_live_your_key
-   
+
    # Monitoring (Optional)
    SENTRY_DSN=https://your-sentry-dsn@sentry.io/project-id
    NEXT_PUBLIC_POSTHOG_KEY=phc_your_posthog_key
@@ -155,12 +163,14 @@ graph TB
 ### Step 4: Vercel Project Setup
 
 1. **Install Vercel CLI**
+
    ```bash
    npm i -g vercel
    vercel login
    ```
 
 2. **Link Project**
+
    ```bash
    vercel link
    ```
@@ -203,6 +213,7 @@ PRODUCTION_URL=your-app.vercel.app
 ### Step 6: CI/CD Pipeline Testing
 
 1. **Create Feature Branch**
+
    ```bash
    git checkout -b feature/deployment-test
    git push origin feature/deployment-test
@@ -222,11 +233,13 @@ PRODUCTION_URL=your-app.vercel.app
 ### Preview Deployments for Friend Testing
 
 1. **Create Testing Branch**
+
    ```bash
    git checkout -b testing/friend-feedback
    ```
 
 2. **Deploy Preview**
+
    ```bash
    pnpm deploy:preview
    # Or push branch and use PR preview URL
@@ -295,6 +308,7 @@ PRODUCTION_URL=your-app.vercel.app
 ### Ongoing Security Maintenance
 
 1. **Dependency Updates**
+
    ```bash
    pnpm audit
    pnpm update
@@ -341,28 +355,31 @@ PRODUCTION_URL=your-app.vercel.app
 ### Common Deployment Issues
 
 1. **Build Failures**
+
    ```bash
    # Check logs
    vercel logs
-   
+
    # Local build test
    pnpm build
    ```
 
 2. **Environment Variable Issues**
+
    ```bash
    # Verify variables
    vercel env ls
-   
+
    # Pull environment
    vercel env pull .env.local
    ```
 
 3. **Database Connection Issues**
+
    ```bash
    # Test connection
    pnpm db:verify
-   
+
    # Check health endpoint
    curl https://your-app.vercel.app/api/health
    ```
@@ -389,9 +406,10 @@ PRODUCTION_URL=your-app.vercel.app
    - Configure test organization
 
 2. **Prepare Testing Instructions**
+
    ```markdown
    ## Testing Instructions for Friends
-   
+
    1. Visit: [Preview URL]
    2. Create account or use test credentials
    3. Test these features:
@@ -400,7 +418,7 @@ PRODUCTION_URL=your-app.vercel.app
       - [ ] Exercise tracking
       - [ ] Progress visualization
       - [ ] Mobile PWA installation
-   
+
    4. Report issues via [GitHub Issues Link]
    ```
 

@@ -4,18 +4,18 @@
  * rating and review system, and template sharing and discovery
  */
 
-import { FitnessLevel, SubscriptionTier, UserProfile } from './index'
-import { 
-  WorkoutPlan, 
+import { FitnessLevel, SubscriptionTier, UserProfile } from './index';
+import {
+  WorkoutPlan,
   ExerciseType,
   WorkoutStatus,
-  Equipment
-} from './workouts'
-import { 
-  DashboardWorkoutPlan, 
+  Equipment,
+} from './workouts';
+import {
+  DashboardWorkoutPlan,
   TemplateCategory,
-  TemplateProperties 
-} from './plan-dashboard'
+  TemplateProperties,
+} from './plan-dashboard';
 
 // ================================
 // Template Marketplace Core Types
@@ -26,17 +26,17 @@ import {
  */
 export interface TemplateMarketplaceEntry extends DashboardWorkoutPlan {
   /** Marketplace-specific metadata */
-  marketplace: MarketplaceMetadata
+  marketplace: MarketplaceMetadata;
   /** Discovery and search properties */
-  discovery: DiscoveryMetadata
+  discovery: DiscoveryMetadata;
   /** Template usage analytics */
-  analytics: TemplateAnalytics
+  analytics: TemplateAnalytics;
   /** Community engagement data */
-  community: CommunityEngagement
+  community: CommunityEngagement;
   /** Quality and validation data */
-  quality: TemplateQuality
+  quality: TemplateQuality;
   /** Monetization data */
-  monetization: MonetizationData
+  monetization: MonetizationData;
 }
 
 /**
@@ -44,50 +44,50 @@ export interface TemplateMarketplaceEntry extends DashboardWorkoutPlan {
  */
 export interface MarketplaceMetadata {
   /** Marketplace ID */
-  marketplaceId: string
+  marketplaceId: string;
   /** Template submission date */
-  submittedAt: Date
+  submittedAt: Date;
   /** Template approval status */
-  approvalStatus: ApprovalStatus
+  approvalStatus: ApprovalStatus;
   /** Reviewer information */
-  reviewer?: ReviewerInfo
+  reviewer?: ReviewerInfo;
   /** Marketplace category */
-  category: MarketplaceCategory
+  category: MarketplaceCategory;
   /** Template visibility */
-  visibility: TemplateVisibility
+  visibility: TemplateVisibility;
   /** Featured status */
-  featured: FeaturedStatus
+  featured: FeaturedStatus;
   /** Template maturity level */
-  maturity: TemplateMaturity
+  maturity: TemplateMaturity;
   /** Content rating */
-  contentRating: ContentRating
+  contentRating: ContentRating;
 }
 
 /**
  * Template Approval Status
  */
-export type ApprovalStatus = 
-  | 'pending'      // Awaiting review
+export type ApprovalStatus =
+  | 'pending' // Awaiting review
   | 'under_review' // Currently being reviewed
-  | 'approved'     // Approved for marketplace
-  | 'rejected'     // Rejected with feedback
-  | 'suspended'    // Temporarily suspended
-  | 'archived'     // Archived/removed
+  | 'approved' // Approved for marketplace
+  | 'rejected' // Rejected with feedback
+  | 'suspended' // Temporarily suspended
+  | 'archived'; // Archived/removed
 
 /**
  * Reviewer Information
  */
 export interface ReviewerInfo {
   /** Reviewer ID */
-  reviewerId: string
+  reviewerId: string;
   /** Reviewer name */
-  reviewerName: string
+  reviewerName: string;
   /** Review date */
-  reviewDate: Date
+  reviewDate: Date;
   /** Review notes */
-  notes?: string
+  notes?: string;
   /** Review score */
-  score: number
+  score: number;
 }
 
 /**
@@ -95,13 +95,13 @@ export interface ReviewerInfo {
  */
 export interface MarketplaceCategory {
   /** Primary category */
-  primary: TemplateCategory
+  primary: TemplateCategory;
   /** Secondary categories */
-  secondary: TemplateCategory[]
+  secondary: TemplateCategory[];
   /** Niche specializations */
-  specializations: string[]
+  specializations: string[];
   /** Target demographics */
-  demographics: TargetDemographic[]
+  demographics: TargetDemographic[];
 }
 
 /**
@@ -109,42 +109,42 @@ export interface MarketplaceCategory {
  */
 export interface TargetDemographic {
   /** Demographic type */
-  type: DemographicType
+  type: DemographicType;
   /** Demographic values */
-  values: string[]
+  values: string[];
   /** Primary target indicator */
-  isPrimary: boolean
+  isPrimary: boolean;
 }
 
 /**
  * Demographic Types
  */
-export type DemographicType = 
-  | 'age_group'        // Age ranges
-  | 'fitness_level'    // Beginner, intermediate, advanced
-  | 'gender'           // Male, female, any
-  | 'goals'            // Weight loss, muscle gain, etc.
-  | 'time_commitment'  // Available time per week
+export type DemographicType =
+  | 'age_group' // Age ranges
+  | 'fitness_level' // Beginner, intermediate, advanced
+  | 'gender' // Male, female, any
+  | 'goals' // Weight loss, muscle gain, etc.
+  | 'time_commitment' // Available time per week
   | 'equipment_access' // Home, gym, minimal equipment
   | 'physical_limitations' // Injuries, mobility issues
-  | 'lifestyle'        // Busy professional, student, etc.
+  | 'lifestyle'; // Busy professional, student, etc.
 
 /**
  * Template Visibility Settings
  */
 export interface TemplateVisibility {
   /** Public visibility */
-  isPublic: boolean
+  isPublic: boolean;
   /** Search visibility */
-  searchable: boolean
+  searchable: boolean;
   /** Featured in categories */
-  featuredInCategories: boolean
+  featuredInCategories: boolean;
   /** Geographic restrictions */
-  geoRestrictions: GeographicRestriction[]
+  geoRestrictions: GeographicRestriction[];
   /** Subscription requirements */
-  subscriptionRequirements: SubscriptionRequirement[]
+  subscriptionRequirements: SubscriptionRequirement[];
   /** Age restrictions */
-  ageRestrictions: AgeRestriction
+  ageRestrictions: AgeRestriction;
 }
 
 /**
@@ -152,13 +152,13 @@ export interface TemplateVisibility {
  */
 export interface GeographicRestriction {
   /** Restriction type */
-  type: 'include' | 'exclude'
+  type: 'include' | 'exclude';
   /** Country codes */
-  countries: string[]
+  countries: string[];
   /** Region codes */
-  regions?: string[]
+  regions?: string[];
   /** Reason for restriction */
-  reason: string
+  reason: string;
 }
 
 /**
@@ -166,11 +166,11 @@ export interface GeographicRestriction {
  */
 export interface SubscriptionRequirement {
   /** Required subscription tier */
-  tier: SubscriptionTier
+  tier: SubscriptionTier;
   /** Grace period for expired subscriptions */
-  gracePeriodDays?: number
+  gracePeriodDays?: number;
   /** Trial access allowed */
-  allowTrial: boolean
+  allowTrial: boolean;
 }
 
 /**
@@ -178,13 +178,13 @@ export interface SubscriptionRequirement {
  */
 export interface AgeRestriction {
   /** Minimum age */
-  minimumAge?: number
+  minimumAge?: number;
   /** Maximum age */
-  maximumAge?: number
+  maximumAge?: number;
   /** Parental consent required */
-  parentalConsentRequired: boolean
+  parentalConsentRequired: boolean;
   /** Age verification required */
-  ageVerificationRequired: boolean
+  ageVerificationRequired: boolean;
 }
 
 /**
@@ -192,88 +192,88 @@ export interface AgeRestriction {
  */
 export interface FeaturedStatus {
   /** Is template featured */
-  isFeatured: boolean
+  isFeatured: boolean;
   /** Featured level */
-  featuredLevel: FeaturedLevel
+  featuredLevel: FeaturedLevel;
   /** Featured start date */
-  featuredFrom?: Date
+  featuredFrom?: Date;
   /** Featured end date */
-  featuredUntil?: Date
+  featuredUntil?: Date;
   /** Featured in sections */
-  featuredSections: FeaturedSection[]
+  featuredSections: FeaturedSection[];
   /** Featured priority */
-  featuredPriority: number
+  featuredPriority: number;
 }
 
 /**
  * Featured Levels
  */
-export type FeaturedLevel = 
-  | 'hero'         // Top-level hero section
-  | 'premium'      // Premium featured section
-  | 'category'     // Featured in category
-  | 'trending'     // Trending section
-  | 'recommended'  // Recommended for you
+export type FeaturedLevel =
+  | 'hero' // Top-level hero section
+  | 'premium' // Premium featured section
+  | 'category' // Featured in category
+  | 'trending' // Trending section
+  | 'recommended'; // Recommended for you
 
 /**
  * Featured Sections
  */
-export type FeaturedSection = 
+export type FeaturedSection =
   | 'homepage'
   | 'category_page'
   | 'search_results'
   | 'user_recommendations'
   | 'trending_now'
   | 'editor_picks'
-  | 'new_releases'
+  | 'new_releases';
 
 /**
  * Template Maturity Level
  */
-export type TemplateMaturity = 
-  | 'alpha'        // Early development
-  | 'beta'         // Testing phase
-  | 'stable'       // Stable release
-  | 'mature'       // Well-established
-  | 'legacy'       // Older but maintained
+export type TemplateMaturity =
+  | 'alpha' // Early development
+  | 'beta' // Testing phase
+  | 'stable' // Stable release
+  | 'mature' // Well-established
+  | 'legacy'; // Older but maintained
 
 /**
  * Content Rating
  */
 export interface ContentRating {
   /** Overall rating */
-  overall: ContentRatingLevel
+  overall: ContentRatingLevel;
   /** Difficulty rating */
-  difficulty: ContentRatingLevel
+  difficulty: ContentRatingLevel;
   /** Intensity rating */
-  intensity: ContentRatingLevel
+  intensity: ContentRatingLevel;
   /** Safety rating */
-  safety: ContentRatingLevel
+  safety: ContentRatingLevel;
   /** Content warnings */
-  warnings: ContentWarning[]
+  warnings: ContentWarning[];
 }
 
 /**
  * Content Rating Levels
  */
-export type ContentRatingLevel = 'G' | 'PG' | 'PG13' | 'R' | 'NR'
+export type ContentRatingLevel = 'G' | 'PG' | 'PG13' | 'R' | 'NR';
 
 /**
  * Content Warning
  */
 export interface ContentWarning {
   /** Warning type */
-  type: WarningType
+  type: WarningType;
   /** Warning description */
-  description: string
+  description: string;
   /** Severity level */
-  severity: 'low' | 'medium' | 'high'
+  severity: 'low' | 'medium' | 'high';
 }
 
 /**
  * Warning Types
  */
-export type WarningType = 
+export type WarningType =
   | 'high_intensity'
   | 'injury_risk'
   | 'medical_conditions'
@@ -281,24 +281,24 @@ export type WarningType =
   | 'space_requirements'
   | 'noise_level'
   | 'explicit_language'
-  | 'cultural_sensitivity'
+  | 'cultural_sensitivity';
 
 /**
  * Discovery Metadata
  */
 export interface DiscoveryMetadata {
   /** Search keywords */
-  searchKeywords: string[]
+  searchKeywords: string[];
   /** Template tags */
-  tags: TemplateTag[]
+  tags: TemplateTag[];
   /** SEO metadata */
-  seo: SEOMetadata
+  seo: SEOMetadata;
   /** Social media metadata */
-  socialMedia: SocialMediaMetadata
+  socialMedia: SocialMediaMetadata;
   /** Related templates */
-  relatedTemplates: RelatedTemplate[]
+  relatedTemplates: RelatedTemplate[];
   /** Alternative templates */
-  alternatives: AlternativeTemplate[]
+  alternatives: AlternativeTemplate[];
 }
 
 /**
@@ -306,50 +306,50 @@ export interface DiscoveryMetadata {
  */
 export interface TemplateTag {
   /** Tag name */
-  name: string
+  name: string;
   /** Tag category */
-  category: TagCategory
+  category: TagCategory;
   /** Tag weight/importance */
-  weight: number
+  weight: number;
   /** Tag popularity score */
-  popularityScore: number
+  popularityScore: number;
   /** Is tag verified */
-  verified: boolean
+  verified: boolean;
 }
 
 /**
  * Tag Categories
  */
-export type TagCategory = 
-  | 'equipment'        // Equipment-related tags
-  | 'body_part'       // Target body parts
-  | 'goal'            // Fitness goals
-  | 'style'           // Workout style
-  | 'duration'        // Time-related tags
-  | 'difficulty'      // Difficulty indicators
-  | 'location'        // Where to perform
-  | 'special'         // Special considerations
-  | 'seasonal'        // Seasonal themes
-  | 'trending'        // Trending topics
+export type TagCategory =
+  | 'equipment' // Equipment-related tags
+  | 'body_part' // Target body parts
+  | 'goal' // Fitness goals
+  | 'style' // Workout style
+  | 'duration' // Time-related tags
+  | 'difficulty' // Difficulty indicators
+  | 'location' // Where to perform
+  | 'special' // Special considerations
+  | 'seasonal' // Seasonal themes
+  | 'trending'; // Trending topics
 
 /**
  * SEO Metadata
  */
 export interface SEOMetadata {
   /** Page title */
-  title: string
+  title: string;
   /** Meta description */
-  description: string
+  description: string;
   /** Keywords */
-  keywords: string[]
+  keywords: string[];
   /** Canonical URL */
-  canonicalUrl?: string
+  canonicalUrl?: string;
   /** Open Graph data */
-  openGraph: OpenGraphData
+  openGraph: OpenGraphData;
   /** Twitter Card data */
-  twitterCard: TwitterCardData
+  twitterCard: TwitterCardData;
   /** JSON-LD structured data */
-  structuredData: StructuredData
+  structuredData: StructuredData;
 }
 
 /**
@@ -357,15 +357,15 @@ export interface SEOMetadata {
  */
 export interface OpenGraphData {
   /** OG title */
-  title: string
+  title: string;
   /** OG description */
-  description: string
+  description: string;
   /** OG image */
-  image: string
+  image: string;
   /** OG type */
-  type: 'website' | 'article' | 'video' | 'product'
+  type: 'website' | 'article' | 'video' | 'product';
   /** OG URL */
-  url: string
+  url: string;
 }
 
 /**
@@ -373,15 +373,15 @@ export interface OpenGraphData {
  */
 export interface TwitterCardData {
   /** Card type */
-  card: 'summary' | 'summary_large_image' | 'app' | 'player'
+  card: 'summary' | 'summary_large_image' | 'app' | 'player';
   /** Card title */
-  title: string
+  title: string;
   /** Card description */
-  description: string
+  description: string;
   /** Card image */
-  image: string
+  image: string;
   /** Creator Twitter handle */
-  creator?: string
+  creator?: string;
 }
 
 /**
@@ -389,9 +389,9 @@ export interface TwitterCardData {
  */
 export interface StructuredData {
   /** Schema.org type */
-  type: string
+  type: string;
   /** Structured data object */
-  data: Record<string, any>
+  data: Record<string, any>;
 }
 
 /**
@@ -399,15 +399,15 @@ export interface StructuredData {
  */
 export interface SocialMediaMetadata {
   /** Shareable title */
-  shareTitle: string
+  shareTitle: string;
   /** Share description */
-  shareDescription: string
+  shareDescription: string;
   /** Share image */
-  shareImage: string
+  shareImage: string;
   /** Hashtags */
-  hashtags: string[]
+  hashtags: string[];
   /** Platform-specific content */
-  platformContent: PlatformContent[]
+  platformContent: PlatformContent[];
 }
 
 /**
@@ -415,97 +415,97 @@ export interface SocialMediaMetadata {
  */
 export interface PlatformContent {
   /** Platform name */
-  platform: SocialPlatform
+  platform: SocialPlatform;
   /** Platform-specific title */
-  title: string
+  title: string;
   /** Platform-specific description */
-  description: string
+  description: string;
   /** Platform-specific image */
-  image?: string
+  image?: string;
   /** Platform-specific hashtags */
-  hashtags: string[]
+  hashtags: string[];
 }
 
 /**
  * Social Platforms
  */
-export type SocialPlatform = 
+export type SocialPlatform =
   | 'facebook'
   | 'twitter'
-  | 'instagram' 
+  | 'instagram'
   | 'linkedin'
   | 'tiktok'
   | 'youtube'
   | 'pinterest'
-  | 'reddit'
+  | 'reddit';
 
 /**
  * Related Template
  */
 export interface RelatedTemplate {
   /** Template ID */
-  templateId: string
+  templateId: string;
   /** Relationship type */
-  relationship: RelationshipType
+  relationship: RelationshipType;
   /** Relationship score */
-  score: number
+  score: number;
   /** Relationship description */
-  description?: string
+  description?: string;
 }
 
 /**
  * Relationship Types
  */
-export type RelationshipType = 
-  | 'similar'          // Similar content/style
-  | 'prerequisite'     // Required before this template
-  | 'follow_up'        // Natural progression after
-  | 'complementary'    // Works well together
-  | 'alternative'      // Different approach to same goal
-  | 'same_creator'     // From same creator
-  | 'same_series'      // Part of same series
+export type RelationshipType =
+  | 'similar' // Similar content/style
+  | 'prerequisite' // Required before this template
+  | 'follow_up' // Natural progression after
+  | 'complementary' // Works well together
+  | 'alternative' // Different approach to same goal
+  | 'same_creator' // From same creator
+  | 'same_series'; // Part of same series
 
 /**
  * Alternative Template
  */
 export interface AlternativeTemplate {
   /** Template ID */
-  templateId: string
+  templateId: string;
   /** Alternative type */
-  alternativeType: AlternativeType
+  alternativeType: AlternativeType;
   /** Comparison metrics */
-  comparison: TemplateComparison
+  comparison: TemplateComparison;
   /** Why it's an alternative */
-  reason: string
+  reason: string;
 }
 
 /**
  * Alternative Types
  */
-export type AlternativeType = 
-  | 'easier'           // Easier version
-  | 'harder'           // More challenging version
-  | 'shorter'          // Shorter duration
-  | 'longer'           // Extended version
-  | 'no_equipment'     // Bodyweight version
-  | 'gym_version'      // Gym equipment version
-  | 'home_version'     // Home-friendly version
-  | 'different_style'  // Different approach
+export type AlternativeType =
+  | 'easier' // Easier version
+  | 'harder' // More challenging version
+  | 'shorter' // Shorter duration
+  | 'longer' // Extended version
+  | 'no_equipment' // Bodyweight version
+  | 'gym_version' // Gym equipment version
+  | 'home_version' // Home-friendly version
+  | 'different_style'; // Different approach
 
 /**
  * Template Comparison
  */
 export interface TemplateComparison {
   /** Difficulty comparison */
-  difficulty: ComparisonMetric
+  difficulty: ComparisonMetric;
   /** Duration comparison */
-  duration: ComparisonMetric
+  duration: ComparisonMetric;
   /** Equipment comparison */
-  equipment: ComparisonMetric
+  equipment: ComparisonMetric;
   /** Intensity comparison */
-  intensity: ComparisonMetric
+  intensity: ComparisonMetric;
   /** Effectiveness comparison */
-  effectiveness: ComparisonMetric
+  effectiveness: ComparisonMetric;
 }
 
 /**
@@ -513,11 +513,11 @@ export interface TemplateComparison {
  */
 export interface ComparisonMetric {
   /** Comparison value (-1 to 1, where 0 is equal) */
-  value: number
+  value: number;
   /** Comparison description */
-  description: string
+  description: string;
   /** Confidence score */
-  confidence: number
+  confidence: number;
 }
 
 // ================================
@@ -529,17 +529,17 @@ export interface ComparisonMetric {
  */
 export interface TemplateAnalytics {
   /** Usage statistics */
-  usage: TemplateUsageStats
+  usage: TemplateUsageStats;
   /** Performance metrics */
-  performance: TemplatePerformanceStats
+  performance: TemplatePerformanceStats;
   /** Engagement analytics */
-  engagement: TemplateEngagementStats
+  engagement: TemplateEngagementStats;
   /** Conversion analytics */
-  conversion: TemplateConversionStats
+  conversion: TemplateConversionStats;
   /** Geographic analytics */
-  geographic: GeographicStats
+  geographic: GeographicStats;
   /** Temporal analytics */
-  temporal: TemporalStats
+  temporal: TemporalStats;
 }
 
 /**
@@ -547,19 +547,19 @@ export interface TemplateAnalytics {
  */
 export interface TemplateUsageStats {
   /** Total views */
-  totalViews: number
+  totalViews: number;
   /** Unique viewers */
-  uniqueViewers: number
+  uniqueViewers: number;
   /** View duration statistics */
-  viewDuration: DurationStats
+  viewDuration: DurationStats;
   /** Downloads/uses */
-  totalDownloads: number
+  totalDownloads: number;
   /** Active users */
-  activeUsers: number
+  activeUsers: number;
   /** Return user rate */
-  returnUserRate: number
+  returnUserRate: number;
   /** Completion statistics */
-  completion: CompletionStats
+  completion: CompletionStats;
 }
 
 /**
@@ -567,13 +567,13 @@ export interface TemplateUsageStats {
  */
 export interface DurationStats {
   /** Average duration */
-  average: number
+  average: number;
   /** Median duration */
-  median: number
+  median: number;
   /** Duration distribution */
-  distribution: DurationDistribution[]
+  distribution: DurationDistribution[];
   /** Bounce rate (very short views) */
-  bounceRate: number
+  bounceRate: number;
 }
 
 /**
@@ -581,11 +581,11 @@ export interface DurationStats {
  */
 export interface DurationDistribution {
   /** Duration range (seconds) */
-  range: { min: number; max: number }
+  range: { min: number; max: number };
   /** Percentage of views in this range */
-  percentage: number
+  percentage: number;
   /** View count in this range */
-  count: number
+  count: number;
 }
 
 /**
@@ -593,13 +593,13 @@ export interface DurationDistribution {
  */
 export interface CompletionStats {
   /** Overall completion rate */
-  overallRate: number
+  overallRate: number;
   /** Completion by week */
-  weeklyRates: number[]
+  weeklyRates: number[];
   /** Drop-off points */
-  dropOffPoints: DropOffPoint[]
+  dropOffPoints: DropOffPoint[];
   /** Average completion time */
-  avgCompletionTime: number
+  avgCompletionTime: number;
 }
 
 /**
@@ -607,11 +607,11 @@ export interface CompletionStats {
  */
 export interface DropOffPoint {
   /** Point in template (week/session number) */
-  point: number
+  point: number;
   /** Drop-off percentage */
-  dropOffPercentage: number
+  dropOffPercentage: number;
   /** Reasons for drop-off */
-  reasons: DropOffReason[]
+  reasons: DropOffReason[];
 }
 
 /**
@@ -619,11 +619,17 @@ export interface DropOffPoint {
  */
 export interface DropOffReason {
   /** Reason category */
-  category: 'difficulty' | 'time_commitment' | 'injury' | 'boredom' | 'life_change' | 'other'
+  category:
+    | 'difficulty'
+    | 'time_commitment'
+    | 'injury'
+    | 'boredom'
+    | 'life_change'
+    | 'other';
   /** Reason description */
-  description: string
+  description: string;
   /** Frequency of this reason */
-  frequency: number
+  frequency: number;
 }
 
 /**
@@ -631,13 +637,13 @@ export interface DropOffReason {
  */
 export interface TemplatePerformanceStats {
   /** User satisfaction metrics */
-  satisfaction: SatisfactionMetrics
+  satisfaction: SatisfactionMetrics;
   /** Effectiveness metrics */
-  effectiveness: EffectivenessMetrics
+  effectiveness: EffectivenessMetrics;
   /** Goal achievement rates */
-  goalAchievement: GoalAchievementStats
+  goalAchievement: GoalAchievementStats;
   /** Improvement metrics */
-  improvements: ImprovementMetrics
+  improvements: ImprovementMetrics;
 }
 
 /**
@@ -645,13 +651,13 @@ export interface TemplatePerformanceStats {
  */
 export interface SatisfactionMetrics {
   /** Overall satisfaction rating */
-  overallRating: number
+  overallRating: number;
   /** Rating distribution */
-  ratingDistribution: RatingDistribution
+  ratingDistribution: RatingDistribution;
   /** Net Promoter Score */
-  netPromoterScore: number
+  netPromoterScore: number;
   /** User sentiment analysis */
-  sentiment: SentimentAnalysis
+  sentiment: SentimentAnalysis;
 }
 
 /**
@@ -659,15 +665,15 @@ export interface SatisfactionMetrics {
  */
 export interface RatingDistribution {
   /** 1-star ratings */
-  oneStar: number
+  oneStar: number;
   /** 2-star ratings */
-  twoStar: number
+  twoStar: number;
   /** 3-star ratings */
-  threeStar: number
+  threeStar: number;
   /** 4-star ratings */
-  fourStar: number
+  fourStar: number;
   /** 5-star ratings */
-  fiveStar: number
+  fiveStar: number;
 }
 
 /**
@@ -675,15 +681,15 @@ export interface RatingDistribution {
  */
 export interface SentimentAnalysis {
   /** Positive sentiment percentage */
-  positive: number
+  positive: number;
   /** Neutral sentiment percentage */
-  neutral: number
+  neutral: number;
   /** Negative sentiment percentage */
-  negative: number
+  negative: number;
   /** Common positive themes */
-  positiveThemes: string[]
+  positiveThemes: string[];
   /** Common negative themes */
-  negativeThemes: string[]
+  negativeThemes: string[];
 }
 
 /**
@@ -691,13 +697,13 @@ export interface SentimentAnalysis {
  */
 export interface EffectivenessMetrics {
   /** Goal achievement rate */
-  goalAchievementRate: number
+  goalAchievementRate: number;
   /** Time to see results (days) */
-  timeToResults: number
+  timeToResults: number;
   /** Adherence rate */
-  adherenceRate: number
+  adherenceRate: number;
   /** Modification frequency */
-  modificationRate: number
+  modificationRate: number;
 }
 
 /**
@@ -705,13 +711,13 @@ export interface EffectivenessMetrics {
  */
 export interface GoalAchievementStats {
   /** Achievement by goal type */
-  byGoalType: Record<string, GoalAchievementMetric>
+  byGoalType: Record<string, GoalAchievementMetric>;
   /** Average time to achieve goals */
-  avgTimeToAchieve: number
+  avgTimeToAchieve: number;
   /** Success factors */
-  successFactors: SuccessFactor[]
+  successFactors: SuccessFactor[];
   /** Failure factors */
-  failureFactors: FailureFactor[]
+  failureFactors: FailureFactor[];
 }
 
 /**
@@ -719,13 +725,13 @@ export interface GoalAchievementStats {
  */
 export interface GoalAchievementMetric {
   /** Goal type */
-  goalType: string
+  goalType: string;
   /** Achievement rate */
-  achievementRate: number
+  achievementRate: number;
   /** Average time to achieve */
-  avgTime: number
+  avgTime: number;
   /** User satisfaction for this goal */
-  satisfaction: number
+  satisfaction: number;
 }
 
 /**
@@ -733,20 +739,20 @@ export interface GoalAchievementMetric {
  */
 export interface SuccessFactor {
   /** Factor description */
-  factor: string
+  factor: string;
   /** Correlation with success */
-  correlation: number
+  correlation: number;
   /** Statistical significance */
-  significance: number
+  significance: number;
 }
 
 export interface FailureFactor {
   /** Factor description */
-  factor: string
+  factor: string;
   /** Correlation with failure */
-  correlation: number
+  correlation: number;
   /** Statistical significance */
-  significance: number
+  significance: number;
 }
 
 /**
@@ -754,13 +760,13 @@ export interface FailureFactor {
  */
 export interface ImprovementMetrics {
   /** Fitness improvements */
-  fitness: FitnessImprovements
+  fitness: FitnessImprovements;
   /** Strength improvements */
-  strength: StrengthImprovements
+  strength: StrengthImprovements;
   /** Endurance improvements */
-  endurance: EnduranceImprovements
+  endurance: EnduranceImprovements;
   /** Body composition changes */
-  bodyComposition: BodyCompositionChanges
+  bodyComposition: BodyCompositionChanges;
 }
 
 /**
@@ -768,11 +774,11 @@ export interface ImprovementMetrics {
  */
 export interface FitnessImprovements {
   /** Overall fitness score improvement */
-  overallImprovement: number
+  overallImprovement: number;
   /** Improvement by category */
-  categoryImprovements: Record<string, number>
+  categoryImprovements: Record<string, number>;
   /** Improvement timeline */
-  timeline: ImprovementTimelinePoint[]
+  timeline: ImprovementTimelinePoint[];
 }
 
 /**
@@ -780,20 +786,20 @@ export interface FitnessImprovements {
  */
 export interface StrengthImprovements {
   /** Strength gains by exercise */
-  byExercise: Record<string, number>
+  byExercise: Record<string, number>;
   /** Overall strength improvement */
-  overall: number
+  overall: number;
   /** One-rep max improvements */
-  oneRepMaxGains: Record<string, number>
+  oneRepMaxGains: Record<string, number>;
 }
 
 export interface EnduranceImprovements {
   /** Cardiovascular improvements */
-  cardiovascular: number
+  cardiovascular: number;
   /** Muscular endurance improvements */
-  muscular: number
+  muscular: number;
   /** Endurance by activity type */
-  byActivity: Record<string, number>
+  byActivity: Record<string, number>;
 }
 
 /**
@@ -801,13 +807,13 @@ export interface EnduranceImprovements {
  */
 export interface BodyCompositionChanges {
   /** Weight changes */
-  weight: BodyMetricChange
+  weight: BodyMetricChange;
   /** Body fat changes */
-  bodyFat: BodyMetricChange
+  bodyFat: BodyMetricChange;
   /** Muscle mass changes */
-  muscleMass: BodyMetricChange
+  muscleMass: BodyMetricChange;
   /** Circumference measurements */
-  circumferences: Record<string, BodyMetricChange>
+  circumferences: Record<string, BodyMetricChange>;
 }
 
 /**
@@ -815,11 +821,11 @@ export interface BodyCompositionChanges {
  */
 export interface BodyMetricChange {
   /** Average change */
-  averageChange: number
+  averageChange: number;
   /** Percentage of users with positive change */
-  positiveChangeRate: number
+  positiveChangeRate: number;
   /** Change distribution */
-  distribution: ChangeDistribution[]
+  distribution: ChangeDistribution[];
 }
 
 /**
@@ -827,11 +833,11 @@ export interface BodyMetricChange {
  */
 export interface ChangeDistribution {
   /** Change range */
-  range: { min: number; max: number }
+  range: { min: number; max: number };
   /** Percentage of users in this range */
-  percentage: number
+  percentage: number;
   /** User count */
-  count: number
+  count: number;
 }
 
 /**
@@ -839,13 +845,13 @@ export interface ChangeDistribution {
  */
 export interface ImprovementTimelinePoint {
   /** Time point (weeks from start) */
-  week: number
+  week: number;
   /** Improvement value */
-  improvement: number
+  improvement: number;
   /** User count at this point */
-  userCount: number
+  userCount: number;
   /** Confidence interval */
-  confidenceInterval: { lower: number; upper: number }
+  confidenceInterval: { lower: number; upper: number };
 }
 
 /**
@@ -853,13 +859,13 @@ export interface ImprovementTimelinePoint {
  */
 export interface TemplateEngagementStats {
   /** Social engagement */
-  social: SocialEngagementStats
+  social: SocialEngagementStats;
   /** Community engagement */
-  community: CommunityEngagementStats
+  community: CommunityEngagementStats;
   /** User-generated content */
-  userContent: UserContentStats
+  userContent: UserContentStats;
   /** Sharing statistics */
-  sharing: SharingStats
+  sharing: SharingStats;
 }
 
 /**
@@ -867,17 +873,17 @@ export interface TemplateEngagementStats {
  */
 export interface SocialEngagementStats {
   /** Likes/favorites */
-  likes: number
+  likes: number;
   /** Shares */
-  shares: number
+  shares: number;
   /** Comments */
-  comments: number
+  comments: number;
   /** Social media mentions */
-  mentions: number
+  mentions: number;
   /** Engagement rate */
-  engagementRate: number
+  engagementRate: number;
   /** Viral coefficient */
-  viralCoefficient: number
+  viralCoefficient: number;
 }
 
 /**
@@ -885,15 +891,15 @@ export interface SocialEngagementStats {
  */
 export interface CommunityEngagementStats {
   /** Forum discussions */
-  discussions: number
+  discussions: number;
   /** Questions asked */
-  questions: number
+  questions: number;
   /** Answers provided */
-  answers: number
+  answers: number;
   /** Community challenges */
-  challenges: number
+  challenges: number;
   /** User groups formed */
-  userGroups: number
+  userGroups: number;
 }
 
 /**
@@ -901,15 +907,15 @@ export interface CommunityEngagementStats {
  */
 export interface UserContentStats {
   /** Progress photos */
-  progressPhotos: number
+  progressPhotos: number;
   /** Success stories */
-  successStories: number
+  successStories: number;
   /** Video testimonials */
-  videoTestimonials: number
+  videoTestimonials: number;
   /** Blog posts/articles */
-  blogPosts: number
+  blogPosts: number;
   /** Modifications/variations */
-  modifications: number
+  modifications: number;
 }
 
 /**
@@ -917,13 +923,13 @@ export interface UserContentStats {
  */
 export interface SharingStats {
   /** Shares by platform */
-  byPlatform: Record<SocialPlatform, number>
+  byPlatform: Record<SocialPlatform, number>;
   /** Share-to-view ratio */
-  shareToViewRatio: number
+  shareToViewRatio: number;
   /** Viral sharing chains */
-  viralChains: ViralChain[]
+  viralChains: ViralChain[];
   /** Share effectiveness */
-  shareEffectiveness: ShareEffectiveness
+  shareEffectiveness: ShareEffectiveness;
 }
 
 /**
@@ -931,15 +937,15 @@ export interface SharingStats {
  */
 export interface ViralChain {
   /** Chain ID */
-  id: string
+  id: string;
   /** Chain length */
-  length: number
+  length: number;
   /** Total reach */
-  totalReach: number
+  totalReach: number;
   /** Conversion rate */
-  conversionRate: number
+  conversionRate: number;
   /** Chain start date */
-  startDate: Date
+  startDate: Date;
 }
 
 /**
@@ -947,13 +953,13 @@ export interface ViralChain {
  */
 export interface ShareEffectiveness {
   /** Clicks per share */
-  clicksPerShare: number
+  clicksPerShare: number;
   /** Conversions per share */
-  conversionsPerShare: number
+  conversionsPerShare: number;
   /** Revenue per share */
-  revenuePerShare: number
+  revenuePerShare: number;
   /** Most effective platforms */
-  topPlatforms: string[]
+  topPlatforms: string[];
 }
 
 /**
@@ -961,13 +967,13 @@ export interface ShareEffectiveness {
  */
 export interface TemplateConversionStats {
   /** View-to-download conversion */
-  viewToDownload: ConversionFunnel
+  viewToDownload: ConversionFunnel;
   /** Free-to-paid conversion */
-  freeToPaid: ConversionFunnel
+  freeToPaid: ConversionFunnel;
   /** Trial-to-subscription conversion */
-  trialToSubscription: ConversionFunnel
+  trialToSubscription: ConversionFunnel;
   /** Revenue metrics */
-  revenue: RevenueMetrics
+  revenue: RevenueMetrics;
 }
 
 /**
@@ -975,13 +981,13 @@ export interface TemplateConversionStats {
  */
 export interface ConversionFunnel {
   /** Funnel stages */
-  stages: ConversionStage[]
+  stages: ConversionStage[];
   /** Overall conversion rate */
-  overallRate: number
+  overallRate: number;
   /** Conversion by user segment */
-  bySegment: Record<string, number>
+  bySegment: Record<string, number>;
   /** Conversion timeline */
-  timeline: ConversionTimelinePoint[]
+  timeline: ConversionTimelinePoint[];
 }
 
 /**
@@ -989,15 +995,15 @@ export interface ConversionFunnel {
  */
 export interface ConversionStage {
   /** Stage name */
-  name: string
+  name: string;
   /** Users entering stage */
-  usersEntered: number
+  usersEntered: number;
   /** Users completing stage */
-  usersCompleted: number
+  usersCompleted: number;
   /** Conversion rate for this stage */
-  conversionRate: number
+  conversionRate: number;
   /** Average time in stage */
-  avgTimeInStage: number
+  avgTimeInStage: number;
 }
 
 /**
@@ -1005,11 +1011,11 @@ export interface ConversionStage {
  */
 export interface ConversionTimelinePoint {
   /** Date */
-  date: Date
+  date: Date;
   /** Conversion rate at this date */
-  conversionRate: number
+  conversionRate: number;
   /** Volume at this date */
-  volume: number
+  volume: number;
 }
 
 /**
@@ -1017,15 +1023,15 @@ export interface ConversionTimelinePoint {
  */
 export interface RevenueMetrics {
   /** Total revenue */
-  totalRevenue: number
+  totalRevenue: number;
   /** Revenue per user */
-  revenuePerUser: number
+  revenuePerUser: number;
   /** Revenue per download */
-  revenuePerDownload: number
+  revenuePerDownload: number;
   /** Revenue trends */
-  trends: RevenueTrendPoint[]
+  trends: RevenueTrendPoint[];
   /** Revenue by source */
-  bySource: Record<string, number>
+  bySource: Record<string, number>;
 }
 
 /**
@@ -1033,13 +1039,13 @@ export interface RevenueMetrics {
  */
 export interface RevenueTrendPoint {
   /** Date */
-  date: Date
+  date: Date;
   /** Revenue amount */
-  revenue: number
+  revenue: number;
   /** User count */
-  users: number
+  users: number;
   /** Average order value */
-  averageOrderValue: number
+  averageOrderValue: number;
 }
 
 /**
@@ -1047,13 +1053,13 @@ export interface RevenueTrendPoint {
  */
 export interface GeographicStats {
   /** Usage by country */
-  byCountry: Record<string, GeographicMetric>
+  byCountry: Record<string, GeographicMetric>;
   /** Usage by region */
-  byRegion: Record<string, GeographicMetric>
+  byRegion: Record<string, GeographicMetric>;
   /** Top performing locations */
-  topLocations: GeographicPerformance[]
+  topLocations: GeographicPerformance[];
   /** Global reach metrics */
-  globalReach: GlobalReachMetrics
+  globalReach: GlobalReachMetrics;
 }
 
 /**
@@ -1061,15 +1067,15 @@ export interface GeographicStats {
  */
 export interface GeographicMetric {
   /** User count */
-  users: number
+  users: number;
   /** Download count */
-  downloads: number
+  downloads: number;
   /** Completion rate */
-  completionRate: number
+  completionRate: number;
   /** Revenue */
-  revenue: number
+  revenue: number;
   /** User rating */
-  rating: number
+  rating: number;
 }
 
 /**
@@ -1077,13 +1083,13 @@ export interface GeographicMetric {
  */
 export interface GeographicPerformance {
   /** Location name */
-  location: string
+  location: string;
   /** Performance score */
-  score: number
+  score: number;
   /** Key metrics */
-  metrics: GeographicMetric
+  metrics: GeographicMetric;
   /** Growth rate */
-  growthRate: number
+  growthRate: number;
 }
 
 /**
@@ -1091,13 +1097,13 @@ export interface GeographicPerformance {
  */
 export interface GlobalReachMetrics {
   /** Total countries */
-  countriesReached: number
+  countriesReached: number;
   /** Market penetration by region */
-  marketPenetration: Record<string, number>
+  marketPenetration: Record<string, number>;
   /** Localization effectiveness */
-  localizationEffectiveness: Record<string, number>
+  localizationEffectiveness: Record<string, number>;
   /** Cultural adaptation scores */
-  culturalAdaptation: Record<string, number>
+  culturalAdaptation: Record<string, number>;
 }
 
 /**
@@ -1105,13 +1111,13 @@ export interface GlobalReachMetrics {
  */
 export interface TemporalStats {
   /** Seasonal patterns */
-  seasonalPatterns: SeasonalPattern[]
+  seasonalPatterns: SeasonalPattern[];
   /** Weekly patterns */
-  weeklyPatterns: WeeklyPattern
+  weeklyPatterns: WeeklyPattern;
   /** Daily patterns */
-  dailyPatterns: DailyPattern
+  dailyPatterns: DailyPattern;
   /** Growth trends */
-  growthTrends: GrowthTrend[]
+  growthTrends: GrowthTrend[];
 }
 
 /**
@@ -1119,15 +1125,15 @@ export interface TemporalStats {
  */
 export interface SeasonalPattern {
   /** Season */
-  season: 'spring' | 'summer' | 'fall' | 'winter'
+  season: 'spring' | 'summer' | 'fall' | 'winter';
   /** Usage multiplier */
-  usageMultiplier: number
+  usageMultiplier: number;
   /** Popular features */
-  popularFeatures: string[]
+  popularFeatures: string[];
   /** Completion rate */
-  completionRate: number
+  completionRate: number;
   /** User satisfaction */
-  satisfaction: number
+  satisfaction: number;
 }
 
 /**
@@ -1135,11 +1141,11 @@ export interface SeasonalPattern {
  */
 export interface WeeklyPattern {
   /** Usage by day of week */
-  byDayOfWeek: Record<string, number>
+  byDayOfWeek: Record<string, number>;
   /** Peak usage days */
-  peakDays: string[]
+  peakDays: string[];
   /** Weekend vs weekday patterns */
-  weekendVsWeekday: { weekend: number; weekday: number }
+  weekendVsWeekday: { weekend: number; weekday: number };
 }
 
 /**
@@ -1147,11 +1153,11 @@ export interface WeeklyPattern {
  */
 export interface DailyPattern {
   /** Usage by hour */
-  byHour: Record<number, number>
+  byHour: Record<number, number>;
   /** Peak hours */
-  peakHours: number[]
+  peakHours: number[];
   /** Timezone considerations */
-  timezoneDistribution: Record<string, number>
+  timezoneDistribution: Record<string, number>;
 }
 
 /**
@@ -1159,13 +1165,13 @@ export interface DailyPattern {
  */
 export interface GrowthTrend {
   /** Time period */
-  period: 'daily' | 'weekly' | 'monthly' | 'quarterly'
+  period: 'daily' | 'weekly' | 'monthly' | 'quarterly';
   /** Data points */
-  dataPoints: GrowthDataPoint[]
+  dataPoints: GrowthDataPoint[];
   /** Growth rate */
-  growthRate: number
+  growthRate: number;
   /** Trend direction */
-  direction: 'up' | 'down' | 'stable'
+  direction: 'up' | 'down' | 'stable';
 }
 
 /**
@@ -1173,11 +1179,11 @@ export interface GrowthTrend {
  */
 export interface GrowthDataPoint {
   /** Date */
-  date: Date
+  date: Date;
   /** Value */
-  value: number
+  value: number;
   /** Growth percentage from previous period */
-  growthPercent: number
+  growthPercent: number;
 }
 
 // ================================
@@ -1189,15 +1195,15 @@ export interface GrowthDataPoint {
  */
 export interface CommunityEngagement {
   /** Reviews and ratings */
-  reviews: ReviewSystem
+  reviews: ReviewSystem;
   /** Community discussions */
-  discussions: DiscussionSystem
+  discussions: DiscussionSystem;
   /** User-generated content */
-  userContent: UserGeneratedContentSystem
+  userContent: UserGeneratedContentSystem;
   /** Social features */
-  social: SocialFeatureSystem
+  social: SocialFeatureSystem;
   /** Gamification elements */
-  gamification: GamificationSystem
+  gamification: GamificationSystem;
 }
 
 /**
@@ -1205,19 +1211,19 @@ export interface CommunityEngagement {
  */
 export interface ReviewSystem {
   /** Overall rating */
-  overallRating: number
+  overallRating: number;
   /** Total review count */
-  totalReviews: number
+  totalReviews: number;
   /** Rating breakdown */
-  ratingBreakdown: RatingBreakdown
+  ratingBreakdown: RatingBreakdown;
   /** Review highlights */
-  highlights: ReviewHighlight[]
+  highlights: ReviewHighlight[];
   /** Recent reviews */
-  recentReviews: TemplateReview[]
+  recentReviews: TemplateReview[];
   /** Verified reviews */
-  verifiedReviews: TemplateReview[]
+  verifiedReviews: TemplateReview[];
   /** Review moderation */
-  moderation: ReviewModeration
+  moderation: ReviewModeration;
 }
 
 /**
@@ -1225,15 +1231,15 @@ export interface ReviewSystem {
  */
 export interface RatingBreakdown {
   /** 5-star reviews */
-  fiveStars: ReviewCount
+  fiveStars: ReviewCount;
   /** 4-star reviews */
-  fourStars: ReviewCount
+  fourStars: ReviewCount;
   /** 3-star reviews */
-  threeStars: ReviewCount
+  threeStars: ReviewCount;
   /** 2-star reviews */
-  twoStars: ReviewCount
+  twoStars: ReviewCount;
   /** 1-star reviews */
-  oneStar: ReviewCount
+  oneStar: ReviewCount;
 }
 
 /**
@@ -1241,9 +1247,9 @@ export interface RatingBreakdown {
  */
 export interface ReviewCount {
   /** Number of reviews */
-  count: number
+  count: number;
   /** Percentage of total */
-  percentage: number
+  percentage: number;
 }
 
 /**
@@ -1251,13 +1257,13 @@ export interface ReviewCount {
  */
 export interface ReviewHighlight {
   /** Highlight type */
-  type: 'most_helpful' | 'most_recent' | 'most_detailed' | 'verified_user'
+  type: 'most_helpful' | 'most_recent' | 'most_detailed' | 'verified_user';
   /** Review excerpt */
-  excerpt: string
+  excerpt: string;
   /** Full review ID */
-  reviewId: string
+  reviewId: string;
   /** Highlight reason */
-  reason: string
+  reason: string;
 }
 
 /**
@@ -1265,33 +1271,33 @@ export interface ReviewHighlight {
  */
 export interface TemplateReview {
   /** Review ID */
-  id: string
+  id: string;
   /** Template ID */
-  templateId: string
+  templateId: string;
   /** Reviewer information */
-  reviewer: ReviewerProfile
+  reviewer: ReviewerProfile;
   /** Review rating (1-5) */
-  rating: number
+  rating: number;
   /** Review title */
-  title?: string
+  title?: string;
   /** Review content */
-  content: string
+  content: string;
   /** Review pros */
-  pros: string[]
+  pros: string[];
   /** Review cons */
-  cons: string[]
+  cons: string[];
   /** Review tags */
-  tags: string[]
+  tags: string[];
   /** Review submission date */
-  submittedAt: Date
+  submittedAt: Date;
   /** Review verification */
-  verification: ReviewVerification
+  verification: ReviewVerification;
   /** Review helpfulness */
-  helpfulness: ReviewHelpfulness
+  helpfulness: ReviewHelpfulness;
   /** Review responses */
-  responses: ReviewResponse[]
+  responses: ReviewResponse[];
   /** Review media */
-  media: ReviewMedia[]
+  media: ReviewMedia[];
 }
 
 /**
@@ -1299,17 +1305,17 @@ export interface TemplateReview {
  */
 export interface ReviewerProfile {
   /** Reviewer ID */
-  id: string
+  id: string;
   /** Display name */
-  displayName: string
+  displayName: string;
   /** Avatar URL */
-  avatarUrl?: string
+  avatarUrl?: string;
   /** Reviewer credibility */
-  credibility: ReviewerCredibility
+  credibility: ReviewerCredibility;
   /** Reviewer badges */
-  badges: ReviewerBadge[]
+  badges: ReviewerBadge[];
   /** Review history */
-  reviewHistory: ReviewHistorySummary
+  reviewHistory: ReviewHistorySummary;
 }
 
 /**
@@ -1317,15 +1323,15 @@ export interface ReviewerProfile {
  */
 export interface ReviewerCredibility {
   /** Credibility score (0-100) */
-  score: number
+  score: number;
   /** Verification status */
-  verified: boolean
+  verified: boolean;
   /** Experience level */
-  experienceLevel: 'novice' | 'intermediate' | 'expert'
+  experienceLevel: 'novice' | 'intermediate' | 'expert';
   /** Specializations */
-  specializations: string[]
+  specializations: string[];
   /** Trust factors */
-  trustFactors: TrustFactor[]
+  trustFactors: TrustFactor[];
 }
 
 /**
@@ -1333,11 +1339,15 @@ export interface ReviewerCredibility {
  */
 export interface TrustFactor {
   /** Factor type */
-  type: 'verified_purchase' | 'completed_template' | 'expert_status' | 'community_member'
+  type:
+    | 'verified_purchase'
+    | 'completed_template'
+    | 'expert_status'
+    | 'community_member';
   /** Factor description */
-  description: string
+  description: string;
   /** Factor weight */
-  weight: number
+  weight: number;
 }
 
 /**
@@ -1345,15 +1355,19 @@ export interface TrustFactor {
  */
 export interface ReviewerBadge {
   /** Badge type */
-  type: 'verified_user' | 'expert_reviewer' | 'top_contributor' | 'early_adopter'
+  type:
+    | 'verified_user'
+    | 'expert_reviewer'
+    | 'top_contributor'
+    | 'early_adopter';
   /** Badge name */
-  name: string
+  name: string;
   /** Badge description */
-  description: string
+  description: string;
   /** Badge icon */
-  icon: string
+  icon: string;
   /** Badge earned date */
-  earnedAt: Date
+  earnedAt: Date;
 }
 
 /**
@@ -1361,13 +1375,13 @@ export interface ReviewerBadge {
  */
 export interface ReviewHistorySummary {
   /** Total reviews written */
-  totalReviews: number
+  totalReviews: number;
   /** Average rating given */
-  averageRating: number
+  averageRating: number;
   /** Review helpfulness score */
-  helpfulnessScore: number
+  helpfulnessScore: number;
   /** Reviews by category */
-  byCategory: Record<string, number>
+  byCategory: Record<string, number>;
 }
 
 /**
@@ -1375,38 +1389,38 @@ export interface ReviewHistorySummary {
  */
 export interface ReviewVerification {
   /** Is review verified */
-  isVerified: boolean
+  isVerified: boolean;
   /** Verification method */
-  verificationMethod: VerificationMethod
+  verificationMethod: VerificationMethod;
   /** Verification date */
-  verificationDate?: Date
+  verificationDate?: Date;
   /** Verification details */
-  details: VerificationDetails
+  details: VerificationDetails;
 }
 
 /**
  * Verification Method
  */
-export type VerificationMethod = 
-  | 'purchase_verified'    // Verified through purchase
-  | 'usage_verified'       // Verified through app usage
-  | 'photo_verified'       // Verified through photo evidence
-  | 'video_verified'       // Verified through video evidence
-  | 'manual_verified'      // Manually verified by staff
-  | 'community_verified'   // Verified by community
+export type VerificationMethod =
+  | 'purchase_verified' // Verified through purchase
+  | 'usage_verified' // Verified through app usage
+  | 'photo_verified' // Verified through photo evidence
+  | 'video_verified' // Verified through video evidence
+  | 'manual_verified' // Manually verified by staff
+  | 'community_verified'; // Verified by community
 
 /**
  * Verification Details
  */
 export interface VerificationDetails {
   /** Verification evidence */
-  evidence: string[]
+  evidence: string[];
   /** Verification confidence */
-  confidence: number
+  confidence: number;
   /** Verifier information */
-  verifier?: string
+  verifier?: string;
   /** Verification notes */
-  notes?: string
+  notes?: string;
 }
 
 /**
@@ -1414,13 +1428,13 @@ export interface VerificationDetails {
  */
 export interface ReviewHelpfulness {
   /** Helpful votes */
-  helpfulVotes: number
+  helpfulVotes: number;
   /** Not helpful votes */
-  notHelpfulVotes: number
+  notHelpfulVotes: number;
   /** Helpfulness ratio */
-  helpfulnessRatio: number
+  helpfulnessRatio: number;
   /** Helpfulness rank */
-  rank: number
+  rank: number;
 }
 
 /**
@@ -1428,19 +1442,23 @@ export interface ReviewHelpfulness {
  */
 export interface ReviewResponse {
   /** Response ID */
-  id: string
+  id: string;
   /** Responder type */
-  responderType: 'template_creator' | 'community_member' | 'moderator' | 'expert'
+  responderType:
+    | 'template_creator'
+    | 'community_member'
+    | 'moderator'
+    | 'expert';
   /** Responder ID */
-  responderId: string
+  responderId: string;
   /** Responder name */
-  responderName: string
+  responderName: string;
   /** Response content */
-  content: string
+  content: string;
   /** Response date */
-  responseDate: Date
+  responseDate: Date;
   /** Response helpfulness */
-  helpfulness: ResponseHelpfulness
+  helpfulness: ResponseHelpfulness;
 }
 
 /**
@@ -1448,9 +1466,9 @@ export interface ReviewResponse {
  */
 export interface ResponseHelpfulness {
   /** Helpful votes */
-  helpfulVotes: number
+  helpfulVotes: number;
   /** Not helpful votes */
-  notHelpfulVotes: number
+  notHelpfulVotes: number;
 }
 
 /**
@@ -1458,17 +1476,17 @@ export interface ResponseHelpfulness {
  */
 export interface ReviewMedia {
   /** Media ID */
-  id: string
+  id: string;
   /** Media type */
-  type: 'image' | 'video' | 'document'
+  type: 'image' | 'video' | 'document';
   /** Media URL */
-  url: string
+  url: string;
   /** Media thumbnail */
-  thumbnail?: string
+  thumbnail?: string;
   /** Media caption */
-  caption?: string
+  caption?: string;
   /** Media upload date */
-  uploadDate: Date
+  uploadDate: Date;
 }
 
 /**
@@ -1476,13 +1494,13 @@ export interface ReviewMedia {
  */
 export interface ReviewModeration {
   /** Moderation enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Moderation rules */
-  rules: ModerationRule[]
+  rules: ModerationRule[];
   /** Flagged reviews */
-  flaggedReviews: FlaggedReview[]
+  flaggedReviews: FlaggedReview[];
   /** Moderation statistics */
-  statistics: ModerationStats
+  statistics: ModerationStats;
 }
 
 /**
@@ -1490,15 +1508,15 @@ export interface ReviewModeration {
  */
 export interface ModerationRule {
   /** Rule ID */
-  id: string
+  id: string;
   /** Rule type */
-  type: 'spam_detection' | 'profanity_filter' | 'fake_review' | 'off_topic'
+  type: 'spam_detection' | 'profanity_filter' | 'fake_review' | 'off_topic';
   /** Rule description */
-  description: string
+  description: string;
   /** Auto-action */
-  autoAction: 'flag' | 'hide' | 'delete' | 'review'
+  autoAction: 'flag' | 'hide' | 'delete' | 'review';
   /** Rule active */
-  active: boolean
+  active: boolean;
 }
 
 /**
@@ -1506,15 +1524,15 @@ export interface ModerationRule {
  */
 export interface FlaggedReview {
   /** Review ID */
-  reviewId: string
+  reviewId: string;
   /** Flag reason */
-  flagReason: string
+  flagReason: string;
   /** Flag count */
-  flagCount: number
+  flagCount: number;
   /** Moderation status */
-  moderationStatus: 'pending' | 'approved' | 'rejected' | 'edited'
+  moderationStatus: 'pending' | 'approved' | 'rejected' | 'edited';
   /** Moderator notes */
-  moderatorNotes?: string
+  moderatorNotes?: string;
 }
 
 /**
@@ -1522,15 +1540,15 @@ export interface FlaggedReview {
  */
 export interface ModerationStats {
   /** Total reviews moderated */
-  totalModerated: number
+  totalModerated: number;
   /** Auto-moderated reviews */
-  autoModerated: number
+  autoModerated: number;
   /** Manually moderated reviews */
-  manuallyModerated: number
+  manuallyModerated: number;
   /** False positive rate */
-  falsePositiveRate: number
+  falsePositiveRate: number;
   /** Average moderation time */
-  avgModerationTime: number
+  avgModerationTime: number;
 }
 
 /**
@@ -1538,13 +1556,13 @@ export interface ModerationStats {
  */
 export interface DiscussionSystem {
   /** Discussion forums */
-  forums: DiscussionForum[]
+  forums: DiscussionForum[];
   /** Recent discussions */
-  recentDiscussions: Discussion[]
+  recentDiscussions: Discussion[];
   /** Popular discussions */
-  popularDiscussions: Discussion[]
+  popularDiscussions: Discussion[];
   /** Discussion statistics */
-  statistics: DiscussionStats
+  statistics: DiscussionStats;
 }
 
 /**
@@ -1552,65 +1570,65 @@ export interface DiscussionSystem {
  */
 export interface DiscussionForum {
   /** Forum ID */
-  id: string
+  id: string;
   /** Forum name */
-  name: string
+  name: string;
   /** Forum description */
-  description: string
+  description: string;
   /** Forum category */
-  category: ForumCategory
+  category: ForumCategory;
   /** Forum moderators */
-  moderators: string[]
+  moderators: string[];
   /** Discussion count */
-  discussionCount: number
+  discussionCount: number;
   /** Forum rules */
-  rules: string[]
+  rules: string[];
 }
 
 /**
  * Forum Categories
  */
-export type ForumCategory = 
+export type ForumCategory =
   | 'general_discussion'
   | 'questions_answers'
   | 'success_stories'
   | 'modifications'
   | 'troubleshooting'
   | 'feedback'
-  | 'challenges'
+  | 'challenges';
 
 /**
  * Discussion
  */
 export interface Discussion {
   /** Discussion ID */
-  id: string
+  id: string;
   /** Discussion title */
-  title: string
+  title: string;
   /** Discussion content */
-  content: string
+  content: string;
   /** Discussion author */
-  author: DiscussionAuthor
+  author: DiscussionAuthor;
   /** Discussion category */
-  category: ForumCategory
+  category: ForumCategory;
   /** Discussion tags */
-  tags: string[]
+  tags: string[];
   /** Creation date */
-  createdAt: Date
+  createdAt: Date;
   /** Last activity date */
-  lastActivity: Date
+  lastActivity: Date;
   /** Reply count */
-  replyCount: number
+  replyCount: number;
   /** View count */
-  viewCount: number
+  viewCount: number;
   /** Like count */
-  likeCount: number
+  likeCount: number;
   /** Discussion status */
-  status: DiscussionStatus
+  status: DiscussionStatus;
   /** Is discussion pinned */
-  isPinned: boolean
+  isPinned: boolean;
   /** Is discussion locked */
-  isLocked: boolean
+  isLocked: boolean;
 }
 
 /**
@@ -1618,40 +1636,36 @@ export interface Discussion {
  */
 export interface DiscussionAuthor {
   /** Author ID */
-  id: string
+  id: string;
   /** Display name */
-  displayName: string
+  displayName: string;
   /** Avatar URL */
-  avatarUrl?: string
+  avatarUrl?: string;
   /** Author badges */
-  badges: string[]
+  badges: string[];
   /** Author reputation */
-  reputation: number
+  reputation: number;
 }
 
 /**
  * Discussion Status
  */
-export type DiscussionStatus = 
-  | 'active'
-  | 'resolved' 
-  | 'closed'
-  | 'archived'
+export type DiscussionStatus = 'active' | 'resolved' | 'closed' | 'archived';
 
 /**
  * Discussion Statistics
  */
 export interface DiscussionStats {
   /** Total discussions */
-  totalDiscussions: number
+  totalDiscussions: number;
   /** Active discussions */
-  activeDiscussions: number
+  activeDiscussions: number;
   /** Total replies */
-  totalReplies: number
+  totalReplies: number;
   /** Average replies per discussion */
-  avgRepliesPerDiscussion: number
+  avgRepliesPerDiscussion: number;
   /** Most active users */
-  mostActiveUsers: ActiveUser[]
+  mostActiveUsers: ActiveUser[];
 }
 
 /**
@@ -1659,13 +1673,13 @@ export interface DiscussionStats {
  */
 export interface ActiveUser {
   /** User ID */
-  userId: string
+  userId: string;
   /** Display name */
-  displayName: string
+  displayName: string;
   /** Activity score */
-  activityScore: number
+  activityScore: number;
   /** Contribution type */
-  contributionType: 'discussions' | 'replies' | 'helpful_answers'
+  contributionType: 'discussions' | 'replies' | 'helpful_answers';
 }
 
 /**
@@ -1673,13 +1687,13 @@ export interface ActiveUser {
  */
 export interface UserGeneratedContentSystem {
   /** Content categories */
-  categories: ContentCategory[]
+  categories: ContentCategory[];
   /** Featured content */
-  featuredContent: UserContent[]
+  featuredContent: UserContent[];
   /** Recent content */
-  recentContent: UserContent[]
+  recentContent: UserContent[];
   /** Content statistics */
-  statistics: ContentStats
+  statistics: ContentStats;
 }
 
 /**
@@ -1687,15 +1701,15 @@ export interface UserGeneratedContentSystem {
  */
 export interface ContentCategory {
   /** Category ID */
-  id: string
+  id: string;
   /** Category name */
-  name: string
+  name: string;
   /** Category description */
-  description: string
+  description: string;
   /** Content count */
-  contentCount: number
+  contentCount: number;
   /** Category icon */
-  icon?: string
+  icon?: string;
 }
 
 /**
@@ -1703,85 +1717,85 @@ export interface ContentCategory {
  */
 export interface UserContent {
   /** Content ID */
-  id: string
+  id: string;
   /** Content type */
-  type: UserContentType
+  type: UserContentType;
   /** Content title */
-  title: string
+  title: string;
   /** Content description */
-  description?: string
+  description?: string;
   /** Content creator */
-  creator: ContentCreator
+  creator: ContentCreator;
   /** Content URL */
-  contentUrl: string
+  contentUrl: string;
   /** Thumbnail URL */
-  thumbnailUrl?: string
+  thumbnailUrl?: string;
   /** Creation date */
-  createdAt: Date
+  createdAt: Date;
   /** View count */
-  viewCount: number
+  viewCount: number;
   /** Like count */
-  likeCount: number
+  likeCount: number;
   /** Share count */
-  shareCount: number
+  shareCount: number;
   /** Content tags */
-  tags: string[]
+  tags: string[];
   /** Content status */
-  status: ContentStatus
+  status: ContentStatus;
 }
 
 /**
  * User Content Types
  */
-export type UserContentType = 
+export type UserContentType =
   | 'progress_photo'
   | 'success_story'
   | 'workout_video'
   | 'tutorial'
   | 'modification'
   | 'blog_post'
-  | 'testimonial'
+  | 'testimonial';
 
 /**
  * Content Creator
  */
 export interface ContentCreator {
   /** Creator ID */
-  id: string
+  id: string;
   /** Display name */
-  displayName: string
+  displayName: string;
   /** Avatar URL */
-  avatarUrl?: string
+  avatarUrl?: string;
   /** Creator badges */
-  badges: string[]
+  badges: string[];
   /** Follower count */
-  followers: number
+  followers: number;
   /** Content count */
-  contentCount: number
+  contentCount: number;
 }
 
 /**
  * Content Status
  */
-export type ContentStatus = 
+export type ContentStatus =
   | 'published'
   | 'draft'
   | 'under_review'
   | 'flagged'
-  | 'archived'
+  | 'archived';
 
 /**
  * Content Statistics
  */
 export interface ContentStats {
   /** Total content pieces */
-  totalContent: number
+  totalContent: number;
   /** Content by type */
-  byType: Record<UserContentType, number>
+  byType: Record<UserContentType, number>;
   /** Most popular content */
-  mostPopular: UserContent[]
+  mostPopular: UserContent[];
   /** Content growth rate */
-  growthRate: number
+  growthRate: number;
 }
 
 /**
@@ -1789,13 +1803,13 @@ export interface ContentStats {
  */
 export interface SocialFeatureSystem {
   /** Social features available */
-  features: SocialFeature[]
+  features: SocialFeature[];
   /** Social statistics */
-  statistics: SocialStats
+  statistics: SocialStats;
   /** Leaderboards */
-  leaderboards: Leaderboard[]
+  leaderboards: Leaderboard[];
   /** Social challenges */
-  challenges: SocialChallenge[]
+  challenges: SocialChallenge[];
 }
 
 /**
@@ -1803,15 +1817,15 @@ export interface SocialFeatureSystem {
  */
 export interface SocialFeature {
   /** Feature ID */
-  id: string
+  id: string;
   /** Feature name */
-  name: string
+  name: string;
   /** Feature description */
-  description: string
+  description: string;
   /** Feature enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Usage statistics */
-  usage: FeatureUsage
+  usage: FeatureUsage;
 }
 
 /**
@@ -1819,11 +1833,11 @@ export interface SocialFeature {
  */
 export interface FeatureUsage {
   /** Total uses */
-  totalUses: number
+  totalUses: number;
   /** Active users */
-  activeUsers: number
+  activeUsers: number;
   /** Engagement rate */
-  engagementRate: number
+  engagementRate: number;
 }
 
 /**
@@ -1831,13 +1845,13 @@ export interface FeatureUsage {
  */
 export interface SocialStats {
   /** Total social interactions */
-  totalInteractions: number
+  totalInteractions: number;
   /** Social engagement rate */
-  engagementRate: number
+  engagementRate: number;
   /** Most used social features */
-  topFeatures: string[]
+  topFeatures: string[];
   /** Social network effects */
-  networkEffects: NetworkEffect[]
+  networkEffects: NetworkEffect[];
 }
 
 /**
@@ -1845,11 +1859,11 @@ export interface SocialStats {
  */
 export interface NetworkEffect {
   /** Effect type */
-  type: 'viral_sharing' | 'friend_recommendations' | 'group_challenges'
+  type: 'viral_sharing' | 'friend_recommendations' | 'group_challenges';
   /** Effect strength */
-  strength: number
+  strength: number;
   /** User reach */
-  reach: number
+  reach: number;
 }
 
 /**
@@ -1857,45 +1871,45 @@ export interface NetworkEffect {
  */
 export interface Leaderboard {
   /** Leaderboard ID */
-  id: string
+  id: string;
   /** Leaderboard name */
-  name: string
+  name: string;
   /** Leaderboard type */
-  type: LeaderboardType
+  type: LeaderboardType;
   /** Time period */
-  timePeriod: 'daily' | 'weekly' | 'monthly' | 'all_time'
+  timePeriod: 'daily' | 'weekly' | 'monthly' | 'all_time';
   /** Top entries */
-  topEntries: LeaderboardEntry[]
+  topEntries: LeaderboardEntry[];
   /** Leaderboard rules */
-  rules: string[]
+  rules: string[];
 }
 
 /**
  * Leaderboard Types
  */
-export type LeaderboardType = 
+export type LeaderboardType =
   | 'completion_rate'
   | 'streak_days'
   | 'total_workouts'
   | 'community_contributions'
-  | 'goal_achievements'
+  | 'goal_achievements';
 
 /**
  * Leaderboard Entry
  */
 export interface LeaderboardEntry {
   /** Rank position */
-  rank: number
+  rank: number;
   /** User ID */
-  userId: string
+  userId: string;
   /** Display name */
-  displayName: string
+  displayName: string;
   /** Avatar URL */
-  avatarUrl?: string
+  avatarUrl?: string;
   /** Score */
-  score: number
+  score: number;
   /** Badge/achievement */
-  badge?: string
+  badge?: string;
 }
 
 /**
@@ -1903,47 +1917,47 @@ export interface LeaderboardEntry {
  */
 export interface SocialChallenge {
   /** Challenge ID */
-  id: string
+  id: string;
   /** Challenge name */
-  name: string
+  name: string;
   /** Challenge description */
-  description: string
+  description: string;
   /** Challenge type */
-  type: ChallengeType
+  type: ChallengeType;
   /** Start date */
-  startDate: Date
+  startDate: Date;
   /** End date */
-  endDate: Date
+  endDate: Date;
   /** Participant count */
-  participants: number
+  participants: number;
   /** Challenge rules */
-  rules: string[]
+  rules: string[];
   /** Challenge rewards */
-  rewards: ChallengeReward[]
+  rewards: ChallengeReward[];
 }
 
 /**
  * Challenge Types
  */
-export type ChallengeType = 
+export type ChallengeType =
   | 'completion_challenge'
   | 'consistency_challenge'
   | 'team_challenge'
   | 'milestone_challenge'
-  | 'creative_challenge'
+  | 'creative_challenge';
 
 /**
  * Challenge Reward
  */
 export interface ChallengeReward {
   /** Reward type */
-  type: 'badge' | 'points' | 'discount' | 'feature_unlock'
+  type: 'badge' | 'points' | 'discount' | 'feature_unlock';
   /** Reward description */
-  description: string
+  description: string;
   /** Reward value */
-  value?: number | string
+  value?: number | string;
   /** Reward criteria */
-  criteria: string
+  criteria: string;
 }
 
 /**
@@ -1951,13 +1965,13 @@ export interface ChallengeReward {
  */
 export interface GamificationSystem {
   /** Achievement system */
-  achievements: AchievementSystem
+  achievements: AchievementSystem;
   /** Point system */
-  points: PointSystem
+  points: PointSystem;
   /** Badge system */
-  badges: BadgeSystem
+  badges: BadgeSystem;
   /** Progress tracking */
-  progress: ProgressTrackingSystem
+  progress: ProgressTrackingSystem;
 }
 
 /**
@@ -1965,11 +1979,11 @@ export interface GamificationSystem {
  */
 export interface AchievementSystem {
   /** Available achievements */
-  availableAchievements: Achievement[]
+  availableAchievements: Achievement[];
   /** Recent achievements */
-  recentAchievements: UserAchievementRecord[]
+  recentAchievements: UserAchievementRecord[];
   /** Achievement statistics */
-  statistics: AchievementStats
+  statistics: AchievementStats;
 }
 
 /**
@@ -1977,21 +1991,21 @@ export interface AchievementSystem {
  */
 export interface Achievement {
   /** Achievement ID */
-  id: string
+  id: string;
   /** Achievement name */
-  name: string
+  name: string;
   /** Achievement description */
-  description: string
+  description: string;
   /** Achievement icon */
-  icon: string
+  icon: string;
   /** Achievement rarity */
-  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
+  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
   /** Achievement criteria */
-  criteria: AchievementCriteria
+  criteria: AchievementCriteria;
   /** Achievement points */
-  points: number
+  points: number;
   /** Unlock rate */
-  unlockRate: number
+  unlockRate: number;
 }
 
 /**
@@ -1999,11 +2013,11 @@ export interface Achievement {
  */
 export interface AchievementCriteria {
   /** Criteria type */
-  type: 'completion' | 'consistency' | 'performance' | 'social' | 'milestone'
+  type: 'completion' | 'consistency' | 'performance' | 'social' | 'milestone';
   /** Criteria parameters */
-  parameters: Record<string, any>
+  parameters: Record<string, any>;
   /** Criteria description */
-  description: string
+  description: string;
 }
 
 /**
@@ -2011,15 +2025,15 @@ export interface AchievementCriteria {
  */
 export interface UserAchievementRecord {
   /** User ID */
-  userId: string
+  userId: string;
   /** Achievement ID */
-  achievementId: string
+  achievementId: string;
   /** Achievement date */
-  achievedAt: Date
+  achievedAt: Date;
   /** Achievement progress */
-  progress: number
+  progress: number;
   /** Achievement shared */
-  shared: boolean
+  shared: boolean;
 }
 
 /**
@@ -2027,13 +2041,13 @@ export interface UserAchievementRecord {
  */
 export interface AchievementStats {
   /** Total achievements */
-  totalAchievements: number
+  totalAchievements: number;
   /** Achievements earned */
-  achievementsEarned: number
+  achievementsEarned: number;
   /** Completion rate */
-  completionRate: number
+  completionRate: number;
   /** Rarest achievement earned */
-  rarestAchievement?: Achievement
+  rarestAchievement?: Achievement;
 }
 
 /**
@@ -2041,13 +2055,13 @@ export interface AchievementStats {
  */
 export interface PointSystem {
   /** Point earning rules */
-  earningRules: PointRule[]
+  earningRules: PointRule[];
   /** Point spending options */
-  spendingOptions: PointReward[]
+  spendingOptions: PointReward[];
   /** User point balance */
-  userBalance: number
+  userBalance: number;
   /** Point history */
-  pointHistory: PointTransaction[]
+  pointHistory: PointTransaction[];
 }
 
 /**
@@ -2055,13 +2069,13 @@ export interface PointSystem {
  */
 export interface PointRule {
   /** Rule ID */
-  id: string
+  id: string;
   /** Action that earns points */
-  action: string
+  action: string;
   /** Points earned */
-  points: number
+  points: number;
   /** Daily/weekly limits */
-  limits: PointLimit[]
+  limits: PointLimit[];
 }
 
 /**
@@ -2069,11 +2083,11 @@ export interface PointRule {
  */
 export interface PointLimit {
   /** Limit type */
-  type: 'daily' | 'weekly' | 'monthly'
+  type: 'daily' | 'weekly' | 'monthly';
   /** Maximum points */
-  maxPoints: number
+  maxPoints: number;
   /** Current earned */
-  currentEarned: number
+  currentEarned: number;
 }
 
 /**
@@ -2081,17 +2095,17 @@ export interface PointLimit {
  */
 export interface PointReward {
   /** Reward ID */
-  id: string
+  id: string;
   /** Reward name */
-  name: string
+  name: string;
   /** Reward description */
-  description: string
+  description: string;
   /** Point cost */
-  cost: number
+  cost: number;
   /** Reward type */
-  type: 'discount' | 'feature' | 'cosmetic' | 'content'
+  type: 'discount' | 'feature' | 'cosmetic' | 'content';
   /** Availability */
-  available: boolean
+  available: boolean;
 }
 
 /**
@@ -2099,17 +2113,17 @@ export interface PointReward {
  */
 export interface PointTransaction {
   /** Transaction ID */
-  id: string
+  id: string;
   /** Transaction type */
-  type: 'earned' | 'spent' | 'bonus' | 'penalty'
+  type: 'earned' | 'spent' | 'bonus' | 'penalty';
   /** Point amount */
-  amount: number
+  amount: number;
   /** Transaction reason */
-  reason: string
+  reason: string;
   /** Transaction date */
-  date: Date
+  date: Date;
   /** Balance after transaction */
-  balanceAfter: number
+  balanceAfter: number;
 }
 
 /**
@@ -2117,11 +2131,11 @@ export interface PointTransaction {
  */
 export interface BadgeSystem {
   /** Available badges */
-  availableBadges: Badge[]
+  availableBadges: Badge[];
   /** User badges */
-  userBadges: UserBadge[]
+  userBadges: UserBadge[];
   /** Badge statistics */
-  statistics: BadgeStats
+  statistics: BadgeStats;
 }
 
 /**
@@ -2129,21 +2143,21 @@ export interface BadgeSystem {
  */
 export interface Badge {
   /** Badge ID */
-  id: string
+  id: string;
   /** Badge name */
-  name: string
+  name: string;
   /** Badge description */
-  description: string
+  description: string;
   /** Badge icon */
-  icon: string
+  icon: string;
   /** Badge color */
-  color: string
+  color: string;
   /** Badge rarity */
-  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
+  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
   /** Badge criteria */
-  criteria: string
+  criteria: string;
   /** Unlock percentage */
-  unlockPercentage: number
+  unlockPercentage: number;
 }
 
 /**
@@ -2151,13 +2165,13 @@ export interface Badge {
  */
 export interface UserBadge {
   /** Badge ID */
-  badgeId: string
+  badgeId: string;
   /** Date earned */
-  earnedAt: Date
+  earnedAt: Date;
   /** Badge displayed publicly */
-  displayed: boolean
+  displayed: boolean;
   /** Badge sharing status */
-  shared: boolean
+  shared: boolean;
 }
 
 /**
@@ -2165,13 +2179,13 @@ export interface UserBadge {
  */
 export interface BadgeStats {
   /** Total badges available */
-  totalBadges: number
+  totalBadges: number;
   /** Badges earned */
-  badgesEarned: number
+  badgesEarned: number;
   /** Badge completion rate */
-  completionRate: number
+  completionRate: number;
   /** Rarest badges */
-  rarestBadges: Badge[]
+  rarestBadges: Badge[];
 }
 
 /**
@@ -2179,11 +2193,11 @@ export interface BadgeStats {
  */
 export interface ProgressTrackingSystem {
   /** Progress milestones */
-  milestones: ProgressMilestone[]
+  milestones: ProgressMilestone[];
   /** Progress statistics */
-  statistics: ProgressStats
+  statistics: ProgressStats;
   /** Progress visualization */
-  visualization: ProgressVisualization
+  visualization: ProgressVisualization;
 }
 
 /**
@@ -2191,19 +2205,19 @@ export interface ProgressTrackingSystem {
  */
 export interface ProgressMilestone {
   /** Milestone ID */
-  id: string
+  id: string;
   /** Milestone name */
-  name: string
+  name: string;
   /** Milestone description */
-  description: string
+  description: string;
   /** Progress required */
-  progressRequired: number
+  progressRequired: number;
   /** Current progress */
-  currentProgress: number
+  currentProgress: number;
   /** Milestone reward */
-  reward?: string
+  reward?: string;
   /** Completion date */
-  completedAt?: Date
+  completedAt?: Date;
 }
 
 /**
@@ -2211,13 +2225,13 @@ export interface ProgressMilestone {
  */
 export interface ProgressStats {
   /** Overall progress percentage */
-  overallProgress: number
+  overallProgress: number;
   /** Progress by category */
-  progressByCategory: Record<string, number>
+  progressByCategory: Record<string, number>;
   /** Recent improvements */
-  recentImprovements: ProgressImprovement[]
+  recentImprovements: ProgressImprovement[];
   /** Progress trend */
-  trend: 'improving' | 'stable' | 'declining'
+  trend: 'improving' | 'stable' | 'declining';
 }
 
 /**
@@ -2225,13 +2239,13 @@ export interface ProgressStats {
  */
 export interface ProgressImprovement {
   /** Improvement metric */
-  metric: string
+  metric: string;
   /** Improvement amount */
-  improvement: number
+  improvement: number;
   /** Improvement date */
-  date: Date
+  date: Date;
   /** Improvement description */
-  description: string
+  description: string;
 }
 
 /**
@@ -2239,11 +2253,11 @@ export interface ProgressImprovement {
  */
 export interface ProgressVisualization {
   /** Chart type */
-  chartType: 'line' | 'bar' | 'pie' | 'radar'
+  chartType: 'line' | 'bar' | 'pie' | 'radar';
   /** Chart data */
-  chartData: ChartDataPoint[]
+  chartData: ChartDataPoint[];
   /** Chart configuration */
-  chartConfig: ChartConfig
+  chartConfig: ChartConfig;
 }
 
 /**
@@ -2251,13 +2265,13 @@ export interface ProgressVisualization {
  */
 export interface ChartDataPoint {
   /** X-axis value */
-  x: any
+  x: any;
   /** Y-axis value */
-  y: number
+  y: number;
   /** Data label */
-  label?: string
+  label?: string;
   /** Data color */
-  color?: string
+  color?: string;
 }
 
 /**
@@ -2265,15 +2279,15 @@ export interface ChartDataPoint {
  */
 export interface ChartConfig {
   /** Chart title */
-  title: string
+  title: string;
   /** X-axis label */
-  xAxisLabel: string
+  xAxisLabel: string;
   /** Y-axis label */
-  yAxisLabel: string
+  yAxisLabel: string;
   /** Show legend */
-  showLegend: boolean
+  showLegend: boolean;
   /** Chart colors */
-  colors: string[]
+  colors: string[];
 }
 
 // ================================
@@ -2285,15 +2299,15 @@ export interface ChartConfig {
  */
 export interface TemplateQuality {
   /** Overall quality score */
-  overallScore: number
+  overallScore: number;
   /** Quality dimensions */
-  dimensions: QualityDimension[]
+  dimensions: QualityDimension[];
   /** Quality certifications */
-  certifications: QualityCertification[]
+  certifications: QualityCertification[];
   /** Quality issues */
-  issues: QualityIssue[]
+  issues: QualityIssue[];
   /** Quality improvements */
-  improvements: QualityImprovement[]
+  improvements: QualityImprovement[];
 }
 
 /**
@@ -2301,19 +2315,19 @@ export interface TemplateQuality {
  */
 export interface QualityDimension {
   /** Dimension name */
-  dimension: QualityDimensionType
+  dimension: QualityDimensionType;
   /** Dimension score */
-  score: number
+  score: number;
   /** Dimension weight */
-  weight: number
+  weight: number;
   /** Dimension assessment */
-  assessment: QualityAssessment
+  assessment: QualityAssessment;
 }
 
 /**
  * Quality Dimension Types
  */
-export type QualityDimensionType = 
+export type QualityDimensionType =
   | 'content_accuracy'
   | 'exercise_safety'
   | 'progression_logic'
@@ -2321,22 +2335,22 @@ export type QualityDimensionType =
   | 'completeness'
   | 'clarity'
   | 'originality'
-  | 'effectiveness'
+  | 'effectiveness';
 
 /**
  * Quality Assessment
  */
 export interface QualityAssessment {
   /** Assessment method */
-  method: 'automated' | 'expert_review' | 'user_feedback' | 'peer_review'
+  method: 'automated' | 'expert_review' | 'user_feedback' | 'peer_review';
   /** Assessor information */
-  assessor?: AssessorInfo
+  assessor?: AssessorInfo;
   /** Assessment date */
-  date: Date
+  date: Date;
   /** Assessment notes */
-  notes: string
+  notes: string;
   /** Assessment confidence */
-  confidence: number
+  confidence: number;
 }
 
 /**
@@ -2344,15 +2358,15 @@ export interface QualityAssessment {
  */
 export interface AssessorInfo {
   /** Assessor ID */
-  id: string
+  id: string;
   /** Assessor name */
-  name: string
+  name: string;
   /** Assessor type */
-  type: 'expert' | 'peer' | 'algorithm'
+  type: 'expert' | 'peer' | 'algorithm';
   /** Assessor credentials */
-  credentials: string[]
+  credentials: string[];
   /** Assessor rating */
-  rating: number
+  rating: number;
 }
 
 /**
@@ -2360,21 +2374,21 @@ export interface AssessorInfo {
  */
 export interface QualityCertification {
   /** Certification ID */
-  id: string
+  id: string;
   /** Certification name */
-  name: string
+  name: string;
   /** Certifying body */
-  certifyingBody: string
+  certifyingBody: string;
   /** Certification level */
-  level: 'basic' | 'intermediate' | 'advanced' | 'expert'
+  level: 'basic' | 'intermediate' | 'advanced' | 'expert';
   /** Issue date */
-  issuedDate: Date
+  issuedDate: Date;
   /** Expiry date */
-  expiryDate?: Date
+  expiryDate?: Date;
   /** Certification criteria */
-  criteria: string[]
+  criteria: string[];
   /** Certification benefits */
-  benefits: string[]
+  benefits: string[];
 }
 
 /**
@@ -2382,45 +2396,45 @@ export interface QualityCertification {
  */
 export interface QualityIssue {
   /** Issue ID */
-  id: string
+  id: string;
   /** Issue type */
-  type: QualityIssueType
+  type: QualityIssueType;
   /** Issue severity */
-  severity: 'low' | 'medium' | 'high' | 'critical'
+  severity: 'low' | 'medium' | 'high' | 'critical';
   /** Issue description */
-  description: string
+  description: string;
   /** Issue location */
-  location: string
+  location: string;
   /** Issue status */
-  status: 'open' | 'in_progress' | 'resolved' | 'wont_fix'
+  status: 'open' | 'in_progress' | 'resolved' | 'wont_fix';
   /** Resolution */
-  resolution?: IssueResolution
+  resolution?: IssueResolution;
 }
 
 /**
  * Quality Issue Types
  */
-export type QualityIssueType = 
+export type QualityIssueType =
   | 'safety_concern'
   | 'content_error'
   | 'progression_issue'
   | 'usability_problem'
   | 'accessibility_barrier'
   | 'performance_issue'
-  | 'compatibility_problem'
+  | 'compatibility_problem';
 
 /**
  * Issue Resolution
  */
 export interface IssueResolution {
   /** Resolution description */
-  description: string
+  description: string;
   /** Resolution date */
-  date: Date
+  date: Date;
   /** Resolver ID */
-  resolverId: string
+  resolverId: string;
   /** Resolution verification */
-  verified: boolean
+  verified: boolean;
 }
 
 /**
@@ -2428,17 +2442,17 @@ export interface IssueResolution {
  */
 export interface QualityImprovement {
   /** Improvement ID */
-  id: string
+  id: string;
   /** Improvement type */
-  type: 'content_enhancement' | 'safety_improvement' | 'usability_enhancement'
+  type: 'content_enhancement' | 'safety_improvement' | 'usability_enhancement';
   /** Improvement description */
-  description: string
+  description: string;
   /** Implementation date */
-  implementedDate: Date
+  implementedDate: Date;
   /** Quality impact */
-  qualityImpact: number
+  qualityImpact: number;
   /** User impact */
-  userImpact: string
+  userImpact: string;
 }
 
 // ================================
@@ -2450,15 +2464,15 @@ export interface QualityImprovement {
  */
 export interface MonetizationData {
   /** Pricing model */
-  pricingModel: PricingModel
+  pricingModel: PricingModel;
   /** Revenue information */
-  revenue: RevenueInformation
+  revenue: RevenueInformation;
   /** Licensing terms */
-  licensing: LicensingTerms
+  licensing: LicensingTerms;
   /** Payment processing */
-  payment: PaymentProcessing
+  payment: PaymentProcessing;
   /** Financial analytics */
-  analytics: FinancialAnalytics
+  analytics: FinancialAnalytics;
 }
 
 /**
@@ -2466,45 +2480,45 @@ export interface MonetizationData {
  */
 export interface PricingModel {
   /** Model type */
-  type: PricingModelType
+  type: PricingModelType;
   /** Price tiers */
-  tiers: PriceTier[]
+  tiers: PriceTier[];
   /** Dynamic pricing */
-  dynamicPricing: DynamicPricing
+  dynamicPricing: DynamicPricing;
   /** Promotional pricing */
-  promotions: PromotionalPricing[]
+  promotions: PromotionalPricing[];
 }
 
 /**
  * Pricing Model Types
  */
-export type PricingModelType = 
+export type PricingModelType =
   | 'free'
   | 'freemium'
   | 'one_time'
   | 'subscription'
   | 'pay_per_use'
   | 'tiered'
-  | 'dynamic'
+  | 'dynamic';
 
 /**
  * Price Tier
  */
 export interface PriceTier {
   /** Tier ID */
-  id: string
+  id: string;
   /** Tier name */
-  name: string
+  name: string;
   /** Tier price */
-  price: number
+  price: number;
   /** Tier currency */
-  currency: string
+  currency: string;
   /** Tier features */
-  features: string[]
+  features: string[];
   /** Tier limitations */
-  limitations: string[]
+  limitations: string[];
   /** Tier popularity */
-  popularity: number
+  popularity: number;
 }
 
 /**
@@ -2512,13 +2526,13 @@ export interface PriceTier {
  */
 export interface DynamicPricing {
   /** Dynamic pricing enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Pricing factors */
-  factors: PricingFactor[]
+  factors: PricingFactor[];
   /** Price range */
-  priceRange: { min: number; max: number }
+  priceRange: { min: number; max: number };
   /** Update frequency */
-  updateFrequency: 'real_time' | 'hourly' | 'daily' | 'weekly'
+  updateFrequency: 'real_time' | 'hourly' | 'daily' | 'weekly';
 }
 
 /**
@@ -2526,13 +2540,18 @@ export interface DynamicPricing {
  */
 export interface PricingFactor {
   /** Factor name */
-  factor: 'demand' | 'competition' | 'seasonality' | 'user_segment' | 'inventory'
+  factor:
+    | 'demand'
+    | 'competition'
+    | 'seasonality'
+    | 'user_segment'
+    | 'inventory';
   /** Factor weight */
-  weight: number
+  weight: number;
   /** Current factor value */
-  currentValue: number
+  currentValue: number;
   /** Factor impact on price */
-  priceImpact: number
+  priceImpact: number;
 }
 
 /**
@@ -2540,23 +2559,23 @@ export interface PricingFactor {
  */
 export interface PromotionalPricing {
   /** Promotion ID */
-  id: string
+  id: string;
   /** Promotion name */
-  name: string
+  name: string;
   /** Promotion type */
-  type: 'discount' | 'bundle' | 'free_trial' | 'bogo'
+  type: 'discount' | 'bundle' | 'free_trial' | 'bogo';
   /** Discount percentage */
-  discountPercent?: number
+  discountPercent?: number;
   /** Discount amount */
-  discountAmount?: number
+  discountAmount?: number;
   /** Promotion start date */
-  startDate: Date
+  startDate: Date;
   /** Promotion end date */
-  endDate: Date
+  endDate: Date;
   /** Promotion code */
-  code?: string
+  code?: string;
   /** Usage limits */
-  usageLimits: UsageLimit[]
+  usageLimits: UsageLimit[];
 }
 
 /**
@@ -2564,11 +2583,11 @@ export interface PromotionalPricing {
  */
 export interface UsageLimit {
   /** Limit type */
-  type: 'per_user' | 'total_uses' | 'time_based'
+  type: 'per_user' | 'total_uses' | 'time_based';
   /** Limit value */
-  value: number
+  value: number;
   /** Current usage */
-  currentUsage: number
+  currentUsage: number;
 }
 
 /**
@@ -2576,15 +2595,15 @@ export interface UsageLimit {
  */
 export interface RevenueInformation {
   /** Total revenue */
-  totalRevenue: number
+  totalRevenue: number;
   /** Revenue currency */
-  currency: string
+  currency: string;
   /** Revenue by period */
-  revenueByPeriod: RevenuePeriod[]
+  revenueByPeriod: RevenuePeriod[];
   /** Revenue by tier */
-  revenueByTier: Record<string, number>
+  revenueByTier: Record<string, number>;
   /** Revenue forecasting */
-  forecast: RevenueForecast
+  forecast: RevenueForecast;
 }
 
 /**
@@ -2592,15 +2611,15 @@ export interface RevenueInformation {
  */
 export interface RevenuePeriod {
   /** Period start date */
-  startDate: Date
+  startDate: Date;
   /** Period end date */
-  endDate: Date
+  endDate: Date;
   /** Period revenue */
-  revenue: number
+  revenue: number;
   /** Period transactions */
-  transactions: number
+  transactions: number;
   /** Period growth rate */
-  growthRate: number
+  growthRate: number;
 }
 
 /**
@@ -2608,13 +2627,13 @@ export interface RevenuePeriod {
  */
 export interface RevenueForecast {
   /** Forecast periods */
-  periods: ForecastPeriod[]
+  periods: ForecastPeriod[];
   /** Forecast methodology */
-  methodology: string
+  methodology: string;
   /** Forecast confidence */
-  confidence: number
+  confidence: number;
   /** Forecast assumptions */
-  assumptions: string[]
+  assumptions: string[];
 }
 
 /**
@@ -2622,13 +2641,13 @@ export interface RevenueForecast {
  */
 export interface ForecastPeriod {
   /** Period */
-  period: Date
+  period: Date;
   /** Projected revenue */
-  projectedRevenue: number
+  projectedRevenue: number;
   /** Revenue range */
-  revenueRange: { low: number; high: number }
+  revenueRange: { low: number; high: number };
   /** Key assumptions */
-  assumptions: string[]
+  assumptions: string[];
 }
 
 /**
@@ -2636,40 +2655,40 @@ export interface ForecastPeriod {
  */
 export interface LicensingTerms {
   /** License type */
-  licenseType: LicenseType
+  licenseType: LicenseType;
   /** Usage rights */
-  usageRights: UsageRight[]
+  usageRights: UsageRight[];
   /** Restrictions */
-  restrictions: LicenseRestriction[]
+  restrictions: LicenseRestriction[];
   /** Attribution requirements */
-  attribution: AttributionRequirement[]
+  attribution: AttributionRequirement[];
   /** Commercial use allowed */
-  commercialUse: boolean
+  commercialUse: boolean;
 }
 
 /**
  * License Types
  */
-export type LicenseType = 
+export type LicenseType =
   | 'proprietary'
   | 'creative_commons'
   | 'open_source'
   | 'royalty_free'
   | 'rights_managed'
-  | 'custom'
+  | 'custom';
 
 /**
  * Usage Right
  */
 export interface UsageRight {
   /** Right type */
-  type: string
+  type: string;
   /** Right description */
-  description: string
+  description: string;
   /** Right scope */
-  scope: 'personal' | 'commercial' | 'educational' | 'unlimited'
+  scope: 'personal' | 'commercial' | 'educational' | 'unlimited';
   /** Right duration */
-  duration: 'perpetual' | 'limited' | 'subscription'
+  duration: 'perpetual' | 'limited' | 'subscription';
 }
 
 /**
@@ -2677,11 +2696,11 @@ export interface UsageRight {
  */
 export interface LicenseRestriction {
   /** Restriction type */
-  type: string
+  type: string;
   /** Restriction description */
-  description: string
+  description: string;
   /** Penalty for violation */
-  penalty: string
+  penalty: string;
 }
 
 /**
@@ -2689,13 +2708,13 @@ export interface LicenseRestriction {
  */
 export interface AttributionRequirement {
   /** Attribution type */
-  type: 'name' | 'link' | 'logo' | 'copyright'
+  type: 'name' | 'link' | 'logo' | 'copyright';
   /** Required text */
-  requiredText: string
+  requiredText: string;
   /** Placement requirements */
-  placement: string[]
+  placement: string[];
   /** Format requirements */
-  format: string[]
+  format: string[];
 }
 
 /**
@@ -2703,13 +2722,13 @@ export interface AttributionRequirement {
  */
 export interface PaymentProcessing {
   /** Supported payment methods */
-  paymentMethods: PaymentMethod[]
+  paymentMethods: PaymentMethod[];
   /** Payment processors */
-  processors: PaymentProcessor[]
+  processors: PaymentProcessor[];
   /** Transaction fees */
-  fees: TransactionFee[]
+  fees: TransactionFee[];
   /** Refund policy */
-  refundPolicy: RefundPolicy
+  refundPolicy: RefundPolicy;
 }
 
 /**
@@ -2717,13 +2736,19 @@ export interface PaymentProcessing {
  */
 export interface PaymentMethod {
   /** Method type */
-  type: 'credit_card' | 'debit_card' | 'paypal' | 'apple_pay' | 'google_pay' | 'bank_transfer'
+  type:
+    | 'credit_card'
+    | 'debit_card'
+    | 'paypal'
+    | 'apple_pay'
+    | 'google_pay'
+    | 'bank_transfer';
   /** Method enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Supported countries */
-  supportedCountries: string[]
+  supportedCountries: string[];
   /** Processing fee */
-  processingFee: number
+  processingFee: number;
 }
 
 /**
@@ -2731,13 +2756,13 @@ export interface PaymentMethod {
  */
 export interface PaymentProcessor {
   /** Processor name */
-  name: string
+  name: string;
   /** Processor configuration */
-  configuration: ProcessorConfiguration
+  configuration: ProcessorConfiguration;
   /** Processor fees */
-  fees: ProcessorFee[]
+  fees: ProcessorFee[];
   /** Supported currencies */
-  supportedCurrencies: string[]
+  supportedCurrencies: string[];
 }
 
 /**
@@ -2745,13 +2770,13 @@ export interface PaymentProcessor {
  */
 export interface ProcessorConfiguration {
   /** API endpoint */
-  apiEndpoint: string
+  apiEndpoint: string;
   /** Webhook URL */
-  webhookUrl: string
+  webhookUrl: string;
   /** Security settings */
-  security: SecuritySettings
+  security: SecuritySettings;
   /** Environment */
-  environment: 'sandbox' | 'production'
+  environment: 'sandbox' | 'production';
 }
 
 /**
@@ -2759,13 +2784,13 @@ export interface ProcessorConfiguration {
  */
 export interface SecuritySettings {
   /** Encryption method */
-  encryption: string
+  encryption: string;
   /** SSL/TLS version */
-  tlsVersion: string
+  tlsVersion: string;
   /** Token security */
-  tokenSecurity: boolean
+  tokenSecurity: boolean;
   /** Fraud detection */
-  fraudDetection: boolean
+  fraudDetection: boolean;
 }
 
 /**
@@ -2773,13 +2798,13 @@ export interface SecuritySettings {
  */
 export interface ProcessorFee {
   /** Fee type */
-  type: 'transaction' | 'monthly' | 'setup' | 'chargeback'
+  type: 'transaction' | 'monthly' | 'setup' | 'chargeback';
   /** Fee amount */
-  amount: number
+  amount: number;
   /** Fee percentage */
-  percentage?: number
+  percentage?: number;
   /** Fee description */
-  description: string
+  description: string;
 }
 
 /**
@@ -2787,13 +2812,13 @@ export interface ProcessorFee {
  */
 export interface TransactionFee {
   /** Fee type */
-  type: 'platform' | 'payment_processing' | 'currency_conversion'
+  type: 'platform' | 'payment_processing' | 'currency_conversion';
   /** Fee structure */
-  structure: 'percentage' | 'fixed' | 'tiered'
+  structure: 'percentage' | 'fixed' | 'tiered';
   /** Fee rate */
-  rate: number
+  rate: number;
   /** Fee description */
-  description: string
+  description: string;
 }
 
 /**
@@ -2801,13 +2826,13 @@ export interface TransactionFee {
  */
 export interface FinancialAnalytics {
   /** Key performance indicators */
-  kpis: FinancialKPI[]
+  kpis: FinancialKPI[];
   /** Revenue analytics */
-  revenueAnalytics: RevenueAnalytics
+  revenueAnalytics: RevenueAnalytics;
   /** Customer analytics */
-  customerAnalytics: CustomerAnalytics
+  customerAnalytics: CustomerAnalytics;
   /** Profitability analysis */
-  profitabilityAnalysis: ProfitabilityAnalysis
+  profitabilityAnalysis: ProfitabilityAnalysis;
 }
 
 /**
@@ -2815,15 +2840,15 @@ export interface FinancialAnalytics {
  */
 export interface FinancialKPI {
   /** KPI name */
-  name: string
+  name: string;
   /** KPI value */
-  value: number
+  value: number;
   /** KPI target */
-  target: number
+  target: number;
   /** KPI trend */
-  trend: 'up' | 'down' | 'stable'
+  trend: 'up' | 'down' | 'stable';
   /** KPI period */
-  period: 'daily' | 'weekly' | 'monthly' | 'quarterly'
+  period: 'daily' | 'weekly' | 'monthly' | 'quarterly';
 }
 
 /**
@@ -2831,15 +2856,15 @@ export interface FinancialKPI {
  */
 export interface RevenueAnalytics {
   /** Monthly recurring revenue */
-  mrr: number
+  mrr: number;
   /** Annual recurring revenue */
-  arr: number
+  arr: number;
   /** Average revenue per user */
-  arpu: number
+  arpu: number;
   /** Customer lifetime value */
-  clv: number
+  clv: number;
   /** Revenue churn rate */
-  churnRate: number
+  churnRate: number;
 }
 
 /**
@@ -2847,13 +2872,13 @@ export interface RevenueAnalytics {
  */
 export interface CustomerAnalytics {
   /** Customer acquisition cost */
-  cac: number
+  cac: number;
   /** Customer retention rate */
-  retentionRate: number
+  retentionRate: number;
   /** Customer segmentation */
-  segmentation: CustomerSegment[]
+  segmentation: CustomerSegment[];
   /** Purchase behavior */
-  purchaseBehavior: PurchaseBehavior
+  purchaseBehavior: PurchaseBehavior;
 }
 
 /**
@@ -2861,13 +2886,13 @@ export interface CustomerAnalytics {
  */
 export interface CustomerSegment {
   /** Segment name */
-  name: string
+  name: string;
   /** Segment size */
-  size: number
+  size: number;
   /** Segment revenue */
-  revenue: number
+  revenue: number;
   /** Segment characteristics */
-  characteristics: string[]
+  characteristics: string[];
 }
 
 /**
@@ -2875,13 +2900,13 @@ export interface CustomerSegment {
  */
 export interface PurchaseBehavior {
   /** Average order value */
-  averageOrderValue: number
+  averageOrderValue: number;
   /** Purchase frequency */
-  purchaseFrequency: number
+  purchaseFrequency: number;
   /** Repeat purchase rate */
-  repeatPurchaseRate: number
+  repeatPurchaseRate: number;
   /** Seasonal patterns */
-  seasonalPatterns: SeasonalPattern[]
+  seasonalPatterns: SeasonalPattern[];
 }
 
 /**
@@ -2889,13 +2914,13 @@ export interface PurchaseBehavior {
  */
 export interface ProfitabilityAnalysis {
   /** Gross profit margin */
-  grossProfitMargin: number
+  grossProfitMargin: number;
   /** Net profit margin */
-  netProfitMargin: number
+  netProfitMargin: number;
   /** Cost breakdown */
-  costBreakdown: CostBreakdown
+  costBreakdown: CostBreakdown;
   /** Profitability by tier */
-  profitabilityByTier: Record<string, number>
+  profitabilityByTier: Record<string, number>;
 }
 
 /**
@@ -2903,15 +2928,15 @@ export interface ProfitabilityAnalysis {
  */
 export interface CostBreakdown {
   /** Development costs */
-  development: number
+  development: number;
   /** Marketing costs */
-  marketing: number
+  marketing: number;
   /** Support costs */
-  support: number
+  support: number;
   /** Platform costs */
-  platform: number
+  platform: number;
   /** Other costs */
-  other: number
+  other: number;
 }
 
 // Export all template browser types
@@ -2921,5 +2946,5 @@ export type {
   TemplateAnalytics,
   CommunityEngagement,
   TemplateQuality,
-  MonetizationData
-}
+  MonetizationData,
+};

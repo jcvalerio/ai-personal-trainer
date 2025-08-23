@@ -2,8 +2,8 @@
  * Temporary simplified AI Workout Generation API Routes for deployment
  */
 
-import { auth } from '@clerk/nextjs/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@clerk/nextjs/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * GET /api/workouts/generate
@@ -11,26 +11,26 @@ import { NextRequest, NextResponse } from 'next/server'
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const { userId } = await auth()
-    
+    const { userId } = await auth();
+
     if (!userId) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
-      )
+      );
     }
 
     return NextResponse.json({
       success: true,
       data: [],
       message: 'Workout generation service (deployment version)',
-      timestamp: new Date().toISOString()
-    })
+      timestamp: new Date().toISOString(),
+    });
   } catch (error) {
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
-    )
+    );
   }
 }
 
@@ -40,28 +40,28 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    const { userId } = await auth()
-    
+    const { userId } = await auth();
+
     if (!userId) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized' },
         { status: 401 }
-      )
+      );
     }
 
     return NextResponse.json({
       success: true,
-      data: { 
+      data: {
         jobId: 'temp-deployment-id',
         status: 'completed',
-        message: 'Workout generation service (deployment version)'
+        message: 'Workout generation service (deployment version)',
       },
-      timestamp: new Date().toISOString()
-    })
+      timestamp: new Date().toISOString(),
+    });
   } catch (error) {
     return NextResponse.json(
       { success: false, error: 'Internal server error' },
       { status: 500 }
-    )
+    );
   }
 }

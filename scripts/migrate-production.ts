@@ -2,7 +2,7 @@
 
 /**
  * Production Database Migration Script
- * 
+ *
  * This script handles database migrations for production deployment.
  * It ensures database schema is up-to-date and validates connections.
  */
@@ -25,7 +25,7 @@ const colors = {
   magenta: '\x1b[35m',
   cyan: '\x1b[36m',
   white: '\x1b[37m',
-  reset: '\x1b[0m'
+  reset: '\x1b[0m',
 };
 
 function log(color: keyof typeof colors, message: string) {
@@ -45,7 +45,7 @@ class DatabaseMigrator {
     if (!process.env.DATABASE_URL) {
       throw new Error('DATABASE_URL environment variable is required');
     }
-    
+
     this.client = sql(process.env.DATABASE_URL);
   }
 
@@ -96,7 +96,7 @@ class DatabaseMigrator {
       const result = await this.client`
         SELECT filename FROM migrations ORDER BY executed_at ASC
       `;
-      return result.map(row => row.filename);
+      return result.map((row) => row.filename);
     } catch (error) {
       log('yellow', '⚠️ No migrations table found, will create one');
       return [];
@@ -109,7 +109,7 @@ class DatabaseMigrator {
   async loadMigrationFiles(): Promise<MigrationFile[]> {
     try {
       log('blue', '📂 Loading migration files...');
-      
+
       const migrationPaths = await glob('database/migrations/*.sql');
       const migrations: MigrationFile[] = [];
 
@@ -117,11 +117,11 @@ class DatabaseMigrator {
         const filename = path.split('/').pop()!;
         const version = filename.split('_')[0];
         const content = readFileSync(path, 'utf-8');
-        
+
         migrations.push({
           filename,
           version,
-          content
+          content,
         });
       }
 
@@ -139,19 +139,19 @@ class DatabaseMigrator {
   async executeMigration(migration: MigrationFile): Promise<void> {
     try {
       log('blue', `🚀 Executing migration: ${migration.filename}`);
-      
+
       // Execute the migration SQL
       await this.client.begin(async (tx) => {
         // Execute the migration content
         await tx.unsafe(migration.content);
-        
+
         // Record the migration as executed
         await tx`
           INSERT INTO migrations (filename, version) 
           VALUES (${migration.filename}, ${migration.version})
         `;
       });
-      
+
       log('green', `✅ Migration ${migration.filename} completed successfully`);
     } catch (error) {
       log('red', `❌ Migration ${migration.filename} failed: ${error}`);
@@ -165,36 +165,41 @@ class DatabaseMigrator {
   async runMigrations(): Promise<void> {
     try {
       log('magenta', '🎯 Starting database migration process...');
-      
+
       // Ensure migrations table exists
       await this.createMigrationsTable();
-      
+
       // Get executed migrations
       const executedMigrations = await this.getExecutedMigrations();
-      log('cyan', `📋 Found ${executedMigrations.length} previously executed migrations`);
-      
+      log(
+        'cyan',
+        `📋 Found ${executedMigrations.length} previously executed migrations`
+      );
+
       // Load all migration files
       const allMigrations = await this.loadMigrationFiles();
-      
+
       // Filter pending migrations
       const pendingMigrations = allMigrations.filter(
-        migration => !executedMigrations.includes(migration.filename)
+        (migration) => !executedMigrations.includes(migration.filename)
       );
-      
+
       if (pendingMigrations.length === 0) {
         log('green', '✅ No pending migrations - database is up to date');
         return;
       }
-      
+
       log('yellow', `⏳ Found ${pendingMigrations.length} pending migrations`);
-      
+
       // Execute each pending migration
       for (const migration of pendingMigrations) {
         await this.executeMigration(migration);
       }
-      
-      log('green', `🎉 Successfully executed ${pendingMigrations.length} migrations`);
-      
+
+      log(
+        'green',
+        `🎉 Successfully executed ${pendingMigrations.length} migrations`
+      );
     } catch (error) {
       log('red', `💥 Migration process failed: ${error}`);
       throw error;
@@ -207,10 +212,15 @@ class DatabaseMigrator {
   async validateSchema(): Promise<void> {
     try {
       log('blue', '🔍 Validating database schema...');
-      
+
       // Check for essential tables
-      const expectedTables = ['users', 'workouts', 'exercises', 'workout_sessions'];
-      
+      const expectedTables = [
+        'users',
+        'workouts',
+        'exercises',
+        'workout_sessions',
+      ];
+
       for (const table of expectedTables) {
         const result = await this.client`
           SELECT EXISTS (
@@ -219,12 +229,12 @@ class DatabaseMigrator {
             AND table_name = ${table}
           )
         `;
-        
+
         if (!result[0].exists) {
           throw new Error(`Required table '${table}' not found`);
         }
       }
-      
+
       log('green', '✅ Database schema validation passed');
     } catch (error) {
       log('red', `❌ Schema validation failed: ${error}`);
@@ -250,26 +260,25 @@ class DatabaseMigrator {
  */
 async function main() {
   const migrator = new DatabaseMigrator();
-  
+
   try {
     log('magenta', '🚀 AI Personal Trainer - Production Database Migration');
     log('magenta', '================================================');
-    
+
     // Test connection first
     const connected = await migrator.testConnection();
     if (!connected) {
       process.exit(1);
     }
-    
+
     // Run migrations
     await migrator.runMigrations();
-    
+
     // Validate schema
     await migrator.validateSchema();
-    
+
     log('green', '🎉 Database migration completed successfully!');
     process.exit(0);
-    
   } catch (error) {
     log('red', `💥 Migration failed: ${error}`);
     process.exit(1);

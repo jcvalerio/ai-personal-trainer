@@ -3,19 +3,18 @@
  * Demonstrates how to use the session execution types in React components
  */
 
-import { 
-  TimerConfig, 
-  SessionExecution, 
+import {
+  TimerConfig,
+  SessionExecution,
   TimerState,
-  ExecutingExercise,
   SessionEventHandlers,
   TimerEventHandlers,
   SessionAction,
   TabataConfig,
   StrengthConfig,
   SessionExecutionSettings,
-  QuickActionConfig
-} from './session-execution'
+  QuickActionConfig,
+} from './session-execution';
 
 // ================================
 // Example Timer Configurations
@@ -32,7 +31,7 @@ export const exampleTabataConfig: TimerConfig = {
     rounds: 8,
     setBreakSeconds: 60,
     sets: 1,
-    autoAdvance: true
+    autoAdvance: true,
   },
   readyCountdown: 3,
   audioConfig: {
@@ -42,41 +41,41 @@ export const exampleTabataConfig: TimerConfig = {
       phase_start: {
         enabled: true,
         builtInSound: 'chime',
-        ttsText: 'Start'
+        ttsText: 'Start',
       },
       phase_warning: {
         enabled: true,
         builtInSound: 'beep',
-        ttsText: '3 seconds remaining'
+        ttsText: '3 seconds remaining',
       },
       phase_end: {
         enabled: true,
         builtInSound: 'bell',
-        ttsText: 'Rest'
-      }
+        ttsText: 'Rest',
+      },
     },
     useTTS: true,
     ttsConfig: {
       voice: 'en-US-Standard-A',
       rate: 1.0,
       pitch: 1.0,
-      language: 'en-US'
-    }
+      language: 'en-US',
+    },
   },
   hapticConfig: {
     enabled: true,
     events: {
       phase_start: {
         enabled: true,
-        pattern: 'heavy'
+        pattern: 'heavy',
       },
       phase_warning: {
         enabled: true,
-        pattern: 'pulse'
-      }
-    }
-  }
-}
+        pattern: 'pulse',
+      },
+    },
+  },
+};
 
 /**
  * Example Strength Training Timer Configuration
@@ -87,7 +86,7 @@ export const exampleStrengthConfig: TimerConfig = {
     restSeconds: 90,
     totalSets: 3,
     autoStartRest: true,
-    transitionSeconds: 30
+    transitionSeconds: 30,
   },
   readyCountdown: 5,
   audioConfig: {
@@ -97,22 +96,22 @@ export const exampleStrengthConfig: TimerConfig = {
       set_complete: {
         enabled: true,
         builtInSound: 'chime',
-        ttsText: 'Set complete. Rest for 90 seconds.'
-      }
+        ttsText: 'Set complete. Rest for 90 seconds.',
+      },
     },
     useTTS: true,
     ttsConfig: {
       voice: 'en-US-Standard-B',
       rate: 0.9,
       pitch: 1.0,
-      language: 'en-US'
-    }
+      language: 'en-US',
+    },
   },
   hapticConfig: {
     enabled: false,
-    events: {}
-  }
-}
+    events: {},
+  },
+};
 
 // ================================
 // Example Session State
@@ -135,8 +134,23 @@ export const exampleSessionExecution: SessionExecution = {
     elapsedTime: 0,
     isRunning: false,
     isPaused: false,
-    startedAt: new Date()
+    startedAt: new Date(),
   },
+  settings: {
+    autoAdvance: true,
+    autoStartRest: true,
+    showMotivation: true,
+    vibrateOnPhaseChange: true,
+    keepScreenOn: true,
+    useGPS: false,
+    savePhotos: false,
+    syncWearables: true,
+    audioEnabled: true,
+    vibrateEnabled: true,
+    restPeriods: [60, 90, 120],
+  },
+  exercises: [],
+  currentExerciseIndex: 0,
   progress: {
     completionPercentage: 0,
     exercisesCompleted: 0,
@@ -148,20 +162,22 @@ export const exampleSessionExecution: SessionExecution = {
       warm_up: {
         completion: 0,
         totalExercises: 2,
-        completedExercises: 0
+        completedExercises: 0,
       },
       main: {
         completion: 0,
         totalExercises: 3,
-        completedExercises: 0
+        completedExercises: 0,
       },
       cool_down: {
         completion: 0,
         totalExercises: 1,
-        completedExercises: 0
-      }
+        completedExercises: 0,
+      },
     },
-    estimatedTimeRemaining: 45
+    estimatedTimeRemaining: 45,
+    overallProgress: 0,
+    timeElapsed: 0,
   },
   performance: {
     totalVolume: 0,
@@ -177,8 +193,12 @@ export const exampleSessionExecution: SessionExecution = {
       repsPercentage: 0,
       weightPercentage: 0,
       durationPercentage: 0,
-      overallRating: 'met'
-    }
+      overallRating: 'met',
+    },
+    setsCompleted: 0,
+    totalExercises: 5,
+    exercisesCompleted: 0,
+    totalSets: 15,
   },
   interaction: {
     inputMode: 'touch',
@@ -187,7 +207,7 @@ export const exampleSessionExecution: SessionExecution = {
       swipeSensitivity: 0.7,
       touchFeedback: true,
       largeTouchTargets: false,
-      preventAccidental: true
+      preventAccidental: true,
     },
     quickActions: [
       {
@@ -197,8 +217,8 @@ export const exampleSessionExecution: SessionExecution = {
         action: 'complete_set',
         enabled: true,
         position: 1,
-        shortcut: 'space'
-      }
+        shortcut: 'space',
+      },
     ],
     accessibility: {
       highContrast: false,
@@ -207,13 +227,13 @@ export const exampleSessionExecution: SessionExecution = {
       reduceMotion: false,
       voiceAnnouncements: true,
       simplifiedUI: false,
-      colorBlindSupport: false
+      colorBlindSupport: false,
     },
-    oneHandedMode: false
+    oneHandedMode: false,
   },
   timestamps: {
     createdAt: new Date(),
-    lastUpdated: new Date()
+    lastUpdated: new Date(),
   },
   offline: {
     isOffline: false,
@@ -225,10 +245,10 @@ export const exampleSessionExecution: SessionExecution = {
       availableMB: 1000,
       quotaMB: 1024,
       usagePercentage: 0.24,
-      needsCleanup: false
-    }
-  }
-}
+      needsCleanup: false,
+    },
+  },
+};
 
 // ================================
 // Example Event Handlers
@@ -239,12 +259,12 @@ export const exampleSessionExecution: SessionExecution = {
  */
 export const exampleTimerHandlers: TimerEventHandlers = {
   onTimerStart: (state: TimerState) => {
-    console.log('Timer started:', state.phase)
+    console.log('Timer started:', state.phase);
   },
-  
+
   onPhaseChange: (newPhase, state) => {
-    console.log(`Phase changed from ${state.phase} to ${newPhase}`)
-    
+    console.log(`Phase changed from ${state.phase} to ${newPhase}`);
+
     // Example: Update UI based on phase
     if (newPhase === 'work') {
       // Show work UI, highlight current exercise
@@ -265,40 +285,40 @@ export const exampleTimerHandlers: TimerEventHandlers = {
   },
 
   onTimerComplete: (state) => {
-    console.log('Timer completed!')
+    console.log('Timer completed!');
     // Advance to next exercise or complete session
-  }
-}
+  },
+};
 
 /**
  * Example Session Event Handlers
  */
 export const exampleSessionHandlers: SessionEventHandlers = {
   onSessionStart: (session) => {
-    console.log('Session started:', session.sessionId)
+    console.log('Session started:', session.sessionId);
     // Analytics tracking, notification, etc.
   },
 
   onExerciseStart: (exercise) => {
-    console.log('Exercise started:', exercise.id)
+    console.log('Exercise started:', exercise.id);
     // Update current exercise display, start relevant timer
   },
 
   onSetComplete: (set, exercise) => {
-    console.log('Set completed:', set.setNumber, 'of exercise:', exercise.id)
+    console.log('Set completed:', set.setNumber, 'of exercise:', exercise.id);
     // Update progress, save data, provide feedback
   },
 
   onPersonalRecord: (record) => {
-    console.log('Personal record achieved!', record)
+    console.log('Personal record achieved!', record);
     // Show celebration animation, save achievement
   },
 
   onError: (error) => {
-    console.error('Session error:', error)
+    console.error('Session error:', error);
     // Show error message, attempt recovery
-  }
-}
+  },
+};
 
 // ================================
 // Example Reducer Actions
@@ -309,15 +329,15 @@ export const exampleSessionHandlers: SessionEventHandlers = {
  */
 export const exampleSessionActions: SessionAction[] = [
   {
-    type: 'START_SESSION'
+    type: 'START_SESSION',
   },
   {
     type: 'UPDATE_TIMER',
     payload: {
       timeRemaining: 35000,
       phase: 'work',
-      isRunning: true
-    }
+      isRunning: true,
+    },
   },
   {
     type: 'COMPLETE_SET',
@@ -329,14 +349,14 @@ export const exampleSessionActions: SessionAction[] = [
         weight: 50,
         perceivedExertion: 7,
         formRating: 4,
-        timestamp: new Date()
-      }
-    }
+        timestamp: new Date(),
+      },
+    },
   },
   {
-    type: 'NEXT_EXERCISE'
-  }
-]
+    type: 'NEXT_EXERCISE',
+  },
+];
 
 // ================================
 // Example Settings Configuration
@@ -353,8 +373,11 @@ export const exampleSettings: SessionExecutionSettings = {
   keepScreenOn: true,
   useGPS: false,
   savePhotos: false,
-  syncWearables: true
-}
+  syncWearables: true,
+  audioEnabled: true,
+  vibrateEnabled: true,
+  restPeriods: [60, 90, 120],
+};
 
 /**
  * Example Quick Actions Configuration
@@ -367,7 +390,7 @@ export const exampleQuickActions: QuickActionConfig[] = [
     action: 'complete_set',
     enabled: true,
     position: 1,
-    shortcut: 'Enter'
+    shortcut: 'Enter',
   },
   {
     id: 'skip_set',
@@ -376,7 +399,7 @@ export const exampleQuickActions: QuickActionConfig[] = [
     action: 'skip_set',
     enabled: true,
     position: 2,
-    shortcut: 's'
+    shortcut: 's',
   },
   {
     id: 'pause_timer',
@@ -385,7 +408,7 @@ export const exampleQuickActions: QuickActionConfig[] = [
     action: 'pause_timer',
     enabled: true,
     position: 3,
-    shortcut: 'Space'
+    shortcut: 'Space',
   },
   {
     id: 'add_weight',
@@ -394,9 +417,9 @@ export const exampleQuickActions: QuickActionConfig[] = [
     action: 'add_weight',
     enabled: true,
     position: 4,
-    shortcut: '+'
-  }
-]
+    shortcut: '+',
+  },
+];
 
 // ================================
 // Component Integration Examples
@@ -406,48 +429,48 @@ export const exampleQuickActions: QuickActionConfig[] = [
  * Example prop types for React components
  */
 export interface ExampleTimerProps {
-  timerState: TimerState
-  config: TimerConfig
-  onTimerEvent: (handlers: TimerEventHandlers) => void
-  size?: 'small' | 'medium' | 'large'
-  showControls?: boolean
+  timerState: TimerState;
+  config: TimerConfig;
+  onTimerEvent: (handlers: TimerEventHandlers) => void;
+  size?: 'small' | 'medium' | 'large';
+  showControls?: boolean;
 }
 
 export interface ExampleSessionProps {
-  session: SessionExecution
-  onSessionUpdate: (action: SessionAction) => void
-  settings: SessionExecutionSettings
-  onSettingsChange: (settings: Partial<SessionExecutionSettings>) => void
+  session: SessionExecution;
+  onSessionUpdate: (action: SessionAction) => void;
+  settings: SessionExecutionSettings;
+  onSettingsChange: (settings: Partial<SessionExecutionSettings>) => void;
 }
 
 /**
  * Example custom hooks interface
  */
 export interface UseSessionExecutionReturn {
-  session: SessionExecution | null
-  dispatch: (action: SessionAction) => void
-  isLoading: boolean
-  error: string | null
-  
+  session: SessionExecution | null;
+  dispatch: (action: SessionAction) => void;
+  isLoading: boolean;
+  error: string | null;
+
   // Convenience methods
-  startSession: () => void
-  pauseSession: () => void
-  completeSet: (setData: any) => void
-  nextExercise: () => void
-  
-  // Timer methods  
-  startTimer: () => void
-  pauseTimer: () => void
-  resetTimer: () => void
+  startSession: () => void;
+  pauseSession: () => void;
+  completeSet: (setData: any) => void;
+  nextExercise: () => void;
+
+  // Timer methods
+  startTimer: () => void;
+  pauseTimer: () => void;
+  resetTimer: () => void;
 }
 
 export interface UseTimerReturn {
-  timerState: TimerState
-  start: () => void
-  pause: () => void
-  stop: () => void
-  reset: () => void
-  setConfig: (config: TimerConfig) => void
+  timerState: TimerState;
+  start: () => void;
+  pause: () => void;
+  stop: () => void;
+  reset: () => void;
+  setConfig: (config: TimerConfig) => void;
 }
 
 // ================================
@@ -461,13 +484,17 @@ export const validateTimerConfig = (config: any): config is TimerConfig => {
   return (
     typeof config === 'object' &&
     'protocol' in config &&
-    ['tabata', 'emom', 'amrap', 'strength', 'custom'].includes(config.protocol) &&
+    ['tabata', 'emom', 'amrap', 'strength', 'custom'].includes(
+      config.protocol
+    ) &&
     'readyCountdown' in config &&
     typeof config.readyCountdown === 'number'
-  )
-}
+  );
+};
 
-export const validateSessionExecution = (session: any): session is SessionExecution => {
+export const validateSessionExecution = (
+  session: any
+): session is SessionExecution => {
   return (
     typeof session === 'object' &&
     'sessionId' in session &&
@@ -475,8 +502,8 @@ export const validateSessionExecution = (session: any): session is SessionExecut
     'timerState' in session &&
     'progress' in session &&
     'performance' in session
-  )
-}
+  );
+};
 
 /**
  * Example default values
@@ -490,8 +517,8 @@ export const defaultTimerState: TimerState = {
   phaseTotal: 0,
   elapsedTime: 0,
   isRunning: false,
-  isPaused: false
-}
+  isPaused: false,
+};
 
 export const defaultTabataConfig: TabataConfig = {
   workSeconds: 40,
@@ -499,12 +526,12 @@ export const defaultTabataConfig: TabataConfig = {
   rounds: 8,
   setBreakSeconds: 60,
   sets: 1,
-  autoAdvance: true
-}
+  autoAdvance: true,
+};
 
 export const defaultStrengthConfig: StrengthConfig = {
   restSeconds: 90,
   totalSets: 3,
   autoStartRest: true,
-  transitionSeconds: 30
-}
+  transitionSeconds: 30,
+};

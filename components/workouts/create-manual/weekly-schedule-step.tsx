@@ -2,26 +2,41 @@
  * Weekly Schedule Step Component
  * Configure weekly training schedule and rest days with drag-and-drop functionality
  */
-'use client'
+'use client';
 
-import React from 'react'
-import { useTranslations } from 'next-intl'
-import { Calendar } from 'lucide-react'
+import React from 'react';
+import { useTranslations } from 'next-intl';
+import { Calendar } from 'lucide-react';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
-import { ScheduleBuilder } from './schedule-builder'
+import { ScheduleBuilder } from './schedule-builder';
+import type { CustomPlanFormData } from '@/types/workouts';
 
-export function WeeklyScheduleStep() {
-  const t = useTranslations('createPlan.steps.schedule')
+interface WeeklyScheduleStepProps {
+  data: CustomPlanFormData;
+  onUpdate: (updates: Partial<CustomPlanFormData>) => void;
+}
+
+export function WeeklyScheduleStep({
+  data,
+  onUpdate,
+}: WeeklyScheduleStepProps) {
+  const t = useTranslations('createPlan.steps.schedule');
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       {/* Header */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
+          <CardTitle className='flex items-center gap-2'>
+            <Calendar className='h-5 w-5' />
             {t('title')}
           </CardTitle>
           <CardDescription>{t('description')}</CardDescription>
@@ -31,5 +46,5 @@ export function WeeklyScheduleStep() {
       {/* Schedule Builder */}
       <ScheduleBuilder />
     </div>
-  )
+  );
 }
