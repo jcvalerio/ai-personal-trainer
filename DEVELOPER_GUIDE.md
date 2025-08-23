@@ -5,11 +5,13 @@
 ## 🚀 Quick Start (< 5 minutes)
 
 ### Prerequisites
+
 - **Node.js 18.17.0+** (use [nvm](https://github.com/nvm-sh/nvm) for version management)
 - **pnpm 8.0.0+** (`npm install -g pnpm`)
 - **Git** with SSH keys configured
 
 ### 1. Clone & Setup
+
 ```bash
 git clone <repository-url>
 cd ai-personal-trainer
@@ -21,17 +23,19 @@ pnpm setup:first-time
 ```
 
 ### 2. Environment Configuration
+
 ```bash
 # Create environment file
 cp .env.example .env.local
 
 # Edit with your API keys (required):
 # - DATABASE_URL (NeonDB)
-# - CLERK_* keys (authentication)  
+# - CLERK_* keys (authentication)
 # - OPENAI_API_KEY (AI features)
 ```
 
 ### 3. Validate & Start
+
 ```bash
 # Validate everything is working
 make check
@@ -48,6 +52,7 @@ make dev
 ## 📋 Development Commands
 
 ### Essential Daily Commands
+
 ```bash
 make dev          # 🚀 Start development server
 make check        # ✅ Run all quality checks
@@ -57,6 +62,7 @@ make deploy       # 🚀 Deploy to preview
 ```
 
 ### Quick Validation
+
 ```bash
 make ready        # ✅ Check if ready for deployment
 make troubleshoot # 🏥 Diagnose common issues
@@ -64,6 +70,7 @@ make health       # 🏥 Check app health (when running)
 ```
 
 ### Database Operations
+
 ```bash
 make db-setup     # 🗄️ Setup database tables
 make db-check     # 🔍 Test database connection
@@ -71,6 +78,7 @@ make db-migrate   # ⚡ Run migrations
 ```
 
 ### Maintenance
+
 ```bash
 make clean        # 🧹 Clean build cache
 make clean-install # 🧹 Fresh install
@@ -82,6 +90,7 @@ make status       # 📊 Show project status
 ## 🏗️ Project Architecture
 
 ### Directory Structure
+
 ```
 ├── app/                    # Next.js App Router
 │   ├── api/               # API routes
@@ -101,6 +110,7 @@ make status       # 📊 Show project status
 ```
 
 ### Key Technologies
+
 - **Next.js 15** - Full-stack React framework
 - **TypeScript** - Type safety and better DX
 - **Tailwind CSS** - Utility-first styling
@@ -114,6 +124,7 @@ make status       # 📊 Show project status
 ## 🔧 Development Workflow
 
 ### Daily Workflow
+
 1. **Pull latest changes**: `git pull`
 2. **Start development**: `make dev`
 3. **Make changes** with hot reload
@@ -122,6 +133,7 @@ make status       # 📊 Show project status
 6. **Deploy preview**: `make deploy`
 
 ### Feature Development
+
 1. **Create feature branch**: `git checkout -b feature/awesome-feature`
 2. **Develop with tests**: Write code + tests
 3. **Validate**: `make ready` (full validation)
@@ -130,7 +142,9 @@ make status       # 📊 Show project status
 6. **Deploy**: Automatic deployment on merge
 
 ### Code Quality Gates
+
 **Pre-commit hooks automatically run:**
+
 - ✅ Environment validation
 - ✅ TypeScript type checking
 - ✅ ESLint linting
@@ -143,6 +157,7 @@ make status       # 📊 Show project status
 ## 🧪 Testing Strategy
 
 ### Test Types
+
 ```bash
 # E2E Tests (Playwright)
 pnpm test:e2e              # All tests
@@ -157,11 +172,13 @@ pnpm test:e2e:headed       # Show browser
 ```
 
 ### Writing Tests
+
 - **Test files**: `tests/e2e/**/*.spec.ts`
 - **Page objects**: `tests/e2e/utils/page-objects/`
 - **Test data**: `tests/e2e/utils/test-data.utils.ts`
 
 Example test:
+
 ```typescript
 import { test, expect } from '@playwright/test';
 import { DashboardPage } from '../utils/page-objects/dashboard.page';
@@ -178,11 +195,13 @@ test('user can view dashboard', async ({ page }) => {
 ## 🚀 Deployment Guide
 
 ### Preview Deployment (Automatic)
+
 - **Every PR** gets a preview deployment
 - **URL**: Posted in PR comments
 - **Environment**: Preview database & auth
 
 ### Production Deployment
+
 ```bash
 # Check readiness
 make ready
@@ -192,19 +211,21 @@ make deploy-prod
 ```
 
 ### Environment Requirements
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `DATABASE_URL` | ✅ | NeonDB connection |
-| `CLERK_*` | ✅ | Authentication keys |
-| `OPENAI_API_KEY` | ✅ | AI features |
-| `SENTRY_DSN` | ⚪ | Error tracking |
-| `POSTHOG_KEY` | ⚪ | Analytics |
+
+| Variable         | Required | Description         |
+| ---------------- | -------- | ------------------- |
+| `DATABASE_URL`   | ✅       | NeonDB connection   |
+| `CLERK_*`        | ✅       | Authentication keys |
+| `OPENAI_API_KEY` | ✅       | AI features         |
+| `SENTRY_DSN`     | ⚪       | Error tracking      |
+| `POSTHOG_KEY`    | ⚪       | Analytics           |
 
 ---
 
 ## 🛠️ IDE Setup (VS Code)
 
 ### Recommended Extensions (auto-suggested)
+
 - **Essential**: ESLint, Prettier, Tailwind CSS IntelliSense
 - **TypeScript**: TypeScript Hero, Path Intellisense
 - **Testing**: Playwright Test for VS Code
@@ -212,14 +233,17 @@ make deploy-prod
 - **Optional**: GitHub Copilot, Error Lens
 
 ### Shortcuts & Commands
-| Command | Shortcut | Description |
-|---------|----------|-------------|
-| `Cmd+Shift+P` → "Tasks" | - | Run development tasks |
-| `F5` | - | Debug Next.js server |
-| `Cmd+Shift+T` | - | Run tests |
+
+| Command                 | Shortcut | Description           |
+| ----------------------- | -------- | --------------------- |
+| `Cmd+Shift+P` → "Tasks" | -        | Run development tasks |
+| `F5`                    | -        | Debug Next.js server  |
+| `Cmd+Shift+T`           | -        | Run tests             |
 
 ### Settings
+
 Project includes optimized VS Code settings:
+
 - Auto-format on save
 - ESLint integration
 - Tailwind intellisense
@@ -232,11 +256,13 @@ Project includes optimized VS Code settings:
 ### Common Issues & Solutions
 
 #### "pnpm not found"
+
 ```bash
 npm install -g pnpm
 ```
 
 #### "Environment validation failed"
+
 ```bash
 # Check what's missing
 pnpm env:check
@@ -247,6 +273,7 @@ cp .env.example .env.local
 ```
 
 #### "Database connection failed"
+
 ```bash
 # Check connection
 make db-check
@@ -255,7 +282,8 @@ make db-check
 # Format: postgresql://user:pass@host/db?sslmode=require
 ```
 
-#### "Build fails" 
+#### "Build fails"
+
 ```bash
 # Clean and reinstall
 make clean-install
@@ -268,6 +296,7 @@ pnpm lint
 ```
 
 #### "Tests failing"
+
 ```bash
 # Install Playwright browsers
 pnpm test:e2e:install
@@ -277,6 +306,7 @@ pnpm test:e2e:debug tests/e2e/auth/
 ```
 
 ### Advanced Troubleshooting
+
 ```bash
 # Complete diagnostic
 make troubleshoot
@@ -296,6 +326,7 @@ make status
 ## 📊 Performance & Monitoring
 
 ### Local Performance Testing
+
 ```bash
 # Lighthouse CI
 pnpm lighthouse
@@ -308,11 +339,13 @@ pnpm build && ls -la .next/
 ```
 
 ### Production Monitoring
+
 - **Sentry**: Error tracking & performance
 - **Vercel Analytics**: Core Web Vitals
 - **Health endpoint**: `/api/health`
 
 ### Performance Budgets
+
 - **Bundle size**: <500KB initial, <2MB total
 - **Load time**: <3s on 3G, <1s on WiFi
 - **Lighthouse score**: >90 across all metrics
@@ -322,17 +355,20 @@ pnpm build && ls -la .next/
 ## 🔒 Security Guidelines
 
 ### Environment Variables
+
 - **Never commit** `.env.local` or secrets
 - **Use descriptive names** but not values in code
 - **Validate required vars** on startup
 
 ### API Security
+
 - **Rate limiting** implemented
 - **Input validation** with Zod schemas
 - **Authentication** required for protected routes
 - **CORS** properly configured
 
 ### Database Security
+
 - **Connection pooling** with NeonDB
 - **Prepared statements** prevent SQL injection
 - **Row-level security** for multi-tenant data
@@ -342,12 +378,14 @@ pnpm build && ls -la .next/
 ## 🤝 Contributing Guidelines
 
 ### Code Style
+
 - **TypeScript** for all new code
 - **Functional components** with hooks
 - **Tailwind CSS** for styling
 - **Descriptive variable names**
 
 ### Commit Messages
+
 ```bash
 feat: add workout generation API
 fix: resolve authentication redirect issue
@@ -356,6 +394,7 @@ refactor: simplify database connection logic
 ```
 
 ### Pull Request Process
+
 1. **Feature branch** from main
 2. **Descriptive PR title** and description
 3. **All checks pass** (automated)
@@ -363,6 +402,7 @@ refactor: simplify database connection logic
 5. **Merge to main** triggers deployment
 
 ### Review Checklist
+
 - [ ] Code follows project patterns
 - [ ] Tests added/updated
 - [ ] Environment variables documented
@@ -375,11 +415,13 @@ refactor: simplify database connection logic
 ## 📚 Additional Resources
 
 ### Documentation
+
 - [Deployment Guide](./docs/DEPLOYMENT_GUIDE.md) - Comprehensive deployment info
 - [API Documentation](./docs/API.md) - API endpoints and schemas
 - [Database Schema](./docs/DATABASE.md) - Database design and migrations
 
 ### External Resources
+
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Tailwind CSS](https://tailwindcss.com/docs)
 - [Clerk Documentation](https://clerk.com/docs)
@@ -387,6 +429,7 @@ refactor: simplify database connection logic
 - [Playwright Testing](https://playwright.dev/docs)
 
 ### Team Resources
+
 - **Slack**: `#ai-trainer-dev`
 - **Design**: Figma workspace
 - **Issues**: GitHub Issues
@@ -397,12 +440,14 @@ refactor: simplify database connection logic
 ## 🎯 Success Metrics
 
 ### Developer Experience Goals
+
 - ⚡ **Setup time**: <10 minutes from clone to running
 - 🔄 **Hot reload**: <2 seconds for changes
 - ✅ **CI/CD**: <5 minutes for deployment
 - 🐛 **Debug time**: Clear error messages and logs
 
 ### Code Quality Metrics
+
 - 📊 **TypeScript coverage**: >95%
 - 🧪 **Test coverage**: >80%
 - 🚀 **Performance score**: >90 Lighthouse
@@ -410,6 +455,6 @@ refactor: simplify database connection logic
 
 ---
 
-**Happy coding! 🎉** 
+**Happy coding! 🎉**
 
 If you run into issues, check the troubleshooting section or run `make troubleshoot` for automated diagnostics.

@@ -2,9 +2,9 @@ name: E2E Tests
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
     inputs:
       test_type:
@@ -13,188 +13,188 @@ on:
         default: 'all'
         type: choice
         options:
-        - all
-        - auth
-        - dashboard
-        - workouts
-        - exercises
-        - progress
+          - all
+          - auth
+          - dashboard
+          - workouts
+          - exercises
+          - progress
 
 jobs:
   e2e-tests:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
         node-version: [18.x]
         # Add multiple browsers if needed
         browser: [chromium]
         # browser: [chromium, firefox, webkit]
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 8
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'pnpm'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm'
 
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-    - name: Install Playwright Browsers
-      run: pnpm exec playwright install --with-deps
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
 
-    - name: Setup test environment
-      run: |
-        # Create test environment file
-        echo "NODE_ENV=test" >> .env.test
-        echo "PLAYWRIGHT_BASE_URL=http://localhost:3000" >> .env.test
-        echo "CLERK_CLAUDE_TEST_USER_EMAIL=${{ secrets.CLERK_CLAUDE_TEST_USER_EMAIL }}" >> .env.test
-        echo "CLERK_CLAUDE_TEST_USER_PASSWORD=${{ secrets.CLERK_CLAUDE_TEST_USER_PASSWORD }}" >> .env.test
-        echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}" >> .env.test
-        echo "CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}" >> .env.test
-        echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env.test
-        echo "DIRECT_URL=${{ secrets.DIRECT_URL }}" >> .env.test
-        echo "ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}" >> .env.test
-        echo "CLERK_WEBHOOK_SECRET=${{ secrets.CLERK_WEBHOOK_SECRET }}" >> .env.test
-        
-        # Create necessary directories
-        mkdir -p .auth test-results/screenshots
+      - name: Setup test environment
+        run: |
+          # Create test environment file
+          echo "NODE_ENV=test" >> .env.test
+          echo "PLAYWRIGHT_BASE_URL=http://localhost:3000" >> .env.test
+          echo "CLERK_CLAUDE_TEST_USER_EMAIL=${{ secrets.CLERK_CLAUDE_TEST_USER_EMAIL }}" >> .env.test
+          echo "CLERK_CLAUDE_TEST_USER_PASSWORD=${{ secrets.CLERK_CLAUDE_TEST_USER_PASSWORD }}" >> .env.test
+          echo "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}" >> .env.test
+          echo "CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}" >> .env.test
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env.test
+          echo "DIRECT_URL=${{ secrets.DIRECT_URL }}" >> .env.test
+          echo "ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}" >> .env.test
+          echo "CLERK_WEBHOOK_SECRET=${{ secrets.CLERK_WEBHOOK_SECRET }}" >> .env.test
 
-    - name: Build application
-      run: pnpm build
+          # Create necessary directories
+          mkdir -p .auth test-results/screenshots
 
-    - name: Run E2E tests
-      run: |
-        # Determine test type
-        TEST_TYPE="${{ github.event.inputs.test_type || 'all' }}"
-        
-        if [ "$TEST_TYPE" = "all" ]; then
-          pnpm test:e2e --project=${{ matrix.browser }}
-        else
-          pnpm test:e2e tests/e2e/$TEST_TYPE/ --project=${{ matrix.browser }}
-        fi
-      env:
-        CI: true
-        PLAYWRIGHT_BROWSER: ${{ matrix.browser }}
+      - name: Build application
+        run: pnpm build
 
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: test-results-${{ matrix.browser }}
-        path: |
-          test-results/
-          playwright-report/
-        retention-days: 7
+      - name: Run E2E tests
+        run: |
+          # Determine test type
+          TEST_TYPE="${{ github.event.inputs.test_type || 'all' }}"
 
-    - name: Upload screenshots on failure
-      uses: actions/upload-artifact@v4
-      if: failure()
-      with:
-        name: test-screenshots-${{ matrix.browser }}
-        path: test-results/screenshots/
-        retention-days: 7
+          if [ "$TEST_TYPE" = "all" ]; then
+            pnpm test:e2e --project=${{ matrix.browser }}
+          else
+            pnpm test:e2e tests/e2e/$TEST_TYPE/ --project=${{ matrix.browser }}
+          fi
+        env:
+          CI: true
+          PLAYWRIGHT_BROWSER: ${{ matrix.browser }}
 
-    - name: Publish test report
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: playwright-report-${{ matrix.browser }}
-        path: playwright-report/
-        retention-days: 30
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.browser }}
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+
+      - name: Upload screenshots on failure
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-screenshots-${{ matrix.browser }}
+          path: test-results/screenshots/
+          retention-days: 7
+
+      - name: Publish test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: playwright-report/
+          retention-days: 30
 
   # Job to comment on PR with test results
   comment-pr:
     if: github.event_name == 'pull_request' && always()
     needs: e2e-tests
     runs-on: ubuntu-latest
-    
-    steps:
-    - name: Download test results
-      uses: actions/download-artifact@v4
-      with:
-        name: test-results-chromium
-        path: test-results/
 
-    - name: Comment PR
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const fs = require('fs');
-          
-          let comment = '## 🧪 E2E Test Results\n\n';
-          
-          // Check if results file exists
-          try {
-            const results = JSON.parse(fs.readFileSync('test-results/results.json', 'utf8'));
-            const { stats } = results;
-            
-            comment += `### Test Summary\n`;
-            comment += `- ✅ **Passed**: ${stats.passed || 0}\n`;
-            comment += `- ❌ **Failed**: ${stats.failed || 0}\n`;
-            comment += `- ⏭️ **Skipped**: ${stats.skipped || 0}\n`;
-            comment += `- 🕐 **Duration**: ${stats.duration ? Math.round(stats.duration / 1000) : 0}s\n\n`;
-            
-            if (stats.failed > 0) {
-              comment += `### ❌ Failed Tests\n`;
-              // Add failed test details if available
-              comment += `Please check the [test report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.\n\n`;
-            } else {
-              comment += `### 🎉 All tests passed!\n\n`;
+    steps:
+      - name: Download test results
+        uses: actions/download-artifact@v4
+        with:
+          name: test-results-chromium
+          path: test-results/
+
+      - name: Comment PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            let comment = '## 🧪 E2E Test Results\n\n';
+
+            // Check if results file exists
+            try {
+              const results = JSON.parse(fs.readFileSync('test-results/results.json', 'utf8'));
+              const { stats } = results;
+              
+              comment += `### Test Summary\n`;
+              comment += `- ✅ **Passed**: ${stats.passed || 0}\n`;
+              comment += `- ❌ **Failed**: ${stats.failed || 0}\n`;
+              comment += `- ⏭️ **Skipped**: ${stats.skipped || 0}\n`;
+              comment += `- 🕐 **Duration**: ${stats.duration ? Math.round(stats.duration / 1000) : 0}s\n\n`;
+              
+              if (stats.failed > 0) {
+                comment += `### ❌ Failed Tests\n`;
+                // Add failed test details if available
+                comment += `Please check the [test report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.\n\n`;
+              } else {
+                comment += `### 🎉 All tests passed!\n\n`;
+              }
+              
+            } catch (error) {
+              comment += `Unable to parse test results. Please check the [workflow logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.\n\n`;
             }
-            
-          } catch (error) {
-            comment += `Unable to parse test results. Please check the [workflow logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.\n\n`;
-          }
-          
-          comment += `### 📊 Reports\n`;
-          comment += `- [Full Test Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\n`;
-          comment += `- [Screenshots (if any failures)](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\n`;
-          
-          // Post comment
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: comment
-          });
+
+            comment += `### 📊 Reports\n`;
+            comment += `- [Full Test Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\n`;
+            comment += `- [Screenshots (if any failures)](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})\n`;
+
+            // Post comment
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
 
   # Job to deploy test report to GitHub Pages (optional)
   deploy-report:
     if: always() && github.ref == 'refs/heads/main'
     needs: e2e-tests
     runs-on: ubuntu-latest
-    
+
     permissions:
       contents: read
       pages: write
       id-token: write
-    
+
     steps:
-    - name: Download test reports
-      uses: actions/download-artifact@v4
-      with:
-        name: playwright-report-chromium
-        path: playwright-report/
+      - name: Download test reports
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-report-chromium
+          path: playwright-report/
 
-    - name: Setup Pages
-      uses: actions/configure-pages@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
 
-    - name: Upload to GitHub Pages
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: playwright-report/
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: playwright-report/
 
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

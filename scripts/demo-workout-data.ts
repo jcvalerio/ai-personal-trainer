@@ -4,52 +4,54 @@
  * Run with: npx tsx scripts/demo-workout-data.ts
  */
 
-import { config } from 'dotenv'
-import { resolve } from 'path'
+import { config } from 'dotenv';
+import { resolve } from 'path';
 
-config({ path: resolve(process.cwd(), '.env.local') })
+config({ path: resolve(process.cwd(), '.env.local') });
 
 async function createDemoWorkoutData() {
   try {
-    console.log('🏋️  Creating demo workout data...')
-    
-    const { getDb } = await import('../lib/db/connection')
-    const db = getDb()
-    
+    console.log('🏋️  Creating demo workout data...');
+
+    const { getDb } = await import('../lib/db/connection');
+    const db = getDb();
+
     // First, check if we have a user to work with
     const users = await db`
       SELECT id, display_name, clerk_user_id 
       FROM user_profiles 
       WHERE is_active = true 
       LIMIT 1
-    `
-    
+    `;
+
     if (users.length === 0) {
-      console.log('⚠️  No users found in database. Please create a user first.')
-      console.log('   You can do this by signing up through the application.')
-      return
+      console.log(
+        '⚠️  No users found in database. Please create a user first.'
+      );
+      console.log('   You can do this by signing up through the application.');
+      return;
     }
-    
-    const user = users[0]
-    console.log(`👤 Using user: ${user.display_name} (${user.clerk_user_id})`)
-    
+
+    const user = users[0];
+    console.log(`👤 Using user: ${user.display_name} (${user.clerk_user_id})`);
+
     // Get some exercises to work with
     const exercises = await db`
       SELECT id, name, exercise_type 
       FROM exercise_library 
       WHERE is_active = true 
       LIMIT 3
-    `
-    
+    `;
+
     if (exercises.length === 0) {
-      console.log('⚠️  No exercises found in database.')
-      return
+      console.log('⚠️  No exercises found in database.');
+      return;
     }
-    
-    console.log(`📚 Found ${exercises.length} exercises to work with`)
-    
+
+    console.log(`📚 Found ${exercises.length} exercises to work with`);
+
     // Create a sample workout plan
-    console.log('\n📋 Creating a sample workout plan...')
+    console.log('\n📋 Creating a sample workout plan...');
     const workoutPlan = await db`
       INSERT INTO workout_plans (
         user_id, name, description, duration_weeks, sessions_per_week,
@@ -68,12 +70,12 @@ async function createDemoWorkoutData() {
         '{"monday": {"type": "workout", "exercises": 5}, "wednesday": {"type": "workout", "exercises": 5}, "friday": {"type": "workout", "exercises": 5}}'
       )
       RETURNING id, name
-    `
-    
-    console.log(`  ✅ Created workout plan: ${workoutPlan[0].name}`)
-    
+    `;
+
+    console.log(`  ✅ Created workout plan: ${workoutPlan[0].name}`);
+
     // Create a sample workout session
-    console.log('\n🏃 Creating a sample workout session...')
+    console.log('\n🏃 Creating a sample workout session...');
     const workoutSession = await db`
       INSERT INTO workout_sessions (
         user_id, workout_plan_id, name, session_type,
@@ -91,14 +93,16 @@ async function createDemoWorkoutData() {
         'scheduled'
       )
       RETURNING id, name, scheduled_date
-    `
-    
-    console.log(`  ✅ Created workout session: ${workoutSession[0].name} (scheduled for ${workoutSession[0].scheduled_date})`)
-    
+    `;
+
+    console.log(
+      `  ✅ Created workout session: ${workoutSession[0].name} (scheduled for ${workoutSession[0].scheduled_date})`
+    );
+
     // Add exercises to the session
-    console.log('\n💪 Adding exercises to the session...')
-    let orderIndex = 0
-    
+    console.log('\n💪 Adding exercises to the session...');
+    let orderIndex = 0;
+
     for (const exercise of exercises) {
       await db`
         INSERT INTO session_exercises (
@@ -115,13 +119,13 @@ async function createDemoWorkoutData() {
           ${exercise.exercise_type === 'cardio' ? null : 60},
           'pending'
         )
-      `
-      console.log(`  ✅ Added ${exercise.name} to session`)
-      orderIndex++
+      `;
+      console.log(`  ✅ Added ${exercise.name} to session`);
+      orderIndex++;
     }
-    
+
     // Create a sample progress measurement
-    console.log('\n📊 Creating a sample progress measurement...')
+    console.log('\n📊 Creating a sample progress measurement...');
     const measurement = await db`
       INSERT INTO progress_measurements (
         user_id, measurement_type, value, unit,
@@ -135,12 +139,14 @@ async function createDemoWorkoutData() {
         'Starting weight measurement'
       )
       RETURNING measurement_type, value, unit, measured_at
-    `
-    
-    console.log(`  ✅ Recorded ${measurement[0].measurement_type}: ${measurement[0].value} ${measurement[0].unit}`)
-    
+    `;
+
+    console.log(
+      `  ✅ Recorded ${measurement[0].measurement_type}: ${measurement[0].value} ${measurement[0].unit}`
+    );
+
     // Create a sample achievement
-    console.log('\n🏆 Creating a sample achievement...')
+    console.log('\n🏆 Creating a sample achievement...');
     const achievement = await db`
       INSERT INTO user_achievements (
         user_id, achievement_type, achievement_name, description,
@@ -155,20 +161,22 @@ async function createDemoWorkoutData() {
         50
       )
       RETURNING achievement_name, points_awarded
-    `
-    
-    console.log(`  ✅ Earned achievement: ${achievement[0].achievement_name} (+${achievement[0].points_awarded} points)`)
-    
+    `;
+
+    console.log(
+      `  ✅ Earned achievement: ${achievement[0].achievement_name} (+${achievement[0].points_awarded} points)`
+    );
+
     // Display summary
-    console.log('\n📋 Demo data summary:')
-    console.log('  ✓ 1 workout plan created')
-    console.log('  ✓ 1 workout session scheduled')
-    console.log(`  ✓ ${exercises.length} exercises added to session`)
-    console.log('  ✓ 1 progress measurement recorded')
-    console.log('  ✓ 1 achievement earned')
-    
+    console.log('\n📋 Demo data summary:');
+    console.log('  ✓ 1 workout plan created');
+    console.log('  ✓ 1 workout session scheduled');
+    console.log(`  ✓ ${exercises.length} exercises added to session`);
+    console.log('  ✓ 1 progress measurement recorded');
+    console.log('  ✓ 1 achievement earned');
+
     // Show the complete workout plan structure
-    console.log('\n🔍 Workout plan structure:')
+    console.log('\n🔍 Workout plan structure:');
     const planDetails = await db`
       SELECT 
         wp.name as plan_name,
@@ -182,22 +190,25 @@ async function createDemoWorkoutData() {
       LEFT JOIN session_exercises se ON ws.id = se.session_id
       WHERE wp.id = ${workoutPlan[0].id}
       GROUP BY wp.id, wp.name, wp.duration_weeks, wp.sessions_per_week, ws.name, ws.scheduled_date
-    `
-    
-    planDetails.forEach(detail => {
-      console.log(`  📋 ${detail.plan_name} (${detail.duration_weeks} weeks, ${detail.sessions_per_week}x/week)`)
+    `;
+
+    planDetails.forEach((detail) => {
+      console.log(
+        `  📋 ${detail.plan_name} (${detail.duration_weeks} weeks, ${detail.sessions_per_week}x/week)`
+      );
       if (detail.session_name) {
-        console.log(`    └── ${detail.session_name} (${detail.scheduled_date}) - ${detail.exercise_count} exercises`)
+        console.log(
+          `    └── ${detail.session_name} (${detail.scheduled_date}) - ${detail.exercise_count} exercises`
+        );
       }
-    })
-    
-    console.log('\n✅ Demo workout data created successfully!')
-    console.log('🎉 The workout database system is ready to use!')
-    
+    });
+
+    console.log('\n✅ Demo workout data created successfully!');
+    console.log('🎉 The workout database system is ready to use!');
   } catch (error) {
-    console.error('❌ Failed to create demo workout data:', error)
-    process.exit(1)
+    console.error('❌ Failed to create demo workout data:', error);
+    process.exit(1);
   }
 }
 
-createDemoWorkoutData()
+createDemoWorkoutData();

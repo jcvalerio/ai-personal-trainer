@@ -1,0 +1,36 @@
+{
+  "watch": [
+    "app/",
+    "components/",
+    "lib/",
+    "types/",
+    "middleware.ts",
+    "next.config.js",
+    "tailwind.config.ts",
+    "tsconfig.json",
+    ".eslintrc.json"
+  ],
+  "ext": "ts,tsx,js,jsx,json",
+  "ignore": [
+    "node_modules/",
+    ".next/",
+    "dist/",
+    "coverage/",
+    "*.test.ts",
+    "*.test.tsx",
+    "*.spec.ts",
+    "*.spec.tsx",
+    "*.original.*",
+    "test-results/",
+    "playwright-report/"
+  ],
+  "delay": 1000,
+  "events": {
+    "start": "echo \"👀 Starting file watcher...\"",
+    "crash": "echo \"💥 Watcher crashed, restarting...\"",
+    "exit": "echo \"🛑 File watcher stopped\""
+  },
+  "env": {
+    "NODE_ENV": "development"
+  }
+}

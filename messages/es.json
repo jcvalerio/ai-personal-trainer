@@ -2,7 +2,7 @@
   "nav": {
     "brand": "Entrenador Personal",
     "features": "Características",
-    "forGyms": "Para Gimnasios", 
+    "forGyms": "Para Gimnasios",
     "signIn": "Iniciar Sesión",
     "getStarted": "Comenzar",
     "dashboard": "Panel",
@@ -20,7 +20,7 @@
     "benefits": {
       "aiPlans": "Planes de Entrenamiento Generados por IA",
       "equipment": "Identificación de Equipamiento",
-      "familySharing": "Compartir Progreso Familiar", 
+      "familySharing": "Compartir Progreso Familiar",
       "gymReady": "Listo para Asociación de Gimnasio"
     },
     "buttons": {
@@ -162,7 +162,7 @@
     "brand": "Entrenador Personal",
     "description": "Transforma tu viaje fitness con planes de entrenamiento potenciados por IA, seguimiento de progreso y entrenamiento personalizado para familias y gimnasios.",
     "product": "Producto",
-    "features": "Características", 
+    "features": "Características",
     "pricing": "Precios",
     "getStarted": "Comenzar",
     "support": "Soporte",
@@ -320,7 +320,7 @@
             "createNew": "Crear Nueva Plantilla"
           },
           "empty": {
-            "title": "Aún No Hay Plantillas de Sesión", 
+            "title": "Aún No Hay Plantillas de Sesión",
             "description": "Crea plantillas de sesión para definir la estructura de tu entrenamiento. Puedes empezar con una plantilla predefinida o crear una desde cero.",
             "useTemplate": "Usar Plantilla",
             "createFromScratch": "Crear Desde Cero"
@@ -341,7 +341,7 @@
           "monday": "Lunes",
           "tuesday": "Martes",
           "wednesday": "Miércoles",
-          "thursday": "Jueves", 
+          "thursday": "Jueves",
           "friday": "Viernes",
           "saturday": "Sábado",
           "sunday": "Domingo"
@@ -365,7 +365,7 @@
         },
         "sessionType": {
           "workout": "Entrenamiento",
-          "assessment": "Evaluación", 
+          "assessment": "Evaluación",
           "recovery": "Recuperación"
         },
         "difficulty": {
@@ -431,7 +431,7 @@
       "targetMuscles": "Músculos Objetivo",
       "progress": "Progreso",
       "started": "Iniciado",
-      "completed": "Completado", 
+      "completed": "Completado",
       "duration": "Duración",
       "effort": "Esfuerzo",
       "overdueBy": "Atrasado por",
@@ -693,7 +693,7 @@
       },
       "days": {
         "monday": "Lunes",
-        "tuesday": "Martes", 
+        "tuesday": "Martes",
         "wednesday": "Miércoles",
         "thursday": "Jueves",
         "friday": "Viernes",

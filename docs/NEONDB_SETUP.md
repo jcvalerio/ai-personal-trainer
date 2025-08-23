@@ -19,6 +19,7 @@ This guide will help you set up a NeonDB database for the AI Personal Trainer ap
 After creating your project, you'll see the connection details:
 
 1. **Copy the Connection String**:
+
    ```
    postgresql://[username]:[password]@[hostname]/[database]?sslmode=require
    ```
@@ -48,6 +49,7 @@ pnpm db:setup
 ```
 
 You should see output like:
+
 ```
 🔗 Checking database connection...
 ✅ Database connection established
@@ -66,11 +68,12 @@ pnpm db:check
 ```
 
 Expected output:
+
 ```
-Connected: true { 
-  hasMainConnection: true, 
-  hasDirectConnection: true, 
-  environment: 'development' 
+Connected: true {
+  hasMainConnection: true,
+  hasDirectConnection: true,
+  environment: 'development'
 }
 ```
 
@@ -79,7 +82,7 @@ Connected: true {
 The setup script creates these tables:
 
 - **`user_profiles`** - User data and fitness information
-- **`organizations`** - Family groups and gym partnerships  
+- **`organizations`** - Family groups and gym partnerships
 - **`organization_memberships`** - User-organization relationships
 - **`organization_invites`** - Pending invitations
 - **`auth_audit_log`** - Security audit trail
@@ -87,7 +90,7 @@ The setup script creates these tables:
 ## 🔒 Security Features
 
 - **Row-Level Security (RLS)** enabled on all tables
-- **Multi-tenant data isolation** 
+- **Multi-tenant data isolation**
 - **Audit logging** for all authentication events
 - **UUID primary keys** for security
 - **Indexed queries** for performance
@@ -108,21 +111,25 @@ pnpm dev
 ## 🔧 Troubleshooting
 
 ### Connection Failed
+
 1. **Check credentials**: Ensure DATABASE_URL is correct
 2. **Network issues**: Try from different network
 3. **Firewall**: NeonDB requires SSL connections
 
 ### Permission Errors
+
 1. **User permissions**: Ensure user has CREATE privileges
 2. **Database exists**: Verify database name in connection string
 
 ### Schema Issues
+
 1. **Clean setup**: Drop all tables and re-run `pnpm db:setup`
 2. **Manual SQL**: Execute SQL directly in NeonDB console
 
 ## 📊 Free Tier Limits
 
 NeonDB Free tier includes:
+
 - **512 MB storage**
 - **1 database**
 - **Compute time**: 100 hours/month

@@ -3,19 +3,19 @@
  * Handles starting a workout session
  */
 
-import { auth } from '@clerk/nextjs/server'
-import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@clerk/nextjs/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-import WorkoutService from '@/lib/services/workout-service'
-import { getUserProfileByClerkId, logAuthEvent } from '@/lib/db/auth'
-import { RATE_LIMITS } from '@/lib/auth'
+import WorkoutService from '@/lib/services/workout-service';
+import { getUserProfileByClerkId, logAuthEvent } from '@/lib/db/auth';
+import { RATE_LIMITS } from '@/lib/auth';
 
-const workoutService = new WorkoutService()
+const workoutService = new WorkoutService();
 
 interface RouteParams {
   params: {
-    sessionId: string
-  }
+    sessionId: string;
+  };
 }
 
 /**
@@ -26,71 +26,101 @@ export async function POST(
   request: NextRequest,
   { params }: RouteParams
 ): Promise<NextResponse> {
-  const startTime = Date.now()
-  
+  const startTime = Date.now();
+
   try {
     // Authentication
-    const { userId, orgId } = await auth()
+    const { userId, orgId } = await auth();
     if (!userId) {
       return NextResponse.json(
         { success: false, error: 'Unauthorized', code: 'UNAUTHORIZED' },
         { status: 401 }
-      )
+      );
     }
 
     // Validate sessionId parameter
-    if (!params.sessionId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.sessionId)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid session ID', code: 'INVALID_PARAMETER' },
-        { status: 400 }
+    if (
+      !params.sessionId ||
+      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+        params.sessionId
       )
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Invalid session ID',
+          code: 'INVALID_PARAMETER',
+        },
+        { status: 400 }
+      );
     }
 
     // Rate limiting for session actions
-    const clientIp = request.headers.get('x-forwarded-for') || 'unknown'
-    if (!RATE_LIMITS.PROFILE_UPDATE.isAllowed(`session_start:${userId}:${clientIp}`)) {
-      await logAuthEvent('rate_limit_exceeded', 'security', 'Session start rate limit exceeded', userId)
+    const clientIp = request.headers.get('x-forwarded-for') || 'unknown';
+    if (
+      !RATE_LIMITS.PROFILE_UPDATE.isAllowed(
+        `session_start:${userId}:${clientIp}`
+      )
+    ) {
+      await logAuthEvent(
+        'rate_limit_exceeded',
+        'security',
+        'Session start rate limit exceeded',
+        userId
+      );
       return NextResponse.json(
         { success: false, error: 'Too many requests', code: 'RATE_LIMITED' },
         { status: 429 }
-      )
+      );
     }
 
     // Get user profile for context
-    const userProfile = await getUserProfileByClerkId(userId)
+    const userProfile = await getUserProfileByClerkId(userId);
     if (!userProfile) {
       return NextResponse.json(
-        { success: false, error: 'User profile not found', code: 'USER_NOT_FOUND' },
+        {
+          success: false,
+          error: 'User profile not found',
+          code: 'USER_NOT_FOUND',
+        },
         { status: 404 }
-      )
+      );
     }
 
     // Service context
     const context = {
       userId,
       organizationId: orgId || userProfile.organizationId,
-      userRole: userProfile.role
-    }
+      userRole: userProfile.role,
+    };
 
     // Start workout session
-    const result = await workoutService.startWorkoutSession(params.sessionId, context)
+    const result = await workoutService.startWorkoutSession(
+      params.sessionId,
+      context
+    );
 
     if (!result.success) {
-      const statusCode = result.error.code === 'NOT_FOUND' ? 404 : 
-                        result.error.code === 'INSUFFICIENT_PERMISSIONS' ? 403 :
-                        result.error.code === 'INVALID_STATE' ? 409 : 500
+      const statusCode =
+        result.error.code === 'NOT_FOUND'
+          ? 404
+          : result.error.code === 'INSUFFICIENT_PERMISSIONS'
+            ? 403
+            : result.error.code === 'INVALID_STATE'
+              ? 409
+              : 500;
       return NextResponse.json(
-        { 
-          success: false, 
-          error: result.error.message, 
+        {
+          success: false,
+          error: result.error.message,
           code: result.error.code,
-          details: result.error.context 
+          details: result.error.context,
         },
         { status: statusCode }
-      )
+      );
     }
 
-    const responseTime = Date.now() - startTime
+    const responseTime = Date.now() - startTime;
 
     return NextResponse.json({
       success: true,
@@ -98,27 +128,35 @@ export async function POST(
       message: 'Workout session started successfully',
       meta: {
         responseTime,
-        timestamp: new Date().toISOString()
-      }
-    })
-
+        timestamp: new Date().toISOString(),
+      },
+    });
   } catch (error) {
-    console.error('Error starting workout session:', error)
-    const authResult = await auth()
-    await logAuthEvent('session_start_failed', 'security', 'Session start failed', 
-      authResult.userId || undefined, authResult.orgId || undefined, { 
-        sessionId: params.sessionId, 
-        error: (error as Error).message 
-      })
+    console.error('Error starting workout session:', error);
+    const authResult = await auth();
+    await logAuthEvent(
+      'session_start_failed',
+      'security',
+      'Session start failed',
+      authResult.userId || undefined,
+      authResult.orgId || undefined,
+      {
+        sessionId: params.sessionId,
+        error: (error as Error).message,
+      }
+    );
 
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Internal server error', 
+      {
+        success: false,
+        error: 'Internal server error',
         code: 'INTERNAL_ERROR',
-        message: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+        message:
+          process.env.NODE_ENV === 'development'
+            ? (error as Error).message
+            : undefined,
       },
       { status: 500 }
-    )
+    );
   }
 }

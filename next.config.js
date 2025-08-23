@@ -8,11 +8,13 @@ const nextConfig = {
   // Advanced TypeScript configuration with systematic type safety
   // TypeScript errors are now fixed, ESLint configured for development flexibility
   eslint: {
-    ignoreDuringBuilds: true, // Allow console.log and minor style issues in development
+    // CI will enforce linting; skip ESLint during Vercel builds for speed/stability
+    ignoreDuringBuilds: true,
     dirs: ['app', 'lib', 'components', 'types'], // Focus linting on core code
   },
   typescript: {
-    ignoreBuildErrors: true, // Temporarily disable for deployment
+    // CI enforces type-checking; skip in Vercel builds for stability
+    ignoreBuildErrors: true,
   },
 
   // Enable experimental features for better performance

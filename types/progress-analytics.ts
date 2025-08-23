@@ -4,15 +4,15 @@
  * goal tracking and achievement system, and time-series data for progress visualization
  */
 
-import { FitnessLevel } from './index'
-import { 
-  MeasurementType, 
+import { FitnessLevel } from './index';
+import {
+  MeasurementType,
   AchievementType,
   ExerciseType,
   SessionStatus,
-  WorkoutStatus
-} from './workouts'
-import { UserAchievement, ProgressMeasurement } from './workouts'
+  WorkoutStatus,
+} from './workouts';
+import { UserAchievement, ProgressMeasurement } from './workouts';
 
 // ================================
 // Core Analytics Types
@@ -21,44 +21,44 @@ import { UserAchievement, ProgressMeasurement } from './workouts'
 /**
  * Analytics Time Period
  */
-export type AnalyticsPeriod = 
+export type AnalyticsPeriod =
   | 'day'
-  | 'week' 
+  | 'week'
   | 'month'
   | 'quarter'
   | 'year'
   | 'custom'
-  | 'all_time'
+  | 'all_time';
 
 /**
  * Analytics Granularity
  */
-export type AnalyticsGranularity = 
+export type AnalyticsGranularity =
   | 'hourly'
   | 'daily'
   | 'weekly'
   | 'monthly'
   | 'quarterly'
-  | 'yearly'
+  | 'yearly';
 
 /**
  * Analytics Metric Types
  */
-export type MetricType = 
-  | 'count'        // Simple count
-  | 'sum'          // Sum of values
-  | 'average'      // Average value
-  | 'median'       // Median value
-  | 'percentage'   // Percentage value
-  | 'rate'         // Rate of change
-  | 'ratio'        // Ratio between values
+export type MetricType =
+  | 'count' // Simple count
+  | 'sum' // Sum of values
+  | 'average' // Average value
+  | 'median' // Median value
+  | 'percentage' // Percentage value
+  | 'rate' // Rate of change
+  | 'ratio' // Ratio between values
   | 'distribution' // Distribution analysis
-  | 'trend'        // Trend analysis
+  | 'trend'; // Trend analysis
 
 /**
  * Data Aggregation Methods
  */
-export type AggregationMethod = 
+export type AggregationMethod =
   | 'sum'
   | 'average'
   | 'median'
@@ -67,32 +67,27 @@ export type AggregationMethod =
   | 'count'
   | 'distinct_count'
   | 'percentile'
-  | 'standard_deviation'
+  | 'standard_deviation';
 
 /**
  * Trend Direction
  */
-export type TrendDirection = 
-  | 'up'
-  | 'down'
-  | 'stable'
-  | 'volatile'
-  | 'unknown'
+export type TrendDirection = 'up' | 'down' | 'stable' | 'volatile' | 'unknown';
 
 /**
  * Analytics Date Range
  */
 export interface AnalyticsDateRange {
   /** Start date */
-  startDate: Date
+  startDate: Date;
   /** End date */
-  endDate: Date
+  endDate: Date;
   /** Period type */
-  period: AnalyticsPeriod
+  period: AnalyticsPeriod;
   /** Custom label */
-  label?: string
+  label?: string;
   /** Comparison period */
-  comparisonPeriod?: AnalyticsDateRange
+  comparisonPeriod?: AnalyticsDateRange;
 }
 
 // ================================
@@ -104,15 +99,15 @@ export interface AnalyticsDateRange {
  */
 export interface ProgressAnalyticsDashboard {
   /** Dashboard configuration */
-  config: AnalyticsDashboardConfig
+  config: AnalyticsDashboardConfig;
   /** Analytics widgets */
-  widgets: AnalyticsWidget[]
+  widgets: AnalyticsWidget[];
   /** Dashboard data */
-  data: ProgressAnalyticsData
+  data: ProgressAnalyticsData;
   /** Dashboard state */
-  state: AnalyticsDashboardState
+  state: AnalyticsDashboardState;
   /** Export options */
-  export: AnalyticsExportOptions
+  export: AnalyticsExportOptions;
 }
 
 /**
@@ -120,21 +115,21 @@ export interface ProgressAnalyticsDashboard {
  */
 export interface AnalyticsDashboardConfig {
   /** Dashboard ID */
-  id: string
+  id: string;
   /** Dashboard name */
-  name: string
+  name: string;
   /** Dashboard description */
-  description?: string
+  description?: string;
   /** Default date range */
-  defaultDateRange: AnalyticsDateRange
+  defaultDateRange: AnalyticsDateRange;
   /** Refresh interval (minutes) */
-  refreshInterval: number
+  refreshInterval: number;
   /** Auto-refresh enabled */
-  autoRefresh: boolean
+  autoRefresh: boolean;
   /** Dashboard layout */
-  layout: DashboardLayout
+  layout: DashboardLayout;
   /** Personalization settings */
-  personalization: PersonalizationSettings
+  personalization: PersonalizationSettings;
 }
 
 /**
@@ -142,15 +137,15 @@ export interface AnalyticsDashboardConfig {
  */
 export interface DashboardLayout {
   /** Layout type */
-  type: 'grid' | 'flexible' | 'tabbed'
+  type: 'grid' | 'flexible' | 'tabbed';
   /** Number of columns */
-  columns: number
+  columns: number;
   /** Row height */
-  rowHeight: number
+  rowHeight: number;
   /** Widget spacing */
-  spacing: number
+  spacing: number;
   /** Responsive breakpoints */
-  breakpoints: ResponsiveBreakpoint[]
+  breakpoints: ResponsiveBreakpoint[];
 }
 
 /**
@@ -158,13 +153,13 @@ export interface DashboardLayout {
  */
 export interface ResponsiveBreakpoint {
   /** Breakpoint name */
-  name: string
+  name: string;
   /** Minimum width */
-  minWidth: number
+  minWidth: number;
   /** Number of columns at this breakpoint */
-  columns: number
+  columns: number;
   /** Widget adjustments */
-  widgetAdjustments: WidgetAdjustment[]
+  widgetAdjustments: WidgetAdjustment[];
 }
 
 /**
@@ -172,13 +167,13 @@ export interface ResponsiveBreakpoint {
  */
 export interface WidgetAdjustment {
   /** Widget ID */
-  widgetId: string
+  widgetId: string;
   /** New size */
-  size: WidgetSize
+  size: WidgetSize;
   /** New position */
-  position?: WidgetPosition
+  position?: WidgetPosition;
   /** Hide widget at this breakpoint */
-  hidden?: boolean
+  hidden?: boolean;
 }
 
 /**
@@ -186,13 +181,13 @@ export interface WidgetAdjustment {
  */
 export interface PersonalizationSettings {
   /** User preferences */
-  userPreferences: UserAnalyticsPreferences
+  userPreferences: UserAnalyticsPreferences;
   /** Customizable widgets */
-  customizableWidgets: boolean
+  customizableWidgets: boolean;
   /** Save custom layouts */
-  saveCustomLayouts: boolean
+  saveCustomLayouts: boolean;
   /** Widget recommendations */
-  widgetRecommendations: boolean
+  widgetRecommendations: boolean;
 }
 
 /**
@@ -200,15 +195,15 @@ export interface PersonalizationSettings {
  */
 export interface UserAnalyticsPreferences {
   /** Preferred metrics */
-  preferredMetrics: string[]
+  preferredMetrics: string[];
   /** Preferred chart types */
-  preferredChartTypes: ChartType[]
+  preferredChartTypes: ChartType[];
   /** Color scheme */
-  colorScheme: 'light' | 'dark' | 'auto'
+  colorScheme: 'light' | 'dark' | 'auto';
   /** Animation preferences */
-  animations: boolean
+  animations: boolean;
   /** Notification preferences */
-  notifications: AnalyticsNotificationSettings
+  notifications: AnalyticsNotificationSettings;
 }
 
 /**
@@ -216,15 +211,15 @@ export interface UserAnalyticsPreferences {
  */
 export interface AnalyticsNotificationSettings {
   /** Goal achievement notifications */
-  goalAchievements: boolean
+  goalAchievements: boolean;
   /** Milestone notifications */
-  milestones: boolean
+  milestones: boolean;
   /** Trend alerts */
-  trendAlerts: boolean
+  trendAlerts: boolean;
   /** Performance alerts */
-  performanceAlerts: boolean
+  performanceAlerts: boolean;
   /** Weekly/monthly summaries */
-  summaries: boolean
+  summaries: boolean;
 }
 
 /**
@@ -232,56 +227,56 @@ export interface AnalyticsNotificationSettings {
  */
 export interface AnalyticsWidget {
   /** Widget ID */
-  id: string
+  id: string;
   /** Widget type */
-  type: AnalyticsWidgetType
+  type: AnalyticsWidgetType;
   /** Widget title */
-  title: string
+  title: string;
   /** Widget description */
-  description?: string
+  description?: string;
   /** Widget configuration */
-  config: WidgetConfig
+  config: WidgetConfig;
   /** Widget data */
-  data: WidgetData
+  data: WidgetData;
   /** Widget position */
-  position: WidgetPosition
+  position: WidgetPosition;
   /** Widget size */
-  size: WidgetSize
+  size: WidgetSize;
   /** Widget state */
-  state: WidgetState
+  state: WidgetState;
 }
 
 /**
  * Analytics Widget Types
  */
-export type AnalyticsWidgetType = 
-  | 'metric_card'           // Simple metric display
-  | 'progress_chart'        // Progress over time
-  | 'goal_tracker'          // Goal progress tracking
-  | 'achievement_list'      // Recent achievements
-  | 'body_metrics'          // Body measurement tracking
-  | 'workout_heatmap'       // Workout frequency heatmap  
-  | 'strength_progression'  // Strength gains over time
-  | 'consistency_tracker'   // Workout consistency
-  | 'nutrition_overview'    // Nutrition tracking
-  | 'sleep_analysis'        // Sleep pattern analysis
-  | 'comparison_chart'      // Period comparisons
-  | 'leaderboard'          // Social comparisons
-  | 'insights_panel'       // AI-generated insights
-  | 'custom_metric'        // User-defined metrics
+export type AnalyticsWidgetType =
+  | 'metric_card' // Simple metric display
+  | 'progress_chart' // Progress over time
+  | 'goal_tracker' // Goal progress tracking
+  | 'achievement_list' // Recent achievements
+  | 'body_metrics' // Body measurement tracking
+  | 'workout_heatmap' // Workout frequency heatmap
+  | 'strength_progression' // Strength gains over time
+  | 'consistency_tracker' // Workout consistency
+  | 'nutrition_overview' // Nutrition tracking
+  | 'sleep_analysis' // Sleep pattern analysis
+  | 'comparison_chart' // Period comparisons
+  | 'leaderboard' // Social comparisons
+  | 'insights_panel' // AI-generated insights
+  | 'custom_metric'; // User-defined metrics
 
 /**
  * Widget Configuration
  */
 export interface WidgetConfig {
   /** Data source configuration */
-  dataSource: DataSourceConfig
+  dataSource: DataSourceConfig;
   /** Display configuration */
-  display: WidgetDisplayConfig
+  display: WidgetDisplayConfig;
   /** Interaction configuration */
-  interaction: WidgetInteractionConfig
+  interaction: WidgetInteractionConfig;
   /** Refresh configuration */
-  refresh: WidgetRefreshConfig
+  refresh: WidgetRefreshConfig;
 }
 
 /**
@@ -289,15 +284,15 @@ export interface WidgetConfig {
  */
 export interface DataSourceConfig {
   /** Primary data source */
-  primary: DataSource
+  primary: DataSource;
   /** Secondary data sources */
-  secondary?: DataSource[]
+  secondary?: DataSource[];
   /** Data filters */
-  filters: DataFilter[]
+  filters: DataFilter[];
   /** Data aggregation */
-  aggregation: DataAggregation
+  aggregation: DataAggregation;
   /** Data transformation */
-  transformation?: DataTransformation[]
+  transformation?: DataTransformation[];
 }
 
 /**
@@ -305,19 +300,19 @@ export interface DataSourceConfig {
  */
 export interface DataSource {
   /** Source type */
-  type: DataSourceType
+  type: DataSourceType;
   /** Source identifier */
-  id: string
+  id: string;
   /** Source parameters */
-  parameters: Record<string, any>
+  parameters: Record<string, any>;
   /** Cache configuration */
-  cache: CacheConfiguration
+  cache: CacheConfiguration;
 }
 
 /**
  * Data Source Types
  */
-export type DataSourceType = 
+export type DataSourceType =
   | 'workout_sessions'
   | 'progress_measurements'
   | 'achievements'
@@ -327,18 +322,18 @@ export type DataSourceType =
   | 'sleep_data'
   | 'heart_rate_data'
   | 'custom_metrics'
-  | 'social_data'
+  | 'social_data';
 
 /**
  * Cache Configuration
  */
 export interface CacheConfiguration {
   /** Cache enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Cache duration (minutes) */
-  duration: number
+  duration: number;
   /** Cache invalidation strategy */
-  invalidation: 'time_based' | 'event_based' | 'manual'
+  invalidation: 'time_based' | 'event_based' | 'manual';
 }
 
 /**
@@ -346,19 +341,19 @@ export interface CacheConfiguration {
  */
 export interface DataFilter {
   /** Filter field */
-  field: string
+  field: string;
   /** Filter operator */
-  operator: FilterOperator
+  operator: FilterOperator;
   /** Filter value */
-  value: any
+  value: any;
   /** Filter condition */
-  condition?: 'and' | 'or'
+  condition?: 'and' | 'or';
 }
 
 /**
  * Filter Operators
  */
-export type FilterOperator = 
+export type FilterOperator =
   | 'equals'
   | 'not_equals'
   | 'greater_than'
@@ -373,20 +368,20 @@ export type FilterOperator =
   | 'not_in'
   | 'between'
   | 'is_null'
-  | 'is_not_null'
+  | 'is_not_null';
 
 /**
  * Data Aggregation
  */
 export interface DataAggregation {
   /** Aggregation method */
-  method: AggregationMethod
+  method: AggregationMethod;
   /** Group by fields */
-  groupBy: string[]
+  groupBy: string[];
   /** Having conditions */
-  having?: DataFilter[]
+  having?: DataFilter[];
   /** Time bucket */
-  timeBucket?: TimeBucket
+  timeBucket?: TimeBucket;
 }
 
 /**
@@ -394,11 +389,11 @@ export interface DataAggregation {
  */
 export interface TimeBucket {
   /** Bucket size */
-  size: number
+  size: number;
   /** Bucket unit */
-  unit: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year'
+  unit: 'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
   /** Bucket alignment */
-  alignment: 'start' | 'end' | 'center'
+  alignment: 'start' | 'end' | 'center';
 }
 
 /**
@@ -406,41 +401,41 @@ export interface TimeBucket {
  */
 export interface DataTransformation {
   /** Transformation type */
-  type: TransformationType
+  type: TransformationType;
   /** Transformation parameters */
-  parameters: Record<string, any>
+  parameters: Record<string, any>;
   /** Output field name */
-  outputField?: string
+  outputField?: string;
 }
 
 /**
  * Transformation Types
  */
-export type TransformationType = 
-  | 'calculate_field'    // Calculate new field
-  | 'normalize'          // Normalize values
-  | 'moving_average'     // Calculate moving average
-  | 'percent_change'     // Calculate percentage change
-  | 'cumulative_sum'     // Calculate cumulative sum
-  | 'ranking'            // Rank values
-  | 'binning'            // Bin continuous values
-  | 'pivot'              // Pivot table transformation
-  | 'unpivot'            // Unpivot table transformation
+export type TransformationType =
+  | 'calculate_field' // Calculate new field
+  | 'normalize' // Normalize values
+  | 'moving_average' // Calculate moving average
+  | 'percent_change' // Calculate percentage change
+  | 'cumulative_sum' // Calculate cumulative sum
+  | 'ranking' // Rank values
+  | 'binning' // Bin continuous values
+  | 'pivot' // Pivot table transformation
+  | 'unpivot'; // Unpivot table transformation
 
 /**
  * Widget Display Configuration
  */
 export interface WidgetDisplayConfig {
   /** Chart configuration */
-  chart: ChartConfiguration
+  chart: ChartConfiguration;
   /** Color scheme */
-  colors: ColorScheme
+  colors: ColorScheme;
   /** Typography settings */
-  typography: TypographySettings
+  typography: TypographySettings;
   /** Spacing settings */
-  spacing: SpacingSettings
+  spacing: SpacingSettings;
   /** Animation settings */
-  animations: AnimationSettings
+  animations: AnimationSettings;
 }
 
 /**
@@ -448,17 +443,17 @@ export interface WidgetDisplayConfig {
  */
 export interface WidgetInteractionConfig {
   /** Click interactions */
-  onClick?: InteractionHandler
+  onClick?: InteractionHandler;
   /** Hover interactions */
-  onHover?: InteractionHandler
+  onHover?: InteractionHandler;
   /** Drill-down enabled */
-  drillDown: boolean
+  drillDown: boolean;
   /** Export enabled */
-  exportEnabled: boolean
+  exportEnabled: boolean;
   /** Zoom enabled */
-  zoomEnabled: boolean
+  zoomEnabled: boolean;
   /** Cross-filtering enabled */
-  crossFilterEnabled: boolean
+  crossFilterEnabled: boolean;
 }
 
 /**
@@ -466,9 +461,9 @@ export interface WidgetInteractionConfig {
  */
 export interface InteractionHandler {
   /** Handler type */
-  type: 'navigate' | 'filter' | 'modal' | 'tooltip' | 'custom'
+  type: 'navigate' | 'filter' | 'modal' | 'tooltip' | 'custom';
   /** Handler configuration */
-  config: Record<string, any>
+  config: Record<string, any>;
 }
 
 /**
@@ -476,13 +471,13 @@ export interface InteractionHandler {
  */
 export interface WidgetRefreshConfig {
   /** Auto-refresh enabled */
-  autoRefresh: boolean
+  autoRefresh: boolean;
   /** Refresh interval (seconds) */
-  interval: number
+  interval: number;
   /** Refresh on data change */
-  refreshOnDataChange: boolean
+  refreshOnDataChange: boolean;
   /** Manual refresh enabled */
-  manualRefresh: boolean
+  manualRefresh: boolean;
 }
 
 /**
@@ -490,17 +485,17 @@ export interface WidgetRefreshConfig {
  */
 export interface WidgetData {
   /** Raw data */
-  raw: any[]
+  raw: any[];
   /** Processed data */
-  processed: ProcessedData
+  processed: ProcessedData;
   /** Data metadata */
-  metadata: DataMetadata
+  metadata: DataMetadata;
   /** Loading state */
-  loading: boolean
+  loading: boolean;
   /** Error state */
-  error?: string
+  error?: string;
   /** Last updated */
-  lastUpdated: Date
+  lastUpdated: Date;
 }
 
 /**
@@ -508,13 +503,13 @@ export interface WidgetData {
  */
 export interface ProcessedData {
   /** Chart data */
-  chartData: ChartData
+  chartData: ChartData;
   /** Summary statistics */
-  summary: SummaryStatistics
+  summary: SummaryStatistics;
   /** Trend analysis */
-  trends: TrendAnalysis
+  trends: TrendAnalysis;
   /** Insights */
-  insights: DataInsight[]
+  insights: DataInsight[];
 }
 
 /**
@@ -522,13 +517,13 @@ export interface ProcessedData {
  */
 export interface DataMetadata {
   /** Data source information */
-  source: DataSourceMetadata
+  source: DataSourceMetadata;
   /** Data quality metrics */
-  quality: DataQualityMetrics
+  quality: DataQualityMetrics;
   /** Data freshness */
-  freshness: DataFreshnessInfo
+  freshness: DataFreshnessInfo;
   /** Data lineage */
-  lineage: DataLineage[]
+  lineage: DataLineage[];
 }
 
 /**
@@ -536,15 +531,15 @@ export interface DataMetadata {
  */
 export interface DataSourceMetadata {
   /** Source name */
-  name: string
+  name: string;
   /** Source type */
-  type: DataSourceType
+  type: DataSourceType;
   /** Record count */
-  recordCount: number
+  recordCount: number;
   /** Date range */
-  dateRange: AnalyticsDateRange
+  dateRange: AnalyticsDateRange;
   /** Field information */
-  fields: FieldMetadata[]
+  fields: FieldMetadata[];
 }
 
 /**
@@ -552,17 +547,17 @@ export interface DataSourceMetadata {
  */
 export interface FieldMetadata {
   /** Field name */
-  name: string
+  name: string;
   /** Field type */
-  type: 'string' | 'number' | 'date' | 'boolean' | 'object'
+  type: 'string' | 'number' | 'date' | 'boolean' | 'object';
   /** Field description */
-  description?: string
+  description?: string;
   /** Field format */
-  format?: string
+  format?: string;
   /** Null percentage */
-  nullPercentage: number
+  nullPercentage: number;
   /** Unique values count */
-  uniqueValues: number
+  uniqueValues: number;
 }
 
 /**
@@ -570,15 +565,15 @@ export interface FieldMetadata {
  */
 export interface DataQualityMetrics {
   /** Completeness score (0-100) */
-  completeness: number
+  completeness: number;
   /** Accuracy score (0-100) */
-  accuracy: number
+  accuracy: number;
   /** Consistency score (0-100) */
-  consistency: number
+  consistency: number;
   /** Timeliness score (0-100) */
-  timeliness: number
+  timeliness: number;
   /** Quality issues */
-  issues: DataQualityIssue[]
+  issues: DataQualityIssue[];
 }
 
 /**
@@ -586,13 +581,18 @@ export interface DataQualityMetrics {
  */
 export interface DataQualityIssue {
   /** Issue type */
-  type: 'missing_values' | 'outliers' | 'duplicates' | 'format_errors' | 'inconsistency'
+  type:
+    | 'missing_values'
+    | 'outliers'
+    | 'duplicates'
+    | 'format_errors'
+    | 'inconsistency';
   /** Issue description */
-  description: string
+  description: string;
   /** Affected records */
-  affectedRecords: number
+  affectedRecords: number;
   /** Severity level */
-  severity: 'low' | 'medium' | 'high' | 'critical'
+  severity: 'low' | 'medium' | 'high' | 'critical';
 }
 
 /**
@@ -600,13 +600,13 @@ export interface DataQualityIssue {
  */
 export interface DataFreshnessInfo {
   /** Last update timestamp */
-  lastUpdate: Date
+  lastUpdate: Date;
   /** Update frequency */
-  updateFrequency: 'real_time' | 'hourly' | 'daily' | 'weekly' | 'monthly'
+  updateFrequency: 'real_time' | 'hourly' | 'daily' | 'weekly' | 'monthly';
   /** Data latency (minutes) */
-  latency: number
+  latency: number;
   /** Staleness indicator */
-  isStale: boolean
+  isStale: boolean;
 }
 
 /**
@@ -614,13 +614,13 @@ export interface DataFreshnessInfo {
  */
 export interface DataLineage {
   /** Source system */
-  source: string
+  source: string;
   /** Transformation steps */
-  transformations: string[]
+  transformations: string[];
   /** Target system */
-  target: string
+  target: string;
   /** Lineage timestamp */
-  timestamp: Date
+  timestamp: Date;
 }
 
 /**
@@ -628,11 +628,11 @@ export interface DataLineage {
  */
 export interface WidgetPosition {
   /** X coordinate (grid units) */
-  x: number
+  x: number;
   /** Y coordinate (grid units) */
-  y: number
+  y: number;
   /** Z-index */
-  z?: number
+  z?: number;
 }
 
 /**
@@ -640,17 +640,17 @@ export interface WidgetPosition {
  */
 export interface WidgetSize {
   /** Width (grid units) */
-  width: number
+  width: number;
   /** Height (grid units) */
-  height: number
+  height: number;
   /** Minimum width */
-  minWidth?: number
+  minWidth?: number;
   /** Minimum height */
-  minHeight?: number
+  minHeight?: number;
   /** Maximum width */
-  maxWidth?: number
+  maxWidth?: number;
   /** Maximum height */
-  maxHeight?: number
+  maxHeight?: number;
 }
 
 /**
@@ -658,17 +658,17 @@ export interface WidgetSize {
  */
 export interface WidgetState {
   /** Is widget expanded */
-  expanded: boolean
+  expanded: boolean;
   /** Is widget minimized */
-  minimized: boolean
+  minimized: boolean;
   /** Is widget loading */
-  loading: boolean
+  loading: boolean;
   /** Widget error */
-  error?: string
+  error?: string;
   /** Widget selected */
-  selected: boolean
+  selected: boolean;
   /** Edit mode */
-  editMode: boolean
+  editMode: boolean;
 }
 
 /**
@@ -676,21 +676,21 @@ export interface WidgetState {
  */
 export interface ProgressAnalyticsData {
   /** Fitness metrics */
-  fitness: FitnessAnalytics
+  fitness: FitnessAnalytics;
   /** Body composition metrics */
-  bodyComposition: BodyCompositionAnalytics
+  bodyComposition: BodyCompositionAnalytics;
   /** Performance metrics */
-  performance: PerformanceAnalytics
+  performance: PerformanceAnalytics;
   /** Consistency metrics */
-  consistency: ConsistencyAnalytics
+  consistency: ConsistencyAnalytics;
   /** Goal tracking data */
-  goals: GoalTrackingData
+  goals: GoalTrackingData;
   /** Achievement data */
-  achievements: AchievementAnalytics
+  achievements: AchievementAnalytics;
   /** Comparative data */
-  comparisons: ComparativeAnalytics
+  comparisons: ComparativeAnalytics;
   /** Predictive data */
-  predictions: PredictiveAnalytics
+  predictions: PredictiveAnalytics;
 }
 
 /**
@@ -698,17 +698,17 @@ export interface ProgressAnalyticsData {
  */
 export interface AnalyticsDashboardState {
   /** Current date range */
-  dateRange: AnalyticsDateRange
+  dateRange: AnalyticsDateRange;
   /** Active filters */
-  filters: AnalyticsFilter[]
+  filters: AnalyticsFilter[];
   /** View state */
-  view: DashboardViewState
+  view: DashboardViewState;
   /** Loading states */
-  loading: DashboardLoadingState
+  loading: DashboardLoadingState;
   /** Error states */
-  errors: DashboardErrorState
+  errors: DashboardErrorState;
   /** User interactions */
-  interactions: DashboardInteractionState
+  interactions: DashboardInteractionState;
 }
 
 /**
@@ -716,15 +716,15 @@ export interface AnalyticsDashboardState {
  */
 export interface DashboardViewState {
   /** Current tab/section */
-  activeSection: string
+  activeSection: string;
   /** Zoom level */
-  zoomLevel: number
+  zoomLevel: number;
   /** Full-screen widget */
-  fullScreenWidget?: string
+  fullScreenWidget?: string;
   /** Widget visibility */
-  widgetVisibility: Record<string, boolean>
+  widgetVisibility: Record<string, boolean>;
   /** Layout mode */
-  layoutMode: 'view' | 'edit' | 'customize'
+  layoutMode: 'view' | 'edit' | 'customize';
 }
 
 /**
@@ -732,11 +732,11 @@ export interface DashboardViewState {
  */
 export interface DashboardLoadingState {
   /** Overall loading */
-  overall: boolean
+  overall: boolean;
   /** Widget loading states */
-  widgets: Record<string, boolean>
+  widgets: Record<string, boolean>;
   /** Data loading states */
-  data: Record<string, boolean>
+  data: Record<string, boolean>;
 }
 
 /**
@@ -744,11 +744,11 @@ export interface DashboardLoadingState {
  */
 export interface DashboardErrorState {
   /** Global errors */
-  global: string[]
+  global: string[];
   /** Widget errors */
-  widgets: Record<string, string>
+  widgets: Record<string, string>;
   /** Data errors */
-  data: Record<string, string>
+  data: Record<string, string>;
 }
 
 /**
@@ -756,13 +756,13 @@ export interface DashboardErrorState {
  */
 export interface DashboardInteractionState {
   /** Selected widgets */
-  selectedWidgets: Set<string>
+  selectedWidgets: Set<string>;
   /** Cross-filter state */
-  crossFilters: CrossFilter[]
+  crossFilters: CrossFilter[];
   /** Drill-down state */
-  drillDown: DrillDownState[]
+  drillDown: DrillDownState[];
   /** Hover state */
-  hover: HoverState
+  hover: HoverState;
 }
 
 /**
@@ -770,15 +770,15 @@ export interface DashboardInteractionState {
  */
 export interface CrossFilter {
   /** Filter ID */
-  id: string
+  id: string;
   /** Source widget */
-  sourceWidget: string
+  sourceWidget: string;
   /** Target widgets */
-  targetWidgets: string[]
+  targetWidgets: string[];
   /** Filter criteria */
-  criteria: DataFilter[]
+  criteria: DataFilter[];
   /** Filter active */
-  active: boolean
+  active: boolean;
 }
 
 /**
@@ -786,15 +786,15 @@ export interface CrossFilter {
  */
 export interface DrillDownState {
   /** Widget ID */
-  widgetId: string
+  widgetId: string;
   /** Current drill level */
-  level: number
+  level: number;
   /** Drill path */
-  path: DrillDownLevel[]
+  path: DrillDownLevel[];
   /** Can drill further */
-  canDrillDown: boolean
+  canDrillDown: boolean;
   /** Can drill up */
-  canDrillUp: boolean
+  canDrillUp: boolean;
 }
 
 /**
@@ -802,11 +802,11 @@ export interface DrillDownState {
  */
 export interface DrillDownLevel {
   /** Level name */
-  name: string
+  name: string;
   /** Level value */
-  value: any
+  value: any;
   /** Level filters */
-  filters: DataFilter[]
+  filters: DataFilter[];
 }
 
 /**
@@ -814,13 +814,13 @@ export interface DrillDownLevel {
  */
 export interface HoverState {
   /** Hovered widget */
-  widget?: string
+  widget?: string;
   /** Hovered data point */
-  dataPoint?: any
+  dataPoint?: any;
   /** Hover position */
-  position: { x: number; y: number }
+  position: { x: number; y: number };
   /** Tooltip content */
-  tooltipContent?: string
+  tooltipContent?: string;
 }
 
 /**
@@ -828,13 +828,13 @@ export interface HoverState {
  */
 export interface AnalyticsExportOptions {
   /** Available formats */
-  formats: ExportFormat[]
+  formats: ExportFormat[];
   /** Export templates */
-  templates: ExportTemplate[]
+  templates: ExportTemplate[];
   /** Scheduled exports */
-  scheduledExports: ScheduledExport[]
+  scheduledExports: ScheduledExport[];
   /** Export history */
-  history: ExportHistoryEntry[]
+  history: ExportHistoryEntry[];
 }
 
 /**
@@ -842,15 +842,15 @@ export interface AnalyticsExportOptions {
  */
 export interface ExportFormat {
   /** Format type */
-  type: 'pdf' | 'excel' | 'csv' | 'png' | 'svg' | 'json' | 'html'
+  type: 'pdf' | 'excel' | 'csv' | 'png' | 'svg' | 'json' | 'html';
   /** Format name */
-  name: string
+  name: string;
   /** Format description */
-  description: string
+  description: string;
   /** Format options */
-  options: ExportFormatOptions
+  options: ExportFormatOptions;
   /** Format size limits */
-  sizeLimits: ExportSizeLimits
+  sizeLimits: ExportSizeLimits;
 }
 
 /**
@@ -858,13 +858,13 @@ export interface ExportFormat {
  */
 export interface ExportFormatOptions {
   /** Include charts */
-  includeCharts: boolean
+  includeCharts: boolean;
   /** Include data */
-  includeData: boolean
+  includeData: boolean;
   /** Include metadata */
-  includeMetadata: boolean
+  includeMetadata: boolean;
   /** Compression */
-  compression?: CompressionOptions
+  compression?: CompressionOptions;
 }
 
 /**
@@ -872,11 +872,11 @@ export interface ExportFormatOptions {
  */
 export interface CompressionOptions {
   /** Compression enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Compression level (1-9) */
-  level: number
+  level: number;
   /** Compression algorithm */
-  algorithm: 'gzip' | 'deflate' | 'brotli'
+  algorithm: 'gzip' | 'deflate' | 'brotli';
 }
 
 /**
@@ -884,11 +884,11 @@ export interface CompressionOptions {
  */
 export interface ExportSizeLimits {
   /** Maximum file size (MB) */
-  maxFileSize: number
+  maxFileSize: number;
   /** Maximum records */
-  maxRecords: number
+  maxRecords: number;
   /** Maximum charts */
-  maxCharts: number
+  maxCharts: number;
 }
 
 /**
@@ -896,15 +896,15 @@ export interface ExportSizeLimits {
  */
 export interface ExportTemplate {
   /** Template ID */
-  id: string
+  id: string;
   /** Template name */
-  name: string
+  name: string;
   /** Template description */
-  description: string
+  description: string;
   /** Template configuration */
-  config: ExportTemplateConfig
+  config: ExportTemplateConfig;
   /** Template preview */
-  preview?: string
+  preview?: string;
 }
 
 /**
@@ -912,13 +912,13 @@ export interface ExportTemplate {
  */
 export interface ExportTemplateConfig {
   /** Include widgets */
-  widgets: string[]
+  widgets: string[];
   /** Layout configuration */
-  layout: ExportLayoutConfig
+  layout: ExportLayoutConfig;
   /** Style configuration */
-  style: ExportStyleConfig
+  style: ExportStyleConfig;
   /** Content configuration */
-  content: ExportContentConfig
+  content: ExportContentConfig;
 }
 
 /**
@@ -926,15 +926,15 @@ export interface ExportTemplateConfig {
  */
 export interface ExportLayoutConfig {
   /** Page orientation */
-  orientation: 'portrait' | 'landscape'
+  orientation: 'portrait' | 'landscape';
   /** Page size */
-  pageSize: 'A4' | 'A3' | 'Letter' | 'Legal' | 'Custom'
+  pageSize: 'A4' | 'A3' | 'Letter' | 'Legal' | 'Custom';
   /** Margins */
-  margins: { top: number; right: number; bottom: number; left: number }
+  margins: { top: number; right: number; bottom: number; left: number };
   /** Header configuration */
-  header?: HeaderConfig
+  header?: HeaderConfig;
   /** Footer configuration */
-  footer?: FooterConfig
+  footer?: FooterConfig;
 }
 
 /**
@@ -942,20 +942,20 @@ export interface ExportLayoutConfig {
  */
 export interface HeaderConfig {
   /** Header content */
-  content: string
+  content: string;
   /** Header height */
-  height: number
+  height: number;
   /** Header style */
-  style: TextStyle
+  style: TextStyle;
 }
 
 export interface FooterConfig {
   /** Footer content */
-  content: string
+  content: string;
   /** Footer height */
-  height: number
+  height: number;
   /** Footer style */
-  style: TextStyle
+  style: TextStyle;
 }
 
 /**
@@ -963,13 +963,13 @@ export interface FooterConfig {
  */
 export interface ExportStyleConfig {
   /** Color scheme */
-  colorScheme: 'color' | 'grayscale' | 'black_white'
+  colorScheme: 'color' | 'grayscale' | 'black_white';
   /** Font family */
-  fontFamily: string
+  fontFamily: string;
   /** Font sizes */
-  fontSizes: FontSizeConfig
+  fontSizes: FontSizeConfig;
   /** Brand colors */
-  brandColors?: BrandColorConfig
+  brandColors?: BrandColorConfig;
 }
 
 /**
@@ -977,13 +977,13 @@ export interface ExportStyleConfig {
  */
 export interface FontSizeConfig {
   /** Title font size */
-  title: number
+  title: number;
   /** Heading font size */
-  heading: number
+  heading: number;
   /** Body font size */
-  body: number
+  body: number;
   /** Caption font size */
-  caption: number
+  caption: number;
 }
 
 /**
@@ -991,11 +991,11 @@ export interface FontSizeConfig {
  */
 export interface BrandColorConfig {
   /** Primary brand color */
-  primary: string
+  primary: string;
   /** Secondary brand color */
-  secondary: string
+  secondary: string;
   /** Accent color */
-  accent: string
+  accent: string;
 }
 
 /**
@@ -1003,17 +1003,17 @@ export interface BrandColorConfig {
  */
 export interface ExportContentConfig {
   /** Include title page */
-  titlePage: boolean
+  titlePage: boolean;
   /** Include summary */
-  summary: boolean
+  summary: boolean;
   /** Include charts */
-  charts: boolean
+  charts: boolean;
   /** Include data tables */
-  dataTables: boolean
+  dataTables: boolean;
   /** Include insights */
-  insights: boolean
+  insights: boolean;
   /** Include appendix */
-  appendix: boolean
+  appendix: boolean;
 }
 
 /**
@@ -1021,21 +1021,21 @@ export interface ExportContentConfig {
  */
 export interface ScheduledExport {
   /** Schedule ID */
-  id: string
+  id: string;
   /** Schedule name */
-  name: string
+  name: string;
   /** Export template */
-  templateId: string
+  templateId: string;
   /** Export format */
-  format: string
+  format: string;
   /** Schedule frequency */
-  frequency: ScheduleFrequency
+  frequency: ScheduleFrequency;
   /** Schedule recipients */
-  recipients: ExportRecipient[]
+  recipients: ExportRecipient[];
   /** Next execution */
-  nextExecution: Date
+  nextExecution: Date;
   /** Schedule active */
-  active: boolean
+  active: boolean;
 }
 
 /**
@@ -1043,15 +1043,15 @@ export interface ScheduledExport {
  */
 export interface ScheduleFrequency {
   /** Frequency type */
-  type: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'custom'
+  type: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'custom';
   /** Frequency value */
-  value: number
+  value: number;
   /** Time of execution */
-  time: string
+  time: string;
   /** Days of week (for weekly) */
-  daysOfWeek?: number[]
+  daysOfWeek?: number[];
   /** Day of month (for monthly) */
-  dayOfMonth?: number
+  dayOfMonth?: number;
 }
 
 /**
@@ -1059,13 +1059,13 @@ export interface ScheduleFrequency {
  */
 export interface ExportRecipient {
   /** Recipient type */
-  type: 'email' | 'webhook' | 'storage'
+  type: 'email' | 'webhook' | 'storage';
   /** Recipient address */
-  address: string
+  address: string;
   /** Recipient name */
-  name?: string
+  name?: string;
   /** Delivery options */
-  options: DeliveryOptions
+  options: DeliveryOptions;
 }
 
 /**
@@ -1073,13 +1073,13 @@ export interface ExportRecipient {
  */
 export interface DeliveryOptions {
   /** Delivery method */
-  method: 'attachment' | 'link' | 'embed'
+  method: 'attachment' | 'link' | 'embed';
   /** Message subject */
-  subject?: string
+  subject?: string;
   /** Message body */
-  body?: string
+  body?: string;
   /** Link expiration (days) */
-  linkExpiration?: number
+  linkExpiration?: number;
 }
 
 /**
@@ -1087,21 +1087,21 @@ export interface DeliveryOptions {
  */
 export interface ExportHistoryEntry {
   /** Export ID */
-  id: string
+  id: string;
   /** Export timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Export type */
-  type: 'manual' | 'scheduled'
+  type: 'manual' | 'scheduled';
   /** Export format */
-  format: string
+  format: string;
   /** Export status */
-  status: 'success' | 'failed' | 'in_progress'
+  status: 'success' | 'failed' | 'in_progress';
   /** File size */
-  fileSize?: number
+  fileSize?: number;
   /** Download link */
-  downloadLink?: string
+  downloadLink?: string;
   /** Error message */
-  error?: string
+  error?: string;
 }
 
 // ================================
@@ -1113,65 +1113,65 @@ export interface ExportHistoryEntry {
  */
 export interface ChartConfiguration {
   /** Chart type */
-  type: ChartType
+  type: ChartType;
   /** Chart options */
-  options: ChartOptions
+  options: ChartOptions;
   /** Chart data configuration */
-  data: ChartDataConfig
+  data: ChartDataConfig;
   /** Chart styling */
-  style: ChartStyle
+  style: ChartStyle;
   /** Chart interactions */
-  interactions: ChartInteractions
+  interactions: ChartInteractions;
   /** Chart annotations */
-  annotations?: ChartAnnotation[]
+  annotations?: ChartAnnotation[];
 }
 
 /**
  * Chart Types
  */
-export type ChartType = 
-  | 'line'              // Line chart
-  | 'bar'               // Bar chart
-  | 'column'            // Column chart  
-  | 'area'              // Area chart
-  | 'pie'               // Pie chart
-  | 'donut'             // Donut chart
-  | 'scatter'           // Scatter plot
-  | 'bubble'            // Bubble chart
-  | 'heatmap'           // Heatmap
-  | 'gauge'             // Gauge chart
-  | 'radar'             // Radar/spider chart
-  | 'treemap'           // Treemap
-  | 'sankey'            // Sankey diagram
-  | 'funnel'            // Funnel chart
-  | 'waterfall'         // Waterfall chart
-  | 'candlestick'       // Candlestick chart
-  | 'box_plot'          // Box plot
-  | 'histogram'         // Histogram
-  | 'density'           // Density plot
-  | 'timeline'          // Timeline chart
-  | 'gantt'             // Gantt chart
+export type ChartType =
+  | 'line' // Line chart
+  | 'bar' // Bar chart
+  | 'column' // Column chart
+  | 'area' // Area chart
+  | 'pie' // Pie chart
+  | 'donut' // Donut chart
+  | 'scatter' // Scatter plot
+  | 'bubble' // Bubble chart
+  | 'heatmap' // Heatmap
+  | 'gauge' // Gauge chart
+  | 'radar' // Radar/spider chart
+  | 'treemap' // Treemap
+  | 'sankey' // Sankey diagram
+  | 'funnel' // Funnel chart
+  | 'waterfall' // Waterfall chart
+  | 'candlestick' // Candlestick chart
+  | 'box_plot' // Box plot
+  | 'histogram' // Histogram
+  | 'density' // Density plot
+  | 'timeline' // Timeline chart
+  | 'gantt'; // Gantt chart
 
 /**
  * Chart Options
  */
 export interface ChartOptions {
   /** Chart title */
-  title?: ChartTitle
+  title?: ChartTitle;
   /** Chart subtitle */
-  subtitle?: ChartSubtitle
+  subtitle?: ChartSubtitle;
   /** Chart legend */
-  legend?: ChartLegend
+  legend?: ChartLegend;
   /** Chart axes */
-  axes?: ChartAxes
+  axes?: ChartAxes;
   /** Chart grid */
-  grid?: ChartGrid
+  grid?: ChartGrid;
   /** Chart tooltip */
-  tooltip?: ChartTooltip
+  tooltip?: ChartTooltip;
   /** Chart responsive settings */
-  responsive?: ResponsiveSettings
+  responsive?: ResponsiveSettings;
   /** Chart animation settings */
-  animations?: ChartAnimations
+  animations?: ChartAnimations;
 }
 
 /**
@@ -1179,13 +1179,13 @@ export interface ChartOptions {
  */
 export interface ChartTitle {
   /** Title text */
-  text: string
+  text: string;
   /** Title alignment */
-  align: 'left' | 'center' | 'right'
+  align: 'left' | 'center' | 'right';
   /** Title style */
-  style: TextStyle
+  style: TextStyle;
   /** Title margin */
-  margin: number
+  margin: number;
 }
 
 /**
@@ -1193,13 +1193,13 @@ export interface ChartTitle {
  */
 export interface ChartSubtitle {
   /** Subtitle text */
-  text: string
+  text: string;
   /** Subtitle alignment */
-  align: 'left' | 'center' | 'right'
+  align: 'left' | 'center' | 'right';
   /** Subtitle style */
-  style: TextStyle
+  style: TextStyle;
   /** Subtitle margin */
-  margin: number
+  margin: number;
 }
 
 /**
@@ -1207,17 +1207,17 @@ export interface ChartSubtitle {
  */
 export interface TextStyle {
   /** Font family */
-  fontFamily: string
+  fontFamily: string;
   /** Font size */
-  fontSize: number
+  fontSize: number;
   /** Font weight */
-  fontWeight: 'normal' | 'bold' | number
+  fontWeight: 'normal' | 'bold' | number;
   /** Font style */
-  fontStyle: 'normal' | 'italic'
+  fontStyle: 'normal' | 'italic';
   /** Text color */
-  color: string
+  color: string;
   /** Text decoration */
-  textDecoration?: 'none' | 'underline' | 'strikethrough'
+  textDecoration?: 'none' | 'underline' | 'strikethrough';
 }
 
 /**
@@ -1225,17 +1225,17 @@ export interface TextStyle {
  */
 export interface ChartLegend {
   /** Legend enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Legend position */
-  position: 'top' | 'bottom' | 'left' | 'right' | 'floating'
+  position: 'top' | 'bottom' | 'left' | 'right' | 'floating';
   /** Legend alignment */
-  align: 'left' | 'center' | 'right'
+  align: 'left' | 'center' | 'right';
   /** Legend layout */
-  layout: 'horizontal' | 'vertical'
+  layout: 'horizontal' | 'vertical';
   /** Legend style */
-  style: LegendStyle
+  style: LegendStyle;
   /** Legend items */
-  items?: LegendItem[]
+  items?: LegendItem[];
 }
 
 /**
@@ -1243,19 +1243,19 @@ export interface ChartLegend {
  */
 export interface LegendStyle {
   /** Background color */
-  backgroundColor?: string
+  backgroundColor?: string;
   /** Border color */
-  borderColor?: string
+  borderColor?: string;
   /** Border width */
-  borderWidth?: number
+  borderWidth?: number;
   /** Border radius */
-  borderRadius?: number
+  borderRadius?: number;
   /** Padding */
-  padding: number
+  padding: number;
   /** Item spacing */
-  itemSpacing: number
+  itemSpacing: number;
   /** Text style */
-  textStyle: TextStyle
+  textStyle: TextStyle;
 }
 
 /**
@@ -1263,13 +1263,13 @@ export interface LegendStyle {
  */
 export interface LegendItem {
   /** Item name */
-  name: string
+  name: string;
   /** Item color */
-  color: string
+  color: string;
   /** Item symbol */
-  symbol: 'circle' | 'square' | 'diamond' | 'triangle'
+  symbol: 'circle' | 'square' | 'diamond' | 'triangle';
   /** Item visible */
-  visible: boolean
+  visible: boolean;
 }
 
 /**
@@ -1277,11 +1277,11 @@ export interface LegendItem {
  */
 export interface ChartAxes {
   /** X-axis configuration */
-  xAxis: AxisConfig
+  xAxis: AxisConfig;
   /** Y-axis configuration */
-  yAxis: AxisConfig
+  yAxis: AxisConfig;
   /** Secondary Y-axis */
-  y2Axis?: AxisConfig
+  y2Axis?: AxisConfig;
 }
 
 /**
@@ -1289,21 +1289,21 @@ export interface ChartAxes {
  */
 export interface AxisConfig {
   /** Axis title */
-  title?: string
+  title?: string;
   /** Axis type */
-  type: 'category' | 'numeric' | 'datetime' | 'logarithmic'
+  type: 'category' | 'numeric' | 'datetime' | 'logarithmic';
   /** Axis minimum value */
-  min?: number | Date
+  min?: number | Date;
   /** Axis maximum value */
-  max?: number | Date
+  max?: number | Date;
   /** Axis tick interval */
-  tickInterval?: number
+  tickInterval?: number;
   /** Axis labels */
-  labels: AxisLabels
+  labels: AxisLabels;
   /** Axis grid lines */
-  gridLines: AxisGridLines
+  gridLines: AxisGridLines;
   /** Axis line style */
-  line: LineStyle
+  line: LineStyle;
 }
 
 /**
@@ -1311,17 +1311,17 @@ export interface AxisConfig {
  */
 export interface AxisLabels {
   /** Labels enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Label format */
-  format?: string
+  format?: string;
   /** Label rotation */
-  rotation: number
+  rotation: number;
   /** Label style */
-  style: TextStyle
+  style: TextStyle;
   /** Label step */
-  step?: number
+  step?: number;
   /** Label overflow handling */
-  overflow: 'allow' | 'justify' | 'wrap'
+  overflow: 'allow' | 'justify' | 'wrap';
 }
 
 /**
@@ -1329,15 +1329,15 @@ export interface AxisLabels {
  */
 export interface AxisGridLines {
   /** Grid lines enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Grid line color */
-  color: string
+  color: string;
   /** Grid line width */
-  width: number
+  width: number;
   /** Grid line style */
-  style: 'solid' | 'dashed' | 'dotted'
+  style: 'solid' | 'dashed' | 'dotted';
   /** Grid line opacity */
-  opacity: number
+  opacity: number;
 }
 
 /**
@@ -1345,13 +1345,13 @@ export interface AxisGridLines {
  */
 export interface LineStyle {
   /** Line color */
-  color: string
+  color: string;
   /** Line width */
-  width: number
+  width: number;
   /** Line style */
-  style: 'solid' | 'dashed' | 'dotted'
+  style: 'solid' | 'dashed' | 'dotted';
   /** Line opacity */
-  opacity: number
+  opacity: number;
 }
 
 /**
@@ -1359,15 +1359,15 @@ export interface LineStyle {
  */
 export interface ChartGrid {
   /** Grid enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Grid color */
-  color: string
+  color: string;
   /** Grid width */
-  width: number
+  width: number;
   /** Grid style */
-  style: 'solid' | 'dashed' | 'dotted'
+  style: 'solid' | 'dashed' | 'dotted';
   /** Grid opacity */
-  opacity: number
+  opacity: number;
 }
 
 /**
@@ -1375,13 +1375,13 @@ export interface ChartGrid {
  */
 export interface ChartTooltip {
   /** Tooltip enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Tooltip format */
-  format?: string
+  format?: string;
   /** Tooltip style */
-  style: TooltipStyle
+  style: TooltipStyle;
   /** Tooltip behavior */
-  behavior: TooltipBehavior
+  behavior: TooltipBehavior;
 }
 
 /**
@@ -1389,21 +1389,21 @@ export interface ChartTooltip {
  */
 export interface TooltipStyle {
   /** Background color */
-  backgroundColor: string
+  backgroundColor: string;
   /** Border color */
-  borderColor: string
+  borderColor: string;
   /** Border width */
-  borderWidth: number
+  borderWidth: number;
   /** Border radius */
-  borderRadius: number
+  borderRadius: number;
   /** Text color */
-  textColor: string
+  textColor: string;
   /** Font size */
-  fontSize: number
+  fontSize: number;
   /** Padding */
-  padding: number
+  padding: number;
   /** Shadow */
-  shadow?: ShadowStyle
+  shadow?: ShadowStyle;
 }
 
 /**
@@ -1411,13 +1411,13 @@ export interface TooltipStyle {
  */
 export interface ShadowStyle {
   /** Shadow color */
-  color: string
+  color: string;
   /** Shadow offset X */
-  offsetX: number
+  offsetX: number;
   /** Shadow offset Y */
-  offsetY: number
+  offsetY: number;
   /** Shadow blur */
-  blur: number
+  blur: number;
 }
 
 /**
@@ -1425,13 +1425,13 @@ export interface ShadowStyle {
  */
 export interface TooltipBehavior {
   /** Trigger event */
-  trigger: 'hover' | 'click' | 'none'
+  trigger: 'hover' | 'click' | 'none';
   /** Follow pointer */
-  followPointer: boolean
+  followPointer: boolean;
   /** Hide delay (ms) */
-  hideDelay: number
+  hideDelay: number;
   /** Show delay (ms) */
-  showDelay: number
+  showDelay: number;
 }
 
 /**
@@ -1439,11 +1439,11 @@ export interface TooltipBehavior {
  */
 export interface ResponsiveSettings {
   /** Responsive enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Maintain aspect ratio */
-  maintainAspectRatio: boolean
+  maintainAspectRatio: boolean;
   /** Responsive rules */
-  rules: ResponsiveRule[]
+  rules: ResponsiveRule[];
 }
 
 /**
@@ -1451,9 +1451,9 @@ export interface ResponsiveSettings {
  */
 export interface ResponsiveRule {
   /** Condition */
-  condition: ResponsiveCondition
+  condition: ResponsiveCondition;
   /** Chart options override */
-  chartOptions: Partial<ChartOptions>
+  chartOptions: Partial<ChartOptions>;
 }
 
 /**
@@ -1461,13 +1461,13 @@ export interface ResponsiveRule {
  */
 export interface ResponsiveCondition {
   /** Maximum width */
-  maxWidth?: number
+  maxWidth?: number;
   /** Minimum width */
-  minWidth?: number
+  minWidth?: number;
   /** Maximum height */
-  maxHeight?: number
+  maxHeight?: number;
   /** Minimum height */
-  minHeight?: number
+  minHeight?: number;
 }
 
 /**
@@ -1475,15 +1475,15 @@ export interface ResponsiveCondition {
  */
 export interface ChartAnimations {
   /** Animation enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Animation duration (ms) */
-  duration: number
+  duration: number;
   /** Animation easing */
-  easing: 'linear' | 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out'
+  easing: 'linear' | 'ease' | 'ease-in' | 'ease-out' | 'ease-in-out';
   /** Animation delay (ms) */
-  delay: number
+  delay: number;
   /** Animation loop */
-  loop: boolean
+  loop: boolean;
 }
 
 /**
@@ -1491,13 +1491,13 @@ export interface ChartAnimations {
  */
 export interface ChartDataConfig {
   /** Data series */
-  series: DataSeries[]
+  series: DataSeries[];
   /** Data categories */
-  categories?: string[]
+  categories?: string[];
   /** Data colors */
-  colors?: string[]
+  colors?: string[];
   /** Data sorting */
-  sorting?: DataSorting
+  sorting?: DataSorting;
 }
 
 /**
@@ -1505,19 +1505,19 @@ export interface ChartDataConfig {
  */
 export interface DataSeries {
   /** Series name */
-  name: string
+  name: string;
   /** Series data */
-  data: DataPoint[]
+  data: DataPoint[];
   /** Series type (for combination charts) */
-  type?: ChartType
+  type?: ChartType;
   /** Series color */
-  color?: string
+  color?: string;
   /** Series visible */
-  visible: boolean
+  visible: boolean;
   /** Series axis (for dual-axis charts) */
-  yAxis?: number
+  yAxis?: number;
   /** Series marker */
-  marker?: SeriesMarker
+  marker?: SeriesMarker;
 }
 
 /**
@@ -1525,15 +1525,15 @@ export interface DataSeries {
  */
 export interface DataPoint {
   /** X value */
-  x?: any
+  x?: any;
   /** Y value */
-  y: number
+  y: number;
   /** Data label */
-  label?: string
+  label?: string;
   /** Data color */
-  color?: string
+  color?: string;
   /** Data metadata */
-  metadata?: Record<string, any>
+  metadata?: Record<string, any>;
 }
 
 /**
@@ -1541,17 +1541,17 @@ export interface DataPoint {
  */
 export interface SeriesMarker {
   /** Marker enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Marker symbol */
-  symbol: 'circle' | 'square' | 'diamond' | 'triangle'
+  symbol: 'circle' | 'square' | 'diamond' | 'triangle';
   /** Marker radius */
-  radius: number
+  radius: number;
   /** Marker fill color */
-  fillColor?: string
+  fillColor?: string;
   /** Marker line color */
-  lineColor?: string
+  lineColor?: string;
   /** Marker line width */
-  lineWidth: number
+  lineWidth: number;
 }
 
 /**
@@ -1559,11 +1559,11 @@ export interface SeriesMarker {
  */
 export interface DataSorting {
   /** Sort field */
-  field: string
+  field: string;
   /** Sort order */
-  order: 'asc' | 'desc'
+  order: 'asc' | 'desc';
   /** Sort enabled */
-  enabled: boolean
+  enabled: boolean;
 }
 
 /**
@@ -1571,15 +1571,15 @@ export interface DataSorting {
  */
 export interface ChartStyle {
   /** Color scheme */
-  colorScheme: ColorScheme
+  colorScheme: ColorScheme;
   /** Typography */
-  typography: TypographySettings
+  typography: TypographySettings;
   /** Spacing */
-  spacing: SpacingSettings
+  spacing: SpacingSettings;
   /** Border */
-  border?: BorderStyle
+  border?: BorderStyle;
   /** Background */
-  background?: BackgroundStyle
+  background?: BackgroundStyle;
 }
 
 /**
@@ -1587,15 +1587,15 @@ export interface ChartStyle {
  */
 export interface ColorScheme {
   /** Scheme name */
-  name: string
+  name: string;
   /** Primary colors */
-  primary: string[]
+  primary: string[];
   /** Secondary colors */
-  secondary?: string[]
+  secondary?: string[];
   /** Accent colors */
-  accent?: string[]
+  accent?: string[];
   /** Neutral colors */
-  neutral?: string[]
+  neutral?: string[];
 }
 
 /**
@@ -1603,13 +1603,13 @@ export interface ColorScheme {
  */
 export interface TypographySettings {
   /** Font family */
-  fontFamily: string
+  fontFamily: string;
   /** Font sizes */
-  fontSizes: FontSizeConfig
+  fontSizes: FontSizeConfig;
   /** Font weights */
-  fontWeights: FontWeightConfig
+  fontWeights: FontWeightConfig;
   /** Line height */
-  lineHeight: number
+  lineHeight: number;
 }
 
 /**
@@ -1617,13 +1617,13 @@ export interface TypographySettings {
  */
 export interface FontWeightConfig {
   /** Light font weight */
-  light: number
+  light: number;
   /** Normal font weight */
-  normal: number
+  normal: number;
   /** Medium font weight */
-  medium: number
+  medium: number;
   /** Bold font weight */
-  bold: number
+  bold: number;
 }
 
 /**
@@ -1631,11 +1631,11 @@ export interface FontWeightConfig {
  */
 export interface SpacingSettings {
   /** Base spacing unit */
-  base: number
+  base: number;
   /** Padding */
-  padding: SpacingValues
+  padding: SpacingValues;
   /** Margin */
-  margin: SpacingValues
+  margin: SpacingValues;
 }
 
 /**
@@ -1643,13 +1643,13 @@ export interface SpacingSettings {
  */
 export interface SpacingValues {
   /** Small spacing */
-  small: number
+  small: number;
   /** Medium spacing */
-  medium: number
+  medium: number;
   /** Large spacing */
-  large: number
+  large: number;
   /** Extra large spacing */
-  xlarge: number
+  xlarge: number;
 }
 
 /**
@@ -1657,13 +1657,13 @@ export interface SpacingValues {
  */
 export interface BorderStyle {
   /** Border color */
-  color: string
+  color: string;
   /** Border width */
-  width: number
+  width: number;
   /** Border style */
-  style: 'solid' | 'dashed' | 'dotted'
+  style: 'solid' | 'dashed' | 'dotted';
   /** Border radius */
-  radius: number
+  radius: number;
 }
 
 /**
@@ -1671,11 +1671,11 @@ export interface BorderStyle {
  */
 export interface BackgroundStyle {
   /** Background color */
-  color?: string
+  color?: string;
   /** Background gradient */
-  gradient?: GradientStyle
+  gradient?: GradientStyle;
   /** Background image */
-  image?: BackgroundImage
+  image?: BackgroundImage;
 }
 
 /**
@@ -1683,11 +1683,11 @@ export interface BackgroundStyle {
  */
 export interface GradientStyle {
   /** Gradient type */
-  type: 'linear' | 'radial'
+  type: 'linear' | 'radial';
   /** Gradient direction (for linear) */
-  direction?: number
+  direction?: number;
   /** Gradient stops */
-  stops: GradientStop[]
+  stops: GradientStop[];
 }
 
 /**
@@ -1695,11 +1695,11 @@ export interface GradientStyle {
  */
 export interface GradientStop {
   /** Stop position (0-1) */
-  position: number
+  position: number;
   /** Stop color */
-  color: string
+  color: string;
   /** Stop opacity */
-  opacity?: number
+  opacity?: number;
 }
 
 /**
@@ -1707,15 +1707,15 @@ export interface GradientStop {
  */
 export interface BackgroundImage {
   /** Image URL */
-  url: string
+  url: string;
   /** Image repeat */
-  repeat: 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y'
+  repeat: 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y';
   /** Image position */
-  position: string
+  position: string;
   /** Image size */
-  size: 'auto' | 'cover' | 'contain' | string
+  size: 'auto' | 'cover' | 'contain' | string;
   /** Image opacity */
-  opacity: number
+  opacity: number;
 }
 
 /**
@@ -1723,15 +1723,15 @@ export interface BackgroundImage {
  */
 export interface ChartInteractions {
   /** Hover interactions */
-  hover: HoverInteraction
+  hover: HoverInteraction;
   /** Click interactions */
-  click: ClickInteraction
+  click: ClickInteraction;
   /** Zoom interactions */
-  zoom?: ZoomInteraction
+  zoom?: ZoomInteraction;
   /** Pan interactions */
-  pan?: PanInteraction
+  pan?: PanInteraction;
   /** Selection interactions */
-  selection?: SelectionInteraction
+  selection?: SelectionInteraction;
 }
 
 /**
@@ -1739,11 +1739,11 @@ export interface ChartInteractions {
  */
 export interface HoverInteraction {
   /** Hover enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Hover effect */
-  effect: 'highlight' | 'dim' | 'none'
+  effect: 'highlight' | 'dim' | 'none';
   /** Hover intensity */
-  intensity: number
+  intensity: number;
 }
 
 /**
@@ -1751,11 +1751,11 @@ export interface HoverInteraction {
  */
 export interface ClickInteraction {
   /** Click enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Click action */
-  action: 'select' | 'drill_down' | 'navigate' | 'custom'
+  action: 'select' | 'drill_down' | 'navigate' | 'custom';
   /** Click handler */
-  handler?: string
+  handler?: string;
 }
 
 /**
@@ -1763,13 +1763,13 @@ export interface ClickInteraction {
  */
 export interface ZoomInteraction {
   /** Zoom enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Zoom type */
-  type: 'x' | 'y' | 'xy'
+  type: 'x' | 'y' | 'xy';
   /** Zoom sensitivity */
-  sensitivity: number
+  sensitivity: number;
   /** Zoom limits */
-  limits: ZoomLimits
+  limits: ZoomLimits;
 }
 
 /**
@@ -1777,9 +1777,9 @@ export interface ZoomInteraction {
  */
 export interface ZoomLimits {
   /** Minimum zoom */
-  min: number
+  min: number;
   /** Maximum zoom */
-  max: number
+  max: number;
 }
 
 /**
@@ -1787,11 +1787,11 @@ export interface ZoomLimits {
  */
 export interface PanInteraction {
   /** Pan enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Pan type */
-  type: 'x' | 'y' | 'xy'
+  type: 'x' | 'y' | 'xy';
   /** Pan threshold */
-  threshold: number
+  threshold: number;
 }
 
 /**
@@ -1799,11 +1799,11 @@ export interface PanInteraction {
  */
 export interface SelectionInteraction {
   /** Selection enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Selection mode */
-  mode: 'single' | 'multiple' | 'range'
+  mode: 'single' | 'multiple' | 'range';
   /** Selection style */
-  style: SelectionStyle
+  style: SelectionStyle;
 }
 
 /**
@@ -1811,11 +1811,11 @@ export interface SelectionInteraction {
  */
 export interface SelectionStyle {
   /** Selection color */
-  color: string
+  color: string;
   /** Selection opacity */
-  opacity: number
+  opacity: number;
   /** Selection border */
-  border: BorderStyle
+  border: BorderStyle;
 }
 
 /**
@@ -1823,40 +1823,40 @@ export interface SelectionStyle {
  */
 export interface ChartAnnotation {
   /** Annotation ID */
-  id: string
+  id: string;
   /** Annotation type */
-  type: AnnotationType
+  type: AnnotationType;
   /** Annotation position */
-  position: AnnotationPosition
+  position: AnnotationPosition;
   /** Annotation content */
-  content: AnnotationContent
+  content: AnnotationContent;
   /** Annotation style */
-  style: AnnotationStyle
+  style: AnnotationStyle;
 }
 
 /**
  * Annotation Types
  */
-export type AnnotationType = 
-  | 'line'        // Line annotation
-  | 'area'        // Area annotation
-  | 'point'       // Point annotation
-  | 'text'        // Text annotation
-  | 'image'       // Image annotation
-  | 'shape'       // Shape annotation
+export type AnnotationType =
+  | 'line' // Line annotation
+  | 'area' // Area annotation
+  | 'point' // Point annotation
+  | 'text' // Text annotation
+  | 'image' // Image annotation
+  | 'shape'; // Shape annotation
 
 /**
  * Annotation Position
  */
 export interface AnnotationPosition {
   /** X position */
-  x: number | Date | string
+  x: number | Date | string;
   /** Y position */
-  y?: number
+  y?: number;
   /** Width (for area annotations) */
-  width?: number
+  width?: number;
   /** Height (for area annotations) */
-  height?: number
+  height?: number;
 }
 
 /**
@@ -1864,11 +1864,11 @@ export interface AnnotationPosition {
  */
 export interface AnnotationContent {
   /** Text content */
-  text?: string
+  text?: string;
   /** Image URL */
-  imageUrl?: string
+  imageUrl?: string;
   /** HTML content */
-  html?: string
+  html?: string;
 }
 
 /**
@@ -1876,15 +1876,15 @@ export interface AnnotationContent {
  */
 export interface AnnotationStyle {
   /** Color */
-  color: string
+  color: string;
   /** Background color */
-  backgroundColor?: string
+  backgroundColor?: string;
   /** Border style */
-  border?: BorderStyle
+  border?: BorderStyle;
   /** Text style */
-  textStyle?: TextStyle
+  textStyle?: TextStyle;
   /** Opacity */
-  opacity: number
+  opacity: number;
 }
 
 // ================================
@@ -1896,11 +1896,11 @@ export interface AnnotationStyle {
  */
 export interface ChartData {
   /** Data series */
-  series: ChartDataSeries[]
+  series: ChartDataSeries[];
   /** Data categories */
-  categories: string[]
+  categories: string[];
   /** Data metadata */
-  metadata: ChartDataMetadata
+  metadata: ChartDataMetadata;
 }
 
 /**
@@ -1908,15 +1908,15 @@ export interface ChartData {
  */
 export interface ChartDataSeries {
   /** Series ID */
-  id: string
+  id: string;
   /** Series name */
-  name: string
+  name: string;
   /** Series data points */
-  data: ChartDataPoint[]
+  data: ChartDataPoint[];
   /** Series type */
-  type: ChartType
+  type: ChartType;
   /** Series configuration */
-  config: SeriesConfig
+  config: SeriesConfig;
 }
 
 /**
@@ -1924,17 +1924,17 @@ export interface ChartDataSeries {
  */
 export interface ChartDataPoint {
   /** X value */
-  x: any
+  x: any;
   /** Y value */
-  y: number
+  y: number;
   /** Additional values for complex charts */
-  z?: number
+  z?: number;
   /** Data point label */
-  label?: string
+  label?: string;
   /** Data point color */
-  color?: string
+  color?: string;
   /** Data point metadata */
-  metadata?: DataPointMetadata
+  metadata?: DataPointMetadata;
 }
 
 /**
@@ -1942,13 +1942,13 @@ export interface ChartDataPoint {
  */
 export interface DataPointMetadata {
   /** Original data record */
-  originalData: any
+  originalData: any;
   /** Calculated values */
-  calculated: Record<string, number>
+  calculated: Record<string, number>;
   /** Contextual information */
-  context: Record<string, any>
+  context: Record<string, any>;
   /** Quality indicators */
-  quality: DataPointQuality
+  quality: DataPointQuality;
 }
 
 /**
@@ -1956,13 +1956,13 @@ export interface DataPointMetadata {
  */
 export interface DataPointQuality {
   /** Data confidence (0-1) */
-  confidence: number
+  confidence: number;
   /** Data accuracy flag */
-  accurate: boolean
+  accurate: boolean;
   /** Data completeness flag */
-  complete: boolean
+  complete: boolean;
   /** Data source reliability */
-  reliability: number
+  reliability: number;
 }
 
 /**
@@ -1970,17 +1970,17 @@ export interface DataPointQuality {
  */
 export interface SeriesConfig {
   /** Series visibility */
-  visible: boolean
+  visible: boolean;
   /** Series color */
-  color: string
+  color: string;
   /** Series opacity */
-  opacity: number
+  opacity: number;
   /** Series line style */
-  lineStyle?: LineStyle
+  lineStyle?: LineStyle;
   /** Series marker style */
-  markerStyle?: SeriesMarker
+  markerStyle?: SeriesMarker;
   /** Series fill style */
-  fillStyle?: FillStyle
+  fillStyle?: FillStyle;
 }
 
 /**
@@ -1988,13 +1988,13 @@ export interface SeriesConfig {
  */
 export interface FillStyle {
   /** Fill enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Fill color */
-  color: string
+  color: string;
   /** Fill opacity */
-  opacity: number
+  opacity: number;
   /** Fill pattern */
-  pattern?: 'solid' | 'striped' | 'dotted' | 'crosshatch'
+  pattern?: 'solid' | 'striped' | 'dotted' | 'crosshatch';
 }
 
 /**
@@ -2002,17 +2002,17 @@ export interface FillStyle {
  */
 export interface ChartDataMetadata {
   /** Total data points */
-  totalDataPoints: number
+  totalDataPoints: number;
   /** Data date range */
-  dateRange: AnalyticsDateRange
+  dateRange: AnalyticsDateRange;
   /** Data quality score */
-  qualityScore: number
+  qualityScore: number;
   /** Data completeness */
-  completeness: number
+  completeness: number;
   /** Data sources */
-  sources: string[]
+  sources: string[];
   /** Last updated */
-  lastUpdated: Date
+  lastUpdated: Date;
 }
 
 // ================================
@@ -2024,15 +2024,15 @@ export interface ChartDataMetadata {
  */
 export interface SummaryStatistics {
   /** Count statistics */
-  count: CountStatistics
+  count: CountStatistics;
   /** Central tendency */
-  centralTendency: CentralTendencyStatistics
+  centralTendency: CentralTendencyStatistics;
   /** Dispersion statistics */
-  dispersion: DispersionStatistics
+  dispersion: DispersionStatistics;
   /** Distribution statistics */
-  distribution: DistributionStatistics
+  distribution: DistributionStatistics;
   /** Correlation statistics */
-  correlations: CorrelationStatistics
+  correlations: CorrelationStatistics;
 }
 
 /**
@@ -2040,15 +2040,15 @@ export interface SummaryStatistics {
  */
 export interface CountStatistics {
   /** Total count */
-  total: number
+  total: number;
   /** Valid count */
-  valid: number
+  valid: number;
   /** Missing count */
-  missing: number
+  missing: number;
   /** Unique count */
-  unique: number
+  unique: number;
   /** Duplicate count */
-  duplicates: number
+  duplicates: number;
 }
 
 /**
@@ -2056,15 +2056,15 @@ export interface CountStatistics {
  */
 export interface CentralTendencyStatistics {
   /** Mean */
-  mean: number
+  mean: number;
   /** Median */
-  median: number
+  median: number;
   /** Mode */
-  mode: number[]
+  mode: number[];
   /** Geometric mean */
-  geometricMean?: number
+  geometricMean?: number;
   /** Harmonic mean */
-  harmonicMean?: number
+  harmonicMean?: number;
 }
 
 /**
@@ -2072,19 +2072,19 @@ export interface CentralTendencyStatistics {
  */
 export interface DispersionStatistics {
   /** Range */
-  range: number
+  range: number;
   /** Minimum value */
-  min: number
+  min: number;
   /** Maximum value */
-  max: number
+  max: number;
   /** Variance */
-  variance: number
+  variance: number;
   /** Standard deviation */
-  standardDeviation: number
+  standardDeviation: number;
   /** Coefficient of variation */
-  coefficientOfVariation: number
+  coefficientOfVariation: number;
   /** Interquartile range */
-  interquartileRange: number
+  interquartileRange: number;
 }
 
 /**
@@ -2092,17 +2092,17 @@ export interface DispersionStatistics {
  */
 export interface DistributionStatistics {
   /** Quartiles */
-  quartiles: QuartileStatistics
+  quartiles: QuartileStatistics;
   /** Percentiles */
-  percentiles: PercentileStatistics
+  percentiles: PercentileStatistics;
   /** Skewness */
-  skewness: number
+  skewness: number;
   /** Kurtosis */
-  kurtosis: number
+  kurtosis: number;
   /** Distribution type */
-  distributionType: string
+  distributionType: string;
   /** Normality test */
-  normalityTest: NormalityTestResult
+  normalityTest: NormalityTestResult;
 }
 
 /**
@@ -2110,11 +2110,11 @@ export interface DistributionStatistics {
  */
 export interface QuartileStatistics {
   /** Q1 (25th percentile) */
-  q1: number
+  q1: number;
   /** Q2 (50th percentile / median) */
-  q2: number
+  q2: number;
   /** Q3 (75th percentile) */
-  q3: number
+  q3: number;
 }
 
 /**
@@ -2122,21 +2122,21 @@ export interface QuartileStatistics {
  */
 export interface PercentileStatistics {
   /** 5th percentile */
-  p5: number
+  p5: number;
   /** 10th percentile */
-  p10: number
+  p10: number;
   /** 25th percentile */
-  p25: number
+  p25: number;
   /** 50th percentile */
-  p50: number
+  p50: number;
   /** 75th percentile */
-  p75: number
+  p75: number;
   /** 90th percentile */
-  p90: number
+  p90: number;
   /** 95th percentile */
-  p95: number
+  p95: number;
   /** 99th percentile */
-  p99: number
+  p99: number;
 }
 
 /**
@@ -2144,15 +2144,15 @@ export interface PercentileStatistics {
  */
 export interface NormalityTestResult {
   /** Test statistic */
-  statistic: number
+  statistic: number;
   /** P-value */
-  pValue: number
+  pValue: number;
   /** Is normal distribution */
-  isNormal: boolean
+  isNormal: boolean;
   /** Test method */
-  method: string
+  method: string;
   /** Confidence level */
-  confidenceLevel: number
+  confidenceLevel: number;
 }
 
 /**
@@ -2160,9 +2160,9 @@ export interface NormalityTestResult {
  */
 export interface CorrelationStatistics {
   /** Correlation matrix */
-  matrix: CorrelationMatrix
+  matrix: CorrelationMatrix;
   /** Significant correlations */
-  significant: SignificantCorrelation[]
+  significant: SignificantCorrelation[];
 }
 
 /**
@@ -2170,11 +2170,11 @@ export interface CorrelationStatistics {
  */
 export interface CorrelationMatrix {
   /** Variables */
-  variables: string[]
+  variables: string[];
   /** Correlation values */
-  values: number[][]
+  values: number[][];
   /** P-values */
-  pValues: number[][]
+  pValues: number[][];
 }
 
 /**
@@ -2182,15 +2182,15 @@ export interface CorrelationMatrix {
  */
 export interface SignificantCorrelation {
   /** Variable 1 */
-  variable1: string
+  variable1: string;
   /** Variable 2 */
-  variable2: string
+  variable2: string;
   /** Correlation coefficient */
-  correlation: number
+  correlation: number;
   /** P-value */
-  pValue: number
+  pValue: number;
   /** Significance level */
-  significance: 'low' | 'medium' | 'high'
+  significance: 'low' | 'medium' | 'high';
 }
 
 // ================================
@@ -2202,15 +2202,15 @@ export interface SignificantCorrelation {
  */
 export interface TrendAnalysis {
   /** Overall trend */
-  overall: OverallTrend
+  overall: OverallTrend;
   /** Trend components */
-  components: TrendComponents
+  components: TrendComponents;
   /** Trend forecasting */
-  forecast: TrendForecast
+  forecast: TrendForecast;
   /** Trend detection */
-  detection: TrendDetection
+  detection: TrendDetection;
   /** Seasonality analysis */
-  seasonality: SeasonalityAnalysis
+  seasonality: SeasonalityAnalysis;
 }
 
 /**
@@ -2218,15 +2218,15 @@ export interface TrendAnalysis {
  */
 export interface OverallTrend {
   /** Trend direction */
-  direction: TrendDirection
+  direction: TrendDirection;
   /** Trend strength */
-  strength: number
+  strength: number;
   /** Trend confidence */
-  confidence: number
+  confidence: number;
   /** Trend description */
-  description: string
+  description: string;
   /** Trend significance */
-  significance: number
+  significance: number;
 }
 
 /**
@@ -2234,13 +2234,13 @@ export interface OverallTrend {
  */
 export interface TrendComponents {
   /** Trend component */
-  trend: TrendComponent
+  trend: TrendComponent;
   /** Seasonal component */
-  seasonal: SeasonalComponent
+  seasonal: SeasonalComponent;
   /** Cyclical component */
-  cyclical: CyclicalComponent
+  cyclical: CyclicalComponent;
   /** Irregular component */
-  irregular: IrregularComponent
+  irregular: IrregularComponent;
 }
 
 /**
@@ -2248,13 +2248,13 @@ export interface TrendComponents {
  */
 export interface TrendComponent {
   /** Component values */
-  values: number[]
+  values: number[];
   /** Component slope */
-  slope: number
+  slope: number;
   /** Component strength */
-  strength: number
+  strength: number;
   /** Component description */
-  description: string
+  description: string;
 }
 
 /**
@@ -2262,13 +2262,13 @@ export interface TrendComponent {
  */
 export interface SeasonalComponent {
   /** Component values */
-  values: number[]
+  values: number[];
   /** Seasonal period */
-  period: number
+  period: number;
   /** Seasonal strength */
-  strength: number
+  strength: number;
   /** Seasonal patterns */
-  patterns: SeasonalPattern[]
+  patterns: SeasonalPattern[];
 }
 
 /**
@@ -2276,15 +2276,15 @@ export interface SeasonalComponent {
  */
 export interface SeasonalPattern {
   /** Pattern name */
-  name: string
+  name: string;
   /** Pattern period */
-  period: number
+  period: number;
   /** Pattern amplitude */
-  amplitude: number
+  amplitude: number;
   /** Pattern phase */
-  phase: number
+  phase: number;
   /** Pattern strength */
-  strength: number
+  strength: number;
 }
 
 /**
@@ -2292,13 +2292,13 @@ export interface SeasonalPattern {
  */
 export interface CyclicalComponent {
   /** Component values */
-  values: number[]
+  values: number[];
   /** Cycle length */
-  cycleLength: number
+  cycleLength: number;
   /** Cycle amplitude */
-  amplitude: number
+  amplitude: number;
   /** Cycle strength */
-  strength: number
+  strength: number;
 }
 
 /**
@@ -2306,13 +2306,13 @@ export interface CyclicalComponent {
  */
 export interface IrregularComponent {
   /** Component values */
-  values: number[]
+  values: number[];
   /** Volatility measure */
-  volatility: number
+  volatility: number;
   /** Outlier count */
-  outliers: number
+  outliers: number;
   /** Noise level */
-  noiseLevel: number
+  noiseLevel: number;
 }
 
 /**
@@ -2320,39 +2320,39 @@ export interface IrregularComponent {
  */
 export interface TrendForecast {
   /** Forecast method */
-  method: ForecastMethod
+  method: ForecastMethod;
   /** Forecast values */
-  values: ForecastValue[]
+  values: ForecastValue[];
   /** Forecast accuracy */
-  accuracy: ForecastAccuracy
+  accuracy: ForecastAccuracy;
   /** Forecast assumptions */
-  assumptions: string[]
+  assumptions: string[];
 }
 
 /**
  * Forecast Method
  */
-export type ForecastMethod = 
+export type ForecastMethod =
   | 'linear_regression'
   | 'polynomial_regression'
   | 'exponential_smoothing'
   | 'arima'
   | 'seasonal_decomposition'
   | 'neural_network'
-  | 'ensemble'
+  | 'ensemble';
 
 /**
  * Forecast Value
  */
 export interface ForecastValue {
   /** Forecast date */
-  date: Date
+  date: Date;
   /** Forecast value */
-  value: number
+  value: number;
   /** Confidence interval */
-  confidenceInterval: ConfidenceInterval
+  confidenceInterval: ConfidenceInterval;
   /** Forecast probability */
-  probability: number
+  probability: number;
 }
 
 /**
@@ -2360,11 +2360,11 @@ export interface ForecastValue {
  */
 export interface ConfidenceInterval {
   /** Lower bound */
-  lower: number
+  lower: number;
   /** Upper bound */
-  upper: number
+  upper: number;
   /** Confidence level */
-  level: number
+  level: number;
 }
 
 /**
@@ -2372,15 +2372,15 @@ export interface ConfidenceInterval {
  */
 export interface ForecastAccuracy {
   /** Mean absolute error */
-  mae: number
+  mae: number;
   /** Mean squared error */
-  mse: number
+  mse: number;
   /** Root mean squared error */
-  rmse: number
+  rmse: number;
   /** Mean absolute percentage error */
-  mape: number
+  mape: number;
   /** Accuracy score */
-  score: number
+  score: number;
 }
 
 /**
@@ -2388,11 +2388,11 @@ export interface ForecastAccuracy {
  */
 export interface TrendDetection {
   /** Detected trends */
-  trends: DetectedTrend[]
+  trends: DetectedTrend[];
   /** Change points */
-  changePoints: ChangePoint[]
+  changePoints: ChangePoint[];
   /** Anomalies */
-  anomalies: Anomaly[]
+  anomalies: Anomaly[];
 }
 
 /**
@@ -2400,17 +2400,17 @@ export interface TrendDetection {
  */
 export interface DetectedTrend {
   /** Trend start date */
-  startDate: Date
+  startDate: Date;
   /** Trend end date */
-  endDate: Date
+  endDate: Date;
   /** Trend direction */
-  direction: TrendDirection
+  direction: TrendDirection;
   /** Trend strength */
-  strength: number
+  strength: number;
   /** Trend significance */
-  significance: number
+  significance: number;
   /** Trend description */
-  description: string
+  description: string;
 }
 
 /**
@@ -2418,15 +2418,15 @@ export interface DetectedTrend {
  */
 export interface ChangePoint {
   /** Change point date */
-  date: Date
+  date: Date;
   /** Change magnitude */
-  magnitude: number
+  magnitude: number;
   /** Change direction */
-  direction: 'increase' | 'decrease'
+  direction: 'increase' | 'decrease';
   /** Change probability */
-  probability: number
+  probability: number;
   /** Change description */
-  description: string
+  description: string;
 }
 
 /**
@@ -2434,17 +2434,17 @@ export interface ChangePoint {
  */
 export interface Anomaly {
   /** Anomaly date */
-  date: Date
+  date: Date;
   /** Anomaly value */
-  value: number
+  value: number;
   /** Expected value */
-  expected: number
+  expected: number;
   /** Anomaly score */
-  score: number
+  score: number;
   /** Anomaly type */
-  type: 'outlier' | 'drift' | 'spike' | 'dip'
+  type: 'outlier' | 'drift' | 'spike' | 'dip';
   /** Anomaly description */
-  description: string
+  description: string;
 }
 
 /**
@@ -2452,13 +2452,13 @@ export interface Anomaly {
  */
 export interface SeasonalityAnalysis {
   /** Seasonality detected */
-  detected: boolean
+  detected: boolean;
   /** Seasonal periods */
-  periods: SeasonalPeriod[]
+  periods: SeasonalPeriod[];
   /** Seasonal strength */
-  strength: number
+  strength: number;
   /** Seasonal decomposition */
-  decomposition: SeasonalDecomposition
+  decomposition: SeasonalDecomposition;
 }
 
 /**
@@ -2466,13 +2466,13 @@ export interface SeasonalityAnalysis {
  */
 export interface SeasonalPeriod {
   /** Period name */
-  name: string
+  name: string;
   /** Period length */
-  length: number
+  length: number;
   /** Period strength */
-  strength: number
+  strength: number;
   /** Period pattern */
-  pattern: number[]
+  pattern: number[];
 }
 
 /**
@@ -2480,15 +2480,15 @@ export interface SeasonalPeriod {
  */
 export interface SeasonalDecomposition {
   /** Original data */
-  original: number[]
+  original: number[];
   /** Trend component */
-  trend: number[]
+  trend: number[];
   /** Seasonal component */
-  seasonal: number[]
+  seasonal: number[];
   /** Residual component */
-  residual: number[]
+  residual: number[];
   /** Decomposition method */
-  method: 'additive' | 'multiplicative'
+  method: 'additive' | 'multiplicative';
 }
 
 // ================================
@@ -2500,57 +2500,57 @@ export interface SeasonalDecomposition {
  */
 export interface DataInsight {
   /** Insight ID */
-  id: string
+  id: string;
   /** Insight type */
-  type: InsightType
+  type: InsightType;
   /** Insight title */
-  title: string
+  title: string;
   /** Insight description */
-  description: string
+  description: string;
   /** Insight significance */
-  significance: InsightSignificance
+  significance: InsightSignificance;
   /** Insight confidence */
-  confidence: number
+  confidence: number;
   /** Supporting evidence */
-  evidence: InsightEvidence
+  evidence: InsightEvidence;
   /** Recommended actions */
-  actions: InsightAction[]
+  actions: InsightAction[];
   /** Insight metadata */
-  metadata: InsightMetadata
+  metadata: InsightMetadata;
 }
 
 /**
  * Insight Types
  */
-export type InsightType = 
-  | 'trend'              // Trend-related insight
-  | 'anomaly'            // Anomaly detection
-  | 'correlation'        // Correlation discovery
-  | 'pattern'            // Pattern recognition
-  | 'threshold'          // Threshold breach
-  | 'forecast'           // Predictive insight
-  | 'comparison'         // Comparative analysis
-  | 'opportunity'        // Improvement opportunity
-  | 'risk'              // Risk identification
-  | 'achievement'        // Achievement recognition
+export type InsightType =
+  | 'trend' // Trend-related insight
+  | 'anomaly' // Anomaly detection
+  | 'correlation' // Correlation discovery
+  | 'pattern' // Pattern recognition
+  | 'threshold' // Threshold breach
+  | 'forecast' // Predictive insight
+  | 'comparison' // Comparative analysis
+  | 'opportunity' // Improvement opportunity
+  | 'risk' // Risk identification
+  | 'achievement'; // Achievement recognition
 
 /**
  * Insight Significance
  */
-export type InsightSignificance = 'low' | 'medium' | 'high' | 'critical'
+export type InsightSignificance = 'low' | 'medium' | 'high' | 'critical';
 
 /**
  * Insight Evidence
  */
 export interface InsightEvidence {
   /** Evidence type */
-  type: 'statistical' | 'visual' | 'comparative' | 'historical'
+  type: 'statistical' | 'visual' | 'comparative' | 'historical';
   /** Evidence data */
-  data: any
+  data: any;
   /** Evidence strength */
-  strength: number
+  strength: number;
   /** Evidence description */
-  description: string
+  description: string;
 }
 
 /**
@@ -2558,15 +2558,15 @@ export interface InsightEvidence {
  */
 export interface InsightAction {
   /** Action type */
-  type: 'investigate' | 'optimize' | 'alert' | 'automate' | 'plan'
+  type: 'investigate' | 'optimize' | 'alert' | 'automate' | 'plan';
   /** Action description */
-  description: string
+  description: string;
   /** Action priority */
-  priority: 'low' | 'medium' | 'high' | 'urgent'
+  priority: 'low' | 'medium' | 'high' | 'urgent';
   /** Action effort */
-  effort: 'low' | 'medium' | 'high'
+  effort: 'low' | 'medium' | 'high';
   /** Action impact */
-  impact: 'low' | 'medium' | 'high'
+  impact: 'low' | 'medium' | 'high';
 }
 
 /**
@@ -2574,15 +2574,15 @@ export interface InsightAction {
  */
 export interface InsightMetadata {
   /** Creation timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Creator (system/user) */
-  createdBy: string
+  createdBy: string;
   /** Insight version */
-  version: number
+  version: number;
   /** Related insights */
-  relatedInsights: string[]
+  relatedInsights: string[];
   /** Tags */
-  tags: string[]
+  tags: string[];
 }
 
 // ================================
@@ -2594,25 +2594,25 @@ export interface InsightMetadata {
  */
 export interface AnalyticsFilter {
   /** Filter ID */
-  id: string
+  id: string;
   /** Filter name */
-  name: string
+  name: string;
   /** Filter type */
-  type: AnalyticsFilterType
+  type: AnalyticsFilterType;
   /** Filter operator */
-  operator: FilterOperator
+  operator: FilterOperator;
   /** Filter value */
-  value: any
+  value: any;
   /** Filter enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Filter metadata */
-  metadata: FilterMetadata
+  metadata: FilterMetadata;
 }
 
 /**
  * Analytics Filter Types
  */
-export type AnalyticsFilterType = 
+export type AnalyticsFilterType =
   | 'date_range'
   | 'metric'
   | 'dimension'
@@ -2621,22 +2621,22 @@ export type AnalyticsFilterType =
   | 'achievement_type'
   | 'exercise_type'
   | 'fitness_level'
-  | 'custom'
+  | 'custom';
 
 /**
  * Filter Metadata
  */
 export interface FilterMetadata {
   /** Filter description */
-  description?: string
+  description?: string;
   /** Filter category */
-  category: string
+  category: string;
   /** Filter usage count */
-  usageCount: number
+  usageCount: number;
   /** Filter last used */
-  lastUsed: Date
+  lastUsed: Date;
   /** Filter created by */
-  createdBy: string
+  createdBy: string;
 }
 
 // Export all progress analytics types
@@ -2645,5 +2645,5 @@ export type {
   AnalyticsWidget,
   ChartConfiguration,
   ProgressAnalyticsData,
-  AnalyticsDashboardState
-}
+  AnalyticsDashboardState,
+};

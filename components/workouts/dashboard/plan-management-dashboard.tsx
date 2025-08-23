@@ -2,23 +2,23 @@
  * Plan Management Dashboard Component
  * Comprehensive CRUD operations for workout plan management with modern UX
  */
-'use client'
+'use client';
 
-import React, { useState, useCallback, useMemo, useEffect } from 'react'
-import { useTranslations } from 'next-intl'
-import { 
-  Search, 
-  Filter, 
-  Grid3X3, 
-  List, 
-  Plus, 
-  MoreHorizontal, 
-  Play, 
-  Pause, 
-  Archive, 
-  Copy, 
-  Share2, 
-  Edit, 
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
+import {
+  Search,
+  Filter,
+  Grid3X3,
+  List,
+  Plus,
+  MoreHorizontal,
+  Play,
+  Pause,
+  Archive,
+  Copy,
+  Share2,
+  Edit,
   Trash2,
   Star,
   Clock,
@@ -30,21 +30,21 @@ import {
   XCircle,
   AlertCircle,
   Eye,
-  Download
-} from 'lucide-react'
+  Download,
+} from 'lucide-react';
 
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
-import { 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@/components/ui/select';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,72 +52,71 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuCheckboxItem
-} from '@/components/ui/dropdown-menu'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Progress } from '@/components/ui/progress'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { WorkoutPlan } from '@/types/workouts'
+  DropdownMenuCheckboxItem,
+} from '@/components/ui/dropdown-menu';
+import { Progress } from '@/components/ui/progress';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { WorkoutPlan } from '@/types/workouts';
 
 // Enhanced WorkoutPlan type for dashboard management
 interface DashboardWorkoutPlan extends WorkoutPlan {
   // Management metadata
-  lastAccessed?: Date
-  completionRate: number
-  totalSessions: number
-  completedSessions: number
-  averageRating?: number
+  lastAccessed?: Date;
+  completionRate: number;
+  totalSessions: number;
+  completedSessions: number;
+  averageRating?: number;
   createdBy: {
-    id: string
-    name: string
-    avatar?: string
-  }
-  
+    id: string;
+    name: string;
+    avatar?: string;
+  };
+
   // Analytics
   stats: {
-    totalWorkouts: number
-    avgDuration: number
-    popularityScore: number
-    successRate: number
-  }
-  
+    totalWorkouts: number;
+    avgDuration: number;
+    popularityScore: number;
+    successRate: number;
+  };
+
   // Social features
-  isShared: boolean
-  shareCount: number
-  likeCount: number
-  commentCount: number
+  isShared: boolean;
+  shareCount: number;
+  likeCount: number;
+  commentCount: number;
 }
 
-type PlanStatus = 'active' | 'draft' | 'paused' | 'completed' | 'archived'
-type ViewMode = 'grid' | 'list'
-type SortOption = 'name' | 'created' | 'modified' | 'popularity' | 'completion'
+type PlanStatus = 'active' | 'draft' | 'paused' | 'completed' | 'archived';
+type ViewMode = 'grid' | 'list';
+type SortOption = 'name' | 'created' | 'modified' | 'popularity' | 'completion';
 
 interface PlanFilters {
-  status: PlanStatus[]
-  fitnessLevel: string[]
-  goals: string[]
+  status: PlanStatus[];
+  fitnessLevel: string[];
+  goals: string[];
   duration: {
-    min?: number
-    max?: number
-  }
+    min?: number;
+    max?: number;
+  };
   sessionsPerWeek: {
-    min?: number
-    max?: number
-  }
-  tags: string[]
+    min?: number;
+    max?: number;
+  };
+  tags: string[];
 }
 
 interface PlanManagementDashboardProps {
-  initialPlans?: DashboardWorkoutPlan[]
-  onCreatePlan?: () => void
-  onEditPlan?: (planId: string) => void
-  onDeletePlan?: (planId: string) => void
-  onDuplicatePlan?: (planId: string) => void
-  onSharePlan?: (planId: string) => void
-  onStartPlan?: (planId: string) => void
-  onPausePlan?: (planId: string) => void
-  onArchivePlan?: (planId: string) => void
-  className?: string
+  initialPlans?: DashboardWorkoutPlan[];
+  onCreatePlan?: () => void;
+  onEditPlan?: (planId: string) => void;
+  onDeletePlan?: (planId: string) => void;
+  onDuplicatePlan?: (planId: string) => void;
+  onSharePlan?: (planId: string) => void;
+  onStartPlan?: (planId: string) => void;
+  onPausePlan?: (planId: string) => void;
+  onArchivePlan?: (planId: string) => void;
+  className?: string;
 }
 
 // Mock data for demonstration
@@ -126,7 +125,8 @@ const mockPlans: DashboardWorkoutPlan[] = [
     id: '1',
     userId: 'user1',
     name: 'Summer Body Challenge',
-    description: 'Intensive 12-week program designed to build lean muscle and improve cardiovascular fitness',
+    description:
+      'Intensive 12-week program designed to build lean muscle and improve cardiovascular fitness',
     durationWeeks: 12,
     sessionsPerWeek: 4,
     fitnessGoals: ['muscle_gain', 'fat_loss', 'strength'],
@@ -150,18 +150,18 @@ const mockPlans: DashboardWorkoutPlan[] = [
     createdBy: {
       id: 'user1',
       name: 'Alex Johnson',
-      avatar: '/avatars/alex.jpg'
+      avatar: '/avatars/alex.jpg',
     },
     stats: {
       totalWorkouts: 32,
       avgDuration: 72,
       popularityScore: 8.5,
-      successRate: 85
+      successRate: 85,
     },
     isShared: true,
     shareCount: 15,
     likeCount: 28,
-    commentCount: 12
+    commentCount: 12,
   },
   {
     id: '2',
@@ -189,24 +189,25 @@ const mockPlans: DashboardWorkoutPlan[] = [
     createdBy: {
       id: 'user1',
       name: 'Alex Johnson',
-      avatar: '/avatars/alex.jpg'
+      avatar: '/avatars/alex.jpg',
     },
     stats: {
       totalWorkouts: 0,
       avgDuration: 30,
       popularityScore: 0,
-      successRate: 0
+      successRate: 0,
     },
     isShared: false,
     shareCount: 0,
     likeCount: 0,
-    commentCount: 0
+    commentCount: 0,
   },
   {
     id: '3',
     userId: 'user1',
     name: 'Strength Foundation',
-    description: 'Build a solid strength base with compound movements and progressive overload',
+    description:
+      'Build a solid strength base with compound movements and progressive overload',
     durationWeeks: 8,
     sessionsPerWeek: 3,
     fitnessGoals: ['strength', 'muscle_gain'],
@@ -230,20 +231,20 @@ const mockPlans: DashboardWorkoutPlan[] = [
     createdBy: {
       id: 'user1',
       name: 'Alex Johnson',
-      avatar: '/avatars/alex.jpg'
+      avatar: '/avatars/alex.jpg',
     },
     stats: {
       totalWorkouts: 24,
       avgDuration: 87,
       popularityScore: 9.2,
-      successRate: 96
+      successRate: 96,
     },
     isShared: true,
     shareCount: 45,
     likeCount: 89,
-    commentCount: 34
-  }
-]
+    commentCount: 34,
+  },
+];
 
 export function PlanManagementDashboard({
   initialPlans = mockPlans,
@@ -255,310 +256,410 @@ export function PlanManagementDashboard({
   onStartPlan,
   onPausePlan,
   onArchivePlan,
-  className = ''
+  className = '',
 }: PlanManagementDashboardProps) {
-  const t = useTranslations('workouts.dashboard')
-  
+  const t = useTranslations('workouts.dashboard');
+
   // State management
-  const [plans, setPlans] = useState<DashboardWorkoutPlan[]>(initialPlans)
-  const [selectedPlans, setSelectedPlans] = useState<string[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
-  const [viewMode, setViewMode] = useState<ViewMode>('grid')
-  const [sortBy, setSortBy] = useState<SortOption>('modified')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
-  
+  const [plans, setPlans] = useState<DashboardWorkoutPlan[]>(initialPlans);
+  const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [sortBy, setSortBy] = useState<SortOption>('modified');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
   const [filters, setFilters] = useState<PlanFilters>({
     status: [],
     fitnessLevel: [],
     goals: [],
     duration: {},
     sessionsPerWeek: {},
-    tags: []
-  })
+    tags: [],
+  });
 
   // Filter and sort plans
   const filteredAndSortedPlans = useMemo(() => {
-    const filtered = plans.filter(plan => {
+    const filtered = plans.filter((plan) => {
       // Search query
       if (searchQuery) {
-        const query = searchQuery.toLowerCase()
-        if (!plan.name.toLowerCase().includes(query) && 
-            !plan.description.toLowerCase().includes(query)) {
-          return false
+        const query = searchQuery.toLowerCase();
+        if (
+          !plan.name.toLowerCase().includes(query) &&
+          !plan.description?.toLowerCase().includes(query)
+        ) {
+          return false;
         }
       }
 
       // Status filter
-      if (filters.status.length > 0 && !filters.status.includes(plan.status as PlanStatus)) {
-        return false
+      if (
+        filters.status.length > 0 &&
+        !filters.status.includes(plan.status as PlanStatus)
+      ) {
+        return false;
       }
 
       // Fitness level filter
-      if (filters.fitnessLevel.length > 0 && !filters.fitnessLevel.includes(plan.targetFitnessLevel)) {
-        return false
+      if (
+        filters.fitnessLevel.length > 0 &&
+        !filters.fitnessLevel.includes(plan.targetFitnessLevel)
+      ) {
+        return false;
       }
 
       // Goals filter
       if (filters.goals.length > 0) {
-        const hasMatchingGoal = plan.fitnessGoals.some(goal => filters.goals.includes(goal))
+        const hasMatchingGoal = plan.fitnessGoals.some((goal) =>
+          filters.goals.includes(goal)
+        );
         if (!hasMatchingGoal) {
-          return false
+          return false;
         }
       }
 
       // Duration filter
-      if (filters.duration.min !== undefined && plan.durationWeeks < filters.duration.min) {
-        return false
+      if (
+        filters.duration.min !== undefined &&
+        plan.durationWeeks < filters.duration.min
+      ) {
+        return false;
       }
-      if (filters.duration.max !== undefined && plan.durationWeeks > filters.duration.max) {
-        return false
+      if (
+        filters.duration.max !== undefined &&
+        plan.durationWeeks > filters.duration.max
+      ) {
+        return false;
       }
 
       // Sessions per week filter
-      if (filters.sessionsPerWeek.min !== undefined && plan.sessionsPerWeek < filters.sessionsPerWeek.min) {
-        return false
+      if (
+        filters.sessionsPerWeek.min !== undefined &&
+        plan.sessionsPerWeek < filters.sessionsPerWeek.min
+      ) {
+        return false;
       }
-      if (filters.sessionsPerWeek.max !== undefined && plan.sessionsPerWeek > filters.sessionsPerWeek.max) {
-        return false
+      if (
+        filters.sessionsPerWeek.max !== undefined &&
+        plan.sessionsPerWeek > filters.sessionsPerWeek.max
+      ) {
+        return false;
       }
 
-      return true
-    })
+      return true;
+    });
 
     // Sort
     filtered.sort((a, b) => {
-      let aValue: any
-      let bValue: any
+      let aValue: any;
+      let bValue: any;
 
       switch (sortBy) {
         case 'name':
-          aValue = a.name.toLowerCase()
-          bValue = b.name.toLowerCase()
-          break
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
         case 'created':
-          aValue = a.createdAt.getTime()
-          bValue = b.createdAt.getTime()
-          break
+          aValue = a.createdAt.getTime();
+          bValue = b.createdAt.getTime();
+          break;
         case 'modified':
-          aValue = a.updatedAt.getTime()
-          bValue = b.updatedAt.getTime()
-          break
+          aValue = a.updatedAt.getTime();
+          bValue = b.updatedAt.getTime();
+          break;
         case 'popularity':
-          aValue = a.stats.popularityScore
-          bValue = b.stats.popularityScore
-          break
+          aValue = a.stats.popularityScore;
+          bValue = b.stats.popularityScore;
+          break;
         case 'completion':
-          aValue = a.completionRate
-          bValue = b.completionRate
-          break
+          aValue = a.completionRate;
+          bValue = b.completionRate;
+          break;
         default:
-          aValue = a.updatedAt.getTime()
-          bValue = b.updatedAt.getTime()
+          aValue = a.updatedAt.getTime();
+          bValue = b.updatedAt.getTime();
       }
 
       if (sortOrder === 'asc') {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0
+        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
       } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0
+        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
       }
-    })
+    });
 
-    return filtered
-  }, [plans, searchQuery, filters, sortBy, sortOrder])
+    return filtered;
+  }, [plans, searchQuery, filters, sortBy, sortOrder]);
 
   // Plan statistics
   const planStats = useMemo(() => {
-    const total = plans.length
-    const active = plans.filter(p => p.status === 'active').length
-    const completed = plans.filter(p => p.status === 'completed').length
-    const draft = plans.filter(p => p.status === 'draft').length
-    const avgCompletion = plans.reduce((sum, p) => sum + p.completionRate, 0) / (total || 1)
-    
+    const total = plans.length;
+    const active = plans.filter((p) => p.status === 'active').length;
+    const completed = plans.filter((p) => p.status === 'completed').length;
+    const draft = plans.filter((p) => p.status === 'draft').length;
+    const avgCompletion =
+      plans.reduce((sum, p) => sum + p.completionRate, 0) / (total || 1);
+
     return {
       total,
       active,
       completed,
       draft,
-      avgCompletion: Math.round(avgCompletion)
-    }
-  }, [plans])
+      avgCompletion: Math.round(avgCompletion),
+    };
+  }, [plans]);
 
   // Plan action handlers
   const handleSelectPlan = useCallback((planId: string) => {
-    setSelectedPlans(prev => 
-      prev.includes(planId) 
-        ? prev.filter(id => id !== planId)
+    setSelectedPlans((prev) =>
+      prev.includes(planId)
+        ? prev.filter((id) => id !== planId)
         : [...prev, planId]
-    )
-  }, [])
+    );
+  }, []);
 
   const handleSelectAllPlans = useCallback(() => {
     if (selectedPlans.length === filteredAndSortedPlans.length) {
-      setSelectedPlans([])
+      setSelectedPlans([]);
     } else {
-      setSelectedPlans(filteredAndSortedPlans.map(p => p.id))
+      setSelectedPlans(filteredAndSortedPlans.map((p) => p.id));
     }
-  }, [selectedPlans, filteredAndSortedPlans])
+  }, [selectedPlans, filteredAndSortedPlans]);
 
-  const handleBulkAction = useCallback((action: string) => {
-    console.log(`Bulk action: ${action} on plans:`, selectedPlans)
-    // Implement bulk actions
-    setSelectedPlans([])
-  }, [selectedPlans])
+  const handleBulkAction = useCallback(
+    (action: string) => {
+      console.log(`Bulk action: ${action} on plans:`, selectedPlans);
+      // Implement bulk actions
+      setSelectedPlans([]);
+    },
+    [selectedPlans]
+  );
 
-  const handlePlanAction = useCallback((planId: string, action: string) => {
-    console.log(`Plan action: ${action} on plan: ${planId}`)
-    
-    switch (action) {
-      case 'start':
-        onStartPlan?.(planId)
-        break
-      case 'pause':
-        onPausePlan?.(planId)
-        break
-      case 'edit':
-        onEditPlan?.(planId)
-        break
-      case 'duplicate':
-        onDuplicatePlan?.(planId)
-        break
-      case 'share':
-        onSharePlan?.(planId)
-        break
-      case 'archive':
-        onArchivePlan?.(planId)
-        break
-      case 'delete':
-        onDeletePlan?.(planId)
-        break
-    }
-  }, [onStartPlan, onPausePlan, onEditPlan, onDuplicatePlan, onSharePlan, onArchivePlan, onDeletePlan])
+  const handlePlanAction = useCallback(
+    (planId: string, action: string) => {
+      console.log(`Plan action: ${action} on plan: ${planId}`);
+
+      switch (action) {
+        case 'start':
+          onStartPlan?.(planId);
+          break;
+        case 'pause':
+          onPausePlan?.(planId);
+          break;
+        case 'edit':
+          onEditPlan?.(planId);
+          break;
+        case 'duplicate':
+          onDuplicatePlan?.(planId);
+          break;
+        case 'share':
+          onSharePlan?.(planId);
+          break;
+        case 'archive':
+          onArchivePlan?.(planId);
+          break;
+        case 'delete':
+          onDeletePlan?.(planId);
+          break;
+      }
+    },
+    [
+      onStartPlan,
+      onPausePlan,
+      onEditPlan,
+      onDuplicatePlan,
+      onSharePlan,
+      onArchivePlan,
+      onDeletePlan,
+    ]
+  );
 
   // Status badge styling
   const getStatusBadge = (status: PlanStatus) => {
     switch (status) {
       case 'active':
-        return <Badge variant="default" className="bg-green-100 text-green-800"><CheckCircle2 className="w-3 h-3 mr-1" />Active</Badge>
+        return (
+          <Badge variant='default' className='bg-green-100 text-green-800'>
+            <CheckCircle2 className='mr-1 h-3 w-3' />
+            Active
+          </Badge>
+        );
       case 'draft':
-        return <Badge variant="secondary" className="bg-gray-100 text-gray-800"><Edit className="w-3 h-3 mr-1" />Draft</Badge>
+        return (
+          <Badge variant='secondary' className='bg-gray-100 text-gray-800'>
+            <Edit className='mr-1 h-3 w-3' />
+            Draft
+          </Badge>
+        );
       case 'paused':
-        return <Badge variant="outline" className="bg-orange-100 text-orange-800"><Pause className="w-3 h-3 mr-1" />Paused</Badge>
+        return (
+          <Badge variant='outline' className='bg-orange-100 text-orange-800'>
+            <Pause className='mr-1 h-3 w-3' />
+            Paused
+          </Badge>
+        );
       case 'completed':
-        return <Badge variant="outline" className="bg-blue-100 text-blue-800"><CheckCircle2 className="w-3 h-3 mr-1" />Completed</Badge>
+        return (
+          <Badge variant='outline' className='bg-blue-100 text-blue-800'>
+            <CheckCircle2 className='mr-1 h-3 w-3' />
+            Completed
+          </Badge>
+        );
       case 'archived':
-        return <Badge variant="outline" className="bg-gray-100 text-gray-600"><Archive className="w-3 h-3 mr-1" />Archived</Badge>
+        return (
+          <Badge variant='outline' className='bg-gray-100 text-gray-600'>
+            <Archive className='mr-1 h-3 w-3' />
+            Archived
+          </Badge>
+        );
       default:
-        return <Badge variant="outline">{status}</Badge>
+        return <Badge variant='outline'>{status}</Badge>;
     }
-  }
+  };
 
   // Render plan card (grid view)
   const renderPlanCard = (plan: DashboardWorkoutPlan) => (
-    <Card key={plan.id} className="group hover:shadow-md transition-shadow duration-200">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-2">
-            <Checkbox 
+    <Card
+      key={plan.id}
+      className='group transition-shadow duration-200 hover:shadow-md'
+    >
+      <CardHeader className='pb-3'>
+        <div className='flex items-start justify-between'>
+          <div className='flex items-center gap-2'>
+            <Checkbox
               checked={selectedPlans.includes(plan.id)}
               onCheckedChange={() => handleSelectPlan(plan.id)}
             />
             <div>
-              <CardTitle className="text-lg leading-tight">{plan.name}</CardTitle>
-              <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{plan.description}</p>
+              <CardTitle className='text-lg leading-tight'>
+                {plan.name}
+              </CardTitle>
+              <p className='text-muted-foreground mt-1 line-clamp-2 text-sm'>
+                {plan.description}
+              </p>
             </div>
           </div>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                <MoreHorizontal className="w-4 h-4" />
+              <Button
+                variant='ghost'
+                size='sm'
+                className='opacity-0 transition-opacity group-hover:opacity-100'
+              >
+                <MoreHorizontal className='h-4 w-4' />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align='end'>
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handlePlanAction(plan.id, 'start')}>
-                <Play className="w-4 h-4 mr-2" />Start Plan
+              <DropdownMenuItem
+                onClick={() => handlePlanAction(plan.id, 'start')}
+              >
+                <Play className='mr-2 h-4 w-4' />
+                Start Plan
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handlePlanAction(plan.id, 'edit')}>
-                <Edit className="w-4 h-4 mr-2" />Edit
+              <DropdownMenuItem
+                onClick={() => handlePlanAction(plan.id, 'edit')}
+              >
+                <Edit className='mr-2 h-4 w-4' />
+                Edit
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handlePlanAction(plan.id, 'duplicate')}>
-                <Copy className="w-4 h-4 mr-2" />Duplicate
+              <DropdownMenuItem
+                onClick={() => handlePlanAction(plan.id, 'duplicate')}
+              >
+                <Copy className='mr-2 h-4 w-4' />
+                Duplicate
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handlePlanAction(plan.id, 'share')}>
-                <Share2 className="w-4 h-4 mr-2" />Share
+              <DropdownMenuItem
+                onClick={() => handlePlanAction(plan.id, 'share')}
+              >
+                <Share2 className='mr-2 h-4 w-4' />
+                Share
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handlePlanAction(plan.id, 'archive')}>
-                <Archive className="w-4 h-4 mr-2" />Archive
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => handlePlanAction(plan.id, 'delete')}
-                className="text-red-600"
+              <DropdownMenuItem
+                onClick={() => handlePlanAction(plan.id, 'archive')}
               >
-                <Trash2 className="w-4 h-4 mr-2" />Delete
+                <Archive className='mr-2 h-4 w-4' />
+                Archive
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => handlePlanAction(plan.id, 'delete')}
+                className='text-red-600'
+              >
+                <Trash2 className='mr-2 h-4 w-4' />
+                Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        
-        <div className="flex items-center gap-2 mt-3">
+
+        <div className='mt-3 flex items-center gap-2'>
           {getStatusBadge(plan.status as PlanStatus)}
-          {plan.isFeatured && <Badge variant="outline" className="bg-yellow-100 text-yellow-800"><Star className="w-3 h-3 mr-1" />Featured</Badge>}
+          {plan.isFeatured && (
+            <Badge variant='outline' className='bg-yellow-100 text-yellow-800'>
+              <Star className='mr-1 h-3 w-3' />
+              Featured
+            </Badge>
+          )}
         </div>
       </CardHeader>
 
-      <CardContent className="pt-0">
-        <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-muted-foreground" />
+      <CardContent className='pt-0'>
+        <div className='mb-4 grid grid-cols-2 gap-4 text-sm'>
+          <div className='flex items-center gap-2'>
+            <Clock className='text-muted-foreground h-4 w-4' />
             <span>{plan.durationWeeks} weeks</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-muted-foreground" />
+          <div className='flex items-center gap-2'>
+            <Calendar className='text-muted-foreground h-4 w-4' />
             <span>{plan.sessionsPerWeek}/week</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-muted-foreground" />
+          <div className='flex items-center gap-2'>
+            <Target className='text-muted-foreground h-4 w-4' />
             <span>{plan.targetFitnessLevel}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-muted-foreground" />
+          <div className='flex items-center gap-2'>
+            <TrendingUp className='text-muted-foreground h-4 w-4' />
             <span>{plan.completionRate}% done</span>
           </div>
         </div>
 
         {plan.completionRate > 0 && (
-          <div className="mb-4">
-            <div className="flex justify-between text-sm mb-1">
+          <div className='mb-4'>
+            <div className='mb-1 flex justify-between text-sm'>
               <span>Progress</span>
-              <span>{plan.completedSessions}/{plan.totalSessions} sessions</span>
+              <span>
+                {plan.completedSessions}/{plan.totalSessions} sessions
+              </span>
             </div>
-            <Progress value={plan.completionRate} className="h-2" />
+            <Progress value={plan.completionRate} className='h-2' />
           </div>
         )}
 
-        <div className="flex flex-wrap gap-1 mb-4">
-          {plan.fitnessGoals.slice(0, 3).map(goal => (
-            <Badge key={goal} variant="secondary" className="text-xs">{goal.replace('_', ' ')}</Badge>
+        <div className='mb-4 flex flex-wrap gap-1'>
+          {plan.fitnessGoals.slice(0, 3).map((goal) => (
+            <Badge key={goal} variant='secondary' className='text-xs'>
+              {goal.replace('_', ' ')}
+            </Badge>
           ))}
           {plan.fitnessGoals.length > 3 && (
-            <Badge variant="secondary" className="text-xs">+{plan.fitnessGoals.length - 3}</Badge>
+            <Badge variant='secondary' className='text-xs'>
+              +{plan.fitnessGoals.length - 3}
+            </Badge>
           )}
         </div>
 
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <div className="flex items-center gap-4">
+        <div className='text-muted-foreground flex items-center justify-between text-sm'>
+          <div className='flex items-center gap-4'>
             {plan.isShared && (
-              <div className="flex items-center gap-1">
-                <Users className="w-3 h-3" />
+              <div className='flex items-center gap-1'>
+                <Users className='h-3 w-3' />
                 <span>{plan.shareCount}</span>
               </div>
             )}
             {plan.averageRating && (
-              <div className="flex items-center gap-1">
-                <Star className="w-3 h-3 fill-current text-yellow-500" />
+              <div className='flex items-center gap-1'>
+                <Star className='h-3 w-3 fill-current text-yellow-500' />
                 <span>{plan.averageRating}</span>
               </div>
             )}
@@ -567,175 +668,217 @@ export function PlanManagementDashboard({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 
   // Render plan row (list view)
   const renderPlanRow = (plan: DashboardWorkoutPlan) => (
-    <div key={plan.id} className="flex items-center gap-4 p-4 border-b hover:bg-gray-50 group">
-      <Checkbox 
+    <div
+      key={plan.id}
+      className='group flex items-center gap-4 border-b p-4 hover:bg-gray-50'
+    >
+      <Checkbox
         checked={selectedPlans.includes(plan.id)}
         onCheckedChange={() => handleSelectPlan(plan.id)}
       />
-      
-      <div className="flex-1 grid grid-cols-6 gap-4 items-center">
+
+      <div className='grid flex-1 grid-cols-6 items-center gap-4'>
         <div>
-          <div className="font-medium">{plan.name}</div>
-          <div className="text-sm text-muted-foreground truncate">{plan.description}</div>
+          <div className='font-medium'>{plan.name}</div>
+          <div className='text-muted-foreground truncate text-sm'>
+            {plan.description}
+          </div>
         </div>
-        
-        <div>
-          {getStatusBadge(plan.status as PlanStatus)}
-        </div>
-        
-        <div className="text-sm">
+
+        <div>{getStatusBadge(plan.status as PlanStatus)}</div>
+
+        <div className='text-sm'>
           <div>{plan.durationWeeks} weeks</div>
-          <div className="text-muted-foreground">{plan.sessionsPerWeek} sessions/week</div>
+          <div className='text-muted-foreground'>
+            {plan.sessionsPerWeek} sessions/week
+          </div>
         </div>
-        
-        <div className="text-sm">
+
+        <div className='text-sm'>
           <div>{plan.completionRate}% complete</div>
-          <div className="text-muted-foreground">{plan.completedSessions}/{plan.totalSessions} sessions</div>
+          <div className='text-muted-foreground'>
+            {plan.completedSessions}/{plan.totalSessions} sessions
+          </div>
         </div>
-        
-        <div className="text-sm">
+
+        <div className='text-sm'>
           <div>{plan.targetFitnessLevel}</div>
-          <div className="text-muted-foreground">{plan.fitnessGoals.slice(0, 2).join(', ')}</div>
+          <div className='text-muted-foreground'>
+            {plan.fitnessGoals.slice(0, 2).join(', ')}
+          </div>
         </div>
-        
-        <div className="text-sm text-muted-foreground">
+
+        <div className='text-muted-foreground text-sm'>
           {plan.updatedAt.toLocaleDateString()}
         </div>
       </div>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-            <MoreHorizontal className="w-4 h-4" />
+          <Button
+            variant='ghost'
+            size='sm'
+            className='opacity-0 transition-opacity group-hover:opacity-100'
+          >
+            <MoreHorizontal className='h-4 w-4' />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align='end'>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => handlePlanAction(plan.id, 'start')}>
-            <Play className="w-4 h-4 mr-2" />Start Plan
+            <Play className='mr-2 h-4 w-4' />
+            Start Plan
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => handlePlanAction(plan.id, 'edit')}>
-            <Edit className="w-4 h-4 mr-2" />Edit
+            <Edit className='mr-2 h-4 w-4' />
+            Edit
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handlePlanAction(plan.id, 'duplicate')}>
-            <Copy className="w-4 h-4 mr-2" />Duplicate
+          <DropdownMenuItem
+            onClick={() => handlePlanAction(plan.id, 'duplicate')}
+          >
+            <Copy className='mr-2 h-4 w-4' />
+            Duplicate
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => handlePlanAction(plan.id, 'share')}>
-            <Share2 className="w-4 h-4 mr-2" />Share
+            <Share2 className='mr-2 h-4 w-4' />
+            Share
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => handlePlanAction(plan.id, 'archive')}>
-            <Archive className="w-4 h-4 mr-2" />Archive
-          </DropdownMenuItem>
-          <DropdownMenuItem 
-            onClick={() => handlePlanAction(plan.id, 'delete')}
-            className="text-red-600"
+          <DropdownMenuItem
+            onClick={() => handlePlanAction(plan.id, 'archive')}
           >
-            <Trash2 className="w-4 h-4 mr-2" />Delete
+            <Archive className='mr-2 h-4 w-4' />
+            Archive
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => handlePlanAction(plan.id, 'delete')}
+            className='text-red-600'
+          >
+            <Trash2 className='mr-2 h-4 w-4' />
+            Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
-  )
+  );
 
   return (
     <div className={`space-y-6 ${className}`}>
       {/* Header with statistics */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className='flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center'>
         <div>
-          <h1 className="text-2xl font-bold">Plan Management</h1>
-          <p className="text-muted-foreground">Manage your workout plans and track progress</p>
+          <h1 className='text-2xl font-bold'>Plan Management</h1>
+          <p className='text-muted-foreground'>
+            Manage your workout plans and track progress
+          </p>
         </div>
-        
-        <div className="flex items-center gap-4">
-          <div className="grid grid-cols-4 gap-4 text-sm">
-            <div className="text-center">
-              <div className="font-bold text-lg">{planStats.total}</div>
-              <div className="text-muted-foreground">Total</div>
+
+        <div className='flex items-center gap-4'>
+          <div className='grid grid-cols-4 gap-4 text-sm'>
+            <div className='text-center'>
+              <div className='text-lg font-bold'>{planStats.total}</div>
+              <div className='text-muted-foreground'>Total</div>
             </div>
-            <div className="text-center">
-              <div className="font-bold text-lg text-green-600">{planStats.active}</div>
-              <div className="text-muted-foreground">Active</div>
+            <div className='text-center'>
+              <div className='text-lg font-bold text-green-600'>
+                {planStats.active}
+              </div>
+              <div className='text-muted-foreground'>Active</div>
             </div>
-            <div className="text-center">
-              <div className="font-bold text-lg text-blue-600">{planStats.completed}</div>
-              <div className="text-muted-foreground">Completed</div>
+            <div className='text-center'>
+              <div className='text-lg font-bold text-blue-600'>
+                {planStats.completed}
+              </div>
+              <div className='text-muted-foreground'>Completed</div>
             </div>
-            <div className="text-center">
-              <div className="font-bold text-lg">{planStats.avgCompletion}%</div>
-              <div className="text-muted-foreground">Avg Progress</div>
+            <div className='text-center'>
+              <div className='text-lg font-bold'>
+                {planStats.avgCompletion}%
+              </div>
+              <div className='text-muted-foreground'>Avg Progress</div>
             </div>
           </div>
-          
+
           <Button onClick={onCreatePlan}>
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className='mr-2 h-4 w-4' />
             New Plan
           </Button>
         </div>
       </div>
 
       {/* Filters and Search */}
-      <div className="flex flex-col lg:flex-row gap-4">
-        <div className="flex-1">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+      <div className='flex flex-col gap-4 lg:flex-row'>
+        <div className='flex-1'>
+          <div className='relative'>
+            <Search className='text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 transform' />
             <Input
-              placeholder="Search plans..."
+              placeholder='Search plans...'
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className='pl-10'
             />
           </div>
         </div>
-        
-        <div className="flex items-center gap-2">
-          <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-            <SelectTrigger className="w-36">
+
+        <div className='flex items-center gap-2'>
+          <Select
+            value={sortBy}
+            onValueChange={(value) => setSortBy(value as SortOption)}
+          >
+            <SelectTrigger className='w-36'>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="modified">Modified</SelectItem>
-              <SelectItem value="name">Name</SelectItem>
-              <SelectItem value="created">Created</SelectItem>
-              <SelectItem value="popularity">Popularity</SelectItem>
-              <SelectItem value="completion">Completion</SelectItem>
+              <SelectItem value='modified'>Modified</SelectItem>
+              <SelectItem value='name'>Name</SelectItem>
+              <SelectItem value='created'>Created</SelectItem>
+              <SelectItem value='popularity'>Popularity</SelectItem>
+              <SelectItem value='completion'>Completion</SelectItem>
             </SelectContent>
           </Select>
-          
+
           <Button
-            variant="outline"
-            size="sm"
+            variant='outline'
+            size='sm'
             onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
           >
             {sortOrder === 'asc' ? '↑' : '↓'}
           </Button>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Filter className="w-4 h-4 mr-2" />
+              <Button variant='outline' size='sm'>
+                <Filter className='mr-2 h-4 w-4' />
                 Filter
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
+            <DropdownMenuContent className='w-56'>
               <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {(['active', 'draft', 'paused', 'completed', 'archived'] as PlanStatus[]).map(status => (
+              {(
+                [
+                  'active',
+                  'draft',
+                  'paused',
+                  'completed',
+                  'archived',
+                ] as PlanStatus[]
+              ).map((status) => (
                 <DropdownMenuCheckboxItem
                   key={status}
                   checked={filters.status.includes(status)}
                   onCheckedChange={(checked) => {
-                    setFilters(prev => ({
+                    setFilters((prev) => ({
                       ...prev,
-                      status: checked 
+                      status: checked
                         ? [...prev.status, status]
-                        : prev.status.filter(s => s !== status)
-                    }))
+                        : prev.status.filter((s) => s !== status),
+                    }));
                   }}
                 >
                   {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -743,23 +886,23 @@ export function PlanManagementDashboard({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          
-          <div className="flex border rounded-md">
+
+          <div className='flex rounded-md border'>
             <Button
               variant={viewMode === 'grid' ? 'default' : 'ghost'}
-              size="sm"
+              size='sm'
               onClick={() => setViewMode('grid')}
-              className="rounded-r-none"
+              className='rounded-r-none'
             >
-              <Grid3X3 className="w-4 h-4" />
+              <Grid3X3 className='h-4 w-4' />
             </Button>
             <Button
               variant={viewMode === 'list' ? 'default' : 'ghost'}
-              size="sm"
+              size='sm'
               onClick={() => setViewMode('list')}
-              className="rounded-l-none"
+              className='rounded-l-none'
             >
-              <List className="w-4 h-4" />
+              <List className='h-4 w-4' />
             </Button>
           </div>
         </div>
@@ -767,26 +910,46 @@ export function PlanManagementDashboard({
 
       {/* Bulk Actions */}
       {selectedPlans.length > 0 && (
-        <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">{selectedPlans.length} plan{selectedPlans.length > 1 ? 's' : ''} selected</span>
+        <div className='flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 p-4'>
+          <div className='flex items-center gap-2'>
+            <span className='text-sm font-medium'>
+              {selectedPlans.length} plan{selectedPlans.length > 1 ? 's' : ''}{' '}
+              selected
+            </span>
           </div>
-          
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => handleBulkAction('archive')}>
-              <Archive className="w-4 h-4 mr-2" />
+
+          <div className='flex items-center gap-2'>
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => handleBulkAction('archive')}
+            >
+              <Archive className='mr-2 h-4 w-4' />
               Archive
             </Button>
-            <Button variant="outline" size="sm" onClick={() => handleBulkAction('share')}>
-              <Share2 className="w-4 h-4 mr-2" />
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => handleBulkAction('share')}
+            >
+              <Share2 className='mr-2 h-4 w-4' />
               Share
             </Button>
-            <Button variant="outline" size="sm" onClick={() => handleBulkAction('export')}>
-              <Download className="w-4 h-4 mr-2" />
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => handleBulkAction('export')}
+            >
+              <Download className='mr-2 h-4 w-4' />
               Export
             </Button>
-            <Button variant="outline" size="sm" onClick={() => handleBulkAction('delete')} className="text-red-600">
-              <Trash2 className="w-4 h-4 mr-2" />
+            <Button
+              variant='outline'
+              size='sm'
+              onClick={() => handleBulkAction('delete')}
+              className='text-red-600'
+            >
+              <Trash2 className='mr-2 h-4 w-4' />
               Delete
             </Button>
           </div>
@@ -795,19 +958,21 @@ export function PlanManagementDashboard({
 
       {/* Plans Display */}
       {filteredAndSortedPlans.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Target className="w-8 h-8 text-gray-400" />
+        <div className='py-12 text-center'>
+          <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100'>
+            <Target className='h-8 w-8 text-gray-400' />
           </div>
-          <h3 className="text-lg font-medium mb-2">No plans found</h3>
-          <p className="text-muted-foreground mb-4">
-            {searchQuery || Object.values(filters).some(f => Array.isArray(f) ? f.length > 0 : Object.keys(f).length > 0)
+          <h3 className='mb-2 text-lg font-medium'>No plans found</h3>
+          <p className='text-muted-foreground mb-4'>
+            {searchQuery ||
+            Object.values(filters).some((f) =>
+              Array.isArray(f) ? f.length > 0 : Object.keys(f).length > 0
+            )
               ? 'Try adjusting your search or filters'
-              : 'Create your first workout plan to get started'
-            }
+              : 'Create your first workout plan to get started'}
           </p>
           <Button onClick={onCreatePlan}>
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className='mr-2 h-4 w-4' />
             Create New Plan
           </Button>
         </div>
@@ -815,13 +980,12 @@ export function PlanManagementDashboard({
         <>
           {/* Table header for list view */}
           {viewMode === 'list' && (
-            <div className="flex items-center gap-4 p-4 border-b bg-gray-50 rounded-t-lg">
-              <Checkbox 
+            <div className='flex items-center gap-4 rounded-t-lg border-b bg-gray-50 p-4'>
+              <Checkbox
                 checked={selectedPlans.length === filteredAndSortedPlans.length}
                 onCheckedChange={handleSelectAllPlans}
               />
-              
-              <div className="flex-1 grid grid-cols-6 gap-4 text-sm font-medium text-muted-foreground">
+              <div className='text-muted-foreground grid flex-1 grid-cols-6 gap-4 text-sm font-medium'>
                 <div>Name & Description</div>
                 <div>Status</div>
                 <div>Duration</div>
@@ -829,23 +993,22 @@ export function PlanManagementDashboard({
                 <div>Level & Goals</div>
                 <div>Modified</div>
               </div>
-              
-              <div className="w-10"></div> {/* Actions column */}
+              <div className='w-10'></div> {/* Actions column */}
             </div>
           )}
 
           {/* Plans Grid/List */}
           {viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
               {filteredAndSortedPlans.map(renderPlanCard)}
             </div>
           ) : (
-            <div className="border rounded-lg overflow-hidden">
+            <div className='overflow-hidden rounded-lg border'>
               {filteredAndSortedPlans.map(renderPlanRow)}
             </div>
           )}
         </>
       )}
     </div>
-  )
+  );
 }

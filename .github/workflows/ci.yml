@@ -1,342 +1,50 @@
-name: CI/CD Pipeline
+name: CI
 
 on:
-  push:
-    branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop ]
-  workflow_dispatch:
+    branches: [main]
+  push:
+    branches: [main]
 
-env:
-  NODE_VERSION: '18.17.0'
-  PNPM_VERSION: '8.15.0'
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  # Job 1: Code Quality Checks
   quality:
-    name: Code Quality
+    name: Validate and Build
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: '20'
+          cache: 'pnpm'
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
-          version: ${{ env.PNPM_VERSION }}
+          version: 8.15.0
           run_install: false
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run TypeScript type checking
-        run: pnpm type-check
-
-      - name: Run ESLint
-        run: pnpm lint
-
-      - name: Check Prettier formatting
+      - name: Check formatting
         run: pnpm format:check
 
-  # Job 2: Build and Test
-  build:
-    name: Build & Test
-    runs-on: ubuntu-latest
-    needs: quality
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Lint
+        run: pnpm lint --quiet
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+      - name: Type check
+        run: pnpm type-check
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
-          run_install: false
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@v3
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build application
+      - name: Build
         run: pnpm build
-        env:
-          SKIP_ENV_VALIDATION: true
-
-      - name: Run unit tests (when available)
-        run: echo "Unit tests will be added in Phase 2"
-        # run: pnpm test
-
-      - name: Bundle analyzer (on main branch)
-        if: github.ref == 'refs/heads/main'
-        run: pnpm analyze
-        env:
-          ANALYZE: true
-
-  # Job 3: Security Scanning
-  security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    needs: quality
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
-          run_install: false
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run security audit
-        run: pnpm audit --audit-level moderate
-
-      - name: Run Snyk security check (when token available)
-        if: env.SNYK_TOKEN != ''
-        run: |
-          npx snyk auth ${{ env.SNYK_TOKEN }}
-          npx snyk test
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-  # Job 4: Lighthouse Performance Check (on PRs)
-  lighthouse:
-    name: Lighthouse Check
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    needs: build
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
-          run_install: false
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Build application
-        run: pnpm build
-        env:
-          SKIP_ENV_VALIDATION: true
-
-      - name: Serve application
-        run: pnpm start &
-        env:
-          PORT: 3000
-
-      - name: Wait for server
-        run: sleep 10
-
-      - name: Run Lighthouse
-        uses: treosh/lighthouse-ci-action@v10
-        with:
-          configPath: './lighthouserc.json'
-          uploadArtifacts: true
-          temporaryPublicStorage: true
-
-  # Job 5: Deploy Preview (on PRs to main)
-  deploy-preview:
-    name: Deploy Preview
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && github.base_ref == 'main'
-    needs: [build, security]
-    environment:
-      name: preview
-      url: ${{ steps.deploy.outputs.preview-url }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Deploy to Vercel
-        id: deploy
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          github-comment: true
-          working-directory: ./
-
-      - name: Comment PR with preview URL
-        if: steps.deploy.outputs.preview-url
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `🚀 **Preview deployed!**\n\n✨ Preview URL: ${{ steps.deploy.outputs.preview-url }}\n\n📱 Test on mobile devices and verify PWA functionality.`
-            })
-
-  # Job 6: Database Migration (Production)
-  migrate-database:
-    name: Database Migration
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [build, security]
-    environment: production
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run database migrations
-        run: pnpm db:setup
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-      - name: Verify database connection
-        run: pnpm db:verify
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-
-  # Job 7: Production Deploy (on main branch push)
-  deploy-production:
-    name: Deploy Production
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [build, security, lighthouse, migrate-database]
-    environment:
-      name: production
-      url: ${{ secrets.PRODUCTION_URL }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Deploy to Vercel
-        id: deploy
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod --confirm'
-          working-directory: ./
-
-      - name: Wait for deployment
-        run: sleep 30
-
-      - name: Production health check
-        run: |
-          for i in {1..5}; do
-            if curl -f "${{ secrets.PRODUCTION_URL }}/api/health"; then
-              echo "Health check passed"
-              exit 0
-            fi
-            echo "Health check failed, retrying in 10s..."
-            sleep 10
-          done
-          echo "Health check failed after 5 attempts"
-          exit 1
-
-      - name: Create Sentry release
-        if: secrets.SENTRY_AUTH_TOKEN != ''
-        uses: getsentry/action-release@v1
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-        with:
-          environment: production
-          sourcemaps: '.next/static'
-          url_prefix: '~/_next/static'
-
-      - name: Performance monitoring setup
-        run: |
-          echo "✅ Production deployment successful"
-          echo "🌐 URL: ${{ secrets.PRODUCTION_URL }}"
-          echo "📊 Monitor: https://vercel.com/dashboard"
-
-  # Job 8: Notify Team
-  notify:
-    name: Notify Team
-    runs-on: ubuntu-latest
-    if: always() && (github.ref == 'refs/heads/main' || github.event_name == 'pull_request')
-    needs: [quality, build, security, deploy-production, migrate-database]
-    steps:
-      - name: Notify on success
-        if: needs.quality.result == 'success' && needs.build.result == 'success' && needs.security.result == 'success'
-        run: |
-          echo "✅ All checks passed successfully!"
-          
-      - name: Notify on failure
-        if: needs.quality.result == 'failure' || needs.build.result == 'failure' || needs.security.result == 'failure'
-        run: |
-          echo "❌ Some checks failed. Please review the logs."
-          exit 1
-
-      - name: Slack notification (when token available)
-        if: env.SLACK_WEBHOOK_URL != '' && github.ref == 'refs/heads/main'
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          channel: '#deployments'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -3,16 +3,16 @@
  * Run with: npx tsx scripts/setup-database.ts
  */
 
-import { config } from 'dotenv'
-import { resolve } from 'path'
+import { config } from 'dotenv';
+import { resolve } from 'path';
 
 // Load environment variables from .env.local
-config({ path: resolve(process.cwd(), '.env.local') })
+config({ path: resolve(process.cwd(), '.env.local') });
 
 // Dynamically import connection after env vars are loaded
 async function getDbConnections() {
-  const { getDb, checkDbConnection } = await import('../lib/db/connection')
-  return { db: getDb(), checkDbConnection }
+  const { getDb, checkDbConnection } = await import('../lib/db/connection');
+  return { db: getDb(), checkDbConnection };
 }
 
 const DATABASE_SCHEMA = `
@@ -296,31 +296,33 @@ CREATE POLICY auth_audit_log_insert ON auth_audit_log
 
 async function setupDatabase() {
   try {
-    console.log('🔗 Checking database connection...')
-    
+    console.log('🔗 Checking database connection...');
+
     // Get database connections after env vars are loaded
-    const { db, checkDbConnection } = await getDbConnections()
-    
-    const isConnected = await checkDbConnection()
+    const { db, checkDbConnection } = await getDbConnections();
+
+    const isConnected = await checkDbConnection();
     if (!isConnected) {
-      throw new Error('Failed to connect to database. Please check your DATABASE_URL environment variable.')
+      throw new Error(
+        'Failed to connect to database. Please check your DATABASE_URL environment variable.'
+      );
     }
 
-    console.log('✅ Database connection established')
-    console.log('🏗️  Creating database schema...')
+    console.log('✅ Database connection established');
+    console.log('🏗️  Creating database schema...');
 
     // Execute the schema creation step by step
-    console.log('📝 Executing database schema step by step...')
-    
+    console.log('📝 Executing database schema step by step...');
+
     try {
       // Step 1: Create extensions
-      console.log('  🔌 Creating extensions...')
-      await db`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`
-      await db`CREATE EXTENSION IF NOT EXISTS "pg_trgm"`
-      
+      console.log('  🔌 Creating extensions...');
+      await db`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+      await db`CREATE EXTENSION IF NOT EXISTS "pg_trgm"`;
+
       // Step 2: Create tables
-      console.log('  📋 Creating tables...')
-      
+      console.log('  📋 Creating tables...');
+
       // Create user_profiles table
       await db`
         CREATE TABLE IF NOT EXISTS user_profiles (
@@ -340,8 +342,8 @@ async function setupDatabase() {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-      `
-      
+      `;
+
       // Create organizations table
       await db`
         CREATE TABLE IF NOT EXISTS organizations (
@@ -357,8 +359,8 @@ async function setupDatabase() {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
-      `
-      
+      `;
+
       // Create organization_memberships table
       await db`
         CREATE TABLE IF NOT EXISTS organization_memberships (
@@ -372,8 +374,8 @@ async function setupDatabase() {
           FOREIGN KEY (user_id) REFERENCES user_profiles(id) ON DELETE CASCADE,
           UNIQUE(organization_id, user_id)
         )
-      `
-      
+      `;
+
       // Create organization_invites table
       await db`
         CREATE TABLE IF NOT EXISTS organization_invites (
@@ -390,8 +392,8 @@ async function setupDatabase() {
           FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE CASCADE,
           FOREIGN KEY (invited_by) REFERENCES user_profiles(id) ON DELETE CASCADE
         )
-      `
-      
+      `;
+
       // Create auth_audit_log table
       await db`
         CREATE TABLE IF NOT EXISTS auth_audit_log (
@@ -408,37 +410,37 @@ async function setupDatabase() {
           FOREIGN KEY (user_id) REFERENCES user_profiles(id) ON DELETE SET NULL,
           FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE SET NULL
         )
-      `
-      
+      `;
+
       // Step 3: Add foreign key constraint
-      console.log('  🔗 Adding foreign key constraints...')
+      console.log('  🔗 Adding foreign key constraints...');
       try {
         await db`
           ALTER TABLE user_profiles 
           ADD CONSTRAINT fk_user_organization 
           FOREIGN KEY (organization_id) REFERENCES organizations(id) ON DELETE SET NULL
-        `
+        `;
       } catch (error) {
         // Constraint might already exist
-        console.log('    ℹ️  Foreign key constraint may already exist')
+        console.log('    ℹ️  Foreign key constraint may already exist');
       }
-      
+
       // Step 4: Create indexes
-      console.log('  📇 Creating indexes...')
-      await db`CREATE INDEX IF NOT EXISTS idx_user_profiles_clerk_id ON user_profiles(clerk_user_id)`
-      await db`CREATE INDEX IF NOT EXISTS idx_user_profiles_email ON user_profiles(email)`
-      await db`CREATE INDEX IF NOT EXISTS idx_user_profiles_org_id ON user_profiles(organization_id)`
-      await db`CREATE INDEX IF NOT EXISTS idx_organizations_clerk_id ON organizations(clerk_org_id)`
-      await db`CREATE INDEX IF NOT EXISTS idx_org_memberships_org_id ON organization_memberships(organization_id)`
-      await db`CREATE INDEX IF NOT EXISTS idx_org_memberships_user_id ON organization_memberships(user_id)`
-      await db`CREATE INDEX IF NOT EXISTS idx_org_invites_code ON organization_invites(invite_code)`
-      await db`CREATE INDEX IF NOT EXISTS idx_org_invites_email ON organization_invites(email)`
-      await db`CREATE INDEX IF NOT EXISTS idx_auth_audit_log_user_id ON auth_audit_log(user_id)`
-      await db`CREATE INDEX IF NOT EXISTS idx_auth_audit_log_org_id ON auth_audit_log(organization_id)`
-      await db`CREATE INDEX IF NOT EXISTS idx_auth_audit_log_created_at ON auth_audit_log(created_at)`
-      
+      console.log('  📇 Creating indexes...');
+      await db`CREATE INDEX IF NOT EXISTS idx_user_profiles_clerk_id ON user_profiles(clerk_user_id)`;
+      await db`CREATE INDEX IF NOT EXISTS idx_user_profiles_email ON user_profiles(email)`;
+      await db`CREATE INDEX IF NOT EXISTS idx_user_profiles_org_id ON user_profiles(organization_id)`;
+      await db`CREATE INDEX IF NOT EXISTS idx_organizations_clerk_id ON organizations(clerk_org_id)`;
+      await db`CREATE INDEX IF NOT EXISTS idx_org_memberships_org_id ON organization_memberships(organization_id)`;
+      await db`CREATE INDEX IF NOT EXISTS idx_org_memberships_user_id ON organization_memberships(user_id)`;
+      await db`CREATE INDEX IF NOT EXISTS idx_org_invites_code ON organization_invites(invite_code)`;
+      await db`CREATE INDEX IF NOT EXISTS idx_org_invites_email ON organization_invites(email)`;
+      await db`CREATE INDEX IF NOT EXISTS idx_auth_audit_log_user_id ON auth_audit_log(user_id)`;
+      await db`CREATE INDEX IF NOT EXISTS idx_auth_audit_log_org_id ON auth_audit_log(organization_id)`;
+      await db`CREATE INDEX IF NOT EXISTS idx_auth_audit_log_created_at ON auth_audit_log(created_at)`;
+
       // Step 5: Create trigger function
-      console.log('  ⚙️  Creating trigger functions...')
+      console.log('  ⚙️  Creating trigger functions...');
       await db`
         CREATE OR REPLACE FUNCTION update_updated_at_column()
         RETURNS TRIGGER AS $$
@@ -447,24 +449,24 @@ async function setupDatabase() {
             RETURN NEW;
         END;
         $$ language 'plpgsql'
-      `
-      
+      `;
+
       // Step 6: Create triggers
-      console.log('  🎯 Creating triggers...')
+      console.log('  🎯 Creating triggers...');
       await db`
         CREATE OR REPLACE TRIGGER update_user_profiles_updated_at 
             BEFORE UPDATE ON user_profiles 
             FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
-      `
-      
+      `;
+
       await db`
         CREATE OR REPLACE TRIGGER update_organizations_updated_at 
             BEFORE UPDATE ON organizations 
             FOR EACH ROW EXECUTE FUNCTION update_updated_at_column()
-      `
-      
-      console.log('✅ Schema executed successfully')
-      
+      `;
+
+      console.log('✅ Schema executed successfully');
+
       // Verify tables were created
       const tableCheck = await db`
         SELECT table_name 
@@ -472,29 +474,27 @@ async function setupDatabase() {
         WHERE table_schema = 'public' 
         AND table_type = 'BASE TABLE'
         ORDER BY table_name
-      `
-      
-      console.log(`📊 Successfully created ${tableCheck.length} tables:`)
-      tableCheck.forEach(table => {
-        console.log(`  ✓ ${table.table_name}`)
-      })
-      
+      `;
+
+      console.log(`📊 Successfully created ${tableCheck.length} tables:`);
+      tableCheck.forEach((table) => {
+        console.log(`  ✓ ${table.table_name}`);
+      });
     } catch (error) {
-      console.error('❌ Failed to execute schema:', error)
-      throw error
+      console.error('❌ Failed to execute schema:', error);
+      throw error;
     }
 
-    console.log('🎯 Database setup complete!')
-
+    console.log('🎯 Database setup complete!');
   } catch (error) {
-    console.error('❌ Database setup failed:', error)
-    process.exit(1)
+    console.error('❌ Database setup failed:', error);
+    process.exit(1);
   }
 }
 
 // Run setup if this script is executed directly
 if (require.main === module) {
-  setupDatabase()
+  setupDatabase();
 }
 
-export { setupDatabase }
+export { setupDatabase };

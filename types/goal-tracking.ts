@@ -4,15 +4,15 @@
  * and intelligent goal suggestions for the AI Personal Trainer application
  */
 
-import { FitnessLevel } from './index'
-import { 
-  MeasurementType, 
+import { FitnessLevel } from './index';
+import {
+  MeasurementType,
   AchievementType,
   ExerciseType,
   WorkoutPlan,
-  UserAchievement
-} from './workouts'
-import { AnalyticsPeriod, TrendDirection } from './progress-analytics'
+  UserAchievement,
+} from './workouts';
+import { AnalyticsPeriod, TrendDirection } from './progress-analytics';
 
 // ================================
 // Core Goal Types
@@ -21,70 +21,70 @@ import { AnalyticsPeriod, TrendDirection } from './progress-analytics'
 /**
  * Goal Categories
  */
-export type GoalCategory = 
-  | 'fitness'           // Overall fitness improvement
-  | 'strength'          // Strength-based goals
-  | 'endurance'         // Cardiovascular/endurance goals
+export type GoalCategory =
+  | 'fitness' // Overall fitness improvement
+  | 'strength' // Strength-based goals
+  | 'endurance' // Cardiovascular/endurance goals
   | 'weight_management' // Weight loss/gain goals
-  | 'body_composition'  // Body composition changes
-  | 'performance'       // Athletic performance goals
-  | 'habit_formation'   // Consistency and habit goals
-  | 'health_metrics'    // Health-related metrics
+  | 'body_composition' // Body composition changes
+  | 'performance' // Athletic performance goals
+  | 'habit_formation' // Consistency and habit goals
+  | 'health_metrics' // Health-related metrics
   | 'skill_development' // Skill-based goals
-  | 'lifestyle'         // Lifestyle and wellness goals
-  | 'competition'       // Competition-related goals
-  | 'rehabilitation'    // Recovery and rehabilitation goals
+  | 'lifestyle' // Lifestyle and wellness goals
+  | 'competition' // Competition-related goals
+  | 'rehabilitation'; // Recovery and rehabilitation goals
 
 /**
  * Goal Types
  */
-export type GoalType = 
-  | 'target'           // Reach a specific target value
-  | 'increase'         // Increase by a certain amount
-  | 'decrease'         // Decrease by a certain amount
-  | 'maintain'         // Maintain current level
-  | 'streak'           // Maintain a streak
-  | 'frequency'        // Achieve frequency target
-  | 'duration'         // Complete for a duration
-  | 'milestone'        // Reach specific milestones
-  | 'range'            // Stay within a range
-  | 'progression'      // Follow a progression path
+export type GoalType =
+  | 'target' // Reach a specific target value
+  | 'increase' // Increase by a certain amount
+  | 'decrease' // Decrease by a certain amount
+  | 'maintain' // Maintain current level
+  | 'streak' // Maintain a streak
+  | 'frequency' // Achieve frequency target
+  | 'duration' // Complete for a duration
+  | 'milestone' // Reach specific milestones
+  | 'range' // Stay within a range
+  | 'progression'; // Follow a progression path
 
 /**
  * Goal Status
  */
-export type GoalStatus = 
-  | 'draft'            // Goal being created
-  | 'active'           // Currently pursuing
-  | 'paused'           // Temporarily paused
-  | 'completed'        // Successfully achieved
-  | 'failed'           // Not achieved within timeframe
-  | 'cancelled'        // User cancelled
-  | 'expired'          // Expired without completion
-  | 'archived'         // Archived for reference
+export type GoalStatus =
+  | 'draft' // Goal being created
+  | 'active' // Currently pursuing
+  | 'paused' // Temporarily paused
+  | 'completed' // Successfully achieved
+  | 'failed' // Not achieved within timeframe
+  | 'cancelled' // User cancelled
+  | 'expired' // Expired without completion
+  | 'archived'; // Archived for reference
 
 /**
  * Goal Priority
  */
-export type GoalPriority = 'low' | 'medium' | 'high' | 'critical'
+export type GoalPriority = 'low' | 'medium' | 'high' | 'critical';
 
 /**
  * Goal Difficulty
  */
-export type GoalDifficulty = 'easy' | 'moderate' | 'challenging' | 'extreme'
+export type GoalDifficulty = 'easy' | 'moderate' | 'challenging' | 'extreme';
 
 /**
  * Progress Status
  */
-export type ProgressStatus = 
-  | 'not_started'      // No progress yet
-  | 'on_track'         // Progressing as expected
-  | 'ahead'            // Ahead of schedule
-  | 'behind'           // Behind schedule
-  | 'at_risk'          // Risk of not achieving
-  | 'stalled'          // No progress recently
-  | 'accelerating'     // Progress is accelerating
-  | 'decelerating'     // Progress is slowing
+export type ProgressStatus =
+  | 'not_started' // No progress yet
+  | 'on_track' // Progressing as expected
+  | 'ahead' // Ahead of schedule
+  | 'behind' // Behind schedule
+  | 'at_risk' // Risk of not achieving
+  | 'stalled' // No progress recently
+  | 'accelerating' // Progress is accelerating
+  | 'decelerating'; // Progress is slowing
 
 // ================================
 // Goal Definition Types
@@ -95,39 +95,39 @@ export type ProgressStatus =
  */
 export interface FitnessGoal {
   /** Goal ID */
-  id: string
+  id: string;
   /** User ID */
-  userId: string
+  userId: string;
   /** Organization ID */
-  organizationId?: string
+  organizationId?: string;
   /** Goal name */
-  name: string
+  name: string;
   /** Goal description */
-  description: string
+  description: string;
   /** Goal category */
-  category: GoalCategory
+  category: GoalCategory;
   /** Goal type */
-  type: GoalType
+  type: GoalType;
   /** Goal priority */
-  priority: GoalPriority
+  priority: GoalPriority;
   /** Goal difficulty */
-  difficulty: GoalDifficulty
+  difficulty: GoalDifficulty;
   /** Goal status */
-  status: GoalStatus
+  status: GoalStatus;
   /** Goal configuration */
-  config: GoalConfiguration
+  config: GoalConfiguration;
   /** Target specification */
-  target: GoalTarget
+  target: GoalTarget;
   /** Progress tracking */
-  progress: GoalProgress
+  progress: GoalProgress;
   /** Timeline information */
-  timeline: GoalTimeline
+  timeline: GoalTimeline;
   /** Motivation and context */
-  motivation: GoalMotivation
+  motivation: GoalMotivation;
   /** Related entities */
-  relationships: GoalRelationships
+  relationships: GoalRelationships;
   /** Goal metadata */
-  metadata: GoalMetadata
+  metadata: GoalMetadata;
 }
 
 /**
@@ -135,19 +135,19 @@ export interface FitnessGoal {
  */
 export interface GoalConfiguration {
   /** Metric being tracked */
-  metric: GoalMetric
+  metric: GoalMetric;
   /** Measurement unit */
-  unit: string
+  unit: string;
   /** Tracking frequency */
-  trackingFrequency: TrackingFrequency
+  trackingFrequency: TrackingFrequency;
   /** Auto-tracking enabled */
-  autoTracking: boolean
+  autoTracking: boolean;
   /** Validation rules */
-  validation: ValidationRule[]
+  validation: ValidationRule[];
   /** Reminder settings */
-  reminders: ReminderSettings
+  reminders: ReminderSettings;
   /** Privacy settings */
-  privacy: GoalPrivacySettings
+  privacy: GoalPrivacySettings;
 }
 
 /**
@@ -155,23 +155,23 @@ export interface GoalConfiguration {
  */
 export interface GoalMetric {
   /** Metric type */
-  type: MetricType
+  type: MetricType;
   /** Metric name */
-  name: string
+  name: string;
   /** Metric source */
-  source: MetricSource
+  source: MetricSource;
   /** Metric calculation */
-  calculation?: MetricCalculation
+  calculation?: MetricCalculation;
   /** Baseline value */
-  baseline?: number
+  baseline?: number;
   /** Metric constraints */
-  constraints: MetricConstraints
+  constraints: MetricConstraints;
 }
 
 /**
  * Metric Types
  */
-export type MetricType = 
+export type MetricType =
   | 'body_weight'
   | 'body_fat_percentage'
   | 'muscle_mass'
@@ -191,47 +191,47 @@ export type MetricType =
   | 'recovery_time'
   | 'sleep_quality'
   | 'stress_level'
-  | 'custom_metric'
+  | 'custom_metric';
 
 /**
  * Metric Source
  */
 export interface MetricSource {
   /** Source type */
-  type: MetricSourceType
+  type: MetricSourceType;
   /** Source identifier */
-  sourceId: string
+  sourceId: string;
   /** Source configuration */
-  config: SourceConfiguration
+  config: SourceConfiguration;
   /** Data quality settings */
-  quality: DataQualitySettings
+  quality: DataQualitySettings;
 }
 
 /**
  * Metric Source Types
  */
-export type MetricSourceType = 
-  | 'manual_entry'       // User manual input
-  | 'workout_session'    // From workout sessions
-  | 'body_measurement'   // From body measurements
-  | 'wearable_device'    // From connected devices
-  | 'smart_scale'        // From smart scales
-  | 'fitness_app'        // From other fitness apps
-  | 'calculated'         // Calculated from other metrics
-  | 'imported'           // Imported from external sources
+export type MetricSourceType =
+  | 'manual_entry' // User manual input
+  | 'workout_session' // From workout sessions
+  | 'body_measurement' // From body measurements
+  | 'wearable_device' // From connected devices
+  | 'smart_scale' // From smart scales
+  | 'fitness_app' // From other fitness apps
+  | 'calculated' // Calculated from other metrics
+  | 'imported'; // Imported from external sources
 
 /**
  * Source Configuration
  */
 export interface SourceConfiguration {
   /** Configuration parameters */
-  parameters: Record<string, any>
+  parameters: Record<string, any>;
   /** Update frequency */
-  updateFrequency: 'real_time' | 'daily' | 'weekly' | 'manual'
+  updateFrequency: 'real_time' | 'daily' | 'weekly' | 'manual';
   /** Synchronization settings */
-  sync: SyncSettings
+  sync: SyncSettings;
   /** Fallback sources */
-  fallbacks: string[]
+  fallbacks: string[];
 }
 
 /**
@@ -239,13 +239,13 @@ export interface SourceConfiguration {
  */
 export interface SyncSettings {
   /** Auto-sync enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Sync interval (minutes) */
-  interval: number
+  interval: number;
   /** Last sync timestamp */
-  lastSync?: Date
+  lastSync?: Date;
   /** Sync conflicts handling */
-  conflictResolution: 'latest_wins' | 'manual_review' | 'average'
+  conflictResolution: 'latest_wins' | 'manual_review' | 'average';
 }
 
 /**
@@ -253,13 +253,13 @@ export interface SyncSettings {
  */
 export interface DataQualitySettings {
   /** Outlier detection */
-  outlierDetection: boolean
+  outlierDetection: boolean;
   /** Smoothing algorithm */
-  smoothing?: SmoothingAlgorithm
+  smoothing?: SmoothingAlgorithm;
   /** Validation thresholds */
-  thresholds: QualityThreshold[]
+  thresholds: QualityThreshold[];
   /** Missing data handling */
-  missingDataHandling: 'ignore' | 'interpolate' | 'use_default'
+  missingDataHandling: 'ignore' | 'interpolate' | 'use_default';
 }
 
 /**
@@ -267,11 +267,11 @@ export interface DataQualitySettings {
  */
 export interface SmoothingAlgorithm {
   /** Algorithm type */
-  type: 'moving_average' | 'exponential' | 'gaussian' | 'median_filter'
+  type: 'moving_average' | 'exponential' | 'gaussian' | 'median_filter';
   /** Algorithm parameters */
-  parameters: Record<string, number>
+  parameters: Record<string, number>;
   /** Window size */
-  windowSize: number
+  windowSize: number;
 }
 
 /**
@@ -279,11 +279,11 @@ export interface SmoothingAlgorithm {
  */
 export interface QualityThreshold {
   /** Threshold type */
-  type: 'min' | 'max' | 'change_rate' | 'variance'
+  type: 'min' | 'max' | 'change_rate' | 'variance';
   /** Threshold value */
-  value: number
+  value: number;
   /** Action on breach */
-  action: 'flag' | 'reject' | 'manual_review'
+  action: 'flag' | 'reject' | 'manual_review';
 }
 
 /**
@@ -291,13 +291,13 @@ export interface QualityThreshold {
  */
 export interface MetricCalculation {
   /** Calculation formula */
-  formula: string
+  formula: string;
   /** Input metrics */
-  inputs: string[]
+  inputs: string[];
   /** Calculation frequency */
-  frequency: 'on_demand' | 'daily' | 'weekly' | 'monthly'
+  frequency: 'on_demand' | 'daily' | 'weekly' | 'monthly';
   /** Calculation dependencies */
-  dependencies: string[]
+  dependencies: string[];
 }
 
 /**
@@ -305,15 +305,15 @@ export interface MetricCalculation {
  */
 export interface MetricConstraints {
   /** Minimum valid value */
-  minValue?: number
+  minValue?: number;
   /** Maximum valid value */
-  maxValue?: number
+  maxValue?: number;
   /** Valid value range */
-  validRange?: { min: number; max: number }
+  validRange?: { min: number; max: number };
   /** Decimal places */
-  decimalPlaces: number
+  decimalPlaces: number;
   /** Required precision */
-  precision?: number
+  precision?: number;
 }
 
 /**
@@ -321,15 +321,15 @@ export interface MetricConstraints {
  */
 export interface TrackingFrequency {
   /** Frequency type */
-  type: 'daily' | 'weekly' | 'monthly' | 'per_workout' | 'custom'
+  type: 'daily' | 'weekly' | 'monthly' | 'per_workout' | 'custom';
   /** Frequency value */
-  value?: number
+  value?: number;
   /** Frequency unit */
-  unit?: 'days' | 'weeks' | 'months' | 'workouts'
+  unit?: 'days' | 'weeks' | 'months' | 'workouts';
   /** Preferred times */
-  preferredTimes?: string[]
+  preferredTimes?: string[];
   /** Flexible scheduling */
-  flexible: boolean
+  flexible: boolean;
 }
 
 /**
@@ -337,68 +337,68 @@ export interface TrackingFrequency {
  */
 export interface ValidationRule {
   /** Rule ID */
-  id: string
+  id: string;
   /** Rule type */
-  type: ValidationType
+  type: ValidationType;
   /** Rule parameters */
-  parameters: any
+  parameters: any;
   /** Rule message */
-  message: string
+  message: string;
   /** Rule severity */
-  severity: 'error' | 'warning' | 'info'
+  severity: 'error' | 'warning' | 'info';
 }
 
 /**
  * Validation Types
  */
-export type ValidationType = 
+export type ValidationType =
   | 'range_check'
   | 'trend_validation'
   | 'consistency_check'
   | 'completeness_check'
   | 'correlation_check'
   | 'outlier_detection'
-  | 'custom_validation'
+  | 'custom_validation';
 
 /**
  * Reminder Settings
  */
 export interface ReminderSettings {
   /** Reminders enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Reminder types */
-  types: ReminderType[]
+  types: ReminderType[];
   /** Reminder frequency */
-  frequency: ReminderFrequency
+  frequency: ReminderFrequency;
   /** Reminder timing */
-  timing: ReminderTiming
+  timing: ReminderTiming;
   /** Reminder methods */
-  methods: ReminderMethod[]
+  methods: ReminderMethod[];
   /** Reminder content */
-  content: ReminderContent
+  content: ReminderContent;
 }
 
 /**
  * Reminder Types
  */
-export type ReminderType = 
-  | 'progress_update'    // Regular progress updates
-  | 'milestone_check'    // Milestone checkpoints
-  | 'motivation_boost'   // Motivational reminders
-  | 'course_correction'  // When off track
-  | 'achievement_ready'  // When close to achievement
-  | 'deadline_approach'  // Approaching deadline
+export type ReminderType =
+  | 'progress_update' // Regular progress updates
+  | 'milestone_check' // Milestone checkpoints
+  | 'motivation_boost' // Motivational reminders
+  | 'course_correction' // When off track
+  | 'achievement_ready' // When close to achievement
+  | 'deadline_approach'; // Approaching deadline
 
 /**
  * Reminder Frequency
  */
 export interface ReminderFrequency {
   /** Base frequency */
-  base: 'daily' | 'weekly' | 'monthly' | 'custom'
+  base: 'daily' | 'weekly' | 'monthly' | 'custom';
   /** Adaptive frequency */
-  adaptive: boolean
+  adaptive: boolean;
   /** Frequency modifiers */
-  modifiers: FrequencyModifier[]
+  modifiers: FrequencyModifier[];
 }
 
 /**
@@ -406,11 +406,11 @@ export interface ReminderFrequency {
  */
 export interface FrequencyModifier {
   /** Condition */
-  condition: 'behind_schedule' | 'ahead_schedule' | 'stalled' | 'accelerating'
+  condition: 'behind_schedule' | 'ahead_schedule' | 'stalled' | 'accelerating';
   /** Frequency multiplier */
-  multiplier: number
+  multiplier: number;
   /** Duration of modifier */
-  duration?: number
+  duration?: number;
 }
 
 /**
@@ -418,34 +418,40 @@ export interface FrequencyModifier {
  */
 export interface ReminderTiming {
   /** Preferred times of day */
-  preferredTimes: string[]
+  preferredTimes: string[];
   /** Time zone */
-  timezone: string
+  timezone: string;
   /** Respect quiet hours */
-  respectQuietHours: boolean
+  respectQuietHours: boolean;
   /** Quiet hours */
-  quietHours?: { start: string; end: string }
+  quietHours?: { start: string; end: string };
 }
 
 /**
  * Reminder Methods
  */
-export type ReminderMethod = 'push' | 'email' | 'sms' | 'in_app' | 'calendar' | 'widget'
+export type ReminderMethod =
+  | 'push'
+  | 'email'
+  | 'sms'
+  | 'in_app'
+  | 'calendar'
+  | 'widget';
 
 /**
  * Reminder Content
  */
 export interface ReminderContent {
   /** Content personalization */
-  personalized: boolean
+  personalized: boolean;
   /** Message templates */
-  templates: MessageTemplate[]
+  templates: MessageTemplate[];
   /** Include progress data */
-  includeProgress: boolean
+  includeProgress: boolean;
   /** Include motivational quotes */
-  includeQuotes: boolean
+  includeQuotes: boolean;
   /** Content language */
-  language: string
+  language: string;
 }
 
 /**
@@ -453,13 +459,13 @@ export interface ReminderContent {
  */
 export interface MessageTemplate {
   /** Template type */
-  type: ReminderType
+  type: ReminderType;
   /** Template content */
-  content: string
+  content: string;
   /** Template variables */
-  variables: string[]
+  variables: string[];
   /** Template conditions */
-  conditions?: TemplateCondition[]
+  conditions?: TemplateCondition[];
 }
 
 /**
@@ -467,11 +473,11 @@ export interface MessageTemplate {
  */
 export interface TemplateCondition {
   /** Condition field */
-  field: string
+  field: string;
   /** Condition operator */
-  operator: 'equals' | 'greater_than' | 'less_than' | 'between'
+  operator: 'equals' | 'greater_than' | 'less_than' | 'between';
   /** Condition value */
-  value: any
+  value: any;
 }
 
 /**
@@ -479,15 +485,15 @@ export interface TemplateCondition {
  */
 export interface GoalPrivacySettings {
   /** Goal visibility */
-  visibility: 'private' | 'friends' | 'public' | 'organization'
+  visibility: 'private' | 'friends' | 'public' | 'organization';
   /** Share progress updates */
-  shareProgress: boolean
+  shareProgress: boolean;
   /** Share achievements */
-  shareAchievements: boolean
+  shareAchievements: boolean;
   /** Allow encouragement */
-  allowEncouragement: boolean
+  allowEncouragement: boolean;
   /** Data sharing permissions */
-  dataSharing: DataSharingPermissions
+  dataSharing: DataSharingPermissions;
 }
 
 /**
@@ -495,15 +501,15 @@ export interface GoalPrivacySettings {
  */
 export interface DataSharingPermissions {
   /** Share with trainers */
-  trainers: boolean
+  trainers: boolean;
   /** Share with healthcare providers */
-  healthcare: boolean
+  healthcare: boolean;
   /** Share with researchers */
-  research: boolean
+  research: boolean;
   /** Share with family */
-  family: boolean
+  family: boolean;
   /** Share anonymized data */
-  anonymized: boolean
+  anonymized: boolean;
 }
 
 /**
@@ -511,40 +517,40 @@ export interface DataSharingPermissions {
  */
 export interface GoalTarget {
   /** Target type */
-  type: GoalType
+  type: GoalType;
   /** Target value */
-  value: TargetValue
+  value: TargetValue;
   /** Target conditions */
-  conditions: TargetCondition[]
+  conditions: TargetCondition[];
   /** Target milestones */
-  milestones: Milestone[]
+  milestones: Milestone[];
   /** Success criteria */
-  successCriteria: SuccessCriteria
+  successCriteria: SuccessCriteria;
 }
 
 /**
  * Target Value
  */
-export type TargetValue = 
+export type TargetValue =
   | SingleTarget
   | RangeTarget
   | ProgressionTarget
   | FrequencyTarget
   | DurationTarget
-  | StreakTarget
+  | StreakTarget;
 
 /**
  * Single Target
  */
 export interface SingleTarget {
   /** Target type */
-  type: 'single'
+  type: 'single';
   /** Target value */
-  value: number
+  value: number;
   /** Target tolerance */
-  tolerance?: number
+  tolerance?: number;
   /** Target direction */
-  direction?: 'increase' | 'decrease' | 'maintain'
+  direction?: 'increase' | 'decrease' | 'maintain';
 }
 
 /**
@@ -552,13 +558,13 @@ export interface SingleTarget {
  */
 export interface RangeTarget {
   /** Target type */
-  type: 'range'
+  type: 'range';
   /** Minimum value */
-  min: number
+  min: number;
   /** Maximum value */
-  max: number
+  max: number;
   /** Preferred value within range */
-  preferred?: number
+  preferred?: number;
 }
 
 /**
@@ -566,15 +572,15 @@ export interface RangeTarget {
  */
 export interface ProgressionTarget {
   /** Target type */
-  type: 'progression'
+  type: 'progression';
   /** Starting value */
-  start: number
+  start: number;
   /** Ending value */
-  end: number
+  end: number;
   /** Progression steps */
-  steps: ProgressionStep[]
+  steps: ProgressionStep[];
   /** Progression rate */
-  rate: ProgressionRate
+  rate: ProgressionRate;
 }
 
 /**
@@ -582,15 +588,15 @@ export interface ProgressionTarget {
  */
 export interface ProgressionStep {
   /** Step number */
-  step: number
+  step: number;
   /** Step target value */
-  value: number
+  value: number;
   /** Step date */
-  date?: Date
+  date?: Date;
   /** Step completed */
-  completed: boolean
+  completed: boolean;
   /** Step notes */
-  notes?: string
+  notes?: string;
 }
 
 /**
@@ -598,11 +604,11 @@ export interface ProgressionStep {
  */
 export interface ProgressionRate {
   /** Rate type */
-  type: 'linear' | 'exponential' | 'logarithmic' | 'custom'
+  type: 'linear' | 'exponential' | 'logarithmic' | 'custom';
   /** Rate parameters */
-  parameters: Record<string, number>
+  parameters: Record<string, number>;
   /** Rate adjustments */
-  adjustments: RateAdjustment[]
+  adjustments: RateAdjustment[];
 }
 
 /**
@@ -610,11 +616,11 @@ export interface ProgressionRate {
  */
 export interface RateAdjustment {
   /** Adjustment condition */
-  condition: string
+  condition: string;
   /** Adjustment factor */
-  factor: number
+  factor: number;
   /** Adjustment duration */
-  duration?: number
+  duration?: number;
 }
 
 /**
@@ -622,15 +628,15 @@ export interface RateAdjustment {
  */
 export interface FrequencyTarget {
   /** Target type */
-  type: 'frequency'
+  type: 'frequency';
   /** Target frequency */
-  frequency: number
+  frequency: number;
   /** Frequency period */
-  period: 'daily' | 'weekly' | 'monthly'
+  period: 'daily' | 'weekly' | 'monthly';
   /** Minimum frequency */
-  minFrequency?: number
+  minFrequency?: number;
   /** Allow makeup sessions */
-  allowMakeup: boolean
+  allowMakeup: boolean;
 }
 
 /**
@@ -638,13 +644,13 @@ export interface FrequencyTarget {
  */
 export interface DurationTarget {
   /** Target type */
-  type: 'duration'
+  type: 'duration';
   /** Total duration */
-  totalDuration: number
+  totalDuration: number;
   /** Duration unit */
-  unit: 'days' | 'weeks' | 'months' | 'years'
+  unit: 'days' | 'weeks' | 'months' | 'years';
   /** Continuous requirement */
-  continuous: boolean
+  continuous: boolean;
 }
 
 /**
@@ -652,15 +658,15 @@ export interface DurationTarget {
  */
 export interface StreakTarget {
   /** Target type */
-  type: 'streak'
+  type: 'streak';
   /** Target streak length */
-  length: number
+  length: number;
   /** Streak unit */
-  unit: 'days' | 'weeks' | 'workouts'
+  unit: 'days' | 'weeks' | 'workouts';
   /** Allow breaks */
-  allowBreaks: boolean
+  allowBreaks: boolean;
   /** Maximum break length */
-  maxBreakLength?: number
+  maxBreakLength?: number;
 }
 
 /**
@@ -668,52 +674,52 @@ export interface StreakTarget {
  */
 export interface TargetCondition {
   /** Condition ID */
-  id: string
+  id: string;
   /** Condition description */
-  description: string
+  description: string;
   /** Condition type */
-  type: ConditionType
+  type: ConditionType;
   /** Condition parameters */
-  parameters: Record<string, any>
+  parameters: Record<string, any>;
   /** Condition weight */
-  weight: number
+  weight: number;
 }
 
 /**
  * Condition Types
  */
-export type ConditionType = 
-  | 'time_based'         // Must be achieved by certain time
-  | 'context_based'      // Depends on other conditions
-  | 'performance_based'  // Based on performance metrics
-  | 'consistency_based'  // Based on consistency
-  | 'seasonal'           // Seasonal conditions
-  | 'health_based'       // Health status dependent
+export type ConditionType =
+  | 'time_based' // Must be achieved by certain time
+  | 'context_based' // Depends on other conditions
+  | 'performance_based' // Based on performance metrics
+  | 'consistency_based' // Based on consistency
+  | 'seasonal' // Seasonal conditions
+  | 'health_based'; // Health status dependent
 
 /**
  * Milestone
  */
 export interface Milestone {
   /** Milestone ID */
-  id: string
+  id: string;
   /** Milestone name */
-  name: string
+  name: string;
   /** Milestone description */
-  description: string
+  description: string;
   /** Milestone value */
-  value: number
+  value: number;
   /** Milestone percentage */
-  percentage: number
+  percentage: number;
   /** Milestone date */
-  targetDate?: Date
+  targetDate?: Date;
   /** Milestone achieved */
-  achieved: boolean
+  achieved: boolean;
   /** Achievement date */
-  achievedDate?: Date
+  achievedDate?: Date;
   /** Milestone reward */
-  reward?: MilestoneReward
+  reward?: MilestoneReward;
   /** Milestone celebration */
-  celebration?: CelebrationSettings
+  celebration?: CelebrationSettings;
 }
 
 /**
@@ -721,13 +727,13 @@ export interface Milestone {
  */
 export interface MilestoneReward {
   /** Reward type */
-  type: 'badge' | 'points' | 'discount' | 'unlock_feature' | 'custom'
+  type: 'badge' | 'points' | 'discount' | 'unlock_feature' | 'custom';
   /** Reward description */
-  description: string
+  description: string;
   /** Reward value */
-  value?: string | number
+  value?: string | number;
   /** Reward expiration */
-  expiresAt?: Date
+  expiresAt?: Date;
 }
 
 /**
@@ -735,13 +741,13 @@ export interface MilestoneReward {
  */
 export interface CelebrationSettings {
   /** Show celebration animation */
-  animation: boolean
+  animation: boolean;
   /** Share achievement */
-  share: boolean
+  share: boolean;
   /** Send notifications */
-  notify: boolean
+  notify: boolean;
   /** Custom message */
-  customMessage?: string
+  customMessage?: string;
 }
 
 /**
@@ -749,13 +755,13 @@ export interface CelebrationSettings {
  */
 export interface SuccessCriteria {
   /** Primary criteria */
-  primary: SuccessCriterion
+  primary: SuccessCriterion;
   /** Secondary criteria */
-  secondary: SuccessCriterion[]
+  secondary: SuccessCriterion[];
   /** Criteria combination */
-  combination: 'all' | 'any' | 'majority'
+  combination: 'all' | 'any' | 'majority';
   /** Grace period */
-  gracePeriod?: number
+  gracePeriod?: number;
 }
 
 /**
@@ -763,17 +769,17 @@ export interface SuccessCriteria {
  */
 export interface SuccessCriterion {
   /** Criterion ID */
-  id: string
+  id: string;
   /** Criterion description */
-  description: string
+  description: string;
   /** Criterion metric */
-  metric: string
+  metric: string;
   /** Criterion threshold */
-  threshold: number
+  threshold: number;
   /** Criterion operator */
-  operator: 'greater_than' | 'less_than' | 'equals' | 'between'
+  operator: 'greater_than' | 'less_than' | 'equals' | 'between';
   /** Criterion weight */
-  weight: number
+  weight: number;
 }
 
 // ================================
@@ -785,15 +791,15 @@ export interface SuccessCriterion {
  */
 export interface GoalProgress {
   /** Current progress */
-  current: CurrentProgress
+  current: CurrentProgress;
   /** Progress history */
-  history: ProgressHistory[]
+  history: ProgressHistory[];
   /** Progress trends */
-  trends: ProgressTrends
+  trends: ProgressTrends;
   /** Progress predictions */
-  predictions: ProgressPredictions
+  predictions: ProgressPredictions;
   /** Progress insights */
-  insights: ProgressInsight[]
+  insights: ProgressInsight[];
 }
 
 /**
@@ -801,19 +807,19 @@ export interface GoalProgress {
  */
 export interface CurrentProgress {
   /** Current value */
-  value: number
+  value: number;
   /** Progress percentage */
-  percentage: number
+  percentage: number;
   /** Progress status */
-  status: ProgressStatus
+  status: ProgressStatus;
   /** Days remaining */
-  daysRemaining: number
+  daysRemaining: number;
   /** Expected completion date */
-  expectedCompletion: Date
+  expectedCompletion: Date;
   /** Last updated */
-  lastUpdated: Date
+  lastUpdated: Date;
   /** Velocity */
-  velocity: ProgressVelocity
+  velocity: ProgressVelocity;
 }
 
 /**
@@ -821,15 +827,15 @@ export interface CurrentProgress {
  */
 export interface ProgressVelocity {
   /** Current velocity */
-  current: number
+  current: number;
   /** Average velocity */
-  average: number
+  average: number;
   /** Velocity trend */
-  trend: TrendDirection
+  trend: TrendDirection;
   /** Velocity unit */
-  unit: string
+  unit: string;
   /** Velocity period */
-  period: AnalyticsPeriod
+  period: AnalyticsPeriod;
 }
 
 /**
@@ -837,21 +843,21 @@ export interface ProgressVelocity {
  */
 export interface ProgressHistory {
   /** Record ID */
-  id: string
+  id: string;
   /** Record date */
-  date: Date
+  date: Date;
   /** Record value */
-  value: number
+  value: number;
   /** Progress percentage at this point */
-  percentage: number
+  percentage: number;
   /** Data source */
-  source: string
+  source: string;
   /** Data quality */
-  quality: number
+  quality: number;
   /** Notes */
-  notes?: string
+  notes?: string;
   /** Context */
-  context?: ProgressContext
+  context?: ProgressContext;
 }
 
 /**
@@ -859,13 +865,13 @@ export interface ProgressHistory {
  */
 export interface ProgressContext {
   /** Associated workout */
-  workoutId?: string
+  workoutId?: string;
   /** Associated measurement */
-  measurementId?: string
+  measurementId?: string;
   /** Environmental factors */
-  environment?: EnvironmentalFactors
+  environment?: EnvironmentalFactors;
   /** User state */
-  userState?: UserStateFactors
+  userState?: UserStateFactors;
 }
 
 /**
@@ -873,13 +879,13 @@ export interface ProgressContext {
  */
 export interface EnvironmentalFactors {
   /** Weather conditions */
-  weather?: string
+  weather?: string;
   /** Location */
-  location?: string
+  location?: string;
   /** Equipment used */
-  equipment?: string[]
+  equipment?: string[];
   /** Time of day */
-  timeOfDay?: string
+  timeOfDay?: string;
 }
 
 /**
@@ -887,15 +893,15 @@ export interface EnvironmentalFactors {
  */
 export interface UserStateFactors {
   /** Energy level */
-  energyLevel?: number
+  energyLevel?: number;
   /** Stress level */
-  stressLevel?: number
+  stressLevel?: number;
   /** Sleep quality */
-  sleepQuality?: number
+  sleepQuality?: number;
   /** Nutrition state */
-  nutritionState?: string
+  nutritionState?: string;
   /** Hydration level */
-  hydrationLevel?: number
+  hydrationLevel?: number;
 }
 
 /**
@@ -903,13 +909,13 @@ export interface UserStateFactors {
  */
 export interface ProgressTrends {
   /** Short-term trend */
-  shortTerm: TrendAnalysis
+  shortTerm: TrendAnalysis;
   /** Long-term trend */
-  longTerm: TrendAnalysis
+  longTerm: TrendAnalysis;
   /** Velocity trend */
-  velocity: VelocityTrend
+  velocity: VelocityTrend;
   /** Consistency trend */
-  consistency: ConsistencyTrend
+  consistency: ConsistencyTrend;
 }
 
 /**
@@ -917,17 +923,17 @@ export interface ProgressTrends {
  */
 export interface TrendAnalysis {
   /** Trend direction */
-  direction: TrendDirection
+  direction: TrendDirection;
   /** Trend strength */
-  strength: number
+  strength: number;
   /** Trend confidence */
-  confidence: number
+  confidence: number;
   /** Trend start date */
-  startDate: Date
+  startDate: Date;
   /** Trend duration */
-  duration: number
+  duration: number;
   /** Trend significance */
-  significance: number
+  significance: number;
 }
 
 /**
@@ -935,11 +941,11 @@ export interface TrendAnalysis {
  */
 export interface VelocityTrend {
   /** Velocity direction */
-  direction: 'accelerating' | 'decelerating' | 'constant'
+  direction: 'accelerating' | 'decelerating' | 'constant';
   /** Velocity change rate */
-  changeRate: number
+  changeRate: number;
   /** Velocity consistency */
-  consistency: number
+  consistency: number;
 }
 
 /**
@@ -947,15 +953,15 @@ export interface VelocityTrend {
  */
 export interface ConsistencyTrend {
   /** Consistency score */
-  score: number
+  score: number;
   /** Consistency trend */
-  trend: TrendDirection
+  trend: TrendDirection;
   /** Miss frequency */
-  missFrequency: number
+  missFrequency: number;
   /** Longest streak */
-  longestStreak: number
+  longestStreak: number;
   /** Current streak */
-  currentStreak: number
+  currentStreak: number;
 }
 
 /**
@@ -963,13 +969,13 @@ export interface ConsistencyTrend {
  */
 export interface ProgressPredictions {
   /** Completion prediction */
-  completion: CompletionPrediction
+  completion: CompletionPrediction;
   /** Milestone predictions */
-  milestones: MilestonePrediction[]
+  milestones: MilestonePrediction[];
   /** Risk assessment */
-  risks: RiskAssessment[]
+  risks: RiskAssessment[];
   /** Opportunity assessment */
-  opportunities: OpportunityAssessment[]
+  opportunities: OpportunityAssessment[];
 }
 
 /**
@@ -977,15 +983,15 @@ export interface ProgressPredictions {
  */
 export interface CompletionPrediction {
   /** Predicted completion date */
-  predictedDate: Date
+  predictedDate: Date;
   /** Prediction confidence */
-  confidence: number
+  confidence: number;
   /** Completion probability */
-  probability: number
+  probability: number;
   /** Prediction scenarios */
-  scenarios: PredictionScenario[]
+  scenarios: PredictionScenario[];
   /** Prediction method */
-  method: string
+  method: string;
 }
 
 /**
@@ -993,15 +999,15 @@ export interface CompletionPrediction {
  */
 export interface PredictionScenario {
   /** Scenario name */
-  name: string
+  name: string;
   /** Scenario probability */
-  probability: number
+  probability: number;
   /** Scenario completion date */
-  completionDate: Date
+  completionDate: Date;
   /** Scenario assumptions */
-  assumptions: string[]
+  assumptions: string[];
   /** Scenario actions */
-  recommendedActions: string[]
+  recommendedActions: string[];
 }
 
 /**
@@ -1009,13 +1015,13 @@ export interface PredictionScenario {
  */
 export interface MilestonePrediction {
   /** Milestone ID */
-  milestoneId: string
+  milestoneId: string;
   /** Predicted achievement date */
-  predictedDate: Date
+  predictedDate: Date;
   /** Achievement probability */
-  probability: number
+  probability: number;
   /** Prediction confidence */
-  confidence: number
+  confidence: number;
 }
 
 /**
@@ -1023,94 +1029,94 @@ export interface MilestonePrediction {
  */
 export interface RiskAssessment {
   /** Risk type */
-  type: RiskType
+  type: RiskType;
   /** Risk level */
-  level: 'low' | 'medium' | 'high' | 'critical'
+  level: 'low' | 'medium' | 'high' | 'critical';
   /** Risk probability */
-  probability: number
+  probability: number;
   /** Risk impact */
-  impact: number
+  impact: number;
   /** Risk description */
-  description: string
+  description: string;
   /** Mitigation strategies */
-  mitigation: string[]
+  mitigation: string[];
 }
 
 /**
  * Risk Types
  */
-export type RiskType = 
-  | 'timeline_risk'      // Risk of not meeting timeline
-  | 'motivation_risk'    // Risk of losing motivation
-  | 'consistency_risk'   // Risk of inconsistent progress
-  | 'plateau_risk'       // Risk of hitting plateau
-  | 'injury_risk'        // Risk of injury
-  | 'burnout_risk'       // Risk of burnout
-  | 'resource_risk'      // Risk of resource constraints
+export type RiskType =
+  | 'timeline_risk' // Risk of not meeting timeline
+  | 'motivation_risk' // Risk of losing motivation
+  | 'consistency_risk' // Risk of inconsistent progress
+  | 'plateau_risk' // Risk of hitting plateau
+  | 'injury_risk' // Risk of injury
+  | 'burnout_risk' // Risk of burnout
+  | 'resource_risk'; // Risk of resource constraints
 
 /**
  * Opportunity Assessment
  */
 export interface OpportunityAssessment {
   /** Opportunity type */
-  type: OpportunityType
+  type: OpportunityType;
   /** Opportunity impact */
-  impact: 'low' | 'medium' | 'high'
+  impact: 'low' | 'medium' | 'high';
   /** Opportunity feasibility */
-  feasibility: number
+  feasibility: number;
   /** Opportunity description */
-  description: string
+  description: string;
   /** Implementation suggestions */
-  implementation: string[]
+  implementation: string[];
 }
 
 /**
  * Opportunity Types
  */
-export type OpportunityType = 
-  | 'acceleration_opportunity'  // Opportunity to accelerate progress
-  | 'efficiency_opportunity'    // Opportunity to improve efficiency
-  | 'synergy_opportunity'       // Opportunity to leverage synergies
-  | 'motivation_opportunity'    // Opportunity to boost motivation
-  | 'skill_opportunity'         // Opportunity to develop skills
-  | 'social_opportunity'        // Opportunity for social support
+export type OpportunityType =
+  | 'acceleration_opportunity' // Opportunity to accelerate progress
+  | 'efficiency_opportunity' // Opportunity to improve efficiency
+  | 'synergy_opportunity' // Opportunity to leverage synergies
+  | 'motivation_opportunity' // Opportunity to boost motivation
+  | 'skill_opportunity' // Opportunity to develop skills
+  | 'social_opportunity'; // Opportunity for social support
 
 /**
  * Progress Insight
  */
 export interface ProgressInsight {
   /** Insight ID */
-  id: string
+  id: string;
   /** Insight type */
-  type: ProgressInsightType
+  type: ProgressInsightType;
   /** Insight title */
-  title: string
+  title: string;
   /** Insight description */
-  description: string
+  description: string;
   /** Insight importance */
-  importance: 'low' | 'medium' | 'high' | 'critical'
+  importance: 'low' | 'medium' | 'high' | 'critical';
   /** Insight confidence */
-  confidence: number
+  confidence: number;
   /** Supporting data */
-  supportingData: any
+  supportingData: any;
   /** Recommended actions */
-  actions: string[]
+  actions: string[];
   /** Insight created date */
-  createdAt: Date
+  createdAt: Date;
 }
 
 /**
  * Progress Insight Types
  */
-export type ProgressInsightType = 
-  | 'pattern_detected'       // Pattern in progress detected
-  | 'anomaly_detected'       // Unusual progress detected
-  | 'milestone_approaching'  // Milestone is near
-  | 'trend_change'          // Trend has changed
-  | 'plateau_detected'       // Progress plateau detected
-  | 'acceleration_detected'  // Progress acceleration detected
-  | 'correlation_found'      // Correlation with other factors
-  | 'optimization_suggested' // Optimization opportunity
+export type ProgressInsightType =
+  | 'pattern_detected' // Pattern in progress detected
+  | 'anomaly_detected' // Unusual progress detected
+  | 'milestone_approaching' // Milestone is near
+  | 'trend_change' // Trend has changed
+  | 'plateau_detected' // Progress plateau detected
+  | 'acceleration_detected' // Progress acceleration detected
+  | 'correlation_found' // Correlation with other factors
+  | 'optimization_suggested'; // Optimization opportunity
 
 // ================================
 // Timeline and Scheduling
@@ -1121,17 +1127,17 @@ export type ProgressInsightType =
  */
 export interface GoalTimeline {
   /** Start date */
-  startDate: Date
+  startDate: Date;
   /** Target end date */
-  targetEndDate: Date
+  targetEndDate: Date;
   /** Actual end date */
-  actualEndDate?: Date
+  actualEndDate?: Date;
   /** Timeline phases */
-  phases: TimelinePhase[]
+  phases: TimelinePhase[];
   /** Timeline flexibility */
-  flexibility: TimelineFlexibility
+  flexibility: TimelineFlexibility;
   /** Timeline adjustments */
-  adjustments: TimelineAdjustment[]
+  adjustments: TimelineAdjustment[];
 }
 
 /**
@@ -1139,23 +1145,23 @@ export interface GoalTimeline {
  */
 export interface TimelinePhase {
   /** Phase ID */
-  id: string
+  id: string;
   /** Phase name */
-  name: string
+  name: string;
   /** Phase description */
-  description: string
+  description: string;
   /** Phase start date */
-  startDate: Date
+  startDate: Date;
   /** Phase end date */
-  endDate: Date
+  endDate: Date;
   /** Phase objectives */
-  objectives: string[]
+  objectives: string[];
   /** Phase milestones */
-  milestones: string[]
+  milestones: string[];
   /** Phase completed */
-  completed: boolean
+  completed: boolean;
   /** Phase progress */
-  progress: number
+  progress: number;
 }
 
 /**
@@ -1163,13 +1169,13 @@ export interface TimelinePhase {
  */
 export interface TimelineFlexibility {
   /** Allow date adjustments */
-  allowAdjustments: boolean
+  allowAdjustments: boolean;
   /** Maximum delay (days) */
-  maxDelay: number
+  maxDelay: number;
   /** Adjustment penalties */
-  adjustmentPenalties: AdjustmentPenalty[]
+  adjustmentPenalties: AdjustmentPenalty[];
   /** Auto-adjustment rules */
-  autoAdjustment: AutoAdjustmentRule[]
+  autoAdjustment: AutoAdjustmentRule[];
 }
 
 /**
@@ -1177,11 +1183,11 @@ export interface TimelineFlexibility {
  */
 export interface AdjustmentPenalty {
   /** Penalty type */
-  type: 'deadline_extension' | 'target_reduction' | 'difficulty_increase'
+  type: 'deadline_extension' | 'target_reduction' | 'difficulty_increase';
   /** Penalty value */
-  value: number
+  value: number;
   /** Penalty description */
-  description: string
+  description: string;
 }
 
 /**
@@ -1189,13 +1195,13 @@ export interface AdjustmentPenalty {
  */
 export interface AutoAdjustmentRule {
   /** Rule condition */
-  condition: string
+  condition: string;
   /** Adjustment type */
-  adjustmentType: 'extend_deadline' | 'reduce_target' | 'increase_frequency'
+  adjustmentType: 'extend_deadline' | 'reduce_target' | 'increase_frequency';
   /** Adjustment amount */
-  amount: number
+  amount: number;
   /** Rule active */
-  active: boolean
+  active: boolean;
 }
 
 /**
@@ -1203,19 +1209,19 @@ export interface AutoAdjustmentRule {
  */
 export interface TimelineAdjustment {
   /** Adjustment ID */
-  id: string
+  id: string;
   /** Adjustment date */
-  date: Date
+  date: Date;
   /** Adjustment type */
-  type: 'extension' | 'acceleration' | 'target_change' | 'phase_modification'
+  type: 'extension' | 'acceleration' | 'target_change' | 'phase_modification';
   /** Adjustment reason */
-  reason: string
+  reason: string;
   /** Previous timeline */
-  previousTimeline: TimelineSnapshot
+  previousTimeline: TimelineSnapshot;
   /** New timeline */
-  newTimeline: TimelineSnapshot
+  newTimeline: TimelineSnapshot;
   /** Adjustment impact */
-  impact: AdjustmentImpact
+  impact: AdjustmentImpact;
 }
 
 /**
@@ -1223,11 +1229,11 @@ export interface TimelineAdjustment {
  */
 export interface TimelineSnapshot {
   /** Snapshot date */
-  date: Date
+  date: Date;
   /** Timeline configuration */
-  config: GoalTimeline
+  config: GoalTimeline;
   /** Progress at snapshot */
-  progress: number
+  progress: number;
 }
 
 /**
@@ -1235,13 +1241,13 @@ export interface TimelineSnapshot {
  */
 export interface AdjustmentImpact {
   /** Impact on completion date */
-  completionDate: number // days change
+  completionDate: number; // days change
   /** Impact on difficulty */
-  difficulty: number // difficulty change
+  difficulty: number; // difficulty change
   /** Impact on success probability */
-  successProbability: number // probability change
+  successProbability: number; // probability change
   /** Impact description */
-  description: string
+  description: string;
 }
 
 // ================================
@@ -1253,15 +1259,15 @@ export interface AdjustmentImpact {
  */
 export interface GoalMotivation {
   /** Motivation sources */
-  sources: MotivationSource[]
+  sources: MotivationSource[];
   /** Motivation level */
-  level: MotivationLevel
+  level: MotivationLevel;
   /** Motivation tracking */
-  tracking: MotivationTracking
+  tracking: MotivationTracking;
   /** Motivational content */
-  content: MotivationalContent
+  content: MotivationalContent;
   /** Engagement strategies */
-  engagement: EngagementStrategy[]
+  engagement: EngagementStrategy[];
 }
 
 /**
@@ -1269,44 +1275,44 @@ export interface GoalMotivation {
  */
 export interface MotivationSource {
   /** Source type */
-  type: MotivationSourceType
+  type: MotivationSourceType;
   /** Source description */
-  description: string
+  description: string;
   /** Source strength */
-  strength: number
+  strength: number;
   /** Source active */
-  active: boolean
+  active: boolean;
   /** Source personalization */
-  personalization: SourcePersonalization
+  personalization: SourcePersonalization;
 }
 
 /**
  * Motivation Source Types
  */
-export type MotivationSourceType = 
-  | 'health_improvement'   // Health benefits
-  | 'appearance'          // Physical appearance
-  | 'performance'         // Athletic performance
-  | 'social'              // Social factors
-  | 'challenge'           // Personal challenge
-  | 'habit_formation'     // Building good habits
-  | 'competition'         // Competitive motivation
-  | 'role_model'          // Following role models
-  | 'life_event'          // Life event motivation
-  | 'intrinsic'           // Internal satisfaction
+export type MotivationSourceType =
+  | 'health_improvement' // Health benefits
+  | 'appearance' // Physical appearance
+  | 'performance' // Athletic performance
+  | 'social' // Social factors
+  | 'challenge' // Personal challenge
+  | 'habit_formation' // Building good habits
+  | 'competition' // Competitive motivation
+  | 'role_model' // Following role models
+  | 'life_event' // Life event motivation
+  | 'intrinsic'; // Internal satisfaction
 
 /**
  * Source Personalization
  */
 export interface SourcePersonalization {
   /** Personal significance */
-  significance: number
+  significance: number;
   /** Emotional connection */
-  emotionalConnection: number
+  emotionalConnection: number;
   /** Visual associations */
-  visualAssociations: string[]
+  visualAssociations: string[];
   /** Personal stories */
-  personalStories: string[]
+  personalStories: string[];
 }
 
 /**
@@ -1314,15 +1320,15 @@ export interface SourcePersonalization {
  */
 export interface MotivationLevel {
   /** Current level */
-  current: number
+  current: number;
   /** Average level */
-  average: number
+  average: number;
   /** Level trend */
-  trend: TrendDirection
+  trend: TrendDirection;
   /** Level history */
-  history: MotivationHistory[]
+  history: MotivationHistory[];
   /** Level factors */
-  factors: MotivationFactor[]
+  factors: MotivationFactor[];
 }
 
 /**
@@ -1330,15 +1336,15 @@ export interface MotivationLevel {
  */
 export interface MotivationHistory {
   /** Date */
-  date: Date
+  date: Date;
   /** Motivation level */
-  level: number
+  level: number;
   /** Contributing factors */
-  factors: string[]
+  factors: string[];
   /** Context */
-  context?: string
+  context?: string;
   /** Notes */
-  notes?: string
+  notes?: string;
 }
 
 /**
@@ -1346,13 +1352,13 @@ export interface MotivationHistory {
  */
 export interface MotivationFactor {
   /** Factor name */
-  name: string
+  name: string;
   /** Factor impact */
-  impact: number
+  impact: number;
   /** Factor trend */
-  trend: TrendDirection
+  trend: TrendDirection;
   /** Factor controllability */
-  controllable: boolean
+  controllable: boolean;
 }
 
 /**
@@ -1360,13 +1366,13 @@ export interface MotivationFactor {
  */
 export interface MotivationTracking {
   /** Tracking enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Tracking frequency */
-  frequency: 'daily' | 'weekly' | 'after_workout' | 'when_prompted'
+  frequency: 'daily' | 'weekly' | 'after_workout' | 'when_prompted';
   /** Tracking method */
-  method: 'scale' | 'survey' | 'behavioral' | 'biometric'
+  method: 'scale' | 'survey' | 'behavioral' | 'biometric';
   /** Tracking metrics */
-  metrics: MotivationMetric[]
+  metrics: MotivationMetric[];
 }
 
 /**
@@ -1374,13 +1380,13 @@ export interface MotivationTracking {
  */
 export interface MotivationMetric {
   /** Metric name */
-  name: string
+  name: string;
   /** Metric type */
-  type: 'subjective' | 'objective' | 'behavioral'
+  type: 'subjective' | 'objective' | 'behavioral';
   /** Metric scale */
-  scale: MetricScale
+  scale: MetricScale;
   /** Metric weight */
-  weight: number
+  weight: number;
 }
 
 /**
@@ -1388,11 +1394,11 @@ export interface MotivationMetric {
  */
 export interface MetricScale {
   /** Scale type */
-  type: 'numeric' | 'likert' | 'binary' | 'categorical'
+  type: 'numeric' | 'likert' | 'binary' | 'categorical';
   /** Scale range */
-  range: { min: number; max: number }
+  range: { min: number; max: number };
   /** Scale labels */
-  labels: string[]
+  labels: string[];
 }
 
 /**
@@ -1400,13 +1406,13 @@ export interface MetricScale {
  */
 export interface MotivationalContent {
   /** Content library */
-  library: ContentLibrary
+  library: ContentLibrary;
   /** Personalization engine */
-  personalization: ContentPersonalization
+  personalization: ContentPersonalization;
   /** Delivery settings */
-  delivery: ContentDelivery
+  delivery: ContentDelivery;
   /** Content effectiveness */
-  effectiveness: ContentEffectiveness
+  effectiveness: ContentEffectiveness;
 }
 
 /**
@@ -1414,15 +1420,15 @@ export interface MotivationalContent {
  */
 export interface ContentLibrary {
   /** Motivational quotes */
-  quotes: MotivationalQuote[]
+  quotes: MotivationalQuote[];
   /** Success stories */
-  stories: SuccessStory[]
+  stories: SuccessStory[];
   /** Visual content */
-  visuals: VisualContent[]
+  visuals: VisualContent[];
   /** Audio content */
-  audio: AudioContent[]
+  audio: AudioContent[];
   /** Interactive content */
-  interactive: InteractiveContent[]
+  interactive: InteractiveContent[];
 }
 
 /**
@@ -1430,19 +1436,19 @@ export interface ContentLibrary {
  */
 export interface MotivationalQuote {
   /** Quote ID */
-  id: string
+  id: string;
   /** Quote text */
-  text: string
+  text: string;
   /** Quote author */
-  author?: string
+  author?: string;
   /** Quote category */
-  category: string
+  category: string;
   /** Quote relevance score */
-  relevance: number
+  relevance: number;
   /** Quote usage count */
-  usageCount: number
+  usageCount: number;
   /** User rating */
-  userRating?: number
+  userRating?: number;
 }
 
 /**
@@ -1450,19 +1456,19 @@ export interface MotivationalQuote {
  */
 export interface SuccessStory {
   /** Story ID */
-  id: string
+  id: string;
   /** Story title */
-  title: string
+  title: string;
   /** Story content */
-  content: string
+  content: string;
   /** Story author */
-  author: string
+  author: string;
   /** Story category */
-  category: string
+  category: string;
   /** Story similarity score */
-  similarity: number
+  similarity: number;
   /** Story verification */
-  verified: boolean
+  verified: boolean;
 }
 
 /**
@@ -1470,17 +1476,17 @@ export interface SuccessStory {
  */
 export interface VisualContent {
   /** Content ID */
-  id: string
+  id: string;
   /** Content type */
-  type: 'image' | 'gif' | 'video' | 'infographic'
+  type: 'image' | 'gif' | 'video' | 'infographic';
   /** Content URL */
-  url: string
+  url: string;
   /** Content description */
-  description: string
+  description: string;
   /** Content tags */
-  tags: string[]
+  tags: string[];
   /** Content effectiveness */
-  effectiveness: number
+  effectiveness: number;
 }
 
 /**
@@ -1488,19 +1494,19 @@ export interface VisualContent {
  */
 export interface AudioContent {
   /** Content ID */
-  id: string
+  id: string;
   /** Content type */
-  type: 'music' | 'podcast' | 'meditation' | 'affirmation'
+  type: 'music' | 'podcast' | 'meditation' | 'affirmation';
   /** Content URL */
-  url: string
+  url: string;
   /** Content duration */
-  duration: number
+  duration: number;
   /** Content description */
-  description: string
+  description: string;
   /** Content mood */
-  mood: string
+  mood: string;
   /** Content effectiveness */
-  effectiveness: number
+  effectiveness: number;
 }
 
 /**
@@ -1508,15 +1514,15 @@ export interface AudioContent {
  */
 export interface InteractiveContent {
   /** Content ID */
-  id: string
+  id: string;
   /** Content type */
-  type: 'quiz' | 'game' | 'challenge' | 'visualization'
+  type: 'quiz' | 'game' | 'challenge' | 'visualization';
   /** Content configuration */
-  config: any
+  config: any;
   /** Content description */
-  description: string
+  description: string;
   /** Engagement score */
-  engagement: number
+  engagement: number;
 }
 
 /**
@@ -1524,13 +1530,13 @@ export interface InteractiveContent {
  */
 export interface ContentPersonalization {
   /** Personalization enabled */
-  enabled: boolean
+  enabled: boolean;
   /** User preferences */
-  preferences: ContentPreferences
+  preferences: ContentPreferences;
   /** Learning algorithm */
-  algorithm: PersonalizationAlgorithm
+  algorithm: PersonalizationAlgorithm;
   /** Content scoring */
-  scoring: ContentScoring
+  scoring: ContentScoring;
 }
 
 /**
@@ -1538,15 +1544,15 @@ export interface ContentPersonalization {
  */
 export interface ContentPreferences {
   /** Preferred content types */
-  types: string[]
+  types: string[];
   /** Preferred moods */
-  moods: string[]
+  moods: string[];
   /** Preferred authors */
-  authors: string[]
+  authors: string[];
   /** Content frequency */
-  frequency: number
+  frequency: number;
   /** Content timing */
-  timing: string[]
+  timing: string[];
 }
 
 /**
@@ -1554,13 +1560,13 @@ export interface ContentPreferences {
  */
 export interface PersonalizationAlgorithm {
   /** Algorithm type */
-  type: 'collaborative_filtering' | 'content_based' | 'hybrid'
+  type: 'collaborative_filtering' | 'content_based' | 'hybrid';
   /** Algorithm parameters */
-  parameters: Record<string, any>
+  parameters: Record<string, any>;
   /** Learning rate */
-  learningRate: number
+  learningRate: number;
   /** Feedback weight */
-  feedbackWeight: number
+  feedbackWeight: number;
 }
 
 /**
@@ -1568,15 +1574,15 @@ export interface PersonalizationAlgorithm {
  */
 export interface ContentScoring {
   /** Relevance score */
-  relevance: number
+  relevance: number;
   /** Effectiveness score */
-  effectiveness: number
+  effectiveness: number;
   /** Novelty score */
-  novelty: number
+  novelty: number;
   /** User preference score */
-  preference: number
+  preference: number;
   /** Overall score */
-  overall: number
+  overall: number;
 }
 
 /**
@@ -1584,13 +1590,13 @@ export interface ContentScoring {
  */
 export interface ContentDelivery {
   /** Delivery channels */
-  channels: DeliveryChannel[]
+  channels: DeliveryChannel[];
   /** Delivery timing */
-  timing: DeliveryTiming
+  timing: DeliveryTiming;
   /** Delivery frequency */
-  frequency: DeliveryFrequency
+  frequency: DeliveryFrequency;
   /** Delivery personalization */
-  personalization: DeliveryPersonalization
+  personalization: DeliveryPersonalization;
 }
 
 /**
@@ -1598,13 +1604,13 @@ export interface ContentDelivery {
  */
 export interface DeliveryChannel {
   /** Channel type */
-  type: 'push' | 'email' | 'in_app' | 'widget' | 'social'
+  type: 'push' | 'email' | 'in_app' | 'widget' | 'social';
   /** Channel enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Channel priority */
-  priority: number
+  priority: number;
   /** Channel configuration */
-  config: ChannelConfig
+  config: ChannelConfig;
 }
 
 /**
@@ -1612,11 +1618,11 @@ export interface DeliveryChannel {
  */
 export interface ChannelConfig {
   /** Channel parameters */
-  parameters: Record<string, any>
+  parameters: Record<string, any>;
   /** Rate limiting */
-  rateLimiting: RateLimiting
+  rateLimiting: RateLimiting;
   /** Content formatting */
-  formatting: ContentFormatting
+  formatting: ContentFormatting;
 }
 
 /**
@@ -1624,11 +1630,11 @@ export interface ChannelConfig {
  */
 export interface RateLimiting {
   /** Maximum per day */
-  maxPerDay: number
+  maxPerDay: number;
   /** Maximum per week */
-  maxPerWeek: number
+  maxPerWeek: number;
   /** Minimum interval (minutes) */
-  minInterval: number
+  minInterval: number;
 }
 
 /**
@@ -1636,13 +1642,13 @@ export interface RateLimiting {
  */
 export interface ContentFormatting {
   /** Text length limit */
-  textLength: number
+  textLength: number;
   /** Include images */
-  includeImages: boolean
+  includeImages: boolean;
   /** Include links */
-  includeLinks: boolean
+  includeLinks: boolean;
   /** Formatting style */
-  style: string
+  style: string;
 }
 
 /**
@@ -1650,13 +1656,13 @@ export interface ContentFormatting {
  */
 export interface DeliveryTiming {
   /** Optimal times */
-  optimalTimes: string[]
+  optimalTimes: string[];
   /** Time zone */
-  timezone: string
+  timezone: string;
   /** Avoid times */
-  avoidTimes: string[]
+  avoidTimes: string[];
   /** Smart timing */
-  smartTiming: boolean
+  smartTiming: boolean;
 }
 
 /**
@@ -1664,11 +1670,11 @@ export interface DeliveryTiming {
  */
 export interface DeliveryFrequency {
   /** Base frequency */
-  base: number
+  base: number;
   /** Adaptive frequency */
-  adaptive: boolean
+  adaptive: boolean;
   /** Frequency factors */
-  factors: FrequencyFactor[]
+  factors: FrequencyFactor[];
 }
 
 /**
@@ -1676,11 +1682,11 @@ export interface DeliveryFrequency {
  */
 export interface FrequencyFactor {
   /** Factor name */
-  factor: string
+  factor: string;
   /** Factor impact */
-  impact: number
+  impact: number;
   /** Factor weight */
-  weight: number
+  weight: number;
 }
 
 /**
@@ -1688,13 +1694,13 @@ export interface FrequencyFactor {
  */
 export interface DeliveryPersonalization {
   /** Personalization level */
-  level: 'none' | 'basic' | 'advanced'
+  level: 'none' | 'basic' | 'advanced';
   /** User context awareness */
-  contextAware: boolean
+  contextAware: boolean;
   /** Behavioral targeting */
-  behavioralTargeting: boolean
+  behavioralTargeting: boolean;
   /** Dynamic optimization */
-  dynamicOptimization: boolean
+  dynamicOptimization: boolean;
 }
 
 /**
@@ -1702,13 +1708,13 @@ export interface DeliveryPersonalization {
  */
 export interface ContentEffectiveness {
   /** Effectiveness metrics */
-  metrics: EffectivenessMetric[]
+  metrics: EffectivenessMetric[];
   /** A/B testing */
-  abTesting: ABTestConfig
+  abTesting: ABTestConfig;
   /** Feedback collection */
-  feedbackCollection: FeedbackCollectionConfig
+  feedbackCollection: FeedbackCollectionConfig;
   /** Performance tracking */
-  performanceTracking: PerformanceTrackingConfig
+  performanceTracking: PerformanceTrackingConfig;
 }
 
 /**
@@ -1716,13 +1722,13 @@ export interface ContentEffectiveness {
  */
 export interface EffectivenessMetric {
   /** Metric name */
-  name: string
+  name: string;
   /** Metric value */
-  value: number
+  value: number;
   /** Metric trend */
-  trend: TrendDirection
+  trend: TrendDirection;
   /** Metric target */
-  target: number
+  target: number;
 }
 
 /**
@@ -1730,15 +1736,15 @@ export interface EffectivenessMetric {
  */
 export interface ABTestConfig {
   /** Testing enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Test variants */
-  variants: TestVariant[]
+  variants: TestVariant[];
   /** Traffic split */
-  trafficSplit: number[]
+  trafficSplit: number[];
   /** Test duration */
-  duration: number
+  duration: number;
   /** Success metrics */
-  successMetrics: string[]
+  successMetrics: string[];
 }
 
 /**
@@ -1746,13 +1752,13 @@ export interface ABTestConfig {
  */
 export interface TestVariant {
   /** Variant ID */
-  id: string
+  id: string;
   /** Variant name */
-  name: string
+  name: string;
   /** Variant configuration */
-  config: any
+  config: any;
   /** Variant performance */
-  performance: VariantPerformance
+  performance: VariantPerformance;
 }
 
 /**
@@ -1760,13 +1766,13 @@ export interface TestVariant {
  */
 export interface VariantPerformance {
   /** Conversion rate */
-  conversionRate: number
+  conversionRate: number;
   /** Engagement rate */
-  engagementRate: number
+  engagementRate: number;
   /** User satisfaction */
-  satisfaction: number
+  satisfaction: number;
   /** Statistical significance */
-  significance: number
+  significance: number;
 }
 
 /**
@@ -1774,13 +1780,13 @@ export interface VariantPerformance {
  */
 export interface FeedbackCollectionConfig {
   /** Collection enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Collection methods */
-  methods: FeedbackMethod[]
+  methods: FeedbackMethod[];
   /** Collection frequency */
-  frequency: 'immediate' | 'periodic' | 'triggered'
+  frequency: 'immediate' | 'periodic' | 'triggered';
   /** Collection incentives */
-  incentives: FeedbackIncentive[]
+  incentives: FeedbackIncentive[];
 }
 
 /**
@@ -1788,11 +1794,11 @@ export interface FeedbackCollectionConfig {
  */
 export interface FeedbackMethod {
   /** Method type */
-  type: 'rating' | 'survey' | 'implicit' | 'behavioral'
+  type: 'rating' | 'survey' | 'implicit' | 'behavioral';
   /** Method configuration */
-  config: any
+  config: any;
   /** Method weight */
-  weight: number
+  weight: number;
 }
 
 /**
@@ -1800,11 +1806,11 @@ export interface FeedbackMethod {
  */
 export interface FeedbackIncentive {
   /** Incentive type */
-  type: 'points' | 'badge' | 'discount' | 'content_unlock'
+  type: 'points' | 'badge' | 'discount' | 'content_unlock';
   /** Incentive value */
-  value: any
+  value: any;
   /** Incentive description */
-  description: string
+  description: string;
 }
 
 /**
@@ -1812,13 +1818,13 @@ export interface FeedbackIncentive {
  */
 export interface PerformanceTrackingConfig {
   /** Tracking enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Tracking metrics */
-  metrics: string[]
+  metrics: string[];
   /** Tracking frequency */
-  frequency: 'real_time' | 'hourly' | 'daily'
+  frequency: 'real_time' | 'hourly' | 'daily';
   /** Alerting thresholds */
-  thresholds: PerformanceThreshold[]
+  thresholds: PerformanceThreshold[];
 }
 
 /**
@@ -1826,13 +1832,13 @@ export interface PerformanceTrackingConfig {
  */
 export interface PerformanceThreshold {
   /** Metric name */
-  metric: string
+  metric: string;
   /** Threshold value */
-  value: number
+  value: number;
   /** Threshold type */
-  type: 'min' | 'max' | 'range'
+  type: 'min' | 'max' | 'range';
   /** Alert action */
-  action: string
+  action: string;
 }
 
 /**
@@ -1840,44 +1846,44 @@ export interface PerformanceThreshold {
  */
 export interface EngagementStrategy {
   /** Strategy ID */
-  id: string
+  id: string;
   /** Strategy name */
-  name: string
+  name: string;
   /** Strategy type */
-  type: EngagementStrategyType
+  type: EngagementStrategyType;
   /** Strategy configuration */
-  config: EngagementConfig
+  config: EngagementConfig;
   /** Strategy effectiveness */
-  effectiveness: StrategyEffectiveness
+  effectiveness: StrategyEffectiveness;
   /** Strategy active */
-  active: boolean
+  active: boolean;
 }
 
 /**
  * Engagement Strategy Types
  */
-export type EngagementStrategyType = 
-  | 'gamification'       // Game-like elements
-  | 'social_support'     // Social connections
-  | 'progress_sharing'   // Progress visibility
-  | 'challenges'         // Periodic challenges
-  | 'rewards'            // Reward system
-  | 'coaching'           // AI coaching
-  | 'community'          // Community features
-  | 'personalization'    // Personal touch
+export type EngagementStrategyType =
+  | 'gamification' // Game-like elements
+  | 'social_support' // Social connections
+  | 'progress_sharing' // Progress visibility
+  | 'challenges' // Periodic challenges
+  | 'rewards' // Reward system
+  | 'coaching' // AI coaching
+  | 'community' // Community features
+  | 'personalization'; // Personal touch
 
 /**
  * Engagement Configuration
  */
 export interface EngagementConfig {
   /** Configuration parameters */
-  parameters: Record<string, any>
+  parameters: Record<string, any>;
   /** Target audience */
-  targetAudience: AudienceSegment[]
+  targetAudience: AudienceSegment[];
   /** Timing rules */
-  timing: EngagementTiming
+  timing: EngagementTiming;
   /** Success criteria */
-  successCriteria: SuccessCriteria
+  successCriteria: SuccessCriteria;
 }
 
 /**
@@ -1885,13 +1891,13 @@ export interface EngagementConfig {
  */
 export interface AudienceSegment {
   /** Segment name */
-  name: string
+  name: string;
   /** Segment criteria */
-  criteria: SegmentCriteria[]
+  criteria: SegmentCriteria[];
   /** Segment size */
-  size: number
+  size: number;
   /** Segment engagement */
-  engagement: number
+  engagement: number;
 }
 
 /**
@@ -1899,13 +1905,13 @@ export interface AudienceSegment {
  */
 export interface SegmentCriteria {
   /** Criteria field */
-  field: string
+  field: string;
   /** Criteria operator */
-  operator: string
+  operator: string;
   /** Criteria value */
-  value: any
+  value: any;
   /** Criteria weight */
-  weight: number
+  weight: number;
 }
 
 /**
@@ -1913,11 +1919,11 @@ export interface SegmentCriteria {
  */
 export interface EngagementTiming {
   /** Timing triggers */
-  triggers: TimingTrigger[]
+  triggers: TimingTrigger[];
   /** Timing constraints */
-  constraints: TimingConstraint[]
+  constraints: TimingConstraint[];
   /** Timing optimization */
-  optimization: TimingOptimization
+  optimization: TimingOptimization;
 }
 
 /**
@@ -1925,11 +1931,11 @@ export interface EngagementTiming {
  */
 export interface TimingTrigger {
   /** Trigger type */
-  type: 'time_based' | 'event_based' | 'behavior_based' | 'context_based'
+  type: 'time_based' | 'event_based' | 'behavior_based' | 'context_based';
   /** Trigger condition */
-  condition: any
+  condition: any;
   /** Trigger priority */
-  priority: number
+  priority: number;
 }
 
 /**
@@ -1937,9 +1943,9 @@ export interface TimingTrigger {
  */
 export interface TimingConstraint {
   /** Constraint type */
-  type: 'frequency_limit' | 'time_window' | 'user_state' | 'context_filter'
+  type: 'frequency_limit' | 'time_window' | 'user_state' | 'context_filter';
   /** Constraint parameters */
-  parameters: any
+  parameters: any;
 }
 
 /**
@@ -1947,13 +1953,13 @@ export interface TimingConstraint {
  */
 export interface TimingOptimization {
   /** Optimization enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Optimization algorithm */
-  algorithm: string
+  algorithm: string;
   /** Optimization objectives */
-  objectives: string[]
+  objectives: string[];
   /** Learning parameters */
-  learningParams: Record<string, any>
+  learningParams: Record<string, any>;
 }
 
 /**
@@ -1961,13 +1967,13 @@ export interface TimingOptimization {
  */
 export interface StrategyEffectiveness {
   /** Overall effectiveness score */
-  overall: number
+  overall: number;
   /** Effectiveness by segment */
-  bySegment: Record<string, number>
+  bySegment: Record<string, number>;
   /** Key performance indicators */
-  kpis: EffectivenessKPI[]
+  kpis: EffectivenessKPI[];
   /** Effectiveness trends */
-  trends: EffectivenessTrend[]
+  trends: EffectivenessTrend[];
 }
 
 /**
@@ -1975,13 +1981,13 @@ export interface StrategyEffectiveness {
  */
 export interface EffectivenessKPI {
   /** KPI name */
-  name: string
+  name: string;
   /** KPI value */
-  value: number
+  value: number;
   /** KPI target */
-  target: number
+  target: number;
   /** KPI trend */
-  trend: TrendDirection
+  trend: TrendDirection;
 }
 
 /**
@@ -1989,13 +1995,13 @@ export interface EffectivenessKPI {
  */
 export interface EffectivenessTrend {
   /** Trend period */
-  period: AnalyticsPeriod
+  period: AnalyticsPeriod;
   /** Trend direction */
-  direction: TrendDirection
+  direction: TrendDirection;
   /** Trend magnitude */
-  magnitude: number
+  magnitude: number;
   /** Trend significance */
-  significance: number
+  significance: number;
 }
 
 // ================================
@@ -2007,17 +2013,17 @@ export interface EffectivenessTrend {
  */
 export interface GoalRelationships {
   /** Parent goals */
-  parents: GoalRelationship[]
+  parents: GoalRelationship[];
   /** Child goals */
-  children: GoalRelationship[]
+  children: GoalRelationship[];
   /** Related goals */
-  related: GoalRelationship[]
+  related: GoalRelationship[];
   /** Prerequisite goals */
-  prerequisites: GoalRelationship[]
+  prerequisites: GoalRelationship[];
   /** Dependent goals */
-  dependents: GoalRelationship[]
+  dependents: GoalRelationship[];
   /** Conflicting goals */
-  conflicts: GoalConflict[]
+  conflicts: GoalConflict[];
 }
 
 /**
@@ -2025,46 +2031,46 @@ export interface GoalRelationships {
  */
 export interface GoalRelationship {
   /** Related goal ID */
-  goalId: string
+  goalId: string;
   /** Relationship type */
-  type: RelationshipType
+  type: RelationshipType;
   /** Relationship strength */
-  strength: number
+  strength: number;
   /** Relationship description */
-  description: string
+  description: string;
   /** Relationship impact */
-  impact: RelationshipImpact
+  impact: RelationshipImpact;
   /** Relationship active */
-  active: boolean
+  active: boolean;
 }
 
 /**
  * Relationship Types
  */
-export type RelationshipType = 
-  | 'parent_child'       // Hierarchical relationship
-  | 'prerequisite'       // Must complete before
-  | 'dependent'          // Depends on this goal
-  | 'complementary'      // Works well together
-  | 'synergistic'        // Mutual reinforcement
-  | 'competitive'        // Competing for resources
-  | 'conflicting'        // Direct conflict
-  | 'supportive'         // Provides support
+export type RelationshipType =
+  | 'parent_child' // Hierarchical relationship
+  | 'prerequisite' // Must complete before
+  | 'dependent' // Depends on this goal
+  | 'complementary' // Works well together
+  | 'synergistic' // Mutual reinforcement
+  | 'competitive' // Competing for resources
+  | 'conflicting' // Direct conflict
+  | 'supportive'; // Provides support
 
 /**
  * Relationship Impact
  */
 export interface RelationshipImpact {
   /** Impact on success probability */
-  successProbability: number
+  successProbability: number;
   /** Impact on completion time */
-  completionTime: number
+  completionTime: number;
   /** Impact on difficulty */
-  difficulty: number
+  difficulty: number;
   /** Impact on motivation */
-  motivation: number
+  motivation: number;
   /** Impact description */
-  description: string
+  description: string;
 }
 
 /**
@@ -2072,66 +2078,66 @@ export interface RelationshipImpact {
  */
 export interface GoalConflict {
   /** Conflicting goal ID */
-  goalId: string
+  goalId: string;
   /** Conflict type */
-  type: ConflictType
+  type: ConflictType;
   /** Conflict severity */
-  severity: 'low' | 'medium' | 'high' | 'critical'
+  severity: 'low' | 'medium' | 'high' | 'critical';
   /** Conflict description */
-  description: string
+  description: string;
   /** Resolution strategies */
-  resolutionStrategies: ConflictResolution[]
+  resolutionStrategies: ConflictResolution[];
   /** Conflict resolved */
-  resolved: boolean
+  resolved: boolean;
 }
 
 /**
  * Conflict Types
  */
-export type ConflictType = 
-  | 'resource_conflict'    // Competing for same resources
-  | 'time_conflict'        // Competing for same time
-  | 'goal_conflict'        // Contradictory objectives
-  | 'method_conflict'      // Conflicting methods
-  | 'priority_conflict'    // Priority conflicts
+export type ConflictType =
+  | 'resource_conflict' // Competing for same resources
+  | 'time_conflict' // Competing for same time
+  | 'goal_conflict' // Contradictory objectives
+  | 'method_conflict' // Conflicting methods
+  | 'priority_conflict'; // Priority conflicts
 
 /**
  * Conflict Resolution
  */
 export interface ConflictResolution {
   /** Resolution strategy */
-  strategy: ResolutionStrategy
+  strategy: ResolutionStrategy;
   /** Resolution description */
-  description: string
+  description: string;
   /** Resolution feasibility */
-  feasibility: number
+  feasibility: number;
   /** Resolution impact */
-  impact: ResolutionImpact
+  impact: ResolutionImpact;
 }
 
 /**
  * Resolution Strategy
  */
-export type ResolutionStrategy = 
-  | 'prioritize'           // Prioritize one goal
-  | 'schedule_separate'    // Schedule separately
-  | 'merge_goals'          // Combine into one goal
-  | 'modify_approach'      // Modify approach
-  | 'resource_allocation'  // Allocate resources differently
-  | 'sequential_approach'  // Do one after another
+export type ResolutionStrategy =
+  | 'prioritize' // Prioritize one goal
+  | 'schedule_separate' // Schedule separately
+  | 'merge_goals' // Combine into one goal
+  | 'modify_approach' // Modify approach
+  | 'resource_allocation' // Allocate resources differently
+  | 'sequential_approach'; // Do one after another
 
 /**
  * Resolution Impact
  */
 export interface ResolutionImpact {
   /** Impact on goal success */
-  goalSuccess: Record<string, number>
+  goalSuccess: Record<string, number>;
   /** Impact on timeline */
-  timeline: number
+  timeline: number;
   /** Impact on resources */
-  resources: number
+  resources: number;
   /** Overall satisfaction */
-  satisfaction: number
+  satisfaction: number;
 }
 
 // ================================
@@ -2143,15 +2149,15 @@ export interface ResolutionImpact {
  */
 export interface GoalMetadata {
   /** Creation information */
-  creation: CreationMetadata
+  creation: CreationMetadata;
   /** Modification history */
-  modifications: ModificationHistory[]
+  modifications: ModificationHistory[];
   /** Sharing and collaboration */
-  sharing: SharingMetadata
+  sharing: SharingMetadata;
   /** System information */
-  system: SystemMetadata
+  system: SystemMetadata;
   /** Analytics and tracking */
-  analytics: AnalyticsMetadata
+  analytics: AnalyticsMetadata;
 }
 
 /**
@@ -2159,17 +2165,17 @@ export interface GoalMetadata {
  */
 export interface CreationMetadata {
   /** Created by user */
-  createdBy: string
+  createdBy: string;
   /** Creation date */
-  createdAt: Date
+  createdAt: Date;
   /** Creation method */
-  creationMethod: 'manual' | 'template' | 'ai_suggested' | 'imported'
+  creationMethod: 'manual' | 'template' | 'ai_suggested' | 'imported';
   /** Creation source */
-  source?: string
+  source?: string;
   /** Original template */
-  templateId?: string
+  templateId?: string;
   /** Creation context */
-  context: CreationContext
+  context: CreationContext;
 }
 
 /**
@@ -2177,15 +2183,15 @@ export interface CreationMetadata {
  */
 export interface CreationContext {
   /** User fitness level at creation */
-  userFitnessLevel: FitnessLevel
+  userFitnessLevel: FitnessLevel;
   /** Active workout plan */
-  activeWorkoutPlan?: string
+  activeWorkoutPlan?: string;
   /** Recent achievements */
-  recentAchievements: string[]
+  recentAchievements: string[];
   /** Motivation triggers */
-  motivationTriggers: string[]
+  motivationTriggers: string[];
   /** Environmental factors */
-  environment: Record<string, any>
+  environment: Record<string, any>;
 }
 
 /**
@@ -2193,48 +2199,48 @@ export interface CreationContext {
  */
 export interface ModificationHistory {
   /** Modification ID */
-  id: string
+  id: string;
   /** Modified by user */
-  modifiedBy: string
+  modifiedBy: string;
   /** Modification date */
-  modifiedAt: Date
+  modifiedAt: Date;
   /** Modification type */
-  type: ModificationType
+  type: ModificationType;
   /** Fields changed */
-  fieldsChanged: string[]
+  fieldsChanged: string[];
   /** Previous values */
-  previousValues: Record<string, any>
+  previousValues: Record<string, any>;
   /** New values */
-  newValues: Record<string, any>
+  newValues: Record<string, any>;
   /** Modification reason */
-  reason: string
+  reason: string;
   /** Modification impact */
-  impact: ModificationImpact
+  impact: ModificationImpact;
 }
 
 /**
  * Modification Types
  */
-export type ModificationType = 
-  | 'target_adjustment'    // Target value changed
-  | 'timeline_adjustment'  // Timeline changed
-  | 'priority_change'      // Priority changed
-  | 'status_change'        // Status changed
+export type ModificationType =
+  | 'target_adjustment' // Target value changed
+  | 'timeline_adjustment' // Timeline changed
+  | 'priority_change' // Priority changed
+  | 'status_change' // Status changed
   | 'configuration_change' // Configuration changed
-  | 'relationship_change'  // Relationships changed
+  | 'relationship_change'; // Relationships changed
 
 /**
  * Modification Impact
  */
 export interface ModificationImpact {
   /** Impact on success probability */
-  successProbability: number
+  successProbability: number;
   /** Impact on completion date */
-  completionDate: number
+  completionDate: number;
   /** Impact on difficulty */
-  difficulty: number
+  difficulty: number;
   /** Impact on other goals */
-  relatedGoals: Record<string, number>
+  relatedGoals: Record<string, number>;
 }
 
 /**
@@ -2242,13 +2248,13 @@ export interface ModificationImpact {
  */
 export interface SharingMetadata {
   /** Shared with users */
-  sharedWith: SharedUser[]
+  sharedWith: SharedUser[];
   /** Sharing permissions */
-  permissions: SharingPermissions
+  permissions: SharingPermissions;
   /** Collaboration settings */
-  collaboration: CollaborationSettings
+  collaboration: CollaborationSettings;
   /** Public sharing */
-  publicSharing: PublicSharingSettings
+  publicSharing: PublicSharingSettings;
 }
 
 /**
@@ -2256,13 +2262,13 @@ export interface SharingMetadata {
  */
 export interface SharedUser {
   /** User ID */
-  userId: string
+  userId: string;
   /** User role */
-  role: 'viewer' | 'supporter' | 'coach' | 'collaborator'
+  role: 'viewer' | 'supporter' | 'coach' | 'collaborator';
   /** Shared date */
-  sharedAt: Date
+  sharedAt: Date;
   /** Permissions */
-  permissions: UserPermissions
+  permissions: UserPermissions;
 }
 
 /**
@@ -2270,15 +2276,15 @@ export interface SharedUser {
  */
 export interface UserPermissions {
   /** Can view progress */
-  viewProgress: boolean
+  viewProgress: boolean;
   /** Can comment */
-  comment: boolean
+  comment: boolean;
   /** Can provide encouragement */
-  encourage: boolean
+  encourage: boolean;
   /** Can suggest modifications */
-  suggest: boolean
+  suggest: boolean;
   /** Can edit */
-  edit: boolean
+  edit: boolean;
 }
 
 /**
@@ -2286,15 +2292,15 @@ export interface UserPermissions {
  */
 export interface SharingPermissions {
   /** Allow sharing */
-  allowSharing: boolean
+  allowSharing: boolean;
   /** Require approval for sharing */
-  requireApproval: boolean
+  requireApproval: boolean;
   /** Share progress updates */
-  shareProgress: boolean
+  shareProgress: boolean;
   /** Share achievements */
-  shareAchievements: boolean
+  shareAchievements: boolean;
   /** Share setbacks */
-  shareSetbacks: boolean
+  shareSetbacks: boolean;
 }
 
 /**
@@ -2302,11 +2308,11 @@ export interface SharingPermissions {
  */
 export interface CollaborationSettings {
   /** Allow collaboration */
-  allowCollaboration: boolean
+  allowCollaboration: boolean;
   /** Collaboration type */
-  type: 'support_group' | 'accountability_partner' | 'coaching' | 'team_goal'
+  type: 'support_group' | 'accountability_partner' | 'coaching' | 'team_goal';
   /** Collaboration rules */
-  rules: CollaborationRule[]
+  rules: CollaborationRule[];
 }
 
 /**
@@ -2314,13 +2320,13 @@ export interface CollaborationSettings {
  */
 export interface CollaborationRule {
   /** Rule type */
-  type: string
+  type: string;
   /** Rule description */
-  description: string
+  description: string;
   /** Rule parameters */
-  parameters: any
+  parameters: any;
   /** Rule active */
-  active: boolean
+  active: boolean;
 }
 
 /**
@@ -2328,13 +2334,13 @@ export interface CollaborationRule {
  */
 export interface PublicSharingSettings {
   /** Allow public sharing */
-  allowPublic: boolean
+  allowPublic: boolean;
   /** Public visibility */
-  visibility: 'private' | 'anonymous' | 'public'
+  visibility: 'private' | 'anonymous' | 'public';
   /** Share success story */
-  shareSuccessStory: boolean
+  shareSuccessStory: boolean;
   /** Allow testimonial use */
-  allowTestimonial: boolean
+  allowTestimonial: boolean;
 }
 
 /**
@@ -2342,15 +2348,15 @@ export interface PublicSharingSettings {
  */
 export interface SystemMetadata {
   /** System version */
-  version: string
+  version: string;
   /** Data schema version */
-  schemaVersion: string
+  schemaVersion: string;
   /** Last system update */
-  lastSystemUpdate: Date
+  lastSystemUpdate: Date;
   /** Data integrity checks */
-  integrityChecks: IntegrityCheck[]
+  integrityChecks: IntegrityCheck[];
   /** System tags */
-  systemTags: string[]
+  systemTags: string[];
 }
 
 /**
@@ -2358,13 +2364,13 @@ export interface SystemMetadata {
  */
 export interface IntegrityCheck {
   /** Check type */
-  type: string
+  type: string;
   /** Check result */
-  result: 'pass' | 'fail' | 'warning'
+  result: 'pass' | 'fail' | 'warning';
   /** Check date */
-  date: Date
+  date: Date;
   /** Check details */
-  details: string
+  details: string;
 }
 
 /**
@@ -2372,13 +2378,13 @@ export interface IntegrityCheck {
  */
 export interface AnalyticsMetadata {
   /** Tracking enabled */
-  trackingEnabled: boolean
+  trackingEnabled: boolean;
   /** Analytics events */
-  events: AnalyticsEvent[]
+  events: AnalyticsEvent[];
   /** Performance metrics */
-  performance: PerformanceMetrics
+  performance: PerformanceMetrics;
   /** Usage statistics */
-  usage: UsageStatistics
+  usage: UsageStatistics;
 }
 
 /**
@@ -2386,13 +2392,13 @@ export interface AnalyticsMetadata {
  */
 export interface AnalyticsEvent {
   /** Event type */
-  type: string
+  type: string;
   /** Event timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Event data */
-  data: any
+  data: any;
   /** Event source */
-  source: string
+  source: string;
 }
 
 /**
@@ -2400,13 +2406,13 @@ export interface AnalyticsEvent {
  */
 export interface PerformanceMetrics {
   /** Goal engagement score */
-  engagement: number
+  engagement: number;
   /** Goal stickiness */
-  stickiness: number
+  stickiness: number;
   /** Goal virality */
-  virality: number
+  virality: number;
   /** Goal effectiveness */
-  effectiveness: number
+  effectiveness: number;
 }
 
 /**
@@ -2414,13 +2420,13 @@ export interface PerformanceMetrics {
  */
 export interface UsageStatistics {
   /** Total views */
-  views: number
+  views: number;
   /** Total interactions */
-  interactions: number
+  interactions: number;
   /** Time spent */
-  timeSpent: number
+  timeSpent: number;
   /** Feature usage */
-  featureUsage: Record<string, number>
+  featureUsage: Record<string, number>;
 }
 
 // Export all goal tracking types
@@ -2431,5 +2437,5 @@ export type {
   GoalTimeline,
   GoalMotivation,
   GoalRelationships,
-  GoalMetadata
-}
+  GoalMetadata,
+};

@@ -17,14 +17,14 @@
 
     /* Type Checking - Strict Mode */
     "strict": true,
-    // Re-enabling checks that have been systematically fixed
-    "noUnusedLocals": false, // TODO: Re-enable after cleanup of unused imports
+    // Strict type checking (gradually enabled)
+    "noUnusedLocals": true, // Enabled: Catch unused variables
     "noUnusedParameters": false, // TODO: Re-enable after parameter cleanup
-    "exactOptionalPropertyTypes": false, // Fixed with advanced optional property patterns
-    "noImplicitReturns": false, // TODO: Re-enable after return statement fixes
+    "exactOptionalPropertyTypes": false, // Keep disabled for flexibility
+    "noImplicitReturns": true, // Enabled: All code paths must return
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": false, // TODO: Re-enable after array access pattern fixes
-    "noImplicitAny": false, // TODO: Re-enable after implicit any fixes
+    "noUncheckedIndexedAccess": true, // Enabled: Safer array/object access
+    "noImplicitAny": true, // Enabled: Require explicit types
     "noImplicitOverride": true,
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
@@ -65,12 +65,7 @@
       }
     ]
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts"
-  ],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": [
     "node_modules",
     ".next",
@@ -87,9 +82,8 @@
     "lib/services/workout-service.ts",
     "scripts/*.ts",
     "playwright.config.ts",
-    "app/[locale]/workouts/create-manual/page-old.tsx",
     "types/calendar-scheduling.ts",
-    "types/goal-tracking.ts", 
+    "types/goal-tracking.ts",
     "types/plan-dashboard.ts",
     "types/progress-analytics.ts",
     "types/template-browser.ts",

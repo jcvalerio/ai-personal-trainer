@@ -3,60 +3,72 @@
  * Handles Clerk authentication events and syncs with our database
  */
 
-import { headers } from 'next/headers'
-import { NextRequest, NextResponse } from 'next/server'
-import { Webhook } from 'svix'
-import { 
+import { headers } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+import { Webhook } from 'svix';
+import {
   handleClerkUserWebhook,
   handleClerkOrganizationWebhook,
-  logAuthEvent
-} from '@/lib/db/auth'
-import { 
+  logAuthEvent,
+} from '@/lib/db/auth';
+import {
   ClerkWebhookEvent,
   ClerkUserWebhookData,
-  ClerkOrganizationWebhookData
-} from '@/types/auth'
+  ClerkOrganizationWebhookData,
+} from '@/types/auth';
 
 /**
  * POST /api/webhooks/clerk
  * Handle Clerk webhook events
  */
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  const startTime = Date.now()
+  const startTime = Date.now();
 
   try {
     // Get the webhook secret from environment
-    const webhookSecret = process.env.CLERK_WEBHOOK_SECRET
+    const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
     if (!webhookSecret) {
-      console.error('CLERK_WEBHOOK_SECRET is not set')
+      console.error('CLERK_WEBHOOK_SECRET is not set');
       return NextResponse.json(
-        { success: false, error: 'Webhook secret not configured', code: 'CONFIG_ERROR' },
+        {
+          success: false,
+          error: 'Webhook secret not configured',
+          code: 'CONFIG_ERROR',
+        },
         { status: 500 }
-      )
+      );
     }
 
     // Get the headers (Next.js 15 async headers)
-    const headerPayload = await headers()
-    const svix_id = headerPayload.get('svix-id')
-    const svix_timestamp = headerPayload.get('svix-timestamp')
-    const svix_signature = headerPayload.get('svix-signature')
+    const headerPayload = await headers();
+    const svix_id = headerPayload.get('svix-id');
+    const svix_timestamp = headerPayload.get('svix-timestamp');
+    const svix_signature = headerPayload.get('svix-signature');
 
     // If there are no headers, error out
     if (!svix_id || !svix_timestamp || !svix_signature) {
-      console.error('Missing svix headers', { svix_id, svix_timestamp, svix_signature })
+      console.error('Missing svix headers', {
+        svix_id,
+        svix_timestamp,
+        svix_signature,
+      });
       return NextResponse.json(
-        { success: false, error: 'Missing webhook headers', code: 'INVALID_HEADERS' },
+        {
+          success: false,
+          error: 'Missing webhook headers',
+          code: 'INVALID_HEADERS',
+        },
         { status: 400 }
-      )
+      );
     }
 
     // Get the body
-    const body = await req.text()
+    const body = await req.text();
 
     // Create a new Svix instance with your secret
-    const wh = new Webhook(webhookSecret)
+    const wh = new Webhook(webhookSecret);
 
-    let event: ClerkWebhookEvent
+    let event: ClerkWebhookEvent;
 
     // Verify the payload with the headers
     try {
@@ -64,29 +76,41 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         'svix-id': svix_id,
         'svix-timestamp': svix_timestamp,
         'svix-signature': svix_signature,
-      }) as ClerkWebhookEvent
+      }) as ClerkWebhookEvent;
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown verification error'
-      console.error('Webhook verification failed:', err)
-      
+      const errorMessage =
+        err instanceof Error ? err.message : 'Unknown verification error';
+      console.error('Webhook verification failed:', err);
+
       // Log the security event with proper error handling
-      await logAuthEvent('webhook_verification_failed', 'security', 'Webhook verification failed', 
-        undefined, undefined, { 
+      await logAuthEvent(
+        'webhook_verification_failed',
+        'security',
+        'Webhook verification failed',
+        undefined,
+        undefined,
+        {
           error: errorMessage,
-          errorType: err instanceof Error ? err.constructor.name : 'UnknownError',
+          errorType:
+            err instanceof Error ? err.constructor.name : 'UnknownError',
           svix_id,
           svix_timestamp,
-          headers: Object.fromEntries(headerPayload.entries())
-        })
+          headers: Object.fromEntries(headerPayload.entries()),
+        }
+      );
 
       return NextResponse.json(
-        { success: false, error: 'Webhook verification failed', code: 'VERIFICATION_FAILED' },
+        {
+          success: false,
+          error: 'Webhook verification failed',
+          code: 'VERIFICATION_FAILED',
+        },
         { status: 400 }
-      )
+      );
     }
 
     // Log the webhook event
-    console.log('Received Clerk webhook:', event.type)
+    console.log('Received Clerk webhook:', event.type);
 
     // Handle the webhook event
     try {
@@ -94,214 +118,284 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         case 'user.created':
         case 'user.updated':
         case 'user.deleted':
-          await handleUserWebhook(event.type, event.data as ClerkUserWebhookData)
-          break
+          await handleUserWebhook(
+            event.type,
+            event.data as ClerkUserWebhookData
+          );
+          break;
 
         case 'organization.created':
         case 'organization.updated':
         case 'organization.deleted':
-          await handleOrganizationWebhook(event.type, event.data as ClerkOrganizationWebhookData)
-          break
+          await handleOrganizationWebhook(
+            event.type,
+            event.data as ClerkOrganizationWebhookData
+          );
+          break;
 
         case 'organizationMembership.created':
         case 'organizationMembership.updated':
         case 'organizationMembership.deleted':
-          await handleOrganizationMembershipWebhook(event.type, event.data)
-          break
+          await handleOrganizationMembershipWebhook(event.type, event.data);
+          break;
 
         default:
-          console.warn('Unhandled webhook event type:', event.type)
+          console.warn('Unhandled webhook event type:', event.type);
           // Log but don't fail for unknown event types
-          await logAuthEvent('webhook_unhandled', 'security', `Unhandled webhook event: ${event.type}`, 
-            undefined, undefined, { eventType: event.type })
-          break
+          await logAuthEvent(
+            'webhook_unhandled',
+            'security',
+            `Unhandled webhook event: ${event.type}`,
+            undefined,
+            undefined,
+            { eventType: event.type }
+          );
+          break;
       }
 
       // Log successful webhook processing
-      await logAuthEvent('webhook_processed', 'auth', `Webhook processed: ${event.type}`, 
-        event.data.id, undefined, { 
+      await logAuthEvent(
+        'webhook_processed',
+        'auth',
+        `Webhook processed: ${event.type}`,
+        event.data.id,
+        undefined,
+        {
           eventType: event.type,
-          processingTime: Date.now() - startTime
-        })
-
-      const responseTime = Date.now() - startTime
-
-      return NextResponse.json({
-        success: true,
-        message: 'Webhook processed successfully',
-        eventType: event.type,
-        meta: {
-          responseTime,
-          timestamp: new Date().toISOString(),
+          processingTime: Date.now() - startTime,
         }
-      }, { status: 200 })
+      );
 
-    } catch (processingError: unknown) {
-      const errorMessage = processingError instanceof Error ? processingError.message : 'Unknown processing error'
-      console.error('Error processing webhook:', processingError)
-      
-      // Log the processing error with proper type safety
-      await logAuthEvent('webhook_processing_failed', 'security', `Webhook processing failed: ${event.type}`, 
-        event.data.id, undefined, { 
-          eventType: event.type,
-          error: errorMessage,
-          errorType: processingError instanceof Error ? processingError.constructor.name : 'UnknownError',
-          processingTime: Date.now() - startTime
-        })
+      const responseTime = Date.now() - startTime;
 
       return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Webhook processing failed', 
+        {
+          success: true,
+          message: 'Webhook processed successfully',
+          eventType: event.type,
+          meta: {
+            responseTime,
+            timestamp: new Date().toISOString(),
+          },
+        },
+        { status: 200 }
+      );
+    } catch (processingError: unknown) {
+      const errorMessage =
+        processingError instanceof Error
+          ? processingError.message
+          : 'Unknown processing error';
+      console.error('Error processing webhook:', processingError);
+
+      // Log the processing error with proper type safety
+      await logAuthEvent(
+        'webhook_processing_failed',
+        'security',
+        `Webhook processing failed: ${event.type}`,
+        event.data.id,
+        undefined,
+        {
+          eventType: event.type,
+          error: errorMessage,
+          errorType:
+            processingError instanceof Error
+              ? processingError.constructor.name
+              : 'UnknownError',
+          processingTime: Date.now() - startTime,
+        }
+      );
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Webhook processing failed',
           code: 'PROCESSING_FAILED',
           eventType: event.type,
-          message: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+          message:
+            process.env.NODE_ENV === 'development' ? errorMessage : undefined,
         },
         { status: 500 }
-      )
+      );
     }
-
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    console.error('Unexpected webhook error:', error)
-    
+    const errorMessage =
+      error instanceof Error ? error.message : 'Unknown error';
+    console.error('Unexpected webhook error:', error);
+
     // Log the unexpected error with proper typing
-    await logAuthEvent('webhook_error', 'security', 'Unexpected webhook error', 
-      undefined, undefined, { 
+    await logAuthEvent(
+      'webhook_error',
+      'security',
+      'Unexpected webhook error',
+      undefined,
+      undefined,
+      {
         error: errorMessage,
-        errorType: error instanceof Error ? error.constructor.name : 'UnknownError'
-      })
+        errorType:
+          error instanceof Error ? error.constructor.name : 'UnknownError',
+      }
+    );
 
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Internal server error', 
+      {
+        success: false,
+        error: 'Internal server error',
         code: 'INTERNAL_ERROR',
-        message: process.env.NODE_ENV === 'development' ? errorMessage : undefined
+        message:
+          process.env.NODE_ENV === 'development' ? errorMessage : undefined,
       },
       { status: 500 }
-    )
+    );
   }
 }
 
 /**
  * Handle user-related webhook events
  */
-async function handleUserWebhook(eventType: string, data: ClerkUserWebhookData): Promise<void> {
-  console.log(`Processing user webhook: ${eventType} for user ${data.id}`)
+async function handleUserWebhook(
+  eventType: string,
+  data: ClerkUserWebhookData
+): Promise<void> {
+  console.log(`Processing user webhook: ${eventType} for user ${data.id}`);
 
   try {
-    await handleClerkUserWebhook(eventType, data)
-    
+    await handleClerkUserWebhook(eventType, data);
+
     // Additional processing based on event type
     switch (eventType) {
       case 'user.created':
-        console.log(`New user created: ${data.id}`)
+        console.log(`New user created: ${data.id}`);
         // You could send welcome emails, create default data, etc.
-        break
+        break;
 
       case 'user.updated':
-        console.log(`User updated: ${data.id}`)
+        console.log(`User updated: ${data.id}`);
         // Handle profile updates, email changes, etc.
-        break
+        break;
 
       case 'user.deleted':
-        console.log(`User deleted: ${data.id}`)
+        console.log(`User deleted: ${data.id}`);
         // Handle data cleanup, send confirmation emails, etc.
-        break
+        break;
     }
-
   } catch (error) {
-    console.error(`Error handling user webhook ${eventType}:`, error)
-    throw error
+    console.error(`Error handling user webhook ${eventType}:`, error);
+    throw error;
   }
 }
 
 /**
  * Handle organization-related webhook events
  */
-async function handleOrganizationWebhook(eventType: string, data: ClerkOrganizationWebhookData): Promise<void> {
-  console.log(`Processing organization webhook: ${eventType} for org ${data.id}`)
+async function handleOrganizationWebhook(
+  eventType: string,
+  data: ClerkOrganizationWebhookData
+): Promise<void> {
+  console.log(
+    `Processing organization webhook: ${eventType} for org ${data.id}`
+  );
 
   try {
-    await handleClerkOrganizationWebhook(eventType, data)
-    
+    await handleClerkOrganizationWebhook(eventType, data);
+
     // Additional processing based on event type
     switch (eventType) {
       case 'organization.created':
-        console.log(`New organization created: ${data.id}`)
+        console.log(`New organization created: ${data.id}`);
         // Set up default organization data, send notifications, etc.
-        break
+        break;
 
       case 'organization.updated':
-        console.log(`Organization updated: ${data.id}`)
+        console.log(`Organization updated: ${data.id}`);
         // Handle organization profile updates
-        break
+        break;
 
       case 'organization.deleted':
-        console.log(`Organization deleted: ${data.id}`)
+        console.log(`Organization deleted: ${data.id}`);
         // Handle organization cleanup
-        break
+        break;
     }
-
   } catch (error) {
-    console.error(`Error handling organization webhook ${eventType}:`, error)
-    throw error
+    console.error(`Error handling organization webhook ${eventType}:`, error);
+    throw error;
   }
 }
 
 /**
  * Handle organization membership-related webhook events
  */
-async function handleOrganizationMembershipWebhook(eventType: string, data: any): Promise<void> {
-  console.log(`Processing organization membership webhook: ${eventType}`)
+async function handleOrganizationMembershipWebhook(
+  eventType: string,
+  data: any
+): Promise<void> {
+  console.log(`Processing organization membership webhook: ${eventType}`);
 
   try {
     // Extract relevant data from the membership event
-    const { organization, user } = data
-    
+    const { organization, user } = data;
+
     switch (eventType) {
       case 'organizationMembership.created':
-        console.log(`User ${user.id} joined organization ${organization.id}`)
-        
+        console.log(`User ${user.id} joined organization ${organization.id}`);
+
         // You might want to:
         // 1. Update user's organization_id in your database
         // 2. Send welcome email to the new member
         // 3. Update organization member count
         // 4. Grant appropriate permissions
-        
-        await logAuthEvent('membership_created', 'organization', 
-          `User joined organization via Clerk`, user.id, organization.id, {
+
+        await logAuthEvent(
+          'membership_created',
+          'organization',
+          `User joined organization via Clerk`,
+          user.id,
+          organization.id,
+          {
             organizationName: organization.name,
-            userEmail: user.email_addresses?.[0]?.email_address
-          })
-        break
+            userEmail: user.email_addresses?.[0]?.email_address,
+          }
+        );
+        break;
 
       case 'organizationMembership.updated':
-        console.log(`Membership updated for user ${user.id} in organization ${organization.id}`)
-        
+        console.log(
+          `Membership updated for user ${user.id} in organization ${organization.id}`
+        );
+
         // Handle role changes, permission updates, etc.
-        await logAuthEvent('membership_updated', 'organization', 
-          `Organization membership updated`, user.id, organization.id)
-        break
+        await logAuthEvent(
+          'membership_updated',
+          'organization',
+          `Organization membership updated`,
+          user.id,
+          organization.id
+        );
+        break;
 
       case 'organizationMembership.deleted':
-        console.log(`User ${user.id} left organization ${organization.id}`)
-        
+        console.log(`User ${user.id} left organization ${organization.id}`);
+
         // You might want to:
         // 1. Remove user from organization in your database
         // 2. Update organization member count
         // 3. Handle data ownership transfer
         // 4. Send departure confirmation
-        
-        await logAuthEvent('membership_deleted', 'organization', 
-          `User left organization`, user.id, organization.id)
-        break
-    }
 
+        await logAuthEvent(
+          'membership_deleted',
+          'organization',
+          `User left organization`,
+          user.id,
+          organization.id
+        );
+        break;
+    }
   } catch (error) {
-    console.error(`Error handling organization membership webhook ${eventType}:`, error)
-    throw error
+    console.error(
+      `Error handling organization membership webhook ${eventType}:`,
+      error
+    );
+    throw error;
   }
 }
 
@@ -314,12 +408,12 @@ export async function GET(): Promise<NextResponse> {
     message: 'Clerk webhook endpoint is healthy',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV,
-    version: '1.0.0'
-  })
+    version: '1.0.0',
+  });
 }
 
 /**
  * Webhook endpoint configuration
  */
-export const runtime = 'nodejs'
-export const maxDuration = 30 // 30 seconds timeout
+export const runtime = 'nodejs';
+export const maxDuration = 30; // 30 seconds timeout

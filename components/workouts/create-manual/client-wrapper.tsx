@@ -2,13 +2,13 @@
  * Client Wrapper Component
  * Ensures proper client-side rendering for workout creation forms
  */
-'use client'
+'use client';
 
-import { ReactNode, useState, useEffect } from 'react'
+import { ReactNode, useState, useEffect } from 'react';
 
 interface ClientWrapperProps {
-  children: ReactNode
-  fallback?: ReactNode
+  children: ReactNode;
+  fallback?: ReactNode;
 }
 
 /**
@@ -16,21 +16,23 @@ interface ClientWrapperProps {
  * This helps prevent hydration mismatches in Next.js 15 App Router
  */
 export function ClientWrapper({ children, fallback }: ClientWrapperProps) {
-  const [isMounted, setIsMounted] = useState(false)
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true)
-  }, [])
+    setIsMounted(true);
+  }, []);
 
   if (!isMounted) {
-    return fallback || (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
-      </div>
-    )
+    return (
+      fallback || (
+        <div className='flex min-h-screen items-center justify-center bg-gray-50'>
+          <div className='h-16 w-16 animate-spin rounded-full border-b-2 border-blue-600'></div>
+        </div>
+      )
+    );
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
 /**
@@ -43,9 +45,9 @@ export function withClientWrapper<T extends object>(
     <ClientWrapper>
       <Component {...props} />
     </ClientWrapper>
-  )
+  );
 
-  WrappedComponent.displayName = `withClientWrapper(${Component.displayName || Component.name})`
-  
-  return WrappedComponent
+  WrappedComponent.displayName = `withClientWrapper(${Component.displayName || Component.name})`;
+
+  return WrappedComponent;
 }

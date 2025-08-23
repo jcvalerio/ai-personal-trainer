@@ -9,6 +9,7 @@ The authentication system is built using Clerk for user management and implement
 ## Key Features
 
 ### Authentication
+
 - **Clerk Integration**: Secure authentication with social logins (Google, Apple)
 - **Custom UI**: Branded sign-in/sign-up pages with consistent design
 - **Middleware Protection**: Route-level authentication enforcement
@@ -16,6 +17,7 @@ The authentication system is built using Clerk for user management and implement
 - **Onboarding Flow**: Guided multi-step user setup process
 
 ### Multi-Tenancy
+
 - **Organization Types**: Support for 'family' and 'gym' organizations
 - **Role-Based Access Control**: Granular permissions system
 - **Data Isolation**: Complete tenant separation with Row-Level Security
@@ -23,6 +25,7 @@ The authentication system is built using Clerk for user management and implement
 - **Member Management**: Admin tools for user and permission management
 
 ### Security
+
 - **Row-Level Security (RLS)**: Database-level tenant isolation
 - **Rate Limiting**: API endpoint protection against abuse
 - **Input Validation**: Comprehensive request validation with Zod
@@ -32,6 +35,7 @@ The authentication system is built using Clerk for user management and implement
 ## Architecture
 
 ### Database Schema
+
 - **user_profiles**: User data with fitness information
 - **organizations**: Multi-tenant organization structure
 - **organization_memberships**: User-organization relationships
@@ -39,6 +43,7 @@ The authentication system is built using Clerk for user management and implement
 - **auth_audit_log**: Security audit trail
 
 ### API Routes
+
 - `POST /api/user/profile` - Create/update user profiles
 - `GET /api/organizations` - List user organizations
 - `POST /api/organizations` - Create new organizations
@@ -47,6 +52,7 @@ The authentication system is built using Clerk for user management and implement
 - `POST /api/webhooks/clerk` - Handle Clerk events
 
 ### Authentication Flow
+
 1. User signs up/in via Clerk
 2. Webhook creates basic user profile
 3. Onboarding completes profile setup
@@ -56,6 +62,7 @@ The authentication system is built using Clerk for user management and implement
 ## User Roles
 
 ### System Roles
+
 - `user`: Basic authenticated user
 - `family_admin`: Family organization administrator
 - `gym_member`: Gym organization member
@@ -63,6 +70,7 @@ The authentication system is built using Clerk for user management and implement
 - `gym_owner`: Gym organization owner
 
 ### Organization Roles
+
 - `member`: Basic organization member
 - `admin`: Organization administrator
 - `owner`: Organization owner (full control)
@@ -70,12 +78,14 @@ The authentication system is built using Clerk for user management and implement
 ## Organization Types
 
 ### Family Organizations
+
 - **Purpose**: Private fitness groups for families
 - **Max Members**: 5-25 (subscription dependent)
 - **Features**: Private workouts, family challenges, progress sharing
 - **Security**: Invite-only membership
 
 ### Gym Organizations
+
 - **Purpose**: Commercial gym and fitness center management
 - **Max Members**: 50-1000+ (subscription dependent)
 - **Features**: Equipment tracking, class scheduling, analytics
@@ -84,18 +94,21 @@ The authentication system is built using Clerk for user management and implement
 ## Security Measures
 
 ### Authentication Security
+
 - **JWT Tokens**: Secure session tokens from Clerk
 - **Middleware Protection**: Server-side route protection
 - **Rate Limiting**: Request throttling per user/IP
 - **Input Sanitization**: XSS prevention and data cleaning
 
 ### Data Security
+
 - **Row-Level Security**: Tenant data isolation at database level
 - **Encrypted Storage**: Sensitive data encryption at rest
 - **Audit Logging**: Complete activity tracking
 - **GDPR Compliance**: Data portability and deletion rights
 
 ### Organization Security
+
 - **Invitation Codes**: Cryptographically secure invite codes
 - **Member Limits**: Enforced membership boundaries
 - **Permission Checks**: Granular access control
@@ -111,6 +124,7 @@ The authentication system is built using Clerk for user management and implement
 ## WCAG 2.1 AA Compliance
 
 ### Accessibility Features
+
 - **Keyboard Navigation**: Full keyboard accessibility
 - **Screen Reader Support**: ARIA labels and semantic HTML
 - **Color Contrast**: Meeting WCAG contrast requirements
@@ -119,6 +133,7 @@ The authentication system is built using Clerk for user management and implement
 - **Form Accessibility**: Proper labels and error messages
 
 ### Testing
+
 - Automated accessibility testing with axe-core
 - Manual testing with screen readers
 - Keyboard navigation testing
@@ -127,6 +142,7 @@ The authentication system is built using Clerk for user management and implement
 ## Environment Configuration
 
 Required environment variables:
+
 ```env
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
 CLERK_SECRET_KEY=sk_test_...
@@ -138,18 +154,21 @@ ENCRYPTION_KEY=32-character-key
 ## Testing Strategy
 
 ### Unit Tests
+
 - Authentication utility functions
 - Input validation schemas
 - Database query functions
 - Role permission checks
 
 ### Integration Tests
+
 - API route functionality
 - Database operations
 - Webhook handling
 - Multi-tenant isolation
 
 ### End-to-End Tests
+
 - Complete authentication flows
 - Organization creation and management
 - Member invitation process
@@ -158,6 +177,7 @@ ENCRYPTION_KEY=32-character-key
 ## Deployment Checklist
 
 ### Pre-Deployment
+
 - [ ] Environment variables configured
 - [ ] Database migrations applied
 - [ ] Webhook endpoints registered
@@ -165,6 +185,7 @@ ENCRYPTION_KEY=32-character-key
 - [ ] Rate limiting configured
 
 ### Post-Deployment
+
 - [ ] Authentication flows tested
 - [ ] Organization creation verified
 - [ ] Member invitations working
@@ -176,7 +197,9 @@ ENCRYPTION_KEY=32-character-key
 ### Authentication Endpoints
 
 #### POST /api/user/profile
+
 Create or update user profile
+
 ```typescript
 {
   displayName: string
@@ -187,13 +210,17 @@ Create or update user profile
 ```
 
 #### GET /api/organizations
+
 List user organizations
+
 ```typescript
 Response: Organization[]
 ```
 
 #### POST /api/organizations
+
 Create new organization
+
 ```typescript
 {
   name: string
@@ -204,6 +231,7 @@ Create new organization
 ```
 
 ### Error Codes
+
 - `UNAUTHORIZED`: Authentication required
 - `FORBIDDEN`: Insufficient permissions
 - `VALIDATION_ERROR`: Invalid request data
@@ -213,6 +241,7 @@ Create new organization
 ## Monitoring & Maintenance
 
 ### Metrics to Monitor
+
 - Authentication success/failure rates
 - API response times
 - Database query performance
@@ -220,6 +249,7 @@ Create new organization
 - Security audit events
 
 ### Regular Maintenance
+
 - Review audit logs for suspicious activity
 - Update dependency versions
 - Monitor rate limit effectiveness
@@ -229,6 +259,7 @@ Create new organization
 ## Support & Troubleshooting
 
 ### Common Issues
+
 1. **Authentication Failures**: Check Clerk configuration
 2. **Webhook Issues**: Verify endpoint accessibility
 3. **Permission Errors**: Review role assignments
@@ -236,6 +267,7 @@ Create new organization
 5. **Rate Limiting**: Adjust limits or implement backoff
 
 ### Debug Tools
+
 - Clerk Dashboard for user management
 - Database query logs
 - API request/response logging

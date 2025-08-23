@@ -3,13 +3,7 @@
  * Comprehensive TypeScript types for real-time workout session execution
  */
 
-import { FitnessLevel } from './index'
-import { 
-  SessionExercise, 
-  ExercisePhase, 
-  SessionExerciseStatus,
-  SetPerformanceData 
-} from './workouts'
+import { SessionExercise, ExercisePhase, SetPerformanceData } from './workouts';
 
 // ================================
 // Core Timer System Types
@@ -18,52 +12,52 @@ import {
 /**
  * Timer Protocol Types
  */
-export type TimerProtocol = 
-  | 'tabata'       // 40s work, 10s rest, 8 rounds
-  | 'emom'         // Every Minute On the Minute
-  | 'amrap'        // As Many Rounds As Possible
-  | 'strength'     // Set-based with rest periods
-  | 'custom'       // User-defined intervals
+export type TimerProtocol =
+  | 'tabata' // 40s work, 10s rest, 8 rounds
+  | 'emom' // Every Minute On the Minute
+  | 'amrap' // As Many Rounds As Possible
+  | 'strength' // Set-based with rest periods
+  | 'custom'; // User-defined intervals
 
 /**
  * Timer Phase States
  */
-export type TimerPhase = 
-  | 'ready'        // Pre-start countdown
-  | 'work'         // Work period
-  | 'rest'         // Rest period
-  | 'set_break'    // Break between sets
-  | 'transition'   // Between exercises
-  | 'completed'    // Timer finished
-  | 'paused'       // User paused
-  | 'stopped'      // User stopped
+export type TimerPhase =
+  | 'ready' // Pre-start countdown
+  | 'work' // Work period
+  | 'rest' // Rest period
+  | 'set_break' // Break between sets
+  | 'transition' // Between exercises
+  | 'completed' // Timer finished
+  | 'paused' // User paused
+  | 'stopped'; // User stopped
 
 /**
  * Timer State Management
  */
 export interface TimerState {
   /** Current timer protocol */
-  protocol: TimerProtocol
+  protocol: TimerProtocol;
   /** Current phase of the timer */
-  phase: TimerPhase
+  phase: TimerPhase;
   /** Current round/set number (1-indexed) */
-  currentRound: number
+  currentRound: number;
   /** Total rounds/sets planned */
-  totalRounds: number
+  totalRounds: number;
   /** Current time remaining in milliseconds */
-  timeRemaining: number
+  timeRemaining: number;
   /** Total time for current phase in milliseconds */
-  phaseTotal: number
+  phaseTotal: number;
   /** Overall elapsed time in milliseconds */
-  elapsedTime: number
+  elapsedTime: number;
   /** Is timer currently running */
-  isRunning: boolean
+  isRunning: boolean;
   /** Is timer paused */
-  isPaused: boolean
+  isPaused: boolean;
   /** Timestamp when timer started */
-  startedAt?: Date
+  startedAt?: Date;
   /** Timestamp when timer completed */
-  completedAt?: Date
+  completedAt?: Date;
 }
 
 /**
@@ -71,29 +65,29 @@ export interface TimerState {
  */
 export interface TabataConfig {
   /** Work period duration in seconds */
-  workSeconds: number
+  workSeconds: number;
   /** Rest period duration in seconds */
-  restSeconds: number
+  restSeconds: number;
   /** Number of rounds */
-  rounds: number
+  rounds: number;
   /** Break between sets in seconds */
-  setBreakSeconds: number
+  setBreakSeconds: number;
   /** Number of sets (typically 1) */
-  sets: number
+  sets: number;
   /** Auto-start next phase */
-  autoAdvance: boolean
+  autoAdvance: boolean;
 }
 
 /**
- * EMOM Timer Configuration  
+ * EMOM Timer Configuration
  */
 export interface EMOMConfig {
   /** Duration of each minute in seconds (typically 60) */
-  intervalSeconds: number
+  intervalSeconds: number;
   /** Total number of intervals */
-  totalIntervals: number
+  totalIntervals: number;
   /** Auto-start each interval */
-  autoStart: boolean
+  autoStart: boolean;
 }
 
 /**
@@ -101,9 +95,9 @@ export interface EMOMConfig {
  */
 export interface AMRAPConfig {
   /** Total duration in seconds */
-  totalSeconds: number
+  totalSeconds: number;
   /** Show round counter */
-  showRounds: boolean
+  showRounds: boolean;
 }
 
 /**
@@ -111,13 +105,13 @@ export interface AMRAPConfig {
  */
 export interface StrengthConfig {
   /** Rest period between sets in seconds */
-  restSeconds: number
+  restSeconds: number;
   /** Total number of sets */
-  totalSets: number
+  totalSets: number;
   /** Auto-start rest timer after set completion */
-  autoStartRest: boolean
+  autoStartRest: boolean;
   /** Transition time between exercises */
-  transitionSeconds: number
+  transitionSeconds: number;
 }
 
 /**
@@ -125,31 +119,31 @@ export interface StrengthConfig {
  */
 export interface CustomConfig {
   /** Array of interval durations in seconds */
-  intervals: number[]
+  intervals: number[];
   /** Labels for each interval */
-  intervalLabels: string[]
+  intervalLabels: string[];
   /** Whether to repeat the sequence */
-  repeat: boolean
+  repeat: boolean;
   /** Number of repetitions (0 = infinite) */
-  repetitions: number
+  repetitions: number;
 }
 
 /**
  * Unified Timer Configuration
  */
 export interface TimerConfig {
-  protocol: TimerProtocol
-  tabata?: TabataConfig
-  emom?: EMOMConfig
-  amrap?: AMRAPConfig
-  strength?: StrengthConfig
-  custom?: CustomConfig
+  protocol: TimerProtocol;
+  tabata?: TabataConfig;
+  emom?: EMOMConfig;
+  amrap?: AMRAPConfig;
+  strength?: StrengthConfig;
+  custom?: CustomConfig;
   /** Pre-start countdown in seconds */
-  readyCountdown: number
+  readyCountdown: number;
   /** Audio feedback settings */
-  audioConfig: AudioFeedbackConfig
+  audioConfig: AudioFeedbackConfig;
   /** Haptic feedback settings */
-  hapticConfig: HapticFeedbackConfig
+  hapticConfig: HapticFeedbackConfig;
 }
 
 // ================================
@@ -159,28 +153,28 @@ export interface TimerConfig {
 /**
  * Audio Feedback Events
  */
-export type AudioEventType = 
-  | 'phase_start'     // New phase begins
-  | 'phase_warning'   // 3-second warning
-  | 'phase_end'       // Phase completed
-  | 'set_complete'    // Set completed
+export type AudioEventType =
+  | 'phase_start' // New phase begins
+  | 'phase_warning' // 3-second warning
+  | 'phase_end' // Phase completed
+  | 'set_complete' // Set completed
   | 'workout_complete' // Entire workout completed
-  | 'countdown'       // Countdown beeps
+  | 'countdown'; // Countdown beeps
 
 /**
  * Audio Feedback Configuration
  */
 export interface AudioFeedbackConfig {
   /** Enable audio feedback */
-  enabled: boolean
+  enabled: boolean;
   /** Volume level (0-1) */
-  volume: number
+  volume: number;
   /** Audio events to play */
-  events: Partial<Record<AudioEventType, AudioEventConfig>>
+  events: Partial<Record<AudioEventType, AudioEventConfig>>;
   /** Use text-to-speech */
-  useTTS: boolean
+  useTTS: boolean;
   /** TTS voice settings */
-  ttsConfig?: TTSConfig
+  ttsConfig?: TTSConfig;
 }
 
 /**
@@ -188,15 +182,15 @@ export interface AudioFeedbackConfig {
  */
 export interface AudioEventConfig {
   /** Enable this specific event */
-  enabled: boolean
+  enabled: boolean;
   /** Audio file URL or built-in sound */
-  soundUrl?: string
+  soundUrl?: string;
   /** Built-in sound type */
-  builtInSound?: 'beep' | 'chime' | 'bell' | 'whistle'
+  builtInSound?: 'beep' | 'chime' | 'bell' | 'whistle';
   /** Text to speak (if TTS enabled) */
-  ttsText?: string
+  ttsText?: string;
   /** Volume override for this event */
-  volume?: number
+  volume?: number;
 }
 
 /**
@@ -204,35 +198,35 @@ export interface AudioEventConfig {
  */
 export interface TTSConfig {
   /** TTS voice identifier */
-  voice: string
+  voice: string;
   /** Speech rate (0.5 - 2.0) */
-  rate: number
+  rate: number;
   /** Speech pitch (0.5 - 2.0) */
-  pitch: number
+  pitch: number;
   /** Language code */
-  language: string
+  language: string;
 }
 
 /**
  * Haptic Feedback Types
  */
-export type HapticPattern = 
-  | 'light'      // Light tap
-  | 'medium'     // Medium tap  
-  | 'heavy'      // Heavy tap
-  | 'pulse'      // Pulsing pattern
-  | 'double'     // Double tap
-  | 'triple'     // Triple tap
-  | 'long'       // Long vibration
+export type HapticPattern =
+  | 'light' // Light tap
+  | 'medium' // Medium tap
+  | 'heavy' // Heavy tap
+  | 'pulse' // Pulsing pattern
+  | 'double' // Double tap
+  | 'triple' // Triple tap
+  | 'long'; // Long vibration
 
 /**
  * Haptic Feedback Configuration
  */
 export interface HapticFeedbackConfig {
   /** Enable haptic feedback */
-  enabled: boolean
+  enabled: boolean;
   /** Haptic patterns for events */
-  events: Partial<Record<AudioEventType, HapticEventConfig>>
+  events: Partial<Record<AudioEventType, HapticEventConfig>>;
 }
 
 /**
@@ -240,13 +234,13 @@ export interface HapticFeedbackConfig {
  */
 export interface HapticEventConfig {
   /** Enable this haptic event */
-  enabled: boolean
+  enabled: boolean;
   /** Haptic pattern to use */
-  pattern: HapticPattern
+  pattern: HapticPattern;
   /** Intensity (0-1, iOS only) */
-  intensity?: number
+  intensity?: number;
   /** Duration in milliseconds (Android only) */
-  duration?: number
+  duration?: number;
 }
 
 // ================================
@@ -256,40 +250,59 @@ export interface HapticEventConfig {
 /**
  * Live Session State
  */
-export type SessionExecutionStatus = 
-  | 'preparing'     // Setting up session
-  | 'ready'         // Ready to start
-  | 'active'        // Session in progress
-  | 'resting'       // Rest period
+export type SessionExecutionStatus =
+  | 'idle' // Initial state, no session active
+  | 'preparing' // Setting up session
+  | 'ready' // Ready to start
+  | 'active' // Session in progress
+  | 'resting' // Rest period
   | 'transitioning' // Between exercises
-  | 'paused'        // User paused
-  | 'completed'     // Session finished
-  | 'stopped'       // User stopped early
+  | 'paused' // User paused
+  | 'completed' // Session finished
+  | 'stopped'; // User stopped early
 
 /**
  * Real-time Session Context
  */
 export interface SessionExecution {
   /** Session ID */
-  sessionId: string
+  sessionId: string;
   /** Current execution status */
-  status: SessionExecutionStatus
+  status: SessionExecutionStatus;
   /** Current exercise being performed */
-  currentExercise?: ExecutingExercise
+  currentExercise?: ExecutingExercise;
   /** Current set number (1-indexed) */
-  currentSet: number
+  currentSet: number;
   /** Timer state */
-  timerState: TimerState
+  timerState: TimerState;
   /** Overall session progress */
-  progress: SessionProgress
+  progress: SessionProgress;
   /** Performance tracking */
-  performance: SessionPerformance
+  performance: SessionPerformance;
   /** User interaction state */
-  interaction: SessionInteraction
+  interaction: SessionInteraction;
   /** Timestamps */
-  timestamps: SessionTimestamps
+  timestamps: SessionTimestamps;
   /** Offline capability state */
-  offline: OfflineState
+  offline: OfflineState;
+  /** Session settings */
+  settings: SessionSettings;
+  /** All exercises in session */
+  exercises: SessionExercise[];
+  /** Current exercise index (0-based) */
+  currentExerciseIndex: number;
+  /** Active timer configuration */
+  activeTimer?: TimerState;
+  /** Session start time */
+  startTime?: Date;
+  /** Session end time */
+  endTime?: Date;
+  /** Paused time duration */
+  pausedTime?: number;
+  /** Session type */
+  sessionType?: string;
+  /** Elapsed time in milliseconds */
+  elapsedTime?: number;
 }
 
 /**
@@ -297,17 +310,31 @@ export interface SessionExecution {
  */
 export interface ExecutingExercise extends SessionExercise {
   /** Real-time set tracking */
-  liveSets: LiveSet[]
+  liveSets: LiveSet[];
   /** Current set being performed (0-indexed) */
-  currentSetIndex: number
+  currentSetIndex: number;
   /** Exercise-specific timer config */
-  timerConfig?: TimerConfig
+  timerConfig?: TimerConfig;
   /** Exercise start time */
-  startedAt: Date
+  startedAt: Date;
   /** Exercise completion time */
-  completedAt?: Date
+  completedAt?: Date;
   /** Live performance metrics */
-  liveMetrics: LiveMetrics
+  liveMetrics: LiveMetrics;
+  /** Exercise name */
+  name: string;
+  /** Exercise description */
+  description?: string;
+  /** Exercise sets configuration */
+  sets: number;
+  /** Target reps per set */
+  targetReps: number;
+  /** Target weight */
+  targetWeight: number;
+  /** Target duration in seconds */
+  targetDuration?: number;
+  /** Completed sets count */
+  completedSets: number;
 }
 
 /**
@@ -315,19 +342,19 @@ export interface ExecutingExercise extends SessionExercise {
  */
 export interface LiveSet extends SetPerformanceData {
   /** Set start time */
-  startedAt: Date
+  startedAt: Date;
   /** Set completion time */
-  completedAt?: Date
+  completedAt?: Date;
   /** Live rep counting */
-  liveReps: number
+  liveReps: number;
   /** Is set currently active */
-  isActive: boolean
+  isActive: boolean;
   /** Is set completed */
-  isCompleted: boolean
+  isCompleted: boolean;
   /** Real-time notes */
-  liveNotes: string
+  liveNotes: string;
   /** Set quality assessment */
-  quality: SetQuality
+  quality: SetQuality;
 }
 
 /**
@@ -335,15 +362,15 @@ export interface LiveSet extends SetPerformanceData {
  */
 export interface SetQuality {
   /** Form rating (1-5) */
-  form: number
+  form: number;
   /** Completion percentage */
-  completion: number
+  completion: number;
   /** Tempo consistency */
-  tempo: number
+  tempo: number;
   /** Range of motion quality */
-  rangeOfMotion: number
+  rangeOfMotion: number;
   /** Overall quality score */
-  overall: number
+  overall: number;
 }
 
 /**
@@ -351,17 +378,17 @@ export interface SetQuality {
  */
 export interface LiveMetrics {
   /** Total reps completed */
-  totalReps: number
+  totalReps: number;
   /** Total weight moved */
-  totalVolume: number
+  totalVolume: number;
   /** Average rest time between sets */
-  avgRestTime: number
+  avgRestTime: number;
   /** Exercise duration */
-  exerciseDuration: number
+  exerciseDuration: number;
   /** Perceived exertion trend */
-  exertionTrend: number[]
+  exertionTrend: number[];
   /** Form consistency */
-  formConsistency: number
+  formConsistency: number;
 }
 
 /**
@@ -369,21 +396,27 @@ export interface LiveMetrics {
  */
 export interface SessionProgress {
   /** Overall completion percentage (0-100) */
-  completionPercentage: number
+  completionPercentage: number;
   /** Exercises completed */
-  exercisesCompleted: number
+  exercisesCompleted: number;
   /** Total exercises planned */
-  totalExercises: number
+  totalExercises: number;
   /** Sets completed */
-  setsCompleted: number
+  setsCompleted: number;
   /** Total sets planned */
-  totalSets: number
+  totalSets: number;
   /** Current phase */
-  currentPhase: ExercisePhase
+  currentPhase: ExercisePhase;
   /** Phase progress */
-  phaseProgress: Record<ExercisePhase, PhaseProgress>
+  phaseProgress: Record<ExercisePhase, PhaseProgress>;
   /** Estimated time remaining in minutes */
-  estimatedTimeRemaining: number
+  estimatedTimeRemaining: number;
+  /** Overall progress percentage */
+  overallProgress: number;
+  /** Time elapsed in minutes */
+  timeElapsed: number;
+  /** Exercise-specific progress tracking */
+  exerciseProgress?: Record<string, number>;
 }
 
 /**
@@ -391,15 +424,15 @@ export interface SessionProgress {
  */
 export interface PhaseProgress {
   /** Phase completion percentage */
-  completion: number
+  completion: number;
   /** Exercises in this phase */
-  totalExercises: number
+  totalExercises: number;
   /** Completed exercises in this phase */
-  completedExercises: number
+  completedExercises: number;
   /** Phase start time */
-  startedAt?: Date
+  startedAt?: Date;
   /** Phase completion time */
-  completedAt?: Date
+  completedAt?: Date;
 }
 
 /**
@@ -407,23 +440,33 @@ export interface PhaseProgress {
  */
 export interface SessionPerformance {
   /** Total volume (weight × reps) */
-  totalVolume: number
+  totalVolume: number;
   /** Total reps completed */
-  totalReps: number
+  totalReps: number;
   /** Average perceived exertion */
-  avgPerceivedExertion: number
+  avgPerceivedExertion: number;
   /** Average form rating */
-  avgFormRating: number
+  avgFormRating: number;
   /** Session duration in minutes */
-  sessionDuration: number
+  sessionDuration: number;
   /** Active work time (excluding rest) */
-  activeWorkTime: number
+  activeWorkTime: number;
   /** Total rest time */
-  totalRestTime: number
+  totalRestTime: number;
   /** Personal records achieved */
-  personalRecords: PersonalRecord[]
+  personalRecords: PersonalRecord[];
   /** Performance compared to planned */
-  vsPlanned: PerformanceComparison
+  vsPlanned: PerformanceComparison;
+  /** Sets completed */
+  setsCompleted: number;
+  /** Total exercises completed */
+  totalExercises: number;
+  /** Exercises completed count */
+  exercisesCompleted: number;
+  /** Total sets in session */
+  totalSets: number;
+  /** Average intensity across session */
+  averageIntensity?: number;
 }
 
 /**
@@ -431,19 +474,19 @@ export interface SessionPerformance {
  */
 export interface PersonalRecord {
   /** Type of record */
-  type: 'weight' | 'reps' | 'volume' | 'duration'
+  type: 'weight' | 'reps' | 'volume' | 'duration';
   /** Exercise ID */
-  exerciseId: string
+  exerciseId: string;
   /** Exercise name */
-  exerciseName: string
+  exerciseName: string;
   /** New record value */
-  newValue: number
+  newValue: number;
   /** Previous record value */
-  previousValue: number
+  previousValue: number;
   /** Unit of measurement */
-  unit: string
+  unit: string;
   /** Date achieved */
-  achievedAt: Date
+  achievedAt: Date;
 }
 
 /**
@@ -451,15 +494,15 @@ export interface PersonalRecord {
  */
 export interface PerformanceComparison {
   /** Volume percentage vs planned */
-  volumePercentage: number
+  volumePercentage: number;
   /** Reps percentage vs planned */
-  repsPercentage: number
+  repsPercentage: number;
   /** Weight percentage vs planned */
-  weightPercentage: number
+  weightPercentage: number;
   /** Duration percentage vs planned */
-  durationPercentage: number
+  durationPercentage: number;
   /** Overall performance rating */
-  overallRating: 'exceeded' | 'met' | 'below' | 'failed'
+  overallRating: 'exceeded' | 'met' | 'below' | 'failed';
 }
 
 // ================================
@@ -471,41 +514,41 @@ export interface PerformanceComparison {
  */
 export interface SessionInteraction {
   /** Current input mode */
-  inputMode: InteractionMode
+  inputMode: InteractionMode;
   /** Touch interaction state */
-  touchState: TouchInteractionState
+  touchState: TouchInteractionState;
   /** Quick action buttons */
-  quickActions: QuickActionConfig[]
+  quickActions: QuickActionConfig[];
   /** Accessibility state */
-  accessibility: AccessibilityState
+  accessibility: AccessibilityState;
   /** One-handed operation mode */
-  oneHandedMode: boolean
+  oneHandedMode: boolean;
 }
 
 /**
  * User Interaction Modes
  */
-export type InteractionMode = 
-  | 'touch'        // Touch-based input
-  | 'voice'        // Voice commands
-  | 'gesture'      // Gesture recognition
-  | 'auto'         // Automatic progression
-  | 'external'     // External device input
+export type InteractionMode =
+  | 'touch' // Touch-based input
+  | 'voice' // Voice commands
+  | 'gesture' // Gesture recognition
+  | 'auto' // Automatic progression
+  | 'external'; // External device input
 
 /**
  * Touch Interaction State
  */
 export interface TouchInteractionState {
   /** Enable swipe gestures */
-  swipeEnabled: boolean
+  swipeEnabled: boolean;
   /** Swipe sensitivity */
-  swipeSensitivity: number
+  swipeSensitivity: number;
   /** Touch feedback enabled */
-  touchFeedback: boolean
+  touchFeedback: boolean;
   /** Large touch targets for accessibility */
-  largeTouchTargets: boolean
+  largeTouchTargets: boolean;
   /** Prevent accidental touches */
-  preventAccidental: boolean
+  preventAccidental: boolean;
 }
 
 /**
@@ -513,54 +556,54 @@ export interface TouchInteractionState {
  */
 export interface QuickActionConfig {
   /** Action identifier */
-  id: string
+  id: string;
   /** Action label */
-  label: string
+  label: string;
   /** Action icon */
-  icon: string
+  icon: string;
   /** Action handler */
-  action: QuickActionType
+  action: QuickActionType;
   /** Is action enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Action position/priority */
-  position: number
+  position: number;
   /** Keyboard shortcut */
-  shortcut?: string
+  shortcut?: string;
 }
 
 /**
  * Quick Action Types
  */
-export type QuickActionType = 
-  | 'complete_set'     // Mark current set complete
-  | 'skip_set'         // Skip current set
-  | 'add_weight'       // Increase weight
-  | 'reduce_weight'    // Decrease weight
-  | 'start_rest'       // Start rest timer
-  | 'pause_timer'      // Pause/resume timer
-  | 'next_exercise'    // Move to next exercise
+export type QuickActionType =
+  | 'complete_set' // Mark current set complete
+  | 'skip_set' // Skip current set
+  | 'add_weight' // Increase weight
+  | 'reduce_weight' // Decrease weight
+  | 'start_rest' // Start rest timer
+  | 'pause_timer' // Pause/resume timer
+  | 'next_exercise' // Move to next exercise
   | 'previous_exercise' // Go back to previous
-  | 'add_note'         // Add quick note
-  | 'rate_form'        // Quick form rating
+  | 'add_note' // Add quick note
+  | 'rate_form'; // Quick form rating
 
 /**
  * Accessibility Configuration
  */
 export interface AccessibilityState {
   /** High contrast mode */
-  highContrast: boolean
+  highContrast: boolean;
   /** Large text size */
-  largeText: boolean
+  largeText: boolean;
   /** Screen reader support */
-  screenReader: boolean
+  screenReader: boolean;
   /** Reduce motion */
-  reduceMotion: boolean
+  reduceMotion: boolean;
   /** Voice announcements */
-  voiceAnnouncements: boolean
+  voiceAnnouncements: boolean;
   /** Simplified interface */
-  simplifiedUI: boolean
+  simplifiedUI: boolean;
   /** Color blind support */
-  colorBlindSupport: boolean
+  colorBlindSupport: boolean;
 }
 
 /**
@@ -568,51 +611,51 @@ export interface AccessibilityState {
  */
 export interface ResponsiveConfig {
   /** Current breakpoint */
-  currentBreakpoint: ResponsiveBreakpoint
+  currentBreakpoint: ResponsiveBreakpoint;
   /** Available screen real estate */
-  screenSize: ScreenSize
+  screenSize: ScreenSize;
   /** Orientation */
-  orientation: 'portrait' | 'landscape'
+  orientation: 'portrait' | 'landscape';
   /** Device type detection */
-  deviceType: DeviceType
+  deviceType: DeviceType;
 }
 
 /**
  * Responsive Breakpoints
  */
-export type ResponsiveBreakpoint = 
-  | 'xs'    // < 480px
-  | 'sm'    // 480px - 768px
-  | 'md'    // 768px - 1024px
-  | 'lg'    // 1024px - 1440px
-  | 'xl'    // > 1440px
+export type ResponsiveBreakpoint =
+  | 'xs' // < 480px
+  | 'sm' // 480px - 768px
+  | 'md' // 768px - 1024px
+  | 'lg' // 1024px - 1440px
+  | 'xl'; // > 1440px
 
 /**
  * Screen Size Dimensions
  */
 export interface ScreenSize {
   /** Screen width in pixels */
-  width: number
+  width: number;
   /** Screen height in pixels */
-  height: number
+  height: number;
   /** Available width (excluding system UI) */
-  availableWidth: number
+  availableWidth: number;
   /** Available height (excluding system UI) */
-  availableHeight: number
+  availableHeight: number;
   /** Device pixel ratio */
-  pixelRatio: number
+  pixelRatio: number;
 }
 
 /**
  * Device Type Detection
  */
-export type DeviceType = 
-  | 'phone'     // Mobile phone
-  | 'tablet'    // Tablet device
-  | 'desktop'   // Desktop computer
-  | 'tv'        // Smart TV
-  | 'watch'     // Smartwatch
-  | 'unknown'   // Unknown device
+export type DeviceType =
+  | 'phone' // Mobile phone
+  | 'tablet' // Tablet device
+  | 'desktop' // Desktop computer
+  | 'tv' // Smart TV
+  | 'watch' // Smartwatch
+  | 'unknown'; // Unknown device
 
 // ================================
 // Component Props Types
@@ -623,23 +666,23 @@ export type DeviceType =
  */
 export interface TimerDisplayProps {
   /** Current timer state */
-  timerState: TimerState
+  timerState: TimerState;
   /** Timer configuration */
-  config: TimerConfig
+  config: TimerConfig;
   /** Display size variant */
-  size: 'small' | 'medium' | 'large'
+  size: 'small' | 'medium' | 'large';
   /** Color scheme */
-  colorScheme: 'light' | 'dark' | 'auto'
+  colorScheme: 'light' | 'dark' | 'auto';
   /** Show progress ring */
-  showProgress: boolean
+  showProgress: boolean;
   /** Show phase labels */
-  showLabels: boolean
+  showLabels: boolean;
   /** Animation enabled */
-  animated: boolean
+  animated: boolean;
   /** Click handler */
-  onClick?: () => void
+  onClick?: () => void;
   /** Custom styling */
-  className?: string
+  className?: string;
 }
 
 /**
@@ -647,20 +690,20 @@ export interface TimerDisplayProps {
  */
 export interface ExerciseProgressProps {
   /** Current executing exercise */
-  exercise: ExecutingExercise
+  exercise: ExecutingExercise;
   /** Session progress */
-  progress: SessionProgress
+  progress: SessionProgress;
   /** Show detailed metrics */
-  showMetrics: boolean
+  showMetrics: boolean;
   /** Compact layout */
-  compact: boolean
+  compact: boolean;
   /** Edit mode enabled */
-  editable: boolean
+  editable: boolean;
   /** Change handlers */
-  onSetComplete?: (setIndex: number, data: SetPerformanceData) => void
-  onWeightChange?: (weight: number) => void
-  onRepsChange?: (reps: number) => void
-  onNotesChange?: (notes: string) => void
+  onSetComplete?: (setIndex: number, data: SetPerformanceData) => void;
+  onWeightChange?: (weight: number) => void;
+  onRepsChange?: (reps: number) => void;
+  onNotesChange?: (notes: string) => void;
 }
 
 /**
@@ -668,21 +711,21 @@ export interface ExerciseProgressProps {
  */
 export interface SessionControlsProps {
   /** Current session state */
-  session: SessionExecution
+  session: SessionExecution;
   /** Control layout variant */
-  layout: 'minimal' | 'standard' | 'full'
+  layout: 'minimal' | 'standard' | 'full';
   /** One-handed mode */
-  oneHanded: boolean
+  oneHanded: boolean;
   /** Control handlers */
-  onPlay?: () => void
-  onPause?: () => void
-  onStop?: () => void
-  onNext?: () => void
-  onPrevious?: () => void
-  onCompleteSet?: () => void
-  onSkipSet?: () => void
+  onPlay?: () => void;
+  onPause?: () => void;
+  onStop?: () => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
+  onCompleteSet?: () => void;
+  onSkipSet?: () => void;
   /** Custom actions */
-  customActions?: QuickActionConfig[]
+  customActions?: QuickActionConfig[];
 }
 
 /**
@@ -690,15 +733,15 @@ export interface SessionControlsProps {
  */
 export interface SessionStatsProps {
   /** Session performance data */
-  performance: SessionPerformance
+  performance: SessionPerformance;
   /** Display mode */
-  mode: 'live' | 'summary' | 'comparison'
+  mode: 'live' | 'summary' | 'comparison';
   /** Show trends */
-  showTrends: boolean
+  showTrends: boolean;
   /** Compact layout */
-  compact: boolean
+  compact: boolean;
   /** Time period for trends */
-  trendPeriod: 'session' | 'week' | 'month'
+  trendPeriod: 'session' | 'week' | 'month';
 }
 
 // ================================
@@ -710,27 +753,30 @@ export interface SessionStatsProps {
  */
 export interface SessionContextState {
   /** Current session execution */
-  session: SessionExecution | null
+  session: SessionExecution | null;
   /** Loading state */
-  isLoading: boolean
+  isLoading: boolean;
   /** Error state */
-  error: string | null
+  error: string | null;
   /** Initialization status */
-  initialized: boolean
+  initialized: boolean;
 }
 
 /**
  * Session Reducer Actions
  */
-export type SessionAction = 
+export type SessionAction =
   | { type: 'INITIALIZE_SESSION'; payload: SessionExecution }
-  | { type: 'START_SESSION' }
+  | { type: 'START_SESSION'; payload?: any }
   | { type: 'PAUSE_SESSION' }
   | { type: 'RESUME_SESSION' }
   | { type: 'STOP_SESSION' }
   | { type: 'COMPLETE_SESSION' }
   | { type: 'UPDATE_TIMER'; payload: Partial<TimerState> }
-  | { type: 'COMPLETE_SET'; payload: { setIndex: number; data: SetPerformanceData } }
+  | {
+      type: 'COMPLETE_SET';
+      payload: { setIndex: number; data: SetPerformanceData; setData?: any };
+    }
   | { type: 'SKIP_SET'; payload: { setIndex: number } }
   | { type: 'NEXT_EXERCISE' }
   | { type: 'PREVIOUS_EXERCISE' }
@@ -740,25 +786,33 @@ export type SessionAction =
   | { type: 'SET_ERROR'; payload: string }
   | { type: 'CLEAR_ERROR' }
   | { type: 'SET_OFFLINE'; payload: boolean }
+  | { type: 'UPDATE_SETTINGS'; payload: Partial<SessionExecutionSettings> }
+  | { type: 'UPDATE_ELAPSED_TIME'; payload: number }
+  | { type: 'UPDATE_TIMER_STATE'; payload: { timerState: TimerState } };
+
+/**
+ * Alias for SessionAction for backward compatibility
+ */
+export type SessionExecutionAction = SessionAction;
 
 /**
  * Session Timestamps
  */
 export interface SessionTimestamps {
   /** Session created */
-  createdAt: Date
+  createdAt: Date;
   /** Session started */
-  startedAt?: Date
+  startedAt?: Date;
   /** Session paused */
-  pausedAt?: Date
+  pausedAt?: Date;
   /** Session resumed */
-  resumedAt?: Date
+  resumedAt?: Date;
   /** Session completed */
-  completedAt?: Date
+  completedAt?: Date;
   /** Last updated */
-  lastUpdated: Date
+  lastUpdated: Date;
   /** Auto-save timestamp */
-  lastSaved?: Date
+  lastSaved?: Date;
 }
 
 // ================================
@@ -770,17 +824,17 @@ export interface SessionTimestamps {
  */
 export interface OfflineState {
   /** Is currently offline */
-  isOffline: boolean
+  isOffline: boolean;
   /** Local data is dirty (needs sync) */
-  isDirty: boolean
+  isDirty: boolean;
   /** Last sync timestamp */
-  lastSync?: Date
+  lastSync?: Date;
   /** Pending sync operations */
-  pendingSync: PendingSyncOperation[]
+  pendingSync: PendingSyncOperation[];
   /** Conflict resolution needed */
-  hasConflicts: boolean
+  hasConflicts: boolean;
   /** Storage usage info */
-  storageInfo: StorageInfo
+  storageInfo: StorageInfo;
 }
 
 /**
@@ -788,19 +842,19 @@ export interface OfflineState {
  */
 export interface PendingSyncOperation {
   /** Operation ID */
-  id: string
+  id: string;
   /** Operation type */
-  type: 'create' | 'update' | 'delete'
+  type: 'create' | 'update' | 'delete';
   /** Entity type */
-  entity: 'session' | 'exercise' | 'set' | 'performance'
+  entity: 'session' | 'exercise' | 'set' | 'performance';
   /** Operation data */
-  data: any
+  data: any;
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Retry count */
-  retryCount: number
+  retryCount: number;
   /** Priority (higher = more important) */
-  priority: number
+  priority: number;
 }
 
 /**
@@ -808,21 +862,21 @@ export interface PendingSyncOperation {
  */
 export interface StorageInfo {
   /** Used storage in MB */
-  usedMB: number
+  usedMB: number;
   /** Available storage in MB */
-  availableMB: number
+  availableMB: number;
   /** Storage quota in MB */
-  quotaMB: number
+  quotaMB: number;
   /** Usage percentage */
-  usagePercentage: number
+  usagePercentage: number;
   /** Needs cleanup */
-  needsCleanup: boolean
+  needsCleanup: boolean;
 }
 
 /**
  * Real-time Synchronization Events
  */
-export type SyncEventType = 
+export type SyncEventType =
   | 'session_started'
   | 'session_paused'
   | 'session_resumed'
@@ -830,24 +884,24 @@ export type SyncEventType =
   | 'set_completed'
   | 'exercise_completed'
   | 'performance_updated'
-  | 'timer_updated'
+  | 'timer_updated';
 
 /**
  * Sync Event Data
  */
 export interface SyncEvent {
   /** Event type */
-  type: SyncEventType
+  type: SyncEventType;
   /** Session ID */
-  sessionId: string
+  sessionId: string;
   /** Event data */
-  data: any
+  data: any;
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Device/client ID */
-  clientId: string
+  clientId: string;
   /** Sequence number for ordering */
-  sequence: number
+  sequence: number;
 }
 
 // ================================
@@ -859,21 +913,21 @@ export interface SyncEvent {
  */
 export interface TimerEventHandlers {
   /** Timer started */
-  onTimerStart?: (state: TimerState) => void
+  onTimerStart?: (state: TimerState) => void;
   /** Timer paused */
-  onTimerPause?: (state: TimerState) => void
+  onTimerPause?: (state: TimerState) => void;
   /** Timer resumed */
-  onTimerResume?: (state: TimerState) => void
+  onTimerResume?: (state: TimerState) => void;
   /** Timer stopped */
-  onTimerStop?: (state: TimerState) => void
+  onTimerStop?: (state: TimerState) => void;
   /** Phase changed */
-  onPhaseChange?: (newPhase: TimerPhase, state: TimerState) => void
+  onPhaseChange?: (newPhase: TimerPhase, state: TimerState) => void;
   /** Timer tick (every second) */
-  onTimerTick?: (state: TimerState) => void
+  onTimerTick?: (state: TimerState) => void;
   /** Timer completed */
-  onTimerComplete?: (state: TimerState) => void
+  onTimerComplete?: (state: TimerState) => void;
   /** Warning (e.g., 3 seconds remaining) */
-  onWarning?: (secondsRemaining: number, state: TimerState) => void
+  onWarning?: (secondsRemaining: number, state: TimerState) => void;
 }
 
 /**
@@ -881,27 +935,27 @@ export interface TimerEventHandlers {
  */
 export interface SessionEventHandlers {
   /** Session initialized */
-  onSessionInit?: (session: SessionExecution) => void
+  onSessionInit?: (session: SessionExecution) => void;
   /** Session started */
-  onSessionStart?: (session: SessionExecution) => void
+  onSessionStart?: (session: SessionExecution) => void;
   /** Session paused */
-  onSessionPause?: (session: SessionExecution) => void
+  onSessionPause?: (session: SessionExecution) => void;
   /** Session resumed */
-  onSessionResume?: (session: SessionExecution) => void
+  onSessionResume?: (session: SessionExecution) => void;
   /** Session completed */
-  onSessionComplete?: (session: SessionExecution) => void
+  onSessionComplete?: (session: SessionExecution) => void;
   /** Exercise started */
-  onExerciseStart?: (exercise: ExecutingExercise) => void
+  onExerciseStart?: (exercise: ExecutingExercise) => void;
   /** Exercise completed */
-  onExerciseComplete?: (exercise: ExecutingExercise) => void
+  onExerciseComplete?: (exercise: ExecutingExercise) => void;
   /** Set completed */
-  onSetComplete?: (set: LiveSet, exercise: ExecutingExercise) => void
+  onSetComplete?: (set: LiveSet, exercise: ExecutingExercise) => void;
   /** Progress updated */
-  onProgressUpdate?: (progress: SessionProgress) => void
+  onProgressUpdate?: (progress: SessionProgress) => void;
   /** Performance record achieved */
-  onPersonalRecord?: (record: PersonalRecord) => void
+  onPersonalRecord?: (record: PersonalRecord) => void;
   /** Error occurred */
-  onError?: (error: string) => void
+  onError?: (error: string) => void;
 }
 
 // ================================
@@ -912,10 +966,10 @@ export interface SessionEventHandlers {
  * Default Timer Configurations
  */
 export interface DefaultTimerConfigs {
-  tabata: TabataConfig
-  emom: EMOMConfig
-  amrap: AMRAPConfig
-  strength: StrengthConfig
+  tabata: TabataConfig;
+  emom: EMOMConfig;
+  amrap: AMRAPConfig;
+  strength: StrengthConfig;
 }
 
 /**
@@ -923,39 +977,50 @@ export interface DefaultTimerConfigs {
  */
 export interface SessionExecutionSettings {
   /** Auto-advance between exercises */
-  autoAdvance: boolean
+  autoAdvance: boolean;
   /** Auto-start rest timers */
-  autoStartRest: boolean
+  autoStartRest: boolean;
   /** Show motivational messages */
-  showMotivation: boolean
+  showMotivation: boolean;
   /** Vibrate on phase changes */
-  vibrateOnPhaseChange: boolean
+  vibrateOnPhaseChange: boolean;
   /** Keep screen on during session */
-  keepScreenOn: boolean
+  keepScreenOn: boolean;
   /** Use GPS for distance tracking */
-  useGPS: boolean
+  useGPS: boolean;
   /** Save workout photos */
-  savePhotos: boolean
+  savePhotos: boolean;
   /** Auto-sync with wearables */
-  syncWearables: boolean
+  syncWearables: boolean;
+  /** Audio feedback enabled */
+  audioEnabled: boolean;
+  /** Vibration feedback enabled */
+  vibrateEnabled: boolean;
+  /** Rest period configurations */
+  restPeriods: number[];
 }
+
+/**
+ * Alias for SessionExecutionSettings for backward compatibility
+ */
+export type SessionSettings = SessionExecutionSettings;
 
 /**
  * Performance Tracking Settings
  */
 export interface PerformanceTrackingSettings {
   /** Track form quality */
-  trackFormQuality: boolean
+  trackFormQuality: boolean;
   /** Track perceived exertion */
-  trackPerceivedExertion: boolean
+  trackPerceivedExertion: boolean;
   /** Track rest times automatically */
-  autoTrackRest: boolean
+  autoTrackRest: boolean;
   /** Enable personal record detection */
-  detectPersonalRecords: boolean
+  detectPersonalRecords: boolean;
   /** Calculate 1RM estimates */
-  calculate1RM: boolean
+  calculate1RM: boolean;
   /** Track workout density */
-  trackDensity: boolean
+  trackDensity: boolean;
 }
 
 // ================================
@@ -967,49 +1032,49 @@ export interface PerformanceTrackingSettings {
  */
 export interface WearableIntegration {
   /** Device type */
-  deviceType: 'watch' | 'band' | 'chest_strap' | 'other'
+  deviceType: 'watch' | 'band' | 'chest_strap' | 'other';
   /** Device name/model */
-  deviceName: string
+  deviceName: string;
   /** Connection status */
-  connected: boolean
+  connected: boolean;
   /** Battery level */
-  batteryLevel?: number
+  batteryLevel?: number;
   /** Supported metrics */
-  supportedMetrics: WearableMetric[]
+  supportedMetrics: WearableMetric[];
   /** Current readings */
-  currentReadings: WearableReading[]
+  currentReadings: WearableReading[];
 }
 
 /**
  * Wearable Metrics
  */
-export type WearableMetric = 
+export type WearableMetric =
   | 'heart_rate'
   | 'steps'
   | 'calories'
   | 'distance'
   | 'pace'
   | 'power'
-  | 'cadence'
+  | 'cadence';
 
 /**
  * Wearable Reading
  */
 export interface WearableReading {
   /** Metric type */
-  metric: WearableMetric
+  metric: WearableMetric;
   /** Current value */
-  value: number
+  value: number;
   /** Unit of measurement */
-  unit: string
+  unit: string;
   /** Reading timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Data quality/confidence */
-  quality: number
+  quality: number;
 }
 
 // ================================
-// Export Session Data Types  
+// Export Session Data Types
 // ================================
 
 /**
@@ -1017,17 +1082,17 @@ export interface WearableReading {
  */
 export interface SessionExportData {
   /** Session metadata */
-  session: SessionExecution
+  session: SessionExecution;
   /** Exercise performance data */
-  exercises: ExecutingExercise[]
+  exercises: ExecutingExercise[];
   /** Timer history */
-  timerHistory: TimerHistoryEntry[]
+  timerHistory: TimerHistoryEntry[];
   /** Performance metrics */
-  metrics: SessionPerformance
+  metrics: SessionPerformance;
   /** Export settings */
-  exportSettings: ExportSettings
+  exportSettings: ExportSettings;
   /** Export timestamp */
-  exportedAt: Date
+  exportedAt: Date;
 }
 
 /**
@@ -1035,15 +1100,15 @@ export interface SessionExportData {
  */
 export interface TimerHistoryEntry {
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Timer phase */
-  phase: TimerPhase
+  phase: TimerPhase;
   /** Phase duration */
-  duration: number
+  duration: number;
   /** Round/set number */
-  round: number
+  round: number;
   /** Exercise context */
-  exerciseId?: string
+  exerciseId?: string;
 }
 
 /**
@@ -1051,17 +1116,17 @@ export interface TimerHistoryEntry {
  */
 export interface ExportSettings {
   /** Include timer data */
-  includeTimer: boolean
+  includeTimer: boolean;
   /** Include performance metrics */
-  includeMetrics: boolean
+  includeMetrics: boolean;
   /** Include notes */
-  includeNotes: boolean
+  includeNotes: boolean;
   /** Include photos */
-  includePhotos: boolean
+  includePhotos: boolean;
   /** Export format */
-  format: 'json' | 'csv' | 'pdf'
+  format: 'json' | 'csv' | 'pdf';
   /** Compression enabled */
-  compress: boolean
+  compress: boolean;
 }
 
 // ================================
@@ -1072,19 +1137,39 @@ export interface ExportSettings {
  * Type guard for timer protocols
  */
 export const isTimerProtocol = (value: string): value is TimerProtocol => {
-  return ['tabata', 'emom', 'amrap', 'strength', 'custom'].includes(value)
-}
+  return ['tabata', 'emom', 'amrap', 'strength', 'custom'].includes(value);
+};
 
 /**
  * Type guard for timer phases
  */
 export const isTimerPhase = (value: string): value is TimerPhase => {
-  return ['ready', 'work', 'rest', 'set_break', 'transition', 'completed', 'paused', 'stopped'].includes(value)
-}
+  return [
+    'ready',
+    'work',
+    'rest',
+    'set_break',
+    'transition',
+    'completed',
+    'paused',
+    'stopped',
+  ].includes(value);
+};
 
 /**
  * Type guard for session execution status
  */
-export const isSessionExecutionStatus = (value: string): value is SessionExecutionStatus => {
-  return ['preparing', 'ready', 'active', 'resting', 'transitioning', 'paused', 'completed', 'stopped'].includes(value)
-}
+export const isSessionExecutionStatus = (
+  value: string
+): value is SessionExecutionStatus => {
+  return [
+    'preparing',
+    'ready',
+    'active',
+    'resting',
+    'transitioning',
+    'paused',
+    'completed',
+    'stopped',
+  ].includes(value);
+};

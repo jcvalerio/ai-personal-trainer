@@ -4,15 +4,15 @@
  * and session conflict detection for the AI Personal Trainer application
  */
 
-import { FitnessLevel } from './index'
-import { 
-  WorkoutSession, 
-  WorkoutPlan, 
+import { FitnessLevel } from './index';
+import {
+  WorkoutSession,
+  WorkoutPlan,
   SessionStatus,
   SessionType,
-  DayScheduleType 
-} from './workouts'
-import { DashboardWorkoutPlan } from './plan-dashboard'
+  DayScheduleType,
+} from './workouts';
+import { DashboardWorkoutPlan } from './plan-dashboard';
 
 // ================================
 // Calendar Core Types
@@ -21,43 +21,43 @@ import { DashboardWorkoutPlan } from './plan-dashboard'
 /**
  * Calendar View Types
  */
-export type CalendarViewType = 
-  | 'day'          // Single day view with hourly slots
-  | 'week'         // Week view with daily columns
-  | 'month'        // Month view with date grid
-  | 'agenda'       // List view of upcoming sessions
-  | 'year'         // Year overview for long-term planning
-  | 'schedule'     // Training schedule template view
+export type CalendarViewType =
+  | 'day' // Single day view with hourly slots
+  | 'week' // Week view with daily columns
+  | 'month' // Month view with date grid
+  | 'agenda' // List view of upcoming sessions
+  | 'year' // Year overview for long-term planning
+  | 'schedule'; // Training schedule template view
 
 /**
  * Calendar Time Unit
  */
-export type CalendarTimeUnit = 
+export type CalendarTimeUnit =
   | 'minute'
-  | 'hour' 
+  | 'hour'
   | 'day'
   | 'week'
   | 'month'
   | 'quarter'
-  | 'year'
+  | 'year';
 
 /**
  * Calendar Navigation Direction
  */
-export type NavigationDirection = 'previous' | 'next' | 'today' | 'specific'
+export type NavigationDirection = 'previous' | 'next' | 'today' | 'specific';
 
 /**
  * Calendar Date Range
  */
 export interface CalendarDateRange {
   /** Start date of the range */
-  start: Date
+  start: Date;
   /** End date of the range */
-  end: Date
+  end: Date;
   /** Range label for display */
-  label: string
+  label: string;
   /** Range type identifier */
-  type: CalendarTimeUnit
+  type: CalendarTimeUnit;
 }
 
 /**
@@ -65,23 +65,23 @@ export interface CalendarDateRange {
  */
 export interface CalendarConfig {
   /** Default view type */
-  defaultView: CalendarViewType
+  defaultView: CalendarViewType;
   /** Available view types */
-  availableViews: CalendarViewType[]
+  availableViews: CalendarViewType[];
   /** Week start day (0 = Sunday, 1 = Monday) */
-  weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6
+  weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   /** Time format (12h or 24h) */
-  timeFormat: '12h' | '24h'
+  timeFormat: '12h' | '24h';
   /** Timezone configuration */
-  timezone: TimezoneConfig
+  timezone: TimezoneConfig;
   /** Business hours */
-  businessHours: BusinessHoursConfig
+  businessHours: BusinessHoursConfig;
   /** Localization settings */
-  localization: CalendarLocalization
+  localization: CalendarLocalization;
   /** Display options */
-  display: CalendarDisplayOptions
+  display: CalendarDisplayOptions;
   /** Interaction settings */
-  interaction: CalendarInteractionConfig
+  interaction: CalendarInteractionConfig;
 }
 
 /**
@@ -89,15 +89,15 @@ export interface CalendarConfig {
  */
 export interface TimezoneConfig {
   /** User's timezone */
-  userTimezone: string
+  userTimezone: string;
   /** Display timezone */
-  displayTimezone: string
+  displayTimezone: string;
   /** Auto-detect timezone */
-  autoDetect: boolean
+  autoDetect: boolean;
   /** Show timezone indicator */
-  showTimezone: boolean
+  showTimezone: boolean;
   /** Handle daylight saving time */
-  handleDST: boolean
+  handleDST: boolean;
 }
 
 /**
@@ -105,13 +105,13 @@ export interface TimezoneConfig {
  */
 export interface BusinessHoursConfig {
   /** Business hours enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Hours for each day of week */
-  hours: DayBusinessHours[]
+  hours: DayBusinessHours[];
   /** Highlight business hours */
-  highlight: boolean
+  highlight: boolean;
   /** Restrict scheduling to business hours */
-  restrictScheduling: boolean
+  restrictScheduling: boolean;
 }
 
 /**
@@ -119,13 +119,13 @@ export interface BusinessHoursConfig {
  */
 export interface DayBusinessHours {
   /** Day of week (0-6) */
-  dayOfWeek: number
+  dayOfWeek: number;
   /** Is day a business day */
-  isBusinessDay: boolean
+  isBusinessDay: boolean;
   /** Time slots for this day */
-  timeSlots: TimeSlot[]
+  timeSlots: TimeSlot[];
   /** Day-specific notes */
-  notes?: string
+  notes?: string;
 }
 
 /**
@@ -133,15 +133,15 @@ export interface DayBusinessHours {
  */
 export interface TimeSlot {
   /** Slot start time (24h format) */
-  start: string
+  start: string;
   /** Slot end time (24h format) */
-  end: string
+  end: string;
   /** Is slot available for scheduling */
-  available: boolean
+  available: boolean;
   /** Slot capacity (number of sessions) */
-  capacity?: number
+  capacity?: number;
   /** Slot type/category */
-  type?: 'peak' | 'off_peak' | 'premium' | 'restricted'
+  type?: 'peak' | 'off_peak' | 'premium' | 'restricted';
 }
 
 /**
@@ -149,19 +149,19 @@ export interface TimeSlot {
  */
 export interface CalendarLocalization {
   /** Language code */
-  locale: string
+  locale: string;
   /** Day name format */
-  dayNameFormat: 'long' | 'short' | 'narrow'
+  dayNameFormat: 'long' | 'short' | 'narrow';
   /** Month name format */
-  monthNameFormat: 'long' | 'short' | 'narrow'
+  monthNameFormat: 'long' | 'short' | 'narrow';
   /** Date format pattern */
-  dateFormat: string
+  dateFormat: string;
   /** Time format pattern */
-  timeFormat: string
+  timeFormat: string;
   /** Week number display */
-  showWeekNumbers: boolean
+  showWeekNumbers: boolean;
   /** Custom translations */
-  translations: Record<string, string>
+  translations: Record<string, string>;
 }
 
 /**
@@ -169,21 +169,21 @@ export interface CalendarLocalization {
  */
 export interface CalendarDisplayOptions {
   /** Show weekend days */
-  showWeekends: boolean
+  showWeekends: boolean;
   /** Weekend days to show */
-  weekendDays: number[]
+  weekendDays: number[];
   /** Show week numbers */
-  showWeekNumbers: boolean
+  showWeekNumbers: boolean;
   /** Show time ruler */
-  showTimeRuler: boolean
+  showTimeRuler: boolean;
   /** Time ruler interval (minutes) */
-  timeRulerInterval: number
+  timeRulerInterval: number;
   /** Show all-day events */
-  showAllDayEvents: boolean
+  showAllDayEvents: boolean;
   /** Event display density */
-  eventDensity: 'compact' | 'comfortable' | 'spacious'
+  eventDensity: 'compact' | 'comfortable' | 'spacious';
   /** Color theme */
-  colorTheme: CalendarColorTheme
+  colorTheme: CalendarColorTheme;
 }
 
 /**
@@ -191,21 +191,21 @@ export interface CalendarDisplayOptions {
  */
 export interface CalendarColorTheme {
   /** Primary color */
-  primary: string
+  primary: string;
   /** Secondary color */
-  secondary: string
+  secondary: string;
   /** Background color */
-  background: string
+  background: string;
   /** Text color */
-  text: string
+  text: string;
   /** Border color */
-  border: string
+  border: string;
   /** Today highlight color */
-  today: string
+  today: string;
   /** Weekend color */
-  weekend: string
+  weekend: string;
   /** Business hours color */
-  businessHours: string
+  businessHours: string;
 }
 
 /**
@@ -213,19 +213,19 @@ export interface CalendarColorTheme {
  */
 export interface CalendarInteractionConfig {
   /** Enable drag and drop */
-  dragAndDrop: boolean
+  dragAndDrop: boolean;
   /** Enable click to create */
-  clickToCreate: boolean
+  clickToCreate: boolean;
   /** Enable double-click to edit */
-  doubleClickToEdit: boolean
+  doubleClickToEdit: boolean;
   /** Enable resizing */
-  resizing: boolean
+  resizing: boolean;
   /** Enable multi-select */
-  multiSelect: boolean
+  multiSelect: boolean;
   /** Keyboard navigation */
-  keyboardNavigation: boolean
+  keyboardNavigation: boolean;
   /** Touch gestures */
-  touchGestures: TouchGestureConfig
+  touchGestures: TouchGestureConfig;
 }
 
 /**
@@ -233,13 +233,13 @@ export interface CalendarInteractionConfig {
  */
 export interface TouchGestureConfig {
   /** Swipe navigation */
-  swipeNavigation: boolean
+  swipeNavigation: boolean;
   /** Pinch to zoom */
-  pinchZoom: boolean
+  pinchZoom: boolean;
   /** Long press actions */
-  longPress: boolean
+  longPress: boolean;
   /** Touch sensitivity */
-  touchSensitivity: 'low' | 'medium' | 'high'
+  touchSensitivity: 'low' | 'medium' | 'high';
 }
 
 // ================================
@@ -249,33 +249,34 @@ export interface TouchGestureConfig {
 /**
  * Calendar Event (extends WorkoutSession for calendar display)
  */
-export interface CalendarEvent extends Omit<WorkoutSession, 'scheduledDate' | 'scheduledTime'> {
+export interface CalendarEvent
+  extends Omit<WorkoutSession, 'scheduledDate' | 'scheduledTime'> {
   /** Event start date and time */
-  start: Date
+  start: Date;
   /** Event end date and time */
-  end: Date
+  end: Date;
   /** Event title (displayed on calendar) */
-  title: string
+  title: string;
   /** Event description */
-  description?: string
+  description?: string;
   /** Event color */
-  color?: string
+  color?: string;
   /** Event background color */
-  backgroundColor?: string
+  backgroundColor?: string;
   /** Event border color */
-  borderColor?: string
+  borderColor?: string;
   /** Event text color */
-  textColor?: string
+  textColor?: string;
   /** Is event all-day */
-  allDay: boolean
+  allDay: boolean;
   /** Event recurrence rule */
-  recurrence?: RecurrenceRule
+  recurrence?: RecurrenceRule;
   /** Calendar-specific properties */
-  calendar: CalendarEventProperties
+  calendar: CalendarEventProperties;
   /** Drag and drop properties */
-  dragDrop: DragDropProperties
+  dragDrop: DragDropProperties;
   /** Conflict detection properties */
-  conflicts: ConflictProperties
+  conflicts: ConflictProperties;
 }
 
 /**
@@ -283,107 +284,107 @@ export interface CalendarEvent extends Omit<WorkoutSession, 'scheduledDate' | 's
  */
 export interface CalendarEventProperties {
   /** Event category */
-  category: EventCategory
+  category: EventCategory;
   /** Event priority */
-  priority: EventPriority
+  priority: EventPriority;
   /** Event visibility */
-  visibility: EventVisibility
+  visibility: EventVisibility;
   /** Event editing permissions */
-  editable: boolean
+  editable: boolean;
   /** Event deletion permissions */
-  deletable: boolean
+  deletable: boolean;
   /** Event resize permissions */
-  resizable: boolean
+  resizable: boolean;
   /** Event move permissions */
-  movable: boolean
+  movable: boolean;
   /** Show event details on hover */
-  showDetailsOnHover: boolean
+  showDetailsOnHover: boolean;
   /** Event icon */
-  icon?: string
+  icon?: string;
   /** Event tags */
-  tags: string[]
+  tags: string[];
 }
 
 /**
  * Event Categories
  */
-export type EventCategory = 
-  | 'workout'           // Regular workout sessions
-  | 'assessment'        // Fitness assessments
-  | 'recovery'          // Recovery/rest sessions
-  | 'class'            // Group fitness classes
+export type EventCategory =
+  | 'workout' // Regular workout sessions
+  | 'assessment' // Fitness assessments
+  | 'recovery' // Recovery/rest sessions
+  | 'class' // Group fitness classes
   | 'personal_training' // One-on-one training
-  | 'competition'       // Athletic competitions
-  | 'rehabilitation'    // Physical therapy/rehab
-  | 'milestone'         // Achievement milestones
-  | 'reminder'          // Workout reminders
-  | 'maintenance'       // Equipment/facility maintenance
-  | 'blocked'          // Blocked time slots
+  | 'competition' // Athletic competitions
+  | 'rehabilitation' // Physical therapy/rehab
+  | 'milestone' // Achievement milestones
+  | 'reminder' // Workout reminders
+  | 'maintenance' // Equipment/facility maintenance
+  | 'blocked'; // Blocked time slots
 
 /**
  * Event Priority Levels
  */
-export type EventPriority = 'low' | 'medium' | 'high' | 'critical'
+export type EventPriority = 'low' | 'medium' | 'high' | 'critical';
 
 /**
  * Event Visibility Settings
  */
-export type EventVisibility = 'public' | 'private' | 'shared' | 'organization'
+export type EventVisibility = 'public' | 'private' | 'shared' | 'organization';
 
 /**
  * Recurrence Rule
  */
 export interface RecurrenceRule {
   /** Recurrence frequency */
-  frequency: RecurrenceFrequency
+  frequency: RecurrenceFrequency;
   /** Interval between recurrences */
-  interval: number
+  interval: number;
   /** Days of week for weekly recurrence */
-  daysOfWeek?: number[]
+  daysOfWeek?: number[];
   /** Days of month for monthly recurrence */
-  daysOfMonth?: number[]
+  daysOfMonth?: number[];
   /** Months of year for yearly recurrence */
-  monthsOfYear?: number[]
+  monthsOfYear?: number[];
   /** Recurrence end condition */
-  end?: RecurrenceEnd
+  end?: RecurrenceEnd;
   /** Recurrence exceptions */
-  exceptions?: Date[]
+  exceptions?: Date[];
   /** Timezone for recurrence calculation */
-  timezone?: string
+  timezone?: string;
 }
 
 /**
  * Recurrence Frequency
  */
-export type RecurrenceFrequency = 
+export type RecurrenceFrequency =
   | 'daily'
-  | 'weekly' 
+  | 'weekly'
   | 'monthly'
   | 'yearly'
-  | 'custom'
+  | 'custom';
 
 /**
  * Recurrence End Condition
  */
-export type RecurrenceEnd = 
+export type RecurrenceEnd =
   | { type: 'never' }
   | { type: 'count'; count: number }
-  | { type: 'date'; date: Date }
+  | { type: 'date'; date: Date };
 
 /**
  * Drag and Drop Properties
  */
 export interface DragDropProperties {
   /** Is event draggable */
-  draggable: boolean
+  draggable: boolean;
   /** Drag constraints */
-  constraints: DragConstraints
+  constraints: DragConstraints;
   /** Drag feedback */
-  feedback: DragFeedback
+  feedback: DragFeedback;
   /** Drop validation */
-  validation: DropValidation
+  validation: DropValidation;
   /** Drag ghost configuration */
-  ghost: DragGhostConfig
+  ghost: DragGhostConfig;
 }
 
 /**
@@ -391,19 +392,23 @@ export interface DragDropProperties {
  */
 export interface DragConstraints {
   /** Constrain to business hours */
-  businessHoursOnly: boolean
+  businessHoursOnly: boolean;
   /** Constrain to specific days */
-  allowedDays?: number[]
+  allowedDays?: number[];
   /** Minimum time between sessions */
-  minimumGap?: number
+  minimumGap?: number;
   /** Maximum duration change */
-  maxDurationChange?: number
+  maxDurationChange?: number;
   /** Constrain to same week */
-  sameWeekOnly?: boolean
+  sameWeekOnly?: boolean;
   /** Constrain to same calendar */
-  sameCalendarOnly?: boolean
+  sameCalendarOnly?: boolean;
   /** Custom constraint function */
-  customConstraint?: (event: CalendarEvent, newStart: Date, newEnd: Date) => boolean
+  customConstraint?: (
+    event: CalendarEvent,
+    newStart: Date,
+    newEnd: Date
+  ) => boolean;
 }
 
 /**
@@ -411,17 +416,17 @@ export interface DragConstraints {
  */
 export interface DragFeedback {
   /** Show drag feedback */
-  enabled: boolean
+  enabled: boolean;
   /** Feedback style */
-  style: 'outline' | 'fill' | 'shadow'
+  style: 'outline' | 'fill' | 'shadow';
   /** Show time indicators */
-  showTimeIndicators: boolean
+  showTimeIndicators: boolean;
   /** Show conflict warnings */
-  showConflictWarnings: boolean
+  showConflictWarnings: boolean;
   /** Feedback color */
-  color?: string
+  color?: string;
   /** Feedback opacity */
-  opacity?: number
+  opacity?: number;
 }
 
 /**
@@ -429,13 +434,13 @@ export interface DragFeedback {
  */
 export interface DropValidation {
   /** Validate on drop */
-  enabled: boolean
+  enabled: boolean;
   /** Show validation errors */
-  showErrors: boolean
+  showErrors: boolean;
   /** Validation rules */
-  rules: ValidationRule[]
+  rules: ValidationRule[];
   /** Auto-resolve conflicts */
-  autoResolveConflicts: boolean
+  autoResolveConflicts: boolean;
 }
 
 /**
@@ -443,42 +448,42 @@ export interface DropValidation {
  */
 export interface ValidationRule {
   /** Rule type */
-  type: ValidationType
+  type: ValidationType;
   /** Rule message */
-  message: string
+  message: string;
   /** Rule severity */
-  severity: 'error' | 'warning' | 'info'
+  severity: 'error' | 'warning' | 'info';
   /** Rule parameters */
-  parameters?: any
+  parameters?: any;
   /** Custom validation function */
-  validator?: (event: CalendarEvent, newStart: Date, newEnd: Date) => boolean
+  validator?: (event: CalendarEvent, newStart: Date, newEnd: Date) => boolean;
 }
 
 /**
  * Validation Types
  */
-export type ValidationType = 
-  | 'no_overlap'        // Events cannot overlap
-  | 'business_hours'    // Must be within business hours
-  | 'minimum_gap'       // Minimum time between events
-  | 'maximum_duration'  // Maximum event duration
+export type ValidationType =
+  | 'no_overlap' // Events cannot overlap
+  | 'business_hours' // Must be within business hours
+  | 'minimum_gap' // Minimum time between events
+  | 'maximum_duration' // Maximum event duration
   | 'required_equipment' // Required equipment availability
   | 'instructor_availability' // Instructor must be available
-  | 'capacity_limit'    // Venue/class capacity limit
-  | 'custom'            // Custom validation rule
+  | 'capacity_limit' // Venue/class capacity limit
+  | 'custom'; // Custom validation rule
 
 /**
  * Drag Ghost Configuration
  */
 export interface DragGhostConfig {
   /** Show drag ghost */
-  enabled: boolean
+  enabled: boolean;
   /** Ghost transparency */
-  opacity: number
+  opacity: number;
   /** Ghost style */
-  style: 'original' | 'simplified' | 'placeholder'
+  style: 'original' | 'simplified' | 'placeholder';
   /** Show ghost details */
-  showDetails: boolean
+  showDetails: boolean;
 }
 
 /**
@@ -486,13 +491,13 @@ export interface DragGhostConfig {
  */
 export interface ConflictProperties {
   /** Has conflicts */
-  hasConflicts: boolean
+  hasConflicts: boolean;
   /** Conflict details */
-  conflicts: SessionConflict[]
+  conflicts: SessionConflict[];
   /** Conflict resolution suggestions */
-  resolutionSuggestions: ConflictResolution[]
+  resolutionSuggestions: ConflictResolution[];
   /** Auto-resolve conflicts */
-  autoResolve: boolean
+  autoResolve: boolean;
 }
 
 // ================================
@@ -502,76 +507,76 @@ export interface ConflictProperties {
 /**
  * Session Conflict Types
  */
-export type ConflictType = 
-  | 'time_overlap'      // Time slots overlap
+export type ConflictType =
+  | 'time_overlap' // Time slots overlap
   | 'equipment_conflict' // Same equipment needed
   | 'instructor_conflict' // Same instructor assigned
-  | 'venue_conflict'    // Same venue booked
+  | 'venue_conflict' // Same venue booked
   | 'user_double_booking' // User has multiple sessions
   | 'capacity_exceeded' // Venue/class capacity exceeded
   | 'prerequisite_missing' // Required prerequisite not met
   | 'recovery_violation' // Insufficient recovery time
-  | 'custom_conflict'   // Custom business rule violation
+  | 'custom_conflict'; // Custom business rule violation
 
 /**
  * Session Conflict Details
  */
 export interface SessionConflict {
   /** Conflict unique identifier */
-  id: string
+  id: string;
   /** Conflict type */
-  type: ConflictType
+  type: ConflictType;
   /** Conflict severity */
-  severity: ConflictSeverity
+  severity: ConflictSeverity;
   /** Primary session (the one being scheduled) */
-  primarySession: CalendarEvent
+  primarySession: CalendarEvent;
   /** Conflicting sessions */
-  conflictingSessions: CalendarEvent[]
+  conflictingSessions: CalendarEvent[];
   /** Conflict description */
-  description: string
+  description: string;
   /** Conflict details */
-  details: ConflictDetails
+  details: ConflictDetails;
   /** Suggested resolutions */
-  resolutions: ConflictResolution[]
+  resolutions: ConflictResolution[];
   /** Can conflict be ignored */
-  canIgnore: boolean
+  canIgnore: boolean;
   /** Conflict detection timestamp */
-  detectedAt: Date
+  detectedAt: Date;
 }
 
 /**
  * Conflict Severity Levels
  */
-export type ConflictSeverity = 
-  | 'info'       // Informational, no action needed
-  | 'warning'    // Warning, user should review
-  | 'error'      // Error, must be resolved
-  | 'critical'   // Critical, blocks scheduling
+export type ConflictSeverity =
+  | 'info' // Informational, no action needed
+  | 'warning' // Warning, user should review
+  | 'error' // Error, must be resolved
+  | 'critical'; // Critical, blocks scheduling
 
 /**
  * Conflict Details (varies by conflict type)
  */
-export type ConflictDetails = 
+export type ConflictDetails =
   | TimeOverlapDetails
   | EquipmentConflictDetails
   | InstructorConflictDetails
   | VenueConflictDetails
   | CapacityConflictDetails
   | RecoveryConflictDetails
-  | CustomConflictDetails
+  | CustomConflictDetails;
 
 /**
  * Time Overlap Conflict Details
  */
 export interface TimeOverlapDetails {
   /** Overlap start time */
-  overlapStart: Date
+  overlapStart: Date;
   /** Overlap end time */
-  overlapEnd: Date
+  overlapEnd: Date;
   /** Overlap duration in minutes */
-  overlapDuration: number
+  overlapDuration: number;
   /** Percentage of overlap */
-  overlapPercentage: number
+  overlapPercentage: number;
 }
 
 /**
@@ -579,15 +584,15 @@ export interface TimeOverlapDetails {
  */
 export interface EquipmentConflictDetails {
   /** Conflicting equipment IDs */
-  equipmentIds: string[]
+  equipmentIds: string[];
   /** Equipment names */
-  equipmentNames: string[]
+  equipmentNames: string[];
   /** Required quantity */
-  requiredQuantity: Record<string, number>
+  requiredQuantity: Record<string, number>;
   /** Available quantity */
-  availableQuantity: Record<string, number>
+  availableQuantity: Record<string, number>;
   /** Shortage details */
-  shortages: EquipmentShortage[]
+  shortages: EquipmentShortage[];
 }
 
 /**
@@ -595,15 +600,15 @@ export interface EquipmentConflictDetails {
  */
 export interface EquipmentShortage {
   /** Equipment ID */
-  equipmentId: string
+  equipmentId: string;
   /** Equipment name */
-  equipmentName: string
+  equipmentName: string;
   /** Required quantity */
-  required: number
+  required: number;
   /** Available quantity */
-  available: number
+  available: number;
   /** Shortage amount */
-  shortage: number
+  shortage: number;
 }
 
 /**
@@ -611,13 +616,13 @@ export interface EquipmentShortage {
  */
 export interface InstructorConflictDetails {
   /** Instructor ID */
-  instructorId: string
+  instructorId: string;
   /** Instructor name */
-  instructorName: string
+  instructorName: string;
   /** Conflicting session times */
-  conflictingTimes: TimeRange[]
+  conflictingTimes: TimeRange[];
   /** Travel time between locations */
-  travelTime?: number
+  travelTime?: number;
 }
 
 /**
@@ -625,11 +630,11 @@ export interface InstructorConflictDetails {
  */
 export interface TimeRange {
   /** Start time */
-  start: Date
+  start: Date;
   /** End time */
-  end: Date
+  end: Date;
   /** Range description */
-  description?: string
+  description?: string;
 }
 
 /**
@@ -637,15 +642,15 @@ export interface TimeRange {
  */
 export interface VenueConflictDetails {
   /** Venue ID */
-  venueId: string
+  venueId: string;
   /** Venue name */
-  venueName: string
+  venueName: string;
   /** Venue type */
-  venueType: string
+  venueType: string;
   /** Conflicting bookings */
-  conflictingBookings: VenueBooking[]
+  conflictingBookings: VenueBooking[];
   /** Setup/cleanup time required */
-  setupCleanupTime?: number
+  setupCleanupTime?: number;
 }
 
 /**
@@ -653,15 +658,15 @@ export interface VenueConflictDetails {
  */
 export interface VenueBooking {
   /** Booking ID */
-  bookingId: string
+  bookingId: string;
   /** Booking title */
-  title: string
+  title: string;
   /** Booking start time */
-  start: Date
+  start: Date;
   /** Booking end time */
-  end: Date
+  end: Date;
   /** Booking priority */
-  priority: EventPriority
+  priority: EventPriority;
 }
 
 /**
@@ -669,17 +674,17 @@ export interface VenueBooking {
  */
 export interface CapacityConflictDetails {
   /** Venue/class capacity */
-  maxCapacity: number
+  maxCapacity: number;
   /** Current bookings */
-  currentBookings: number
+  currentBookings: number;
   /** New session participant count */
-  newParticipants: number
+  newParticipants: number;
   /** Total participants after booking */
-  totalParticipants: number
+  totalParticipants: number;
   /** Capacity exceeded by */
-  exceededBy: number
+  exceededBy: number;
   /** Waitlist available */
-  waitlistAvailable: boolean
+  waitlistAvailable: boolean;
 }
 
 /**
@@ -687,20 +692,20 @@ export interface CapacityConflictDetails {
  */
 export interface RecoveryConflictDetails {
   /** Required recovery time (hours) */
-  requiredRecoveryHours: number
+  requiredRecoveryHours: number;
   /** Actual time between sessions (hours) */
-  actualTimeBetween: number
+  actualTimeBetween: number;
   /** Recovery deficit (hours) */
-  recoveryDeficit: number
+  recoveryDeficit: number;
   /** Previous session details */
   previousSession: {
-    sessionId: string
-    endTime: Date
-    intensity: 'low' | 'medium' | 'high' | 'extreme'
-    muscleGroups: string[]
-  }
+    sessionId: string;
+    endTime: Date;
+    intensity: 'low' | 'medium' | 'high' | 'extreme';
+    muscleGroups: string[];
+  };
   /** Recovery recommendations */
-  recommendations: string[]
+  recommendations: string[];
 }
 
 /**
@@ -708,13 +713,13 @@ export interface RecoveryConflictDetails {
  */
 export interface CustomConflictDetails {
   /** Custom rule identifier */
-  ruleId: string
+  ruleId: string;
   /** Rule description */
-  ruleDescription: string
+  ruleDescription: string;
   /** Rule parameters */
-  ruleParameters: any
+  ruleParameters: any;
   /** Violation details */
-  violationDetails: any
+  violationDetails: any;
 }
 
 /**
@@ -722,50 +727,50 @@ export interface CustomConflictDetails {
  */
 export interface ConflictResolution {
   /** Resolution ID */
-  id: string
+  id: string;
   /** Resolution type */
-  type: ResolutionType
+  type: ResolutionType;
   /** Resolution description */
-  description: string
+  description: string;
   /** Resolution action */
-  action: ResolutionAction
+  action: ResolutionAction;
   /** Resolution impact */
-  impact: ResolutionImpact
+  impact: ResolutionImpact;
   /** Resolution confidence */
-  confidence: number
+  confidence: number;
   /** Auto-apply resolution */
-  autoApply: boolean
+  autoApply: boolean;
   /** Resolution cost/trade-off */
-  tradeOff?: string
+  tradeOff?: string;
 }
 
 /**
  * Resolution Types
  */
-export type ResolutionType = 
-  | 'reschedule'         // Move session to different time
-  | 'substitute'         // Substitute equipment/instructor
-  | 'split'             // Split into multiple sessions
-  | 'merge'             // Merge with another session
-  | 'cancel'            // Cancel conflicting session
-  | 'waitlist'          // Add to waitlist
-  | 'override'          // Override conflict (force scheduling)
-  | 'modify_duration'   // Adjust session duration
-  | 'change_venue'      // Move to different venue
-  | 'custom'            // Custom resolution
+export type ResolutionType =
+  | 'reschedule' // Move session to different time
+  | 'substitute' // Substitute equipment/instructor
+  | 'split' // Split into multiple sessions
+  | 'merge' // Merge with another session
+  | 'cancel' // Cancel conflicting session
+  | 'waitlist' // Add to waitlist
+  | 'override' // Override conflict (force scheduling)
+  | 'modify_duration' // Adjust session duration
+  | 'change_venue' // Move to different venue
+  | 'custom'; // Custom resolution
 
 /**
  * Resolution Action
  */
 export interface ResolutionAction {
   /** Action type */
-  type: 'automatic' | 'user_prompt' | 'admin_approval'
+  type: 'automatic' | 'user_prompt' | 'admin_approval';
   /** Action parameters */
-  parameters: any
+  parameters: any;
   /** Action function */
-  execute?: () => Promise<void>
+  execute?: () => Promise<void>;
   /** Action validation */
-  validate?: () => boolean
+  validate?: () => boolean;
 }
 
 /**
@@ -773,17 +778,17 @@ export interface ResolutionAction {
  */
 export interface ResolutionImpact {
   /** Impact on user experience */
-  userExperience: 'positive' | 'neutral' | 'negative'
+  userExperience: 'positive' | 'neutral' | 'negative';
   /** Impact on schedule efficiency */
-  scheduleEfficiency: number
+  scheduleEfficiency: number;
   /** Impact on resource utilization */
-  resourceUtilization: number
+  resourceUtilization: number;
   /** Impact on goal achievement */
-  goalAchievement: number
+  goalAchievement: number;
   /** Impact on cost */
-  cost?: number
+  cost?: number;
   /** Affected users count */
-  affectedUsers: number
+  affectedUsers: number;
 }
 
 // ================================
@@ -795,15 +800,15 @@ export interface ResolutionImpact {
  */
 export interface TimeSlotManager {
   /** Available time slots */
-  slots: AvailableTimeSlot[]
+  slots: AvailableTimeSlot[];
   /** Slot allocation rules */
-  allocationRules: SlotAllocationRule[]
+  allocationRules: SlotAllocationRule[];
   /** Capacity management */
-  capacity: CapacityManagement
+  capacity: CapacityManagement;
   /** Pricing tiers */
-  pricing: SlotPricingConfig
+  pricing: SlotPricingConfig;
   /** Booking policies */
-  policies: BookingPolicies
+  policies: BookingPolicies;
 }
 
 /**
@@ -811,92 +816,92 @@ export interface TimeSlotManager {
  */
 export interface AvailableTimeSlot {
   /** Slot unique identifier */
-  id: string
+  id: string;
   /** Slot start time */
-  start: Date
+  start: Date;
   /** Slot end time */
-  end: Date
+  end: Date;
   /** Slot duration in minutes */
-  duration: number
+  duration: number;
   /** Slot type/category */
-  type: TimeSlotType
+  type: TimeSlotType;
   /** Slot capacity */
-  capacity: SlotCapacity
+  capacity: SlotCapacity;
   /** Slot status */
-  status: SlotStatus
+  status: SlotStatus;
   /** Slot pricing */
-  pricing: SlotPricing
+  pricing: SlotPricing;
   /** Required resources */
-  resources: SlotResources
+  resources: SlotResources;
   /** Slot restrictions */
-  restrictions: SlotRestrictions
+  restrictions: SlotRestrictions;
   /** Booking information */
-  bookings: SlotBooking[]
+  bookings: SlotBooking[];
   /** Slot metadata */
-  metadata: SlotMetadata
+  metadata: SlotMetadata;
 }
 
 /**
  * Time Slot Types
  */
-export type TimeSlotType = 
-  | 'regular'      // Regular training slot
-  | 'premium'      // Premium/high-demand slot
-  | 'off_peak'     // Off-peak/discount slot
-  | 'group'        // Group session slot
-  | 'personal'     // Personal training slot
-  | 'assessment'   // Assessment/evaluation slot
-  | 'maintenance'  // Equipment maintenance slot
-  | 'blocked'      // Unavailable/blocked slot
+export type TimeSlotType =
+  | 'regular' // Regular training slot
+  | 'premium' // Premium/high-demand slot
+  | 'off_peak' // Off-peak/discount slot
+  | 'group' // Group session slot
+  | 'personal' // Personal training slot
+  | 'assessment' // Assessment/evaluation slot
+  | 'maintenance' // Equipment maintenance slot
+  | 'blocked'; // Unavailable/blocked slot
 
 /**
  * Slot Capacity
  */
 export interface SlotCapacity {
   /** Maximum participants */
-  maximum: number
+  maximum: number;
   /** Minimum participants (for group sessions) */
-  minimum?: number
+  minimum?: number;
   /** Optimal participant count */
-  optimal?: number
+  optimal?: number;
   /** Current bookings */
-  current: number
+  current: number;
   /** Available spaces */
-  available: number
+  available: number;
   /** Waitlist capacity */
-  waitlistCapacity?: number
+  waitlistCapacity?: number;
   /** Current waitlist count */
-  waitlistCount: number
+  waitlistCount: number;
 }
 
 /**
  * Slot Status
  */
-export type SlotStatus = 
-  | 'available'     // Open for booking
-  | 'partial'       // Partially booked
-  | 'full'          // Fully booked
-  | 'waitlist'      // Waitlist only
-  | 'closed'        // Closed for booking
-  | 'cancelled'     // Slot cancelled
-  | 'maintenance'   // Under maintenance
+export type SlotStatus =
+  | 'available' // Open for booking
+  | 'partial' // Partially booked
+  | 'full' // Fully booked
+  | 'waitlist' // Waitlist only
+  | 'closed' // Closed for booking
+  | 'cancelled' // Slot cancelled
+  | 'maintenance'; // Under maintenance
 
 /**
  * Slot Pricing
  */
 export interface SlotPricing {
   /** Base price */
-  basePrice: number
+  basePrice: number;
   /** Currency code */
-  currency: string
+  currency: string;
   /** Pricing modifiers */
-  modifiers: PricingModifier[]
+  modifiers: PricingModifier[];
   /** Final price */
-  finalPrice: number
+  finalPrice: number;
   /** Discount information */
-  discounts: SlotDiscount[]
+  discounts: SlotDiscount[];
   /** Premium charges */
-  premiums: SlotPremium[]
+  premiums: SlotPremium[];
 }
 
 /**
@@ -904,13 +909,19 @@ export interface SlotPricing {
  */
 export interface PricingModifier {
   /** Modifier type */
-  type: 'peak_time' | 'off_peak' | 'group_discount' | 'member_discount' | 'loyalty' | 'seasonal'
+  type:
+    | 'peak_time'
+    | 'off_peak'
+    | 'group_discount'
+    | 'member_discount'
+    | 'loyalty'
+    | 'seasonal';
   /** Modifier value (percentage or fixed amount) */
-  value: number
+  value: number;
   /** Is modifier a percentage */
-  isPercentage: boolean
+  isPercentage: boolean;
   /** Modifier description */
-  description: string
+  description: string;
 }
 
 /**
@@ -918,15 +929,21 @@ export interface PricingModifier {
  */
 export interface SlotDiscount {
   /** Discount type */
-  type: 'early_bird' | 'bulk_booking' | 'member' | 'student' | 'senior' | 'promotional'
+  type:
+    | 'early_bird'
+    | 'bulk_booking'
+    | 'member'
+    | 'student'
+    | 'senior'
+    | 'promotional';
   /** Discount value */
-  value: number
+  value: number;
   /** Is discount percentage */
-  isPercentage: boolean
+  isPercentage: boolean;
   /** Discount conditions */
-  conditions: DiscountCondition[]
+  conditions: DiscountCondition[];
   /** Discount expiry */
-  expiresAt?: Date
+  expiresAt?: Date;
 }
 
 /**
@@ -934,11 +951,16 @@ export interface SlotDiscount {
  */
 export interface DiscountCondition {
   /** Condition type */
-  type: 'user_type' | 'booking_count' | 'advance_booking' | 'day_of_week' | 'time_of_day'
+  type:
+    | 'user_type'
+    | 'booking_count'
+    | 'advance_booking'
+    | 'day_of_week'
+    | 'time_of_day';
   /** Condition value */
-  value: any
+  value: any;
   /** Condition description */
-  description: string
+  description: string;
 }
 
 /**
@@ -946,13 +968,17 @@ export interface DiscountCondition {
  */
 export interface SlotPremium {
   /** Premium type */
-  type: 'peak_time' | 'premium_instructor' | 'exclusive_access' | 'priority_booking'
+  type:
+    | 'peak_time'
+    | 'premium_instructor'
+    | 'exclusive_access'
+    | 'priority_booking';
   /** Premium value */
-  value: number
+  value: number;
   /** Is premium percentage */
-  isPercentage: boolean
+  isPercentage: boolean;
   /** Premium justification */
-  justification: string
+  justification: string;
 }
 
 /**
@@ -960,13 +986,13 @@ export interface SlotPremium {
  */
 export interface SlotResources {
   /** Required equipment */
-  equipment: ResourceRequirement[]
+  equipment: ResourceRequirement[];
   /** Required instructors */
-  instructors: ResourceRequirement[]
+  instructors: ResourceRequirement[];
   /** Required venues */
-  venues: ResourceRequirement[]
+  venues: ResourceRequirement[];
   /** Additional resources */
-  additional: ResourceRequirement[]
+  additional: ResourceRequirement[];
 }
 
 /**
@@ -974,17 +1000,17 @@ export interface SlotResources {
  */
 export interface ResourceRequirement {
   /** Resource ID */
-  resourceId: string
+  resourceId: string;
   /** Resource name */
-  resourceName: string
+  resourceName: string;
   /** Required quantity */
-  quantity: number
+  quantity: number;
   /** Resource type */
-  type: 'equipment' | 'instructor' | 'venue' | 'other'
+  type: 'equipment' | 'instructor' | 'venue' | 'other';
   /** Is resource optional */
-  optional: boolean
+  optional: boolean;
   /** Alternatives available */
-  alternatives: string[]
+  alternatives: string[];
 }
 
 /**
@@ -993,31 +1019,31 @@ export interface ResourceRequirement {
 export interface SlotRestrictions {
   /** Fitness level requirements */
   fitnessLevel?: {
-    minimum: FitnessLevel
-    maximum?: FitnessLevel
-  }
+    minimum: FitnessLevel;
+    maximum?: FitnessLevel;
+  };
   /** Age restrictions */
   age?: {
-    minimum: number
-    maximum?: number
-  }
+    minimum: number;
+    maximum?: number;
+  };
   /** Membership requirements */
   membership?: {
-    required: boolean
-    types: string[]
-  }
+    required: boolean;
+    types: string[];
+  };
   /** Prerequisites */
   prerequisites?: {
-    required: boolean
-    conditions: string[]
-  }
+    required: boolean;
+    conditions: string[];
+  };
   /** Gender restrictions */
-  gender?: 'male' | 'female' | 'any'
+  gender?: 'male' | 'female' | 'any';
   /** Medical clearance */
   medicalClearance?: {
-    required: boolean
-    conditions: string[]
-  }
+    required: boolean;
+    conditions: string[];
+  };
 }
 
 /**
@@ -1025,70 +1051,70 @@ export interface SlotRestrictions {
  */
 export interface SlotBooking {
   /** Booking ID */
-  bookingId: string
+  bookingId: string;
   /** User ID */
-  userId: string
+  userId: string;
   /** User name */
-  userName: string
+  userName: string;
   /** Booking status */
-  status: BookingStatus
+  status: BookingStatus;
   /** Booking timestamp */
-  bookedAt: Date
+  bookedAt: Date;
   /** Session details */
-  sessionDetails: CalendarEvent
+  sessionDetails: CalendarEvent;
   /** Payment status */
-  paymentStatus: PaymentStatus
+  paymentStatus: PaymentStatus;
   /** Special requests */
-  specialRequests?: string[]
+  specialRequests?: string[];
   /** Check-in status */
-  checkedIn: boolean
+  checkedIn: boolean;
   /** Cancellation details */
-  cancellation?: BookingCancellation
+  cancellation?: BookingCancellation;
 }
 
 /**
  * Booking Status
  */
-export type BookingStatus = 
-  | 'confirmed'    // Booking confirmed
-  | 'pending'      // Awaiting confirmation
-  | 'waitlist'     // On waitlist
-  | 'cancelled'    // Cancelled by user
-  | 'no_show'      // User didn't show up
-  | 'completed'    // Session completed
-  | 'transferred'  // Booking transferred
+export type BookingStatus =
+  | 'confirmed' // Booking confirmed
+  | 'pending' // Awaiting confirmation
+  | 'waitlist' // On waitlist
+  | 'cancelled' // Cancelled by user
+  | 'no_show' // User didn't show up
+  | 'completed' // Session completed
+  | 'transferred'; // Booking transferred
 
 /**
  * Payment Status
  */
-export type PaymentStatus = 
-  | 'paid'         // Payment completed
-  | 'pending'      // Payment pending
-  | 'failed'       // Payment failed
-  | 'refunded'     // Payment refunded
-  | 'partial'      // Partially paid
-  | 'comp'         // Complimentary
+export type PaymentStatus =
+  | 'paid' // Payment completed
+  | 'pending' // Payment pending
+  | 'failed' // Payment failed
+  | 'refunded' // Payment refunded
+  | 'partial' // Partially paid
+  | 'comp'; // Complimentary
 
 /**
  * Booking Cancellation
  */
 export interface BookingCancellation {
   /** Cancellation timestamp */
-  cancelledAt: Date
+  cancelledAt: Date;
   /** Cancellation reason */
-  reason: CancellationReason
+  reason: CancellationReason;
   /** Cancellation fee */
-  fee?: number
+  fee?: number;
   /** Refund amount */
-  refund?: number
+  refund?: number;
   /** Refund status */
-  refundStatus?: 'pending' | 'processed' | 'denied'
+  refundStatus?: 'pending' | 'processed' | 'denied';
 }
 
 /**
  * Cancellation Reasons
  */
-export type CancellationReason = 
+export type CancellationReason =
   | 'user_request'
   | 'illness'
   | 'emergency'
@@ -1097,24 +1123,24 @@ export type CancellationReason =
   | 'instructor_unavailable'
   | 'equipment_failure'
   | 'weather'
-  | 'other'
+  | 'other';
 
 /**
  * Slot Metadata
  */
 export interface SlotMetadata {
   /** Creation timestamp */
-  createdAt: Date
+  createdAt: Date;
   /** Last updated timestamp */
-  updatedAt: Date
+  updatedAt: Date;
   /** Created by user ID */
-  createdBy: string
+  createdBy: string;
   /** Slot tags */
-  tags: string[]
+  tags: string[];
   /** Slot notes */
-  notes?: string
+  notes?: string;
   /** Slot statistics */
-  statistics: SlotStatistics
+  statistics: SlotStatistics;
 }
 
 /**
@@ -1122,17 +1148,17 @@ export interface SlotMetadata {
  */
 export interface SlotStatistics {
   /** Total bookings for this slot type */
-  totalBookings: number
+  totalBookings: number;
   /** Average utilization rate */
-  utilizationRate: number
+  utilizationRate: number;
   /** No-show rate */
-  noShowRate: number
+  noShowRate: number;
   /** Cancellation rate */
-  cancellationRate: number
+  cancellationRate: number;
   /** User satisfaction rating */
-  satisfactionRating: number
+  satisfactionRating: number;
   /** Revenue generated */
-  revenue: number
+  revenue: number;
 }
 
 /**
@@ -1140,19 +1166,19 @@ export interface SlotStatistics {
  */
 export interface SlotAllocationRule {
   /** Rule ID */
-  id: string
+  id: string;
   /** Rule name */
-  name: string
+  name: string;
   /** Rule description */
-  description: string
+  description: string;
   /** Rule priority */
-  priority: number
+  priority: number;
   /** Rule conditions */
-  conditions: AllocationCondition[]
+  conditions: AllocationCondition[];
   /** Rule actions */
-  actions: AllocationAction[]
+  actions: AllocationAction[];
   /** Rule is active */
-  active: boolean
+  active: boolean;
 }
 
 /**
@@ -1160,13 +1186,18 @@ export interface SlotAllocationRule {
  */
 export interface AllocationCondition {
   /** Condition type */
-  type: 'user_type' | 'membership_level' | 'booking_history' | 'time_advance' | 'slot_type'
+  type:
+    | 'user_type'
+    | 'membership_level'
+    | 'booking_history'
+    | 'time_advance'
+    | 'slot_type';
   /** Condition operator */
-  operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains'
+  operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains';
   /** Condition value */
-  value: any
+  value: any;
   /** Condition weight */
-  weight: number
+  weight: number;
 }
 
 /**
@@ -1174,11 +1205,15 @@ export interface AllocationCondition {
  */
 export interface AllocationAction {
   /** Action type */
-  type: 'priority_boost' | 'access_restriction' | 'pricing_modifier' | 'notification'
+  type:
+    | 'priority_boost'
+    | 'access_restriction'
+    | 'pricing_modifier'
+    | 'notification';
   /** Action parameters */
-  parameters: any
+  parameters: any;
   /** Action description */
-  description: string
+  description: string;
 }
 
 /**
@@ -1186,13 +1221,13 @@ export interface AllocationAction {
  */
 export interface CapacityManagement {
   /** Dynamic capacity adjustment */
-  dynamicAdjustment: boolean
+  dynamicAdjustment: boolean;
   /** Capacity optimization rules */
-  optimizationRules: CapacityRule[]
+  optimizationRules: CapacityRule[];
   /** Overbooking policy */
-  overbookingPolicy: OverbookingPolicy
+  overbookingPolicy: OverbookingPolicy;
   /** Waitlist management */
-  waitlistManagement: WaitlistManagement
+  waitlistManagement: WaitlistManagement;
 }
 
 /**
@@ -1200,13 +1235,13 @@ export interface CapacityManagement {
  */
 export interface CapacityRule {
   /** Rule ID */
-  id: string
+  id: string;
   /** Rule trigger */
-  trigger: CapacityTrigger
+  trigger: CapacityTrigger;
   /** Capacity adjustment */
-  adjustment: CapacityAdjustment
+  adjustment: CapacityAdjustment;
   /** Rule active */
-  active: boolean
+  active: boolean;
 }
 
 /**
@@ -1214,11 +1249,11 @@ export interface CapacityRule {
  */
 export interface CapacityTrigger {
   /** Trigger type */
-  type: 'demand_high' | 'demand_low' | 'time_based' | 'event_based'
+  type: 'demand_high' | 'demand_low' | 'time_based' | 'event_based';
   /** Trigger threshold */
-  threshold: number
+  threshold: number;
   /** Trigger condition */
-  condition: string
+  condition: string;
 }
 
 /**
@@ -1226,13 +1261,13 @@ export interface CapacityTrigger {
  */
 export interface CapacityAdjustment {
   /** Adjustment type */
-  type: 'increase' | 'decrease' | 'set_absolute'
+  type: 'increase' | 'decrease' | 'set_absolute';
   /** Adjustment value */
-  value: number
+  value: number;
   /** Adjustment duration */
-  duration?: number
+  duration?: number;
   /** Adjustment reason */
-  reason: string
+  reason: string;
 }
 
 /**
@@ -1240,13 +1275,13 @@ export interface CapacityAdjustment {
  */
 export interface OverbookingPolicy {
   /** Allow overbooking */
-  allowed: boolean
+  allowed: boolean;
   /** Overbooking percentage */
-  percentage: number
+  percentage: number;
   /** Overbooking conditions */
-  conditions: OverbookingCondition[]
+  conditions: OverbookingCondition[];
   /** Overbooking handling */
-  handling: OverbookingHandling
+  handling: OverbookingHandling;
 }
 
 /**
@@ -1254,11 +1289,15 @@ export interface OverbookingPolicy {
  */
 export interface OverbookingCondition {
   /** Condition type */
-  type: 'historical_no_show' | 'user_reliability' | 'time_advance' | 'slot_type'
+  type:
+    | 'historical_no_show'
+    | 'user_reliability'
+    | 'time_advance'
+    | 'slot_type';
   /** Condition value */
-  value: number
+  value: number;
   /** Condition description */
-  description: string
+  description: string;
 }
 
 /**
@@ -1266,11 +1305,11 @@ export interface OverbookingCondition {
  */
 export interface OverbookingHandling {
   /** Handling strategy */
-  strategy: 'first_come_first_served' | 'priority_based' | 'waitlist_only'
+  strategy: 'first_come_first_served' | 'priority_based' | 'waitlist_only';
   /** Compensation policy */
-  compensation: CompensationPolicy
+  compensation: CompensationPolicy;
   /** Notification policy */
-  notification: NotificationPolicy
+  notification: NotificationPolicy;
 }
 
 /**
@@ -1278,11 +1317,11 @@ export interface OverbookingHandling {
  */
 export interface CompensationPolicy {
   /** Offer compensation */
-  offerCompensation: boolean
+  offerCompensation: boolean;
   /** Compensation types */
-  types: CompensationType[]
+  types: CompensationType[];
   /** Automatic compensation */
-  automatic: boolean
+  automatic: boolean;
 }
 
 /**
@@ -1290,11 +1329,11 @@ export interface CompensationPolicy {
  */
 export interface CompensationType {
   /** Type */
-  type: 'free_session' | 'credit' | 'discount' | 'upgrade' | 'refund'
+  type: 'free_session' | 'credit' | 'discount' | 'upgrade' | 'refund';
   /** Value */
-  value: number
+  value: number;
   /** Description */
-  description: string
+  description: string;
 }
 
 /**
@@ -1302,26 +1341,26 @@ export interface CompensationType {
  */
 export interface NotificationPolicy {
   /** Advance notice hours */
-  advanceNoticeHours: number
+  advanceNoticeHours: number;
   /** Notification methods */
-  methods: NotificationMethod[]
+  methods: NotificationMethod[];
   /** Escalation policy */
-  escalation: NotificationEscalation
+  escalation: NotificationEscalation;
 }
 
 /**
  * Notification Method
  */
-export type NotificationMethod = 'email' | 'sms' | 'push' | 'in_app' | 'call'
+export type NotificationMethod = 'email' | 'sms' | 'push' | 'in_app' | 'call';
 
 /**
  * Notification Escalation
  */
 export interface NotificationEscalation {
   /** Escalation enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Escalation levels */
-  levels: EscalationLevel[]
+  levels: EscalationLevel[];
 }
 
 /**
@@ -1329,13 +1368,13 @@ export interface NotificationEscalation {
  */
 export interface EscalationLevel {
   /** Level number */
-  level: number
+  level: number;
   /** Delay before escalation (minutes) */
-  delayMinutes: number
+  delayMinutes: number;
   /** Escalation method */
-  method: NotificationMethod
+  method: NotificationMethod;
   /** Escalation recipients */
-  recipients: string[]
+  recipients: string[];
 }
 
 /**
@@ -1343,15 +1382,15 @@ export interface EscalationLevel {
  */
 export interface WaitlistManagement {
   /** Waitlist enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Waitlist capacity */
-  capacity: number
+  capacity: number;
   /** Priority rules */
-  priorityRules: WaitlistPriorityRule[]
+  priorityRules: WaitlistPriorityRule[];
   /** Auto-promotion enabled */
-  autoPromotion: boolean
+  autoPromotion: boolean;
   /** Notification settings */
-  notifications: WaitlistNotificationSettings
+  notifications: WaitlistNotificationSettings;
 }
 
 /**
@@ -1359,40 +1398,40 @@ export interface WaitlistManagement {
  */
 export interface WaitlistPriorityRule {
   /** Rule ID */
-  id: string
+  id: string;
   /** Priority factor */
-  factor: WaitlistPriorityFactor
+  factor: WaitlistPriorityFactor;
   /** Priority weight */
-  weight: number
+  weight: number;
   /** Rule active */
-  active: boolean
+  active: boolean;
 }
 
 /**
  * Waitlist Priority Factor
  */
-export type WaitlistPriorityFactor = 
-  | 'join_time'         // First come, first served
-  | 'membership_level'  // Higher membership priority
-  | 'loyalty_score'     // Customer loyalty
-  | 'payment_history'   // Payment reliability
+export type WaitlistPriorityFactor =
+  | 'join_time' // First come, first served
+  | 'membership_level' // Higher membership priority
+  | 'loyalty_score' // Customer loyalty
+  | 'payment_history' // Payment reliability
   | 'cancellation_history' // Low cancellation rate
-  | 'custom'           // Custom priority rule
+  | 'custom'; // Custom priority rule
 
 /**
  * Waitlist Notification Settings
  */
 export interface WaitlistNotificationSettings {
   /** Notify on spot available */
-  notifyOnAvailable: boolean
+  notifyOnAvailable: boolean;
   /** Notification window (hours) */
-  notificationWindow: number
+  notificationWindow: number;
   /** Reservation hold time (minutes) */
-  reservationHoldTime: number
+  reservationHoldTime: number;
   /** Reminder notifications */
-  reminders: boolean
+  reminders: boolean;
   /** Methods */
-  methods: NotificationMethod[]
+  methods: NotificationMethod[];
 }
 
 /**
@@ -1400,40 +1439,40 @@ export interface WaitlistNotificationSettings {
  */
 export interface SlotPricingConfig {
   /** Base pricing model */
-  basePricing: PricingModel
+  basePricing: PricingModel;
   /** Dynamic pricing enabled */
-  dynamicPricing: boolean
+  dynamicPricing: boolean;
   /** Pricing rules */
-  pricingRules: PricingRule[]
+  pricingRules: PricingRule[];
   /** Currency settings */
-  currency: CurrencyConfig
+  currency: CurrencyConfig;
 }
 
 /**
  * Pricing Model
  */
-export type PricingModel = 
-  | 'flat_rate'      // Fixed price per session
-  | 'tiered'         // Different prices for different tiers
-  | 'time_based'     // Price varies by time of day
-  | 'demand_based'   // Price varies by demand
-  | 'membership'     // Different prices for members/non-members
-  | 'dynamic'        // Algorithmic dynamic pricing
+export type PricingModel =
+  | 'flat_rate' // Fixed price per session
+  | 'tiered' // Different prices for different tiers
+  | 'time_based' // Price varies by time of day
+  | 'demand_based' // Price varies by demand
+  | 'membership' // Different prices for members/non-members
+  | 'dynamic'; // Algorithmic dynamic pricing
 
 /**
  * Pricing Rule
  */
 export interface PricingRule {
   /** Rule ID */
-  id: string
+  id: string;
   /** Rule conditions */
-  conditions: PricingCondition[]
+  conditions: PricingCondition[];
   /** Price adjustment */
-  adjustment: PricingAdjustment
+  adjustment: PricingAdjustment;
   /** Rule priority */
-  priority: number
+  priority: number;
   /** Rule active */
-  active: boolean
+  active: boolean;
 }
 
 /**
@@ -1441,11 +1480,16 @@ export interface PricingRule {
  */
 export interface PricingCondition {
   /** Condition type */
-  type: 'time_of_day' | 'day_of_week' | 'demand_level' | 'capacity_utilization' | 'user_type'
+  type:
+    | 'time_of_day'
+    | 'day_of_week'
+    | 'demand_level'
+    | 'capacity_utilization'
+    | 'user_type';
   /** Condition operator */
-  operator: 'equals' | 'greater_than' | 'less_than' | 'between'
+  operator: 'equals' | 'greater_than' | 'less_than' | 'between';
   /** Condition value */
-  value: any
+  value: any;
 }
 
 /**
@@ -1453,11 +1497,11 @@ export interface PricingCondition {
  */
 export interface PricingAdjustment {
   /** Adjustment type */
-  type: 'percentage' | 'fixed_amount' | 'set_price'
+  type: 'percentage' | 'fixed_amount' | 'set_price';
   /** Adjustment value */
-  value: number
+  value: number;
   /** Adjustment description */
-  description: string
+  description: string;
 }
 
 /**
@@ -1465,13 +1509,13 @@ export interface PricingAdjustment {
  */
 export interface CurrencyConfig {
   /** Base currency */
-  baseCurrency: string
+  baseCurrency: string;
   /** Supported currencies */
-  supportedCurrencies: string[]
+  supportedCurrencies: string[];
   /** Currency conversion */
-  conversion: CurrencyConversion
+  conversion: CurrencyConversion;
   /** Display settings */
-  display: CurrencyDisplay
+  display: CurrencyDisplay;
 }
 
 /**
@@ -1479,13 +1523,13 @@ export interface CurrencyConfig {
  */
 export interface CurrencyConversion {
   /** Auto conversion enabled */
-  enabled: boolean
+  enabled: boolean;
   /** Exchange rate provider */
-  provider: 'internal' | 'external_api' | 'manual'
+  provider: 'internal' | 'external_api' | 'manual';
   /** Rate update frequency */
-  updateFrequency: 'real_time' | 'daily' | 'weekly' | 'manual'
+  updateFrequency: 'real_time' | 'daily' | 'weekly' | 'manual';
   /** Rate margin */
-  margin: number
+  margin: number;
 }
 
 /**
@@ -1493,13 +1537,13 @@ export interface CurrencyConversion {
  */
 export interface CurrencyDisplay {
   /** Display format */
-  format: 'symbol' | 'code' | 'name'
+  format: 'symbol' | 'code' | 'name';
   /** Decimal places */
-  decimalPlaces: number
+  decimalPlaces: number;
   /** Thousand separator */
-  thousandSeparator: string
+  thousandSeparator: string;
   /** Decimal separator */
-  decimalSeparator: string
+  decimalSeparator: string;
 }
 
 /**
@@ -1507,15 +1551,15 @@ export interface CurrencyDisplay {
  */
 export interface BookingPolicies {
   /** Advance booking requirements */
-  advanceBooking: AdvanceBookingPolicy
+  advanceBooking: AdvanceBookingPolicy;
   /** Cancellation policy */
-  cancellation: CancellationPolicy
+  cancellation: CancellationPolicy;
   /** No-show policy */
-  noShow: NoShowPolicy
+  noShow: NoShowPolicy;
   /** Transfer policy */
-  transfer: TransferPolicy
+  transfer: TransferPolicy;
   /** Refund policy */
-  refund: RefundPolicy
+  refund: RefundPolicy;
 }
 
 /**
@@ -1523,11 +1567,11 @@ export interface BookingPolicies {
  */
 export interface AdvanceBookingPolicy {
   /** Minimum advance booking (hours) */
-  minimumHours: number
+  minimumHours: number;
   /** Maximum advance booking (days) */
-  maximumDays: number
+  maximumDays: number;
   /** Different rules for different user types */
-  userTypeRules: Record<string, AdvanceBookingRule>
+  userTypeRules: Record<string, AdvanceBookingRule>;
 }
 
 /**
@@ -1535,11 +1579,11 @@ export interface AdvanceBookingPolicy {
  */
 export interface AdvanceBookingRule {
   /** Minimum hours for this user type */
-  minimumHours: number
+  minimumHours: number;
   /** Maximum days for this user type */
-  maximumDays: number
+  maximumDays: number;
   /** Priority booking window */
-  priorityHours?: number
+  priorityHours?: number;
 }
 
 /**
@@ -1547,15 +1591,15 @@ export interface AdvanceBookingRule {
  */
 export interface NoShowPolicy {
   /** No-show fee */
-  fee: number
+  fee: number;
   /** Fee is percentage */
-  feeIsPercentage: boolean
+  feeIsPercentage: boolean;
   /** Grace period (minutes) */
-  gracePeriodMinutes: number
+  gracePeriodMinutes: number;
   /** Strikes before penalty */
-  strikesBeforePenalty: number
+  strikesBeforePenalty: number;
   /** Penalty actions */
-  penalties: NoShowPenalty[]
+  penalties: NoShowPenalty[];
 }
 
 /**
@@ -1563,13 +1607,13 @@ export interface NoShowPolicy {
  */
 export interface NoShowPenalty {
   /** Penalty type */
-  type: 'fee' | 'booking_restriction' | 'membership_suspension' | 'warning'
+  type: 'fee' | 'booking_restriction' | 'membership_suspension' | 'warning';
   /** Penalty duration (days) */
-  durationDays?: number
+  durationDays?: number;
   /** Penalty amount */
-  amount?: number
+  amount?: number;
   /** Penalty description */
-  description: string
+  description: string;
 }
 
 /**
@@ -1577,15 +1621,15 @@ export interface NoShowPenalty {
  */
 export interface TransferPolicy {
   /** Transfers allowed */
-  allowed: boolean
+  allowed: boolean;
   /** Transfer fee */
-  fee: number
+  fee: number;
   /** Transfers per booking limit */
-  limitPerBooking: number
+  limitPerBooking: number;
   /** Transfer deadline (hours before session) */
-  deadlineHours: number
+  deadlineHours: number;
   /** Transfer restrictions */
-  restrictions: TransferRestriction[]
+  restrictions: TransferRestriction[];
 }
 
 /**
@@ -1593,11 +1637,15 @@ export interface TransferPolicy {
  */
 export interface TransferRestriction {
   /** Restriction type */
-  type: 'same_session_type' | 'same_instructor' | 'same_venue' | 'same_price_tier'
+  type:
+    | 'same_session_type'
+    | 'same_instructor'
+    | 'same_venue'
+    | 'same_price_tier';
   /** Restriction description */
-  description: string
+  description: string;
   /** Is restriction required */
-  required: boolean
+  required: boolean;
 }
 
 /**
@@ -1605,13 +1653,13 @@ export interface TransferRestriction {
  */
 export interface RefundPolicy {
   /** Refunds allowed */
-  allowed: boolean
+  allowed: boolean;
   /** Refund schedule */
-  schedule: RefundSchedule[]
+  schedule: RefundSchedule[];
   /** Processing time (business days) */
-  processingDays: number
+  processingDays: number;
   /** Refund methods */
-  methods: RefundMethod[]
+  methods: RefundMethod[];
 }
 
 /**
@@ -1619,17 +1667,21 @@ export interface RefundPolicy {
  */
 export interface RefundSchedule {
   /** Hours before session */
-  hoursBefore: number
+  hoursBefore: number;
   /** Refund percentage */
-  refundPercentage: number
+  refundPercentage: number;
   /** Refund description */
-  description: string
+  description: string;
 }
 
 /**
  * Refund Method
  */
-export type RefundMethod = 'original_payment' | 'store_credit' | 'bank_transfer' | 'check'
+export type RefundMethod =
+  | 'original_payment'
+  | 'store_credit'
+  | 'bank_transfer'
+  | 'check';
 
 // ================================
 // Calendar State Management
@@ -1640,17 +1692,17 @@ export type RefundMethod = 'original_payment' | 'store_credit' | 'bank_transfer'
  */
 export interface CalendarState {
   /** Current view configuration */
-  view: CalendarViewState
+  view: CalendarViewState;
   /** Calendar data */
-  data: CalendarDataState
+  data: CalendarDataState;
   /** Drag and drop state */
-  dragDrop: DragDropState
+  dragDrop: DragDropState;
   /** Selection state */
-  selection: SelectionState
+  selection: SelectionState;
   /** Filter state */
-  filters: CalendarFilterState
+  filters: CalendarFilterState;
   /** UI state */
-  ui: CalendarUIState
+  ui: CalendarUIState;
 }
 
 /**
@@ -1658,15 +1710,15 @@ export interface CalendarState {
  */
 export interface CalendarViewState {
   /** Current view type */
-  currentView: CalendarViewType
+  currentView: CalendarViewType;
   /** Current date range */
-  dateRange: CalendarDateRange
+  dateRange: CalendarDateRange;
   /** Navigation state */
-  navigation: NavigationState
+  navigation: NavigationState;
   /** Zoom level */
-  zoomLevel: number
+  zoomLevel: number;
   /** View settings */
-  settings: ViewSettings
+  settings: ViewSettings;
 }
 
 /**
@@ -1674,15 +1726,15 @@ export interface CalendarViewState {
  */
 export interface NavigationState {
   /** Can navigate previous */
-  canNavigatePrevious: boolean
+  canNavigatePrevious: boolean;
   /** Can navigate next */
-  canNavigateNext: boolean
+  canNavigateNext: boolean;
   /** Is at today */
-  isAtToday: boolean
+  isAtToday: boolean;
   /** Navigation history */
-  history: NavigationHistoryEntry[]
+  history: NavigationHistoryEntry[];
   /** Current history index */
-  historyIndex: number
+  historyIndex: number;
 }
 
 /**
@@ -1690,11 +1742,11 @@ export interface NavigationState {
  */
 export interface NavigationHistoryEntry {
   /** Date range */
-  dateRange: CalendarDateRange
+  dateRange: CalendarDateRange;
   /** View type */
-  viewType: CalendarViewType
+  viewType: CalendarViewType;
   /** Timestamp */
-  timestamp: Date
+  timestamp: Date;
 }
 
 /**
@@ -1703,17 +1755,17 @@ export interface NavigationHistoryEntry {
 export interface ViewSettings {
   /** Time range for day/week views */
   timeRange: {
-    start: string
-    end: string
-  }
+    start: string;
+    end: string;
+  };
   /** Working hours highlight */
-  highlightWorkingHours: boolean
+  highlightWorkingHours: boolean;
   /** Show weekends */
-  showWeekends: boolean
+  showWeekends: boolean;
   /** Show week numbers */
-  showWeekNumbers: boolean
+  showWeekNumbers: boolean;
   /** Event display settings */
-  eventDisplay: EventDisplaySettings
+  eventDisplay: EventDisplaySettings;
 }
 
 /**
@@ -1721,13 +1773,13 @@ export interface ViewSettings {
  */
 export interface EventDisplaySettings {
   /** Show event times */
-  showTimes: boolean
+  showTimes: boolean;
   /** Show event details */
-  showDetails: boolean
+  showDetails: boolean;
   /** Event height */
-  eventHeight: 'compact' | 'normal' | 'expanded'
+  eventHeight: 'compact' | 'normal' | 'expanded';
   /** Color coding */
-  colorCoding: EventColorCoding
+  colorCoding: EventColorCoding;
 }
 
 /**
@@ -1735,11 +1787,17 @@ export interface EventDisplaySettings {
  */
 export interface EventColorCoding {
   /** Color by property */
-  colorBy: 'category' | 'status' | 'priority' | 'instructor' | 'venue' | 'custom'
+  colorBy:
+    | 'category'
+    | 'status'
+    | 'priority'
+    | 'instructor'
+    | 'venue'
+    | 'custom';
   /** Color scheme */
-  colorScheme: 'default' | 'pastel' | 'vibrant' | 'monochrome' | 'custom'
+  colorScheme: 'default' | 'pastel' | 'vibrant' | 'monochrome' | 'custom';
   /** Custom colors */
-  customColors?: Record<string, string>
+  customColors?: Record<string, string>;
 }
 
 /**
@@ -1747,17 +1805,17 @@ export interface EventColorCoding {
  */
 export interface CalendarDataState {
   /** Calendar events */
-  events: CalendarEvent[]
+  events: CalendarEvent[];
   /** Loading state */
-  loading: boolean
+  loading: boolean;
   /** Error state */
-  error?: string
+  error?: string;
   /** Last fetch timestamp */
-  lastFetch?: Date
+  lastFetch?: Date;
   /** Event cache */
-  cache: EventCache
+  cache: EventCache;
   /** Statistics */
-  statistics: CalendarStatistics
+  statistics: CalendarStatistics;
 }
 
 /**
@@ -1765,13 +1823,13 @@ export interface CalendarDataState {
  */
 export interface EventCache {
   /** Cached date ranges */
-  cachedRanges: CachedDateRange[]
+  cachedRanges: CachedDateRange[];
   /** Cache hit rate */
-  hitRate: number
+  hitRate: number;
   /** Cache size */
-  size: number
+  size: number;
   /** Last cleanup */
-  lastCleanup: Date
+  lastCleanup: Date;
 }
 
 /**
@@ -1779,13 +1837,13 @@ export interface EventCache {
  */
 export interface CachedDateRange {
   /** Date range */
-  range: CalendarDateRange
+  range: CalendarDateRange;
   /** Events in range */
-  events: CalendarEvent[]
+  events: CalendarEvent[];
   /** Cache timestamp */
-  timestamp: Date
+  timestamp: Date;
   /** Cache expiry */
-  expires: Date
+  expires: Date;
 }
 
 /**
@@ -1793,15 +1851,15 @@ export interface CachedDateRange {
  */
 export interface CalendarStatistics {
   /** Total events */
-  totalEvents: number
+  totalEvents: number;
   /** Events by status */
-  eventsByStatus: Record<SessionStatus, number>
+  eventsByStatus: Record<SessionStatus, number>;
   /** Events by category */
-  eventsByCategory: Record<EventCategory, number>
+  eventsByCategory: Record<EventCategory, number>;
   /** Utilization rate */
-  utilizationRate: number
+  utilizationRate: number;
   /** Most booked time slots */
-  popularTimeSlots: PopularTimeSlot[]
+  popularTimeSlots: PopularTimeSlot[];
 }
 
 /**
@@ -1809,11 +1867,11 @@ export interface CalendarStatistics {
  */
 export interface PopularTimeSlot {
   /** Time slot */
-  timeSlot: string
+  timeSlot: string;
   /** Booking count */
-  bookingCount: number
+  bookingCount: number;
   /** Utilization percentage */
-  utilization: number
+  utilization: number;
 }
 
 /**
@@ -1821,19 +1879,19 @@ export interface PopularTimeSlot {
  */
 export interface DragDropState {
   /** Is dragging */
-  isDragging: boolean
+  isDragging: boolean;
   /** Dragged event */
-  draggedEvent?: CalendarEvent
+  draggedEvent?: CalendarEvent;
   /** Drag start position */
-  dragStart?: DragPosition
+  dragStart?: DragPosition;
   /** Current drag position */
-  currentPosition?: DragPosition
+  currentPosition?: DragPosition;
   /** Drop target */
-  dropTarget?: DropTarget
+  dropTarget?: DropTarget;
   /** Drag constraints */
-  constraints: DragConstraints
+  constraints: DragConstraints;
   /** Ghost element */
-  ghost?: DragGhost
+  ghost?: DragGhost;
 }
 
 /**
@@ -1841,13 +1899,13 @@ export interface DragDropState {
  */
 export interface DragPosition {
   /** X coordinate */
-  x: number
+  x: number;
   /** Y coordinate */
-  y: number
+  y: number;
   /** Date/time at position */
-  dateTime: Date
+  dateTime: Date;
   /** View context */
-  context: DragContext
+  context: DragContext;
 }
 
 /**
@@ -1855,13 +1913,13 @@ export interface DragPosition {
  */
 export interface DragContext {
   /** Source calendar */
-  sourceCalendar: string
+  sourceCalendar: string;
   /** Source slot */
-  sourceSlot?: string
+  sourceSlot?: string;
   /** View type */
-  viewType: CalendarViewType
+  viewType: CalendarViewType;
   /** Grid position */
-  gridPosition: GridPosition
+  gridPosition: GridPosition;
 }
 
 /**
@@ -1869,11 +1927,11 @@ export interface DragContext {
  */
 export interface GridPosition {
   /** Column index */
-  column: number
+  column: number;
   /** Row index */
-  row: number
+  row: number;
   /** Cell identifier */
-  cellId: string
+  cellId: string;
 }
 
 /**
@@ -1881,17 +1939,17 @@ export interface GridPosition {
  */
 export interface DropTarget {
   /** Target date/time */
-  dateTime: Date
+  dateTime: Date;
   /** Target duration */
-  duration: number
+  duration: number;
   /** Target position */
-  position: DragPosition
+  position: DragPosition;
   /** Is valid drop target */
-  isValid: boolean
+  isValid: boolean;
   /** Validation errors */
-  validationErrors: string[]
+  validationErrors: string[];
   /** Target conflicts */
-  conflicts: SessionConflict[]
+  conflicts: SessionConflict[];
 }
 
 /**
@@ -1899,13 +1957,13 @@ export interface DropTarget {
  */
 export interface DragGhost {
   /** Ghost element */
-  element: HTMLElement
+  element: HTMLElement;
   /** Ghost style */
-  style: DragGhostStyle
+  style: DragGhostStyle;
   /** Ghost content */
-  content: string
+  content: string;
   /** Ghost offset */
-  offset: { x: number; y: number }
+  offset: { x: number; y: number };
 }
 
 /**
@@ -1913,13 +1971,13 @@ export interface DragGhost {
  */
 export interface DragGhostStyle {
   /** Opacity */
-  opacity: number
+  opacity: number;
   /** Background color */
-  backgroundColor: string
+  backgroundColor: string;
   /** Border style */
-  border: string
+  border: string;
   /** Box shadow */
-  boxShadow: string
+  boxShadow: string;
 }
 
 /**
@@ -1927,38 +1985,38 @@ export interface DragGhostStyle {
  */
 export interface SelectionState {
   /** Selected events */
-  selectedEvents: Set<string>
+  selectedEvents: Set<string>;
   /** Selection mode */
-  selectionMode: SelectionMode
+  selectionMode: SelectionMode;
   /** Multi-select enabled */
-  multiSelect: boolean
+  multiSelect: boolean;
   /** Selection actions */
-  availableActions: SelectionAction[]
+  availableActions: SelectionAction[];
   /** Selection metadata */
-  metadata: SelectionMetadata
+  metadata: SelectionMetadata;
 }
 
 /**
  * Selection Mode
  */
-export type SelectionMode = 'none' | 'single' | 'multiple' | 'range'
+export type SelectionMode = 'none' | 'single' | 'multiple' | 'range';
 
 /**
  * Selection Action
  */
 export interface SelectionAction {
   /** Action ID */
-  id: string
+  id: string;
   /** Action label */
-  label: string
+  label: string;
   /** Action icon */
-  icon?: string
+  icon?: string;
   /** Action handler */
-  handler: (eventIds: string[]) => void
+  handler: (eventIds: string[]) => void;
   /** Is action available */
-  isAvailable: (eventIds: string[]) => boolean
+  isAvailable: (eventIds: string[]) => boolean;
   /** Action keyboard shortcut */
-  shortcut?: string
+  shortcut?: string;
 }
 
 /**
@@ -1966,13 +2024,13 @@ export interface SelectionAction {
  */
 export interface SelectionMetadata {
   /** Selection count */
-  count: number
+  count: number;
   /** Total duration of selected events */
-  totalDuration: number
+  totalDuration: number;
   /** Selected date range */
-  dateRange?: CalendarDateRange
+  dateRange?: CalendarDateRange;
   /** Selection categories */
-  categories: string[]
+  categories: string[];
 }
 
 /**
@@ -1980,13 +2038,13 @@ export interface SelectionMetadata {
  */
 export interface CalendarFilterState {
   /** Active filters */
-  activeFilters: CalendarFilter[]
+  activeFilters: CalendarFilter[];
   /** Filter presets */
-  presets: FilterPreset[]
+  presets: FilterPreset[];
   /** Quick filters */
-  quickFilters: QuickCalendarFilter[]
+  quickFilters: QuickCalendarFilter[];
   /** Filter history */
-  history: FilterHistoryEntry[]
+  history: FilterHistoryEntry[];
 }
 
 /**
@@ -1994,21 +2052,21 @@ export interface CalendarFilterState {
  */
 export interface CalendarFilter {
   /** Filter ID */
-  id: string
+  id: string;
   /** Filter type */
-  type: CalendarFilterType
+  type: CalendarFilterType;
   /** Filter value */
-  value: any
+  value: any;
   /** Filter operator */
-  operator: FilterOperator
+  operator: FilterOperator;
   /** Filter active */
-  active: boolean
+  active: boolean;
 }
 
 /**
  * Calendar Filter Types
  */
-export type CalendarFilterType = 
+export type CalendarFilterType =
   | 'category'
   | 'status'
   | 'priority'
@@ -2017,12 +2075,12 @@ export type CalendarFilterType =
   | 'user'
   | 'date_range'
   | 'duration'
-  | 'custom'
+  | 'custom';
 
 /**
  * Filter Operator
  */
-export type FilterOperator = 
+export type FilterOperator =
   | 'equals'
   | 'not_equals'
   | 'contains'
@@ -2031,22 +2089,22 @@ export type FilterOperator =
   | 'less_than'
   | 'between'
   | 'in'
-  | 'not_in'
+  | 'not_in';
 
 /**
  * Filter Preset
  */
 export interface FilterPreset {
   /** Preset ID */
-  id: string
+  id: string;
   /** Preset name */
-  name: string
+  name: string;
   /** Preset filters */
-  filters: CalendarFilter[]
+  filters: CalendarFilter[];
   /** Is preset system-defined */
-  isSystem: boolean
+  isSystem: boolean;
   /** Preset usage count */
-  usageCount: number
+  usageCount: number;
 }
 
 /**
@@ -2054,15 +2112,15 @@ export interface FilterPreset {
  */
 export interface QuickCalendarFilter {
   /** Filter ID */
-  id: string
+  id: string;
   /** Filter label */
-  label: string
+  label: string;
   /** Filter configuration */
-  filter: CalendarFilter
+  filter: CalendarFilter;
   /** Filter icon */
-  icon?: string
+  icon?: string;
   /** Filter color */
-  color?: string
+  color?: string;
 }
 
 /**
@@ -2070,15 +2128,15 @@ export interface QuickCalendarFilter {
  */
 export interface CalendarUIState {
   /** Loading states */
-  loading: CalendarLoadingStates
+  loading: CalendarLoadingStates;
   /** Modal states */
-  modals: CalendarModalStates
+  modals: CalendarModalStates;
   /** Context menu state */
-  contextMenu: ContextMenuState
+  contextMenu: ContextMenuState;
   /** Tooltip state */
-  tooltip: TooltipState
+  tooltip: TooltipState;
   /** Sidebar state */
-  sidebar: CalendarSidebarState
+  sidebar: CalendarSidebarState;
 }
 
 /**
@@ -2086,13 +2144,13 @@ export interface CalendarUIState {
  */
 export interface CalendarLoadingStates {
   /** Events loading */
-  events: boolean
+  events: boolean;
   /** Conflicts checking */
-  conflicts: boolean
+  conflicts: boolean;
   /** Save operation */
-  saving: boolean
+  saving: boolean;
   /** Delete operation */
-  deleting: boolean
+  deleting: boolean;
 }
 
 /**
@@ -2100,13 +2158,13 @@ export interface CalendarLoadingStates {
  */
 export interface CalendarModalStates {
   /** Event details modal */
-  eventDetails: ModalState<EventDetailsModalProps>
+  eventDetails: ModalState<EventDetailsModalProps>;
   /** Event edit modal */
-  eventEdit: ModalState<EventEditModalProps>
+  eventEdit: ModalState<EventEditModalProps>;
   /** Conflict resolution modal */
-  conflictResolution: ModalState<ConflictResolutionModalProps>
+  conflictResolution: ModalState<ConflictResolutionModalProps>;
   /** Bulk operations modal */
-  bulkOperations: ModalState<BulkOperationsModalProps>
+  bulkOperations: ModalState<BulkOperationsModalProps>;
 }
 
 /**
@@ -2114,9 +2172,9 @@ export interface CalendarModalStates {
  */
 export interface EventDetailsModalProps {
   /** Event ID */
-  eventId: string
+  eventId: string;
   /** Read-only mode */
-  readOnly?: boolean
+  readOnly?: boolean;
 }
 
 /**
@@ -2124,11 +2182,11 @@ export interface EventDetailsModalProps {
  */
 export interface EventEditModalProps {
   /** Event ID (for editing) */
-  eventId?: string
+  eventId?: string;
   /** Initial event data (for creating) */
-  initialData?: Partial<CalendarEvent>
+  initialData?: Partial<CalendarEvent>;
   /** Save callback */
-  onSave: (event: CalendarEvent) => void
+  onSave: (event: CalendarEvent) => void;
 }
 
 /**
@@ -2136,9 +2194,9 @@ export interface EventEditModalProps {
  */
 export interface ConflictResolutionModalProps {
   /** Conflicts to resolve */
-  conflicts: SessionConflict[]
+  conflicts: SessionConflict[];
   /** Resolution callback */
-  onResolve: (resolutions: ConflictResolution[]) => void
+  onResolve: (resolutions: ConflictResolution[]) => void;
 }
 
 /**
@@ -2146,11 +2204,11 @@ export interface ConflictResolutionModalProps {
  */
 export interface BulkOperationsModalProps {
   /** Selected event IDs */
-  eventIds: string[]
+  eventIds: string[];
   /** Available operations */
-  operations: BulkOperation[]
+  operations: BulkOperation[];
   /** Operation callback */
-  onOperation: (operation: BulkOperation, eventIds: string[]) => void
+  onOperation: (operation: BulkOperation, eventIds: string[]) => void;
 }
 
 /**
@@ -2158,17 +2216,17 @@ export interface BulkOperationsModalProps {
  */
 export interface BulkOperation {
   /** Operation ID */
-  id: string
+  id: string;
   /** Operation label */
-  label: string
+  label: string;
   /** Operation description */
-  description: string
+  description: string;
   /** Operation icon */
-  icon?: string
+  icon?: string;
   /** Operation confirmation required */
-  requiresConfirmation: boolean
+  requiresConfirmation: boolean;
   /** Operation handler */
-  handler: (eventIds: string[]) => Promise<void>
+  handler: (eventIds: string[]) => Promise<void>;
 }
 
 /**
@@ -2176,13 +2234,13 @@ export interface BulkOperation {
  */
 export interface ContextMenuState {
   /** Is context menu open */
-  isOpen: boolean
+  isOpen: boolean;
   /** Menu position */
-  position: { x: number; y: number }
+  position: { x: number; y: number };
   /** Target event ID */
-  targetEventId?: string
+  targetEventId?: string;
   /** Available actions */
-  actions: ContextMenuAction[]
+  actions: ContextMenuAction[];
 }
 
 /**
@@ -2190,17 +2248,17 @@ export interface ContextMenuState {
  */
 export interface ContextMenuAction {
   /** Action ID */
-  id: string
+  id: string;
   /** Action label */
-  label: string
+  label: string;
   /** Action icon */
-  icon?: string
+  icon?: string;
   /** Action handler */
-  handler: () => void
+  handler: () => void;
   /** Is action available */
-  isAvailable: boolean
+  isAvailable: boolean;
   /** Action separator (divider) */
-  separator?: boolean
+  separator?: boolean;
 }
 
 /**
@@ -2208,15 +2266,15 @@ export interface ContextMenuAction {
  */
 export interface TooltipState {
   /** Is tooltip visible */
-  visible: boolean
+  visible: boolean;
   /** Tooltip content */
-  content: string
+  content: string;
   /** Tooltip position */
-  position: { x: number; y: number }
+  position: { x: number; y: number };
   /** Target event ID */
-  targetEventId?: string
+  targetEventId?: string;
   /** Tooltip delay */
-  delay: number
+  delay: number;
 }
 
 /**
@@ -2224,24 +2282,24 @@ export interface TooltipState {
  */
 export interface CalendarSidebarState {
   /** Is sidebar open */
-  isOpen: boolean
+  isOpen: boolean;
   /** Sidebar width */
-  width: number
+  width: number;
   /** Active sidebar tab */
-  activeTab: CalendarSidebarTab
+  activeTab: CalendarSidebarTab;
   /** Available tabs */
-  tabs: CalendarSidebarTab[]
+  tabs: CalendarSidebarTab[];
 }
 
 /**
  * Calendar Sidebar Tab
  */
-export type CalendarSidebarTab = 
+export type CalendarSidebarTab =
   | 'filters'
   | 'calendars'
   | 'upcoming'
   | 'conflicts'
-  | 'statistics'
+  | 'statistics';
 
 // Export all calendar types
 export type {
@@ -2249,5 +2307,5 @@ export type {
   CalendarConfig,
   SessionConflict,
   TimeSlotManager,
-  CalendarState
-}
+  CalendarState,
+};
