@@ -36,17 +36,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 8.15.0
-          run_install: false
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8.15.0
+          run_install: false
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -80,9 +80,9 @@ jobs:
           TEST_TYPE="${{ github.event.inputs.test_type || 'all' }}"
 
           if [ "$TEST_TYPE" = "all" ]; then
-            pnpm test:e2e --project=${{ matrix.browser }}
+            pnpm test:e2e --project=${{ matrix.browser }} --reporter=html,json
           else
-            pnpm test:e2e tests/e2e/$TEST_TYPE/ --project=${{ matrix.browser }}
+            pnpm test:e2e tests/e2e/$TEST_TYPE/ --project=${{ matrix.browser }} --reporter=html,json
           fi
         env:
           CI: true
@@ -96,6 +96,7 @@ jobs:
           path: |
             test-results/
             playwright-report/
+            results.json
           retention-days: 7
 
       - name: Upload screenshots on failure
@@ -123,6 +124,7 @@ jobs:
     steps:
       - name: Download test results
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: test-results-chromium
           path: test-results/
@@ -137,25 +139,36 @@ jobs:
 
             // Check if results file exists
             try {
-              const results = JSON.parse(fs.readFileSync('test-results/results.json', 'utf8'));
-              const { stats } = results;
-              
-              comment += `### Test Summary\n`;
-              comment += `- ✅ **Passed**: ${stats.passed || 0}\n`;
-              comment += `- ❌ **Failed**: ${stats.failed || 0}\n`;
-              comment += `- ⏭️ **Skipped**: ${stats.skipped || 0}\n`;
-              comment += `- 🕐 **Duration**: ${stats.duration ? Math.round(stats.duration / 1000) : 0}s\n\n`;
-              
-              if (stats.failed > 0) {
-                comment += `### ❌ Failed Tests\n`;
-                // Add failed test details if available
-                comment += `Please check the [test report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.\n\n`;
+              const resultsPath = fs.existsSync('results.json') ? 'results.json' : 'test-results/results.json';
+              if (fs.existsSync(resultsPath)) {
+                const results = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
+                const { stats } = results;
+                
+                comment += `### Test Summary\n`;
+                comment += `- ✅ **Passed**: ${stats.passed || 0}\n`;
+                comment += `- ❌ **Failed**: ${stats.failed || 0}\n`;
+                comment += `- ⏭️ **Skipped**: ${stats.skipped || 0}\n`;
+                comment += `- 🕐 **Duration**: ${stats.duration ? Math.round(stats.duration / 1000) : 0}s\n\n`;
+                
+                if (stats.failed > 0) {
+                  comment += `### ❌ Failed Tests\n`;
+                  comment += `Please check the [test report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.\n\n`;
+                } else {
+                  comment += `### 🎉 All tests passed!\n\n`;
+                }
               } else {
-                comment += `### 🎉 All tests passed!\n\n`;
+                comment += `### ⚠️ Test Results Unavailable\n`;
+                comment += `Test results file not found. This may indicate:\n`;
+                comment += `- Tests failed to run completely\n`;
+                comment += `- Artifact upload failed\n`;
+                comment += `- Tests were skipped\n\n`;
+                comment += `Please check the [workflow logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.\n\n`;
               }
               
             } catch (error) {
-              comment += `Unable to parse test results. Please check the [workflow logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.\n\n`;
+              comment += `### ❌ Error Processing Results\n`;
+              comment += `Unable to parse test results: ${error.message}\n`;
+              comment += `Please check the [workflow logs](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.\n\n`;
             }
 
             comment += `### 📊 Reports\n`;
