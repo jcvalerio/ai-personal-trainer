@@ -963,12 +963,18 @@ export function SessionExecutionProvider({
 
         // Set proper session status based on backend session state
         const sessionStatus = session.status as string;
+        console.log('Database session status:', sessionStatus);
+        
         if (sessionStatus === 'in_progress' || sessionStatus === 'active') {
           dispatch({ type: 'RESUME_SESSION' });
         } else if (sessionStatus === 'paused') {
           dispatch({ type: 'PAUSE_SESSION' });
         } else if (sessionStatus === 'completed') {
           dispatch({ type: 'COMPLETE_SESSION' });
+        } else {
+          // For any other status (including 'pending', 'scheduled', etc.), start as active
+          console.log('Unknown session status, starting as active:', sessionStatus);
+          dispatch({ type: 'RESUME_SESSION' });
         }
       } else {
         dispatch({ type: 'SET_ERROR', payload: 'Failed to recover session' });
@@ -1022,16 +1028,20 @@ export function SessionExecutionProvider({
     }
   }, [state]);
 
-  // Load session state from localStorage on mount
+  // Load session state from localStorage on mount (only once)
   useEffect(() => {
+    let hasRecovered = false;
+    
     try {
       const savedSession = localStorage.getItem('workoutSession');
-      if (savedSession) {
+      if (savedSession && !hasRecovered) {
         const parsedSession = JSON.parse(savedSession);
         if (
           parsedSession.status === 'active' ||
           parsedSession.status === 'paused'
         ) {
+          hasRecovered = true;
+          
           // Restore session state from localStorage
           const restoredState = {
             ...parsedSession,
@@ -1055,9 +1065,11 @@ export function SessionExecutionProvider({
             }
           });
 
-          // Try to sync with backend if we have a sessionId
+          // Try to sync with backend if we have a sessionId (only once per mount)
           if (restoredState.sessionId) {
-            recoverSession(restoredState.sessionId);
+            recoverSession(restoredState.sessionId).catch(error => {
+              console.warn('Failed to recover session on mount:', error);
+            });
           }
         }
       }
@@ -1066,16 +1078,16 @@ export function SessionExecutionProvider({
       // Clear invalid session data
       localStorage.removeItem('workoutSession');
     }
-  }, [recoverSession]);
+  }, []); // Empty dependency array - run only once on mount
 
   // Auto-sync pending sets when connection is restored with exponential backoff
   useEffect(() => {
     if (state.pendingSets.length > 0 && state.sessionId) {
       let retryCount = 0;
-      const maxRetries = 5;
+      const maxRetries = 3; // Reduced max retries from 5 to 3
       
       const retrySync = () => {
-        const delay = Math.min(1000 * Math.pow(2, retryCount), 30000); // Exponential backoff, max 30s
+        const delay = Math.min(2000 * Math.pow(2, retryCount), 60000); // Increased base delay from 1s to 2s, max 60s
         
         const timeoutId = setTimeout(async () => {
           try {
@@ -1100,9 +1112,9 @@ export function SessionExecutionProvider({
       const timeoutId = retrySync();
       return () => clearTimeout(timeoutId);
     }
-  }, [state.pendingSets.length, state.sessionId, syncPendingSets, state.error]);
+  }, [state.pendingSets.length, state.sessionId]); // Removed syncPendingSets and state.error to prevent unnecessary re-runs
 
-  // Progress sync effect
+  // Progress sync effect - only sync when significant changes occur
   useEffect(() => {
     if (state.sessionId && state.status === 'active') {
       const progressSyncTimeout = setTimeout(() => {
@@ -1119,11 +1131,17 @@ export function SessionExecutionProvider({
         updateSessionProgress(state.sessionId, progressData).catch((error) => {
           console.warn('Background progress sync failed:', error);
         });
-      }, 10000); // Sync every 10 seconds
+      }, 30000); // Reduced frequency: sync every 30 seconds instead of 10
 
       return () => clearTimeout(progressSyncTimeout);
     }
-  }, [state.sessionId, state.status, state.currentExerciseIndex, state.currentSet, state.progress.setsCompleted]);
+  }, [
+    state.sessionId, 
+    state.status, 
+    state.currentExerciseIndex, 
+    state.progress.setsCompleted, // Only trigger when sets are actually completed
+    state.progress.exercisesCompleted // Only trigger when exercises are completed
+  ]); // Removed currentSet to prevent frequent updates
 
   // Network status monitoring
   useEffect(() => {

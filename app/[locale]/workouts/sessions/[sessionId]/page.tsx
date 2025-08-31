@@ -58,16 +58,37 @@ function LiveSession({ session, locale }: { session: WorkoutSession; locale: str
   const exercises = useMemo(() => mapToSessionExercises(session), [session]);
 
   useEffect(() => {
-    if (exercises.length > 0 && (!execSession || execSession.status === 'idle')) {
-      // Initialize session with proper sessionId and recovery logic
-      startSession(exercises, { keepScreenOn: true });
+    if (exercises.length > 0 && session.id) {
+      // Always attempt session recovery/initialization on load
+      const initSession = async () => {
+        try {
+          console.log('Initializing session with ID:', session.id);
+          
+          // First try to recover session from database to get current state
+          await recoverSession(session.id).catch(error => {
+            console.warn('Session recovery failed, starting fresh:', error);
+            // If recovery fails, start a new session
+            startSession(exercises, { 
+              keepScreenOn: true,
+              vibrateOnPhaseChange: true,
+              autoAdvance: false // Let user control on mobile
+            });
+          });
+          
+        } catch (error) {
+          console.error('Session initialization failed:', error);
+          // Fallback: start session even if recovery fails
+          startSession(exercises, { 
+            keepScreenOn: true,
+            vibrateOnPhaseChange: true,
+            autoAdvance: false
+          });
+        }
+      };
       
-      // Set the sessionId after starting
-      if (session.id && execSession?.sessionId !== session.id) {
-        recoverSession(session.id);
-      }
+      initSession();
     }
-  }, [exercises, execSession, startSession, recoverSession, session.id]);
+  }, [session.id, exercises.length]); // Simplified dependencies
 
   return (
     <EnhancedSessionInterface 

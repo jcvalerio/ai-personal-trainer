@@ -311,14 +311,20 @@ export function NoActiveSessionState({ onStartSession }: { onStartSession?: () =
       title="No Active Session"
       description="Start a workout session to begin tracking your progress."
       action={
-        onStartSession && (
-          <button
-            onClick={onStartSession}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Start Session
-          </button>
-        )
+        <button
+          onClick={() => {
+            // Force start session even without a specific onStartSession handler
+            if (onStartSession) {
+              onStartSession();
+            } else {
+              // Fallback: reload page to reinitialize session
+              window.location.reload();
+            }
+          }}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors touch-manipulation"
+        >
+          Start Session
+        </button>
       }
     />
   );

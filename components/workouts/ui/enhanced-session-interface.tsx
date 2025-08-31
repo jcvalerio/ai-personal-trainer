@@ -51,7 +51,7 @@ interface SetInputs {
   notes: string;
 }
 
-export function EnhancedSessionInterface({ 
+const EnhancedSessionInterface = React.memo(function EnhancedSessionInterface({ 
   className = '',
   onBack,
   onSessionComplete,
@@ -264,12 +264,18 @@ export function EnhancedSessionInterface({
     );
   }
 
-  if (session.status === 'idle') {
+  if (session.status === 'idle' && (!session.exercises || session.exercises.length === 0)) {
     return (
       <div className={className}>
         <NoActiveSessionState 
           onStartSession={() => {
-            // Could trigger session start if needed
+            // Force session to start if we have exercises but session is idle
+            if (session.exercises && session.exercises.length > 0) {
+              resumeSession();
+            } else {
+              // Reload page to reinitialize session from database
+              window.location.reload();
+            }
           }}
         />
       </div>
@@ -334,7 +340,7 @@ export function EnhancedSessionInterface({
       {/* Session Progress Header */}
       <SessionProgressHeader
         status={session.status as any}
-        title={session.sessionId || 'Workout Session'}
+        title={session.workoutPlan?.name || session.name || 'Workout Session'}
         currentExercise={{
           name: currentExercise?.name || '',
           index: session.currentExerciseIndex,
@@ -541,4 +547,6 @@ export function EnhancedSessionInterface({
       )}
     </div>
   );
-}
+});
+
+export { EnhancedSessionInterface };
