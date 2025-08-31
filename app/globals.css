@@ -94,6 +94,20 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.touch-target::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--touch-target-min);
+  height: var(--touch-target-min);
+  transform: translate(-50%, -50%);
+  border-radius: 8px;
 }
 
 /* Focus styles for accessibility */
@@ -145,7 +159,7 @@ button {
 
   /* Layout utilities */
   .container-safe {
-    @apply safe-area-left safe-area-right container mx-auto px-4;
+    @apply safe-area-left safe-area-right container mx-auto px-4 sm:px-6 lg:px-8;
   }
 
   /* Animation utilities */
@@ -161,6 +175,13 @@ button {
   .interactive {
     @apply touch-target transition-all duration-200 ease-in-out;
     @apply hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  /* Touch optimizations for mobile */
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
   }
 
   /* Status indicators */

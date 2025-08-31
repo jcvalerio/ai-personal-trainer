@@ -32,6 +32,8 @@ interface SessionCardProps {
   session: WorkoutSession;
   onStart?: (sessionId: string) => void;
   onContinue?: (sessionId: string) => void;
+  onViewResults?: (sessionId: string) => void;
+  locale?: string;
   className?: string;
 }
 
@@ -69,6 +71,8 @@ export function SessionCard({
   session,
   onStart,
   onContinue,
+  onViewResults,
+  locale = 'en',
   className,
 }: SessionCardProps) {
   const t = useTranslations('workouts');
@@ -253,7 +257,19 @@ export function SessionCard({
           )}
 
           {session.status === 'completed' && (
-            <Button variant='outline' size='sm' className='flex-1' disabled>
+            <Button
+              variant='outline'
+              size='sm'
+              className='flex-1 touch-manipulation min-h-[44px]'
+              onClick={() => {
+                if (onViewResults) {
+                  onViewResults(session.id);
+                } else {
+                  // Default navigation to results page
+                  window.location.href = `/${locale}/workouts/sessions/${session.id}/results`;
+                }
+              }}
+            >
               {t('sessions.viewResults')}
             </Button>
           )}

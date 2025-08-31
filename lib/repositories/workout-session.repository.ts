@@ -112,6 +112,20 @@ export class WorkoutSessionRepositoryImpl extends AbstractBaseRepository<Workout
    */
   protected mapFromDatabase(row: unknown): WorkoutSessionEntity {
     const dbRow = row as Record<string, unknown>;
+    
+    // Helper function to safely parse JSON fields
+    const safeJsonParse = (jsonString: unknown, defaultValue: any = null) => {
+      if (!jsonString || typeof jsonString !== 'string') {
+        return defaultValue;
+      }
+      try {
+        return JSON.parse(jsonString);
+      } catch (error) {
+        console.warn(`Failed to parse JSON: ${jsonString}`, error);
+        return defaultValue;
+      }
+    };
+    
     return {
       id: dbRow.id as string,
       userId: dbRow.user_id as string,
@@ -125,16 +139,16 @@ export class WorkoutSessionRepositoryImpl extends AbstractBaseRepository<Workout
       startedAt: dbRow.started_at ? new Date(dbRow.started_at as string) : undefined,
       completedAt: dbRow.completed_at ? new Date(dbRow.completed_at as string) : undefined,
       actualDuration: dbRow.actual_duration as number | undefined,
-      sessionData: JSON.parse(dbRow.session_data as string) as SessionData,
-      warmUpExercises: JSON.parse(dbRow.warm_up_exercises as string) as any[],
-      mainExercises: JSON.parse(dbRow.main_exercises as string) as any[],
-      coolDownExercises: JSON.parse(dbRow.cool_down_exercises as string) as any[],
+      sessionData: safeJsonParse(dbRow.session_data, {}) as SessionData,
+      warmUpExercises: safeJsonParse(dbRow.warm_up_exercises, []) as any[],
+      mainExercises: safeJsonParse(dbRow.main_exercises, []) as any[],
+      coolDownExercises: safeJsonParse(dbRow.cool_down_exercises, []) as any[],
       completionPercentage: dbRow.completion_percentage as number,
       effortRating: dbRow.effort_rating as number | undefined,
       energyLevelBefore: dbRow.energy_level_before as number | undefined,
       energyLevelAfter: dbRow.energy_level_after as number | undefined,
       status: dbRow.status as WorkoutSession['status'],
-      equipmentUsed: JSON.parse(dbRow.equipment_used as string) as string[],
+      equipmentUsed: safeJsonParse(dbRow.equipment_used, []) as string[],
       gymLocation: dbRow.gym_location as string | undefined,
       userNotes: dbRow.user_notes as string | undefined,
       aiFeedback: dbRow.ai_feedback as string | undefined,

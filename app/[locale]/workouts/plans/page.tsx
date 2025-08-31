@@ -5,8 +5,9 @@
 
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { UserButton } from '@clerk/nextjs';
 import { Dumbbell, Plus, Search, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,9 @@ import {
 } from '@/components/ui/select';
 import { WorkoutCard } from '@/components/workouts/workout-card';
 import { Card, CardContent } from '@/components/ui/card';
+import { createWorkoutSession } from '@/lib/api/workout-sessions';
+import { createLocalizedPath } from '@/lib/localized-navigation';
+import type { CreateWorkoutSessionRequest } from '@/types/workouts';
 
 // Mock data for demonstration
 const mockPlans = [
@@ -114,10 +118,49 @@ const mockPlans = [
   },
 ];
 
+interface PageProps {
+  params: Promise<{ locale: string }>;
+}
+
 export default function WorkoutPlansPage() {
-  const handleStartWorkout = useCallback((workoutId: string) => {
-    console.log('Starting workout:', workoutId);
-  }, []);
+  const router = useRouter();
+  const [isCreatingSession, setIsCreatingSession] = useState(false);
+  const [sessionError, setSessionError] = useState<string | null>(null);
+
+  const handleStartWorkout = useCallback(async (workoutId: string) => {
+    if (isCreatingSession) return;
+    
+    setIsCreatingSession(true);
+    setSessionError(null);
+
+    try {
+      // Create a workout session for this plan
+      const sessionPayload: CreateWorkoutSessionRequest = {
+        planId: workoutId,
+        type: 'planned',
+        scheduledDate: new Date().toISOString(),
+        templateId: undefined, // Will use default plan structure
+        customExercises: [],
+        sessionNotes: `Quick start session for plan ${workoutId}`,
+        targetDuration: 60, // Default 60 minutes
+      };
+
+      const response = await createWorkoutSession(sessionPayload);
+
+      if (response.success && response.data) {
+        // Navigate to the session execution page
+        const sessionPath = createLocalizedPath(`workouts/sessions/${response.data.id}`, 'en');
+        router.push(sessionPath);
+      } else {
+        setSessionError(response.error || 'Failed to create workout session');
+        setIsCreatingSession(false);
+      }
+    } catch (error) {
+      console.error('Error creating workout session:', error);
+      setSessionError('Failed to start workout. Please try again.');
+      setIsCreatingSession(false);
+    }
+  }, [router, isCreatingSession]);
 
   const activePlans = mockPlans.filter((plan) => plan.status === 'active');
   const draftPlans = mockPlans.filter((plan) => plan.status === 'draft');
@@ -290,6 +333,8 @@ export default function WorkoutPlansPage() {
                   workout={plan}
                   onStart={handleStartWorkout}
                   showProgress
+                  isCreatingSession={isCreatingSession}
+                  sessionError={sessionError}
                 />
               ))}
             </div>

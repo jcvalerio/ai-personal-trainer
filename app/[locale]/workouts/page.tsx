@@ -62,26 +62,49 @@ export default function WorkoutsPage({ params }: WorkoutsPageProps) {
         return;
       }
 
-      // Check if plan has templates
-      const templates = plan.planData?.templates || [];
-      if (templates.length === 0) {
-        // Navigate to plan details for template creation
-        const planPath = createLocalizedPath(`workouts/plans/${workoutId}`, locale as 'en' | 'es');
-        router.push(planPath);
-        return;
-      }
-
-      // Create session with first available template
-      const template = templates[0];
       const today = new Date();
+      const templates = plan.planData?.templates || [];
       
-      const createRequest = {
-        name: `${template.name} - ${today.toLocaleDateString()}`,
-        workoutPlanId: workoutId,
-        scheduledDate: today.toISOString(),
-        sessionData: template,
-        scheduledDuration: template.estimatedDuration || 60,
-      };
+      let createRequest;
+      
+      if (templates.length > 0) {
+        // Use existing template
+        const template = templates[0];
+        createRequest = {
+          name: `${template.name} - ${today.toLocaleDateString()}`,
+          workoutPlanId: workoutId,
+          scheduledDate: today.toISOString(),
+          scheduledDuration: template.estimatedDuration || 60,
+          sessionData: {
+            difficultyLevel: template.difficulty || plan.targetFitnessLevel || 'intermediate',
+            targetMuscleGroups: template.targetMuscleGroups || plan.fitnessGoals || ['general_fitness'],
+            totalExercises: template.exerciseStructure?.length || 6,
+            estimatedDuration: template.estimatedDuration || 60,
+            equipmentNeeded: template.equipmentRequired || [],
+          },
+          warmUpExercises: [],
+          mainExercises: [],
+          coolDownExercises: [],
+        };
+      } else {
+        // Create basic session without template
+        createRequest = {
+          name: `${plan.name} Workout - ${today.toLocaleDateString()}`,
+          workoutPlanId: workoutId,
+          scheduledDate: today.toISOString(),
+          scheduledDuration: plan.estimatedSessionDuration || 60,
+          sessionData: {
+            difficultyLevel: plan.targetFitnessLevel || 'intermediate',
+            targetMuscleGroups: plan.fitnessGoals || ['general_fitness'],
+            totalExercises: 6, // Default number of exercises
+            estimatedDuration: plan.estimatedSessionDuration || 60,
+            equipmentNeeded: [],
+          },
+          warmUpExercises: [],
+          mainExercises: [],
+          coolDownExercises: [],
+        };
+      }
 
       const response = await createWorkoutSession(createRequest);
 

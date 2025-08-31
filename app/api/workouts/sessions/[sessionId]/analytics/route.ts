@@ -17,7 +17,7 @@ import { sessionAnalyticsQuerySchema } from '@/lib/validation/workout-schemas';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { sessionId: string } }
+  { params }: { params: Promise<{ sessionId: string }> }
 ): Promise<NextResponse> {
   const startTime = Date.now();
 
@@ -31,8 +31,8 @@ export async function GET(
       );
     }
 
-    // Validate route parameters
-    const sessionId = params.sessionId;
+    // Await params before using (Next.js 15 requirement)
+    const { sessionId } = await params;
     if (!sessionId) {
       return NextResponse.json(
         { success: false, error: 'Missing session ID', code: 'INVALID_PARAMS' },
@@ -142,6 +142,7 @@ export async function GET(
   } catch (error) {
     console.error('Error generating session analytics:', error);
     const authResult = await auth();
+    const { sessionId: sessionIdForError } = await params;
     await logAuthEvent(
       'session_analytics_failed',
       'security',
@@ -150,7 +151,7 @@ export async function GET(
       authResult.orgId || undefined,
       { 
         error: (error as Error).message,
-        sessionId: params.sessionId,
+        sessionId: sessionIdForError,
       }
     );
 

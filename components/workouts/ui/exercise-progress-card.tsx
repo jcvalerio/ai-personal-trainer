@@ -16,6 +16,8 @@ import {
   MoreHorizontal,
   Edit3,
 } from 'lucide-react';
+import { SmartSetInput } from './smart-set-input';
+import { TouchButton } from '@/components/ui/touch-button';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -79,7 +81,7 @@ export interface ExerciseProgressCardProps {
   className?: string;
 }
 
-export function ExerciseProgressCard({
+export const ExerciseProgressCard = React.memo(function ExerciseProgressCard({
   name,
   description,
   currentSet,
@@ -116,8 +118,40 @@ export function ExerciseProgressCard({
     onInputChange(field, newValue.toString());
   };
 
-  // Check if set can be completed
-  const canCompleteSet = currentInputs.reps || currentInputs.weight || currentInputs.duration || currentInputs.distance;
+  // Enhanced validation for set completion with NaN protection
+  const canCompleteSet = () => {
+    const parseNumber = (value: string | undefined, isInteger = false): number | null => {
+      if (!value || value.trim() === '') return null;
+      const num = isInteger ? parseInt(value) : parseFloat(value);
+      return !isNaN(num) && num > 0 ? num : null;
+    };
+
+    // Get validated numeric values
+    const validReps = parseNumber(currentInputs.reps, true);
+    const validWeight = parseNumber(currentInputs.weight);
+    const validDuration = parseNumber(currentInputs.duration, true);
+    const validDistance = parseNumber(currentInputs.distance);
+    
+    // For weight exercises, require both weight and reps
+    if (targets.weight && targets.weight > 0) {
+      return validReps !== null && validWeight !== null;
+    }
+    
+    // For duration exercises, require duration
+    if (targets.duration && targets.duration > 0) {
+      return validDuration !== null;
+    }
+    
+    // For distance exercises, require distance
+    if (targets.distance && targets.distance > 0) {
+      return validDistance !== null;
+    }
+    
+    // Default: just need reps
+    return validReps !== null;
+  };
+  
+  const isSetComplete = canCompleteSet();
 
   return (
     <Card 
@@ -223,89 +257,38 @@ export function ExerciseProgressCard({
             </div>
           )}
 
-          {/* Current Set Input Form */}
+          {/* Smart Set Input Form */}
           {!isResting && isActive && (
-            <div className="space-y-4">
+            <div className="space-y-6">
               <Separator />
-              <h4 className="font-medium">Log Current Set</h4>
+              <h4 className="font-medium text-lg">Log Current Set</h4>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Weight Input */}
-                <div className="space-y-2">
-                  <Label htmlFor="weight" className="text-sm font-medium">
-                    Weight ({weightUnit})
-                  </Label>
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => adjustValue('weight', -5)}
-                      disabled={!currentInputs.weight || parseFloat(currentInputs.weight) <= 0}
-                      className="min-w-[44px] min-h-[44px] p-0"
-                      aria-label="Decrease weight by 5"
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <Input
-                      id="weight"
-                      type="number"
-                      value={currentInputs.weight}
-                      onChange={(e) => onInputChange('weight', e.target.value)}
-                      placeholder="0"
-                      className="text-center"
-                      inputMode="decimal"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => adjustValue('weight', 5)}
-                      className="min-w-[44px] min-h-[44px] p-0"
-                      aria-label="Increase weight by 5"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
+              <div className="space-y-6">
+                {/* Smart Weight Input */}
+                <div>
+                  <h5 className="text-sm font-medium mb-3">Weight ({weightUnit})</h5>
+                  <SmartSetInput
+                    type="weight"
+                    value={currentInputs.weight}
+                    unit={weightUnit}
+                    target={targets.weight}
+                    previousSets={completedSets}
+                    exerciseHistory={[]}
+                    onChange={(value) => onInputChange('weight', value)}
+                  />
                 </div>
 
-                {/* Reps Input */}
-                <div className="space-y-2">
-                  <Label htmlFor="reps" className="text-sm font-medium">
-                    Reps
-                  </Label>
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => adjustValue('reps', -1)}
-                      disabled={!currentInputs.reps || parseInt(currentInputs.reps) <= 0}
-                      className="min-w-[44px] min-h-[44px] p-0"
-                      aria-label="Decrease reps by 1"
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <Input
-                      id="reps"
-                      type="number"
-                      value={currentInputs.reps}
-                      onChange={(e) => onInputChange('reps', e.target.value)}
-                      placeholder="0"
-                      className="text-center"
-                      inputMode="numeric"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => adjustValue('reps', 1)}
-                      className="min-w-[44px] min-h-[44px] p-0"
-                      aria-label="Increase reps by 1"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
+                {/* Smart Reps Input */}
+                <div>
+                  <h5 className="text-sm font-medium mb-3">Reps</h5>
+                  <SmartSetInput
+                    type="reps"
+                    value={currentInputs.reps}
+                    target={targets.reps}
+                    previousSets={completedSets}
+                    exerciseHistory={[]}
+                    onChange={(value) => onInputChange('reps', value)}
+                  />
                 </div>
 
                 {/* Duration Input (if relevant) */}
@@ -320,6 +303,7 @@ export function ExerciseProgressCard({
                       value={currentInputs.duration}
                       onChange={(e) => onInputChange('duration', e.target.value)}
                       placeholder="0"
+                      className="text-center text-lg font-semibold min-h-[60px] border-2 border-gray-300 focus:border-blue-500"
                       inputMode="numeric"
                     />
                   </div>
@@ -337,6 +321,7 @@ export function ExerciseProgressCard({
                       value={currentInputs.distance}
                       onChange={(e) => onInputChange('distance', e.target.value)}
                       placeholder="0"
+                      className="text-center text-lg font-semibold min-h-[60px] border-2 border-gray-300 focus:border-blue-500"
                       inputMode="decimal"
                     />
                   </div>
@@ -352,31 +337,43 @@ export function ExerciseProgressCard({
                   id="notes"
                   value={currentInputs.notes}
                   onChange={(e) => onInputChange('notes', e.target.value)}
-                  placeholder="Add notes about this set..."
-                  className="w-full"
+                  placeholder="How did this set feel?"
+                  className="w-full min-h-[48px]"
                 />
               </div>
 
-              {/* Action Buttons */}
+              {/* Enhanced Action Buttons */}
               <div className="flex space-x-3">
-                <Button
+                <TouchButton
                   onClick={onCompleteSet}
-                  disabled={!canCompleteSet}
-                  className="flex-1 min-h-[48px] touch-manipulation"
-                  size="lg"
+                  disabled={!isSetComplete}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold disabled:bg-gray-300 disabled:text-gray-500"
+                  touchSize="xl"
                 >
-                  <CheckCircle2 className="mr-2 h-5 w-5" />
-                  Complete Set
-                </Button>
+                  <CheckCircle2 className="mr-2 h-6 w-6" />
+                  Complete Set {currentSet}
+                  {(() => {
+                    const weight = parseFloat(currentInputs.weight || '0');
+                    const reps = parseInt(currentInputs.reps || '0');
+                    
+                    if (!isNaN(weight) && weight > 0 && !isNaN(reps) && reps > 0) {
+                      return (
+                        <span className="ml-2 text-green-100">({weight} {weightUnit} × {reps})</span>
+                      );
+                    }
+                    return null;
+                  })()}
+                </TouchButton>
                 
                 {onSkipSet && (
-                  <Button
+                  <TouchButton
                     variant="outline"
                     onClick={onSkipSet}
-                    className="min-h-[48px] touch-manipulation"
+                    touchSize="xl"
+                    className="border-gray-300 hover:bg-gray-50"
                   >
-                    Skip Set
-                  </Button>
+                    Skip
+                  </TouchButton>
                 )}
               </div>
             </div>
@@ -428,4 +425,4 @@ export function ExerciseProgressCard({
       )}
     </Card>
   );
-}
+});

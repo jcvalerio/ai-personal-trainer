@@ -8,6 +8,7 @@ import { ErrorBoundary } from '@/components/providers/error-boundary';
 //   ServiceWorkerUpdatePrompt,
 // } from '@/components/providers/service-worker-provider';
 import { OfflineIndicator } from '@/components/ui/offline-indicator';
+import { DebugVersionInfo } from '@/components/ui/version-indicator';
 
 import './globals.css';
 
@@ -203,7 +204,7 @@ export default function RootLayout({
 
                 {/* Development tools - only in development */}
                 {process.env.NODE_ENV === 'development' && (
-                  <div className='fixed bottom-4 right-4 z-50'>
+                  <div className='fixed bottom-4 right-4 z-50 flex flex-col gap-2'>
                     <div className='rounded bg-black/80 px-2 py-1 text-xs text-white'>
                       <span className='block sm:hidden'>XS</span>
                       <span className='hidden sm:block md:hidden'>SM</span>
@@ -214,6 +215,9 @@ export default function RootLayout({
                     </div>
                   </div>
                 )}
+
+                {/* Version indicator - always visible */}
+                <DebugVersionInfo />
               </div>
             </ErrorBoundary>
           </ReactQueryProvider>

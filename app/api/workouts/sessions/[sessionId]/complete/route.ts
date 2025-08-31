@@ -72,21 +72,47 @@ export async function POST(
 
       const completionData = validationResult.data;
 
-      // Return mock success response for development
+      // For development mode, still update the database but use a mock user context
+      const workoutService = new WorkoutService();
+      const devServiceContext = {
+        userId: 'dev-user', // Mock user ID for development
+        organizationId: undefined,
+        userAgent: request.headers.get('user-agent') || undefined,
+        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
+      };
+
+      // Actually complete the session in the database
+      const result = await workoutService.completeWorkoutSession(
+        sessionId,
+        completionData,
+        devServiceContext
+      );
+
+      if (!result.success) {
+        const statusCode = 
+          result.code === 'NOT_FOUND' ? 404 :
+          result.code === 'UNAUTHORIZED' ? 403 :
+          result.code === 'INVALID_STATE' ? 409 :
+          result.code === 'VALIDATION_ERROR' ? 400 :
+          500;
+
+        return NextResponse.json(
+          {
+            success: false,
+            error: result.message,
+            code: result.code,
+            mode: 'development',
+          },
+          { status: statusCode }
+        );
+      }
+
       return NextResponse.json(
         {
           success: true,
           message: 'Workout session completed successfully (development mode)',
           data: {
-            id: sessionId,
-            status: 'completed',
-            completedAt: new Date().toISOString(),
-            effortRating: completionData.effortRating,
-            energyLevelAfter: completionData.energyLevelAfter,
-            userNotes: completionData.userNotes,
-            totalVolume: completionData.totalVolume,
-            exercisesCompleted: completionData.exercisesCompleted,
-            setsCompleted: completionData.setsCompleted,
+            ...result.data,
             mode: 'development'
           },
         },

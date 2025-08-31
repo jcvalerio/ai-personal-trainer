@@ -24,6 +24,8 @@ interface WorkoutCardProps {
   onStart?: (workoutId: string) => void;
   showProgress?: boolean;
   className?: string;
+  isCreatingSession?: boolean;
+  sessionError?: string | null;
 }
 
 function getStatusColor(status: string) {
@@ -59,6 +61,8 @@ export function WorkoutCard({
   onStart,
   showProgress = false,
   className,
+  isCreatingSession = false,
+  sessionError = null,
 }: WorkoutCardProps) {
   const progress = showProgress ? Math.floor(Math.random() * 100) : 0; // Mock progress for now
 
@@ -136,18 +140,32 @@ export function WorkoutCard({
       </CardContent>
 
       <CardFooter className='pt-0'>
-        <div className='flex w-full gap-2'>
-          <Button asChild variant='outline' size='sm' className='flex-1'>
-            <Link href={`/workouts/plans/${workout.id}`}>View Details</Link>
-          </Button>
-          {workout.status === 'active' && onStart && (
-            <Button
-              size='sm'
-              className='flex-1'
-              onClick={() => onStart(workout.id)}
-            >
-              Start Workout
+        <div className='flex w-full flex-col gap-2'>
+          <div className='flex w-full gap-2'>
+            <Button asChild variant='outline' className='flex-1 min-h-[44px] touch-manipulation'>
+              <Link href={`/workouts/plans/${workout.id}`}>View Details</Link>
             </Button>
+            {workout.status === 'active' && onStart && (
+              <Button
+                className='flex-1 min-h-[44px] touch-manipulation'
+                onClick={() => onStart(workout.id)}
+                disabled={isCreatingSession}
+              >
+                {isCreatingSession ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 mr-2 border-b-2 border-white"></div>
+                    Starting...
+                  </>
+                ) : (
+                  'Start Workout'
+                )}
+              </Button>
+            )}
+          </div>
+          {sessionError && (
+            <p className="text-xs text-red-600 px-2">
+              {sessionError}
+            </p>
           )}
         </div>
       </CardFooter>

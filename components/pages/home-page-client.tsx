@@ -48,15 +48,15 @@ export default function HomePageClient({ locale }: HomePageClientProps) {
   return (
     <div className='flex flex-col'>
       {/* Navigation Bar */}
-      <nav className='sticky top-0 z-40 border-b border-gray-200 bg-white/80 backdrop-blur-sm'>
+      <nav className='sticky top-0 z-40 border-b border-gray-200/50 bg-white/80 backdrop-blur-md shadow-sm'>
         <div className='container-safe'>
-          <div className='flex h-16 items-center justify-between'>
+          <div className='flex h-16 items-center justify-between min-w-0'>
             {/* Logo */}
-            <div className='flex items-center space-x-2'>
-              <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-primary-500'>
+            <div className='flex items-center space-x-3 pl-2'>
+              <div className='flex h-8 w-8 items-center justify-center rounded-lg bg-primary-500 shadow-sm'>
                 <span className='text-sm font-bold text-white'>AI</span>
               </div>
-              <span className='text-lg font-semibold text-gray-900'>
+              <span className='text-lg font-semibold text-gray-900 truncate'>
                 {t('nav.brand')}
               </span>
             </div>
@@ -95,24 +95,25 @@ export default function HomePageClient({ locale }: HomePageClientProps) {
             )}
 
             {/* Mobile menu button */}
-            <div className='flex items-center space-x-2 sm:hidden'>
+            <div className='flex items-center space-x-3 pr-2 sm:hidden'>
               <LanguageSelector currentLocale={locale} />
               <button
-                className='touch-target'
+                className='touch-target relative rounded-md border border-gray-200 bg-white/80 p-2 text-gray-700 shadow-sm transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 active:bg-gray-100'
                 onClick={() => setShowMobileMenu(!showMobileMenu)}
                 aria-label={t('nav.toggleMenu')}
+                aria-expanded={showMobileMenu}
               >
-                <span className='sr-only'>{t('nav.openMenu')}</span>
+                <span className='sr-only'>{showMobileMenu ? t('nav.closeMenu') : t('nav.openMenu')}</span>
                 <svg
-                  className='h-6 w-6'
+                  className='h-6 w-6 transition-transform duration-200'
                   fill='none'
                   viewBox='0 0 24 24'
                   stroke='currentColor'
+                  strokeWidth={2}
                 >
                   <path
                     strokeLinecap='round'
                     strokeLinejoin='round'
-                    strokeWidth={2}
                     d={
                       showMobileMenu
                         ? 'M6 18L18 6M6 6l12 12'
