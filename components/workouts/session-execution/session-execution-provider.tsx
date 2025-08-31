@@ -965,14 +965,15 @@ export function SessionExecutionProvider({
         const sessionStatus = session.status as string;
         console.log('Database session status:', sessionStatus);
         
-        if (sessionStatus === 'in_progress' || sessionStatus === 'active') {
+        if (sessionStatus === 'in_progress' || sessionStatus === 'active' || sessionStatus === 'scheduled') {
+          // Treat 'scheduled' sessions as active for immediate execution
           dispatch({ type: 'RESUME_SESSION' });
         } else if (sessionStatus === 'paused') {
           dispatch({ type: 'PAUSE_SESSION' });
         } else if (sessionStatus === 'completed') {
           dispatch({ type: 'COMPLETE_SESSION' });
         } else {
-          // For any other status (including 'pending', 'scheduled', etc.), start as active
+          // For any other status (including 'pending', etc.), start as active
           console.log('Unknown session status, starting as active:', sessionStatus);
           dispatch({ type: 'RESUME_SESSION' });
         }
