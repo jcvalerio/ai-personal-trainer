@@ -8,8 +8,8 @@ import { useTranslations } from 'next-intl';
 import { Target, Clock, Calendar, TrendingUp, AlertCircle } from 'lucide-react';
 
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -18,16 +18,13 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+// Removed Selects in favor of shared sliders
 
 import type { CustomPlanFormData } from '@/types/workouts';
 import type { FitnessLevel } from '@/types';
+import { FitnessLevelSelector } from '@/components/workouts/ui/fitness-level-selector';
+import { FitnessGoalsSelector } from '@/components/workouts/ui/fitness-goals-selector';
+import { ScheduleSliders } from '@/components/workouts/ui/schedule-sliders';
 
 interface PlanBasicsStepProps {
   data: CustomPlanFormData;
@@ -45,11 +42,20 @@ const FITNESS_GOALS = [
   'general_fitness',
 ];
 
+const FITNESS_GOALS_DEFS: Record<string, { icon?: string }> = {
+  strength: { icon: '🏋️' },
+  muscle_gain: { icon: '💪' },
+  fat_loss: { icon: '⚖️' },
+  cardio: { icon: '❤️‍🔥' },
+  endurance: { icon: '🏃' },
+  flexibility: { icon: '🧘' },
+  sports_performance: { icon: '🏅' },
+  general_fitness: { icon: '✨' },
+};
+
 const FITNESS_LEVELS: FitnessLevel[] = ['beginner', 'intermediate', 'advanced'];
 
-const DURATION_OPTIONS = [2, 4, 6, 8, 12, 16, 20];
-const SESSION_OPTIONS = [2, 3, 4, 5, 6, 7];
-const DURATION_OPTIONS_MINUTES = [30, 45, 60, 75, 90, 105, 120];
+// Prior discrete options replaced by slider ranges
 
 export function PlanBasicsStep({ data, onUpdate }: PlanBasicsStepProps) {
   const t = useTranslations('createPlan.steps.basics');
@@ -67,8 +73,11 @@ export function PlanBasicsStep({ data, onUpdate }: PlanBasicsStepProps) {
     }
   }
 
-  function handleInputChange(field: keyof CustomPlanFormData, value: any) {
-    onUpdate({ [field]: value });
+  function handleInputChange<K extends keyof CustomPlanFormData>(
+    field: K,
+    value: CustomPlanFormData[K]
+  ) {
+    onUpdate({ [field]: value } as Partial<CustomPlanFormData>);
   }
 
   const totalWeeklyHours =
@@ -102,12 +111,11 @@ export function PlanBasicsStep({ data, onUpdate }: PlanBasicsStepProps) {
           >
             {t('fields.description.label')}
           </Label>
-          <textarea
+          <Textarea
             id='description'
             value={data.description}
             onChange={(e) => handleInputChange('description', e.target.value)}
             placeholder={t('fields.description.placeholder')}
-            className='w-full resize-none rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-600'
             rows={3}
           />
           <p className='text-sm text-gray-500'>
@@ -126,81 +134,43 @@ export function PlanBasicsStep({ data, onUpdate }: PlanBasicsStepProps) {
           <CardDescription>{t('programConfig.description')}</CardDescription>
         </CardHeader>
         <CardContent className='space-y-6'>
-          <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-            {/* Duration */}
-            <div className='space-y-2'>
-              <Label className='text-sm font-medium text-gray-900'>
-                {t('fields.duration.label')} *
-              </Label>
-              <Select
-                value={data.durationWeeks.toString()}
-                onValueChange={(value) =>
-                  handleInputChange('durationWeeks', parseInt(value))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {DURATION_OPTIONS.map((weeks) => (
-                    <SelectItem key={weeks} value={weeks.toString()}>
-                      {t('fields.duration.weeks', { count: weeks })}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Sessions per week */}
-            <div className='space-y-2'>
-              <Label className='text-sm font-medium text-gray-900'>
-                {t('fields.sessionsPerWeek.label')} *
-              </Label>
-              <Select
-                value={data.sessionsPerWeek.toString()}
-                onValueChange={(value) =>
-                  handleInputChange('sessionsPerWeek', parseInt(value))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SESSION_OPTIONS.map((sessions) => (
-                    <SelectItem key={sessions} value={sessions.toString()}>
-                      {t('fields.sessionsPerWeek.sessions', {
-                        count: sessions,
-                      })}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Session duration */}
-            <div className='space-y-2'>
-              <Label className='text-sm font-medium text-gray-900'>
-                {t('fields.sessionDuration.label')}
-              </Label>
-              <Select
-                value={data.estimatedSessionDuration.toString()}
-                onValueChange={(value) =>
-                  handleInputChange('estimatedSessionDuration', parseInt(value))
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {DURATION_OPTIONS_MINUTES.map((minutes) => (
-                    <SelectItem key={minutes} value={minutes.toString()}>
-                      {t('fields.sessionDuration.minutes', { count: minutes })}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          {/* Unified, mobile-friendly sliders */}
+          <ScheduleSliders
+            weeks={{
+              value: data.durationWeeks,
+              onChange: (val) => handleInputChange('durationWeeks', val),
+              label: `${t('fields.duration.label')} * — ${t('fields.duration.weeks', { count: data.durationWeeks })}`,
+              min: 2,
+              max: 20,
+              step: 1,
+              minLabel: t('fields.duration.weeks', { count: 2 }),
+              maxLabel: t('fields.duration.weeks', { count: 20 }),
+              marks: [2, 4, 6, 8, 12, 16, 20],
+            }}
+            daysPerWeek={{
+              value: data.sessionsPerWeek,
+              onChange: (val) => handleInputChange('sessionsPerWeek', val),
+              label: `${t('fields.sessionsPerWeek.label')} * — ${t('fields.sessionsPerWeek.sessions', { count: data.sessionsPerWeek })}`,
+              min: 2,
+              max: 7,
+              step: 1,
+              minLabel: t('fields.sessionsPerWeek.sessions', { count: 2 }),
+              maxLabel: t('fields.sessionsPerWeek.sessions', { count: 7 }),
+              marks: [2, 3, 4, 5, 6, 7],
+            }}
+            minutes={{
+              value: data.estimatedSessionDuration,
+              onChange: (val) =>
+                handleInputChange('estimatedSessionDuration', val),
+              label: `${t('fields.sessionDuration.label')} — ${t('fields.sessionDuration.minutes', { count: data.estimatedSessionDuration })}`,
+              min: 30,
+              max: 120,
+              step: 15,
+              minLabel: t('fields.sessionDuration.minutes', { count: 30 }),
+              maxLabel: t('fields.sessionDuration.minutes', { count: 120 }),
+              marks: [30, 45, 60, 75, 90, 105, 120],
+            }}
+          />
 
           {/* Program Overview */}
           <div className='rounded-lg bg-blue-50 p-4'>
@@ -256,29 +226,16 @@ export function PlanBasicsStep({ data, onUpdate }: PlanBasicsStepProps) {
           <CardDescription>{t('fitnessGoals.description')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className='grid grid-cols-2 gap-3 md:grid-cols-4'>
-            {FITNESS_GOALS.map((goal) => {
-              const isSelected = data.fitnessGoals.includes(goal);
-              return (
-                <Button
-                  key={goal}
-                  variant={isSelected ? 'default' : 'outline'}
-                  size='sm'
-                  onClick={() => toggleGoal(goal)}
-                  className='h-auto justify-start px-4 py-3'
-                >
-                  <div className='text-left'>
-                    <div className='font-medium'>
-                      {t(`fitnessGoals.options.${goal}.name`)}
-                    </div>
-                    <div className='mt-0.5 text-xs opacity-80'>
-                      {t(`fitnessGoals.options.${goal}.description`)}
-                    </div>
-                  </div>
-                </Button>
-              );
-            })}
-          </div>
+          <FitnessGoalsSelector
+            selected={data.fitnessGoals}
+            onToggle={toggleGoal}
+            options={FITNESS_GOALS.map((goal) => ({
+              id: goal,
+              label: t(`fitnessGoals.options.${goal}.name`),
+              description: t(`fitnessGoals.options.${goal}.description`),
+              icon: FITNESS_GOALS_DEFS[goal]?.icon,
+            }))}
+          />
           {data.fitnessGoals.length === 0 && (
             <div className='mt-4 flex items-center rounded-lg bg-amber-50 p-3 text-sm text-amber-700'>
               <AlertCircle className='mr-2 h-4 w-4' />
@@ -298,28 +255,17 @@ export function PlanBasicsStep({ data, onUpdate }: PlanBasicsStepProps) {
           <CardDescription>{t('fitnessLevel.description')}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
-            {FITNESS_LEVELS.map((level) => {
-              const isSelected = data.targetFitnessLevel === level;
-              return (
-                <Button
-                  key={level}
-                  variant={isSelected ? 'default' : 'outline'}
-                  onClick={() => handleInputChange('targetFitnessLevel', level)}
-                  className='h-auto justify-start p-4 text-left'
-                >
-                  <div>
-                    <div className='mb-1 font-medium'>
-                      {t(`fitnessLevel.levels.${level}.name`)}
-                    </div>
-                    <div className='text-xs opacity-80'>
-                      {t(`fitnessLevel.levels.${level}.description`)}
-                    </div>
-                  </div>
-                </Button>
-              );
-            })}
-          </div>
+          <FitnessLevelSelector
+            value={data.targetFitnessLevel}
+            onChange={(level) =>
+              handleInputChange('targetFitnessLevel', level as FitnessLevel)
+            }
+            options={FITNESS_LEVELS.map((level) => ({
+              id: level,
+              name: t(`fitnessLevel.levels.${level}.name`),
+              description: t(`fitnessLevel.levels.${level}.description`),
+            }))}
+          />
         </CardContent>
       </Card>
 

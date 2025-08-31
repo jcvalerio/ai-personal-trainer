@@ -10,7 +10,6 @@ import { Calendar } from 'lucide-react';
 
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
@@ -25,10 +24,10 @@ interface WeeklyScheduleStepProps {
 }
 
 export function WeeklyScheduleStep({
-  data,
-  onUpdate,
+  data: _data,
+  onUpdate: _onUpdate,
 }: WeeklyScheduleStepProps) {
-  const t = useTranslations('createPlan.steps.schedule');
+  const t = useTranslations('createPlan.schedule');
 
   return (
     <div className='space-y-6'>

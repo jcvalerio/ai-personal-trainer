@@ -72,27 +72,6 @@ export function SessionInterface({ className = '' }: SessionInterfaceProps) {
   const [isRestPeriod, setIsRestPeriod] = useState(false);
   const [restTimeRemaining, setRestTimeRemaining] = useState(0);
 
-  // Check if session is active
-  if (!session || session.status === 'idle') {
-    return (
-      <Card className={className}>
-        <CardContent className='p-8 text-center'>
-          <div className='mb-4 text-gray-500'>
-            <Clock className='mx-auto mb-2 h-12 w-12' />
-            <p>{t('noActiveSession')}</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Check if we need to show Tabata timer
-  const shouldShowTimer =
-    currentExercise &&
-    (currentExercise.timerConfig?.protocol === 'tabata' ||
-      currentExercise.timerConfig?.protocol === 'emom' ||
-      currentExercise.timerConfig?.protocol === 'amrap');
-
   // Handle set completion
   const handleCompleteSet = useCallback(() => {
     if (!currentExercise) {
@@ -145,6 +124,26 @@ export function SessionInterface({ className = '' }: SessionInterfaceProps) {
     [updateTimer]
   );
 
+  // Quick weight adjustments
+  const adjustWeight = useCallback(
+    (delta: number) => {
+      const currentWeight = parseFloat(setInputs.weight) || 0;
+      const newWeight = Math.max(0, currentWeight + delta);
+      setSetInputs((prev) => ({ ...prev, weight: newWeight.toString() }));
+    },
+    [setInputs.weight]
+  );
+
+  // Quick rep adjustments
+  const adjustReps = useCallback(
+    (delta: number) => {
+      const currentReps = parseInt(setInputs.reps) || 0;
+      const newReps = Math.max(0, currentReps + delta);
+      setSetInputs((prev) => ({ ...prev, reps: newReps.toString() }));
+    },
+    [setInputs.reps]
+  );
+
   // Rest timer countdown
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -168,25 +167,26 @@ export function SessionInterface({ className = '' }: SessionInterfaceProps) {
     };
   }, [isRestPeriod, restTimeRemaining]);
 
-  // Quick weight adjustments
-  const adjustWeight = useCallback(
-    (delta: number) => {
-      const currentWeight = parseFloat(setInputs.weight) || 0;
-      const newWeight = Math.max(0, currentWeight + delta);
-      setSetInputs((prev) => ({ ...prev, weight: newWeight.toString() }));
-    },
-    [setInputs.weight]
-  );
+  // Check if session is active
+  if (!session || session.status === 'idle') {
+    return (
+      <Card className={className}>
+        <CardContent className='p-8 text-center'>
+          <div className='mb-4 text-gray-500'>
+            <Clock className='mx-auto mb-2 h-12 w-12' />
+            <p>{t('noActiveSession')}</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
-  // Quick rep adjustments
-  const adjustReps = useCallback(
-    (delta: number) => {
-      const currentReps = parseInt(setInputs.reps) || 0;
-      const newReps = Math.max(0, currentReps + delta);
-      setSetInputs((prev) => ({ ...prev, reps: newReps.toString() }));
-    },
-    [setInputs.reps]
-  );
+  // Check if we need to show Tabata timer
+  const shouldShowTimer =
+    currentExercise &&
+    (currentExercise.timerConfig?.protocol === 'tabata' ||
+      currentExercise.timerConfig?.protocol === 'emom' ||
+      currentExercise.timerConfig?.protocol === 'amrap');
 
   // Format time display
   const formatTime = (seconds: number) => {

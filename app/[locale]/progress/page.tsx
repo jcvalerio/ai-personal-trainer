@@ -4,7 +4,7 @@
  */
 'use client';
 
-import { use } from 'react';
+import { use, useState } from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import {
@@ -20,6 +20,8 @@ import {
   PieChart,
   Scale,
   Zap,
+  Smartphone,
+  RefreshCw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -39,6 +41,13 @@ import {
 import { AppNavigation } from '../../../components/navigation/app-navigation';
 import { createLocalizedPath } from '../../../lib/localized-navigation';
 import { TranslationErrorBoundary } from '../../../components/providers/translation-error-boundary';
+import { LogMeasurementDialog } from '@/components/progress/log-measurement-dialog';
+import { HealthSyncDialog } from '@/components/progress/health-sync-dialog';
+import {
+  useProgressMeasurements,
+  useProgressStats,
+  useCreateMeasurement,
+} from '@/hooks/use-progress';
 import { cn } from '@/lib/utils';
 import { format, subDays } from 'date-fns';
 
@@ -104,6 +113,51 @@ export default function ProgressPage({ params }: ProgressPageProps) {
   const t = useTranslations('progress');
   const { locale } = use(params);
 
+  // State for measurement dialog
+  const [logDialogOpen, setLogDialogOpen] = useState(false);
+  const [syncDialogOpen, setSyncDialogOpen] = useState(false);
+  const [selectedMeasurementType, setSelectedMeasurementType] = useState<
+    'weight' | 'body_fat' | 'muscle_mass' | 'circumference'
+  >('weight');
+
+  // Hooks for data fetching
+  const {
+    measurements,
+    isLoading: measurementsLoading,
+    refetch: refetchMeasurements,
+  } = useProgressMeasurements({
+    limit: 10,
+  });
+  const { stats, isLoading: statsLoading } = useProgressStats({
+    timeframe: 'month',
+    includeComparisons: true,
+    includeTrends: true,
+  });
+  const { createMeasurement, isCreating } = useCreateMeasurement();
+
+  // Handle measurement submission
+  const handleMeasurementSubmit = async (data: any) => {
+    const success = await createMeasurement(data);
+    if (success) {
+      refetchMeasurements();
+      setLogDialogOpen(false);
+    }
+  };
+
+  // Handle opening measurement dialog with specific type
+  const openMeasurementDialog = (
+    type?: 'weight' | 'body_fat' | 'muscle_mass' | 'circumference'
+  ) => {
+    if (type) setSelectedMeasurementType(type);
+    setLogDialogOpen(true);
+  };
+
+  // Handle sync completion
+  const handleSyncComplete = () => {
+    // Refresh measurements after sync
+    refetchMeasurements();
+  };
+
   const mockAchievements = [
     {
       id: '1',
@@ -139,6 +193,21 @@ export default function ProgressPage({ params }: ProgressPageProps) {
     0
   );
 
+  // Get recent measurements for display
+  const recentMeasurements = measurements.slice(0, 3);
+
+  // Process measurements for different types
+  const measurementsByType = measurements.reduce(
+    (acc, measurement) => {
+      if (!acc[measurement.measurementType]) {
+        acc[measurement.measurementType] = [];
+      }
+      acc[measurement.measurementType]!.push(measurement);
+      return acc;
+    },
+    {} as Record<string, typeof measurements>
+  );
+
   return (
     <TranslationErrorBoundary>
       <div className='min-h-screen bg-gray-50'>
@@ -155,12 +224,20 @@ export default function ProgressPage({ params }: ProgressPageProps) {
               </h2>
               <p className='text-gray-600'>{t('subtitle')}</p>
             </div>
-            <div className='mt-4 flex gap-3 sm:mt-0'>
-              <Button variant='outline' size='sm'>
+            <div className='mt-4 flex flex-wrap gap-3 sm:mt-0'>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={() => setSyncDialogOpen(true)}
+              >
+                <Smartphone className='mr-2 h-4 w-4' />
+                Sync Fitindex
+              </Button>
+              <Button variant='outline' size='sm' disabled>
                 <Camera className='mr-2 h-4 w-4' />
                 {t('buttons.progressPhotos')}
               </Button>
-              <Button>
+              <Button onClick={() => openMeasurementDialog()}>
                 <Plus className='mr-2 h-4 w-4' />
                 {t('buttons.logMeasurement')}
               </Button>
@@ -348,63 +425,229 @@ export default function ProgressPage({ params }: ProgressPageProps) {
 
             {/* Body Measurements Tab */}
             <TabsContent value='measurements' className='mt-6 space-y-6'>
-              <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-                {mockMeasurements.map((measurement) => {
-                  const isPositive = measurement.change > 0;
-                  const isWeight =
-                    measurement.type === 'weight' ||
-                    measurement.type === 'body_fat';
-                  const trendDirection = isWeight ? !isPositive : isPositive;
+              {measurementsLoading ? (
+                <div className='flex items-center justify-center py-12'>
+                  <div className='text-center'>
+                    <div className='mx-auto h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600'></div>
+                    <p className='mt-2 text-gray-600'>
+                      Loading measurements...
+                    </p>
+                  </div>
+                </div>
+              ) : measurements.length === 0 ? (
+                <div className='py-12 text-center'>
+                  <Scale className='mx-auto h-16 w-16 text-gray-400' />
+                  <h3 className='mt-4 text-lg font-medium text-gray-900'>
+                    No measurements yet
+                  </h3>
+                  <p className='mt-2 text-gray-600'>
+                    Start tracking your progress by logging your first
+                    measurement.
+                  </p>
+                  <Button
+                    onClick={() => openMeasurementDialog()}
+                    className='mt-4'
+                  >
+                    <Plus className='mr-2 h-4 w-4' />
+                    Log First Measurement
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  {/* Quick Action Buttons */}
+                  <div className='flex flex-wrap gap-2'>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      onClick={() => setSyncDialogOpen(true)}
+                    >
+                      <RefreshCw className='mr-2 h-4 w-4' />
+                      Sync Fitindex
+                    </Button>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      onClick={() => openMeasurementDialog('weight')}
+                    >
+                      <Scale className='mr-2 h-4 w-4' />
+                      Log Weight
+                    </Button>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      onClick={() => openMeasurementDialog('body_fat')}
+                    >
+                      <PieChart className='mr-2 h-4 w-4' />
+                      Log Body Fat
+                    </Button>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      onClick={() => openMeasurementDialog('muscle_mass')}
+                    >
+                      <Dumbbell className='mr-2 h-4 w-4' />
+                      Log Muscle Mass
+                    </Button>
+                    <Button
+                      variant='outline'
+                      size='sm'
+                      onClick={() => openMeasurementDialog('circumference')}
+                    >
+                      <Activity className='mr-2 h-4 w-4' />
+                      Log Circumference
+                    </Button>
+                  </div>
 
-                  return (
-                    <Card key={measurement.id}>
-                      <CardHeader className='pb-3'>
-                        <div className='flex items-center justify-between'>
-                          <CardTitle className='text-lg'>
-                            {measurement.type === 'weight'
-                              ? t('measurements.weight')
-                              : measurement.type === 'body_fat'
-                                ? t('measurements.bodyFat')
-                                : t('measurements.muscleMass')}
-                          </CardTitle>
-                          {measurement.type === 'weight' && (
-                            <Scale className='h-5 w-5 text-gray-500' />
-                          )}
-                          {measurement.type === 'body_fat' && (
-                            <PieChart className='h-5 w-5 text-gray-500' />
-                          )}
-                          {measurement.type === 'muscle_mass' && (
-                            <Dumbbell className='h-5 w-5 text-gray-500' />
-                          )}
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <div className='mb-2 text-3xl font-bold'>
-                          {measurement.value} {measurement.unit}
-                        </div>
-                        <div
-                          className={cn(
-                            'flex items-center gap-1 text-sm',
-                            trendDirection ? 'text-green-600' : 'text-red-600'
-                          )}
+                  {/* Current Measurements Grid */}
+                  <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
+                    {['weight', 'body_fat', 'muscle_mass'].map((type) => {
+                      const typeMeasurements = measurementsByType[type];
+                      const latest = typeMeasurements?.[0];
+                      const previous = typeMeasurements?.[1];
+
+                      if (!latest) return null;
+
+                      const change = previous
+                        ? latest.value - previous.value
+                        : 0;
+                      const isPositive = change > 0;
+                      const isWeight = type === 'weight' || type === 'body_fat';
+                      const trendDirection = isWeight
+                        ? !isPositive
+                        : isPositive;
+
+                      return (
+                        <Card
+                          key={type}
+                          className='cursor-pointer transition-shadow hover:shadow-md'
+                          onClick={() => openMeasurementDialog(type as any)}
                         >
-                          <TrendingUp
-                            className={cn(
-                              'h-4 w-4',
-                              !trendDirection && 'rotate-180'
+                          <CardHeader className='pb-3'>
+                            <div className='flex items-center justify-between'>
+                              <CardTitle className='text-lg'>
+                                {type === 'weight' && t('measurements.weight')}
+                                {type === 'body_fat' &&
+                                  t('measurements.bodyFat')}
+                                {type === 'muscle_mass' &&
+                                  t('measurements.muscleMass')}
+                              </CardTitle>
+                              {type === 'weight' && (
+                                <Scale className='h-5 w-5 text-gray-500' />
+                              )}
+                              {type === 'body_fat' && (
+                                <PieChart className='h-5 w-5 text-gray-500' />
+                              )}
+                              {type === 'muscle_mass' && (
+                                <Dumbbell className='h-5 w-5 text-gray-500' />
+                              )}
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <div className='mb-2 text-3xl font-bold'>
+                              {latest.value} {latest.unit}
+                            </div>
+                            {previous && (
+                              <div
+                                className={cn(
+                                  'flex items-center gap-1 text-sm',
+                                  trendDirection
+                                    ? 'text-green-600'
+                                    : 'text-red-600'
+                                )}
+                              >
+                                <TrendingUp
+                                  className={cn(
+                                    'h-4 w-4',
+                                    !trendDirection && 'rotate-180'
+                                  )}
+                                />
+                                <span>
+                                  {isPositive ? '+' : ''}
+                                  {change.toFixed(1)} {latest.unit} from last
+                                  measurement
+                                </span>
+                              </div>
                             )}
-                          />
-                          <span>
-                            {isPositive ? '+' : ''}
-                            {measurement.change} {measurement.unit}{' '}
-                            {t('measurements.thisMonth')}
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
+                            <p className='mt-1 text-xs text-gray-500'>
+                              {format(
+                                new Date(latest.measuredAt),
+                                'MMM d, yyyy'
+                              )}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+
+                  {/* Recent Measurements List */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Recent Measurements</CardTitle>
+                      <CardDescription>
+                        Your latest body measurements
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className='space-y-3'>
+                        {recentMeasurements.map((measurement) => (
+                          <div
+                            key={measurement.id}
+                            className='flex items-center justify-between rounded-lg bg-gray-50 p-3'
+                          >
+                            <div className='flex items-center gap-3'>
+                              {measurement.measurementType === 'weight' && (
+                                <Scale className='h-5 w-5 text-gray-600' />
+                              )}
+                              {measurement.measurementType === 'body_fat' && (
+                                <PieChart className='h-5 w-5 text-gray-600' />
+                              )}
+                              {measurement.measurementType ===
+                                'muscle_mass' && (
+                                <Dumbbell className='h-5 w-5 text-gray-600' />
+                              )}
+                              {measurement.measurementType ===
+                                'circumference' && (
+                                <Activity className='h-5 w-5 text-gray-600' />
+                              )}
+                              <div>
+                                <p className='font-medium'>
+                                  {measurement.measurementType === 'weight' &&
+                                    t('measurements.weight')}
+                                  {measurement.measurementType === 'body_fat' &&
+                                    t('measurements.bodyFat')}
+                                  {measurement.measurementType ===
+                                    'muscle_mass' &&
+                                    t('measurements.muscleMass')}
+                                  {measurement.measurementType ===
+                                    'circumference' &&
+                                    `${measurement.measurementLocation} circumference`}
+                                </p>
+                                <p className='text-sm text-gray-600'>
+                                  {format(
+                                    new Date(measurement.measuredAt),
+                                    'MMM d, yyyy h:mm a'
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+                            <div className='text-right'>
+                              <p className='font-semibold'>
+                                {measurement.value} {measurement.unit}
+                              </p>
+                              {measurement.measurementMethod && (
+                                <p className='text-sm text-gray-600'>
+                                  {measurement.measurementMethod}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
 
               {/* Body Composition Chart Placeholder */}
               <Card>
@@ -628,6 +871,25 @@ export default function ProgressPage({ params }: ProgressPageProps) {
             </TabsContent>
           </Tabs>
         </main>
+
+        {/* Measurement Logging Dialog */}
+        <LogMeasurementDialog
+          open={logDialogOpen}
+          onOpenChange={setLogDialogOpen}
+          onSubmit={handleMeasurementSubmit}
+          defaultType={selectedMeasurementType}
+          isLoading={isCreating}
+        />
+
+        {/* Health Sync Dialog */}
+        <HealthSyncDialog
+          open={syncDialogOpen}
+          onOpenChange={(open) => {
+            console.log('Dialog onOpenChange called with:', open);
+            setSyncDialogOpen(open);
+          }}
+          onSyncComplete={handleSyncComplete}
+        />
       </div>
     </TranslationErrorBoundary>
   );

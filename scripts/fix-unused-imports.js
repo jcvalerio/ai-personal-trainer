@@ -66,7 +66,7 @@ filesToFix.forEach((fixes, relativeFilePath) => {
     return;
   }
 
-  let content = fs.readFileSync(filePath, 'utf8');
+  const content = fs.readFileSync(filePath, 'utf8');
   const lines = content.split('\n');
 
   console.log(`🔧 Fixing ${relativeFilePath}`);

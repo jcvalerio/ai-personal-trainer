@@ -5,6 +5,7 @@
 'use client';
 
 import { ReactNode, useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface ClientWrapperProps {
   children: ReactNode;
@@ -17,6 +18,7 @@ interface ClientWrapperProps {
  */
 export function ClientWrapper({ children, fallback }: ClientWrapperProps) {
   const [isMounted, setIsMounted] = useState(false);
+  const t = useTranslations('loading');
 
   useEffect(() => {
     setIsMounted(true);
@@ -25,8 +27,24 @@ export function ClientWrapper({ children, fallback }: ClientWrapperProps) {
   if (!isMounted) {
     return (
       fallback || (
-        <div className='flex min-h-screen items-center justify-center bg-gray-50'>
-          <div className='h-16 w-16 animate-spin rounded-full border-b-2 border-blue-600'></div>
+        <div
+          className='flex min-h-screen items-center justify-center bg-gray-50'
+          role='status'
+          aria-live='polite'
+          aria-label={t('ariaLabel')}
+        >
+          <div className='flex flex-col items-center space-y-4'>
+            <div
+              className='h-16 w-16 animate-spin rounded-full border-b-2 border-blue-600'
+              aria-label={t('screenReader.spinner')}
+            ></div>
+            <div className='text-lg font-medium text-gray-600'>
+              {t('workoutCreator')}
+            </div>
+            <div className='sr-only' aria-live='assertive'>
+              {t('screenReader.loading')}
+            </div>
+          </div>
         </div>
       )
     );

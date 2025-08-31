@@ -173,7 +173,16 @@
     "copyright": "© {year} AI Personal Trainer. All rights reserved."
   },
   "loading": {
-    "text": "Loading..."
+    "text": "Loading...",
+    "application": "Loading application...",
+    "workoutCreator": "Loading workout creator...",
+    "preparingInterface": "Preparing interface...",
+    "ariaLabel": "Loading content",
+    "ariaLive": "Loading, please wait",
+    "screenReader": {
+      "loading": "Content is loading, please wait",
+      "spinner": "Loading spinner animation"
+    }
   },
   "dashboard": {
     "title": "AI Personal Trainer",
@@ -265,12 +274,23 @@
     "measurements": {
       "weight": "Weight",
       "bodyFat": "Body Fat",
+      "bodyfat": "Body Fat",
       "muscleMass": "Muscle Mass",
+      "musclemass": "Muscle Mass",
+      "circumference": "Circumference",
       "bodyComposition": "Body Composition Trends",
       "bodyCompositionDesc": "Track changes in your body composition over time",
       "chartPlaceholder": "Chart visualization would appear here",
       "connectScale": "Connect a smart scale for automatic tracking",
-      "thisMonth": "this month"
+      "thisMonth": "this month",
+      "locations": {
+        "waist": "Waist",
+        "chest": "Chest",
+        "arm": "Arm",
+        "thigh": "Thigh",
+        "neck": "Neck",
+        "hip": "Hip"
+      }
     },
     "strength": {
       "benchPressPR": "Bench Press PR",
@@ -304,6 +324,41 @@
     "analytics": {
       "title": "Advanced Analytics",
       "description": "Detailed analytics and insights will be available with more workout data."
+    },
+    "logMeasurement": {
+      "title": "Log Measurement",
+      "description": "Record a new body measurement to track your progress",
+      "measurementType": "Measurement Type",
+      "location": "Location",
+      "selectLocation": "Select a location",
+      "value": "Value",
+      "unit": "Unit",
+      "measuredAt": "Date & Time",
+      "dateDescription": "When was this measurement taken?",
+      "method": "Method",
+      "selectMethod": "Select measurement method",
+      "device": "Device",
+      "selectDevice": "Select device used",
+      "notes": "Notes",
+      "notesPlaceholder": "Add any additional notes about this measurement...",
+      "notesDescription": "Optional: Add context or notes about this measurement",
+      "photoUpload": "Progress Photo (Coming Soon)",
+      "photoUploadDescription": "Photo upload will be available in a future update",
+      "save": "Save Measurement"
+    },
+    "methods": {
+      "digital_scale": "Digital Scale",
+      "analog_scale": "Analog Scale",
+      "body_fat_scale": "Body Fat Scale",
+      "calipers": "Calipers",
+      "dexa_scan": "DEXA Scan",
+      "bod_pod": "Bod Pod",
+      "tape_measure": "Tape Measure",
+      "manual_entry": "Manual Entry"
+    },
+    "common": {
+      "saving": "Saving...",
+      "cancel": "Cancel"
     }
   },
   "createPlan": {
@@ -359,6 +414,67 @@
       "defaultSession": {
         "name": "New Workout Session"
       }
+    },
+    "templates": {
+      "filters": {
+        "findTitle": "Find Exercises",
+        "searchPlaceholder": "Search exercises or muscle groups...",
+        "placeholders": {
+          "category": "Category",
+          "difficulty": "Difficulty",
+          "equipment": "Equipment"
+        },
+        "tabs": {
+          "browse": "Browse Exercises",
+          "selected": "Selected ({selected}/{max})"
+        },
+        "categories": {
+          "all": "All Exercises",
+          "chest": "Chest",
+          "back": "Back",
+          "legs": "Legs",
+          "shoulders": "Shoulders",
+          "arms": "Arms",
+          "core": "Core",
+          "cardio": "Cardio"
+        },
+        "difficulty": {
+          "all": "All Levels",
+          "beginner": "Beginner",
+          "intermediate": "Intermediate",
+          "advanced": "Advanced"
+        },
+        "equipment": {
+          "all": "All Equipment",
+          "bodyweight": "Bodyweight",
+          "dumbbells": "Dumbbells",
+          "barbell": "Barbell",
+          "machines": "Machines",
+          "cables": "Cables"
+        },
+        "results": "{count} exercises found",
+        "selectedCount": "{selected}/{max} selected",
+        "empty": {
+          "title": "No exercises found",
+          "description": "Try adjusting your search terms or filters"
+        },
+        "selectedEmpty": {
+          "title": "No exercises selected",
+          "description": "Browse exercises and add them to configure your workout"
+        }
+      },
+      "quickStart": {
+        "title": "Quick Start",
+        "description": "Use predefined templates or create from scratch"
+      },
+      "stats": {
+        "exercises": "exercises",
+        "muscleGroups": "muscle groups"
+      },
+      "targetMuscles": "Target Muscles",
+      "exercisePreview": "Exercise Preview:",
+      "exerciseLabel": "Exercise {number}",
+      "moreCount": "+{count} more"
     },
     "steps": {
       "basics": {
@@ -556,6 +672,60 @@
         },
         "exercisePreview": "Exercise Preview:",
         "moreExercises": "more exercises",
+        "targetMuscles": "Target Muscles",
+        "exerciseLabel": "Exercise {number}",
+        "moreCount": "+{count} more",
+        "quickStart": {
+          "title": "Quick Start",
+          "description": "Use predefined templates or create from scratch"
+        },
+        "filters": {
+          "findTitle": "Find Exercises",
+          "searchPlaceholder": "Search exercises or muscle groups...",
+          "placeholders": {
+            "category": "Category",
+            "difficulty": "Difficulty",
+            "equipment": "Equipment"
+          },
+          "tabs": {
+            "browse": "Browse Exercises",
+            "selected": "Selected ({selected}/{max})"
+          },
+          "categories": {
+            "all": "All Exercises",
+            "chest": "Chest",
+            "back": "Back",
+            "legs": "Legs",
+            "shoulders": "Shoulders",
+            "arms": "Arms",
+            "core": "Core",
+            "cardio": "Cardio"
+          },
+          "difficulty": {
+            "all": "All Levels",
+            "beginner": "Beginner",
+            "intermediate": "Intermediate",
+            "advanced": "Advanced"
+          },
+          "equipment": {
+            "all": "All Equipment",
+            "bodyweight": "Bodyweight",
+            "dumbbells": "Dumbbells",
+            "barbell": "Barbell",
+            "machines": "Machines",
+            "cables": "Cables"
+          },
+          "results": "{count} exercises found",
+          "selectedCount": "{selected}/{max} selected",
+          "empty": {
+            "title": "No exercises found",
+            "description": "Try adjusting your search terms or filters"
+          },
+          "selectedEmpty": {
+            "title": "No exercises selected",
+            "description": "Browse exercises and add them to configure your workout"
+          }
+        },
         "fields": {
           "name": "Template Name",
           "namePlaceholder": "e.g., Upper Body Push Day",
@@ -593,12 +763,14 @@
           "cardio": "Cardio",
           "full_body": "Full Body"
         },
+
         "dialog": {
           "createTemplate": "Create Session Template",
           "editTemplate": "Edit Session Template",
           "description": "Configure your session template details",
           "cancel": "Cancel",
-          "save": "Save Template"
+          "save": "Save Template",
+          "exercises": "Exercises"
         },
         "summary": {
           "title": "Templates Summary",
@@ -721,6 +893,163 @@
   },
   "workouts": {
     "title": "Your Workouts",
+    "createPlan": {
+      "title": "Create Custom Workout Plan",
+      "subtitle": "Design your personalized training program",
+      "common": {
+        "back": "Back",
+        "next": "Next",
+        "previous": "Previous",
+        "save": "Save",
+        "cancel": "Cancel"
+      },
+      "navigation": {
+        "previous": "Previous",
+        "next": "Next",
+        "creating": "Creating...",
+        "createPlan": "Create Plan",
+        "stepProgress": "Step {current} of {total}"
+      },
+      "templates": {
+        "title": "Session Templates",
+        "description": "Create workout session templates that define exercises, sets, and reps",
+        "quickStart": {
+          "title": "Quick Start",
+          "description": "Use predefined templates or create from scratch"
+        },
+        "actions": {
+          "createNew": "Create New Template"
+        },
+        "predefined": {
+          "select": "Add from templates",
+          "lower_body_quad_focus": {
+            "name": "Lower Body - Quad Focus",
+            "description": "Emphasis on quadriceps with imbalance correction"
+          },
+          "upper_body_push": {
+            "name": "Upper Body - Push",
+            "description": "Chest, shoulders, and triceps development"
+          }
+        },
+        "empty": {
+          "title": "No Session Templates Yet",
+          "description": "Create session templates to define your workout structure. You can start with a predefined template or create one from scratch.",
+          "useTemplate": "Use Template",
+          "createFromScratch": "Create From Scratch"
+        },
+        "untitled": "Untitled Template",
+        "noDescription": "No description provided",
+        "stats": {
+          "minutes": "minutes",
+          "exercises": "exercises",
+          "muscleGroups": "muscle groups"
+        },
+        "exercisePreview": "Exercise Preview:",
+        "moreExercises": "more exercises",
+        "targetMuscles": "Target Muscles",
+        "exerciseLabel": "Exercise {number}",
+        "moreCount": "+{count} more",
+        "fields": {
+          "name": "Template Name",
+          "namePlaceholder": "e.g., Upper Body Push Day",
+          "description": "Description",
+          "descriptionPlaceholder": "Describe the focus and approach of this session...",
+          "duration": "Duration (minutes)",
+          "sessionType": "Session Type",
+          "difficulty": "Difficulty Level",
+          "muscleGroups": "Target Muscle Groups"
+        },
+        "sessionType": {
+          "workout": "Workout",
+          "assessment": "Assessment",
+          "recovery": "Recovery"
+        },
+        "difficulty": {
+          "beginner": "Beginner",
+          "intermediate": "Intermediate",
+          "advanced": "Advanced"
+        },
+        "muscleGroups": {
+          "chest": "Chest",
+          "back": "Back",
+          "shoulders": "Shoulders",
+          "arms": "Arms",
+          "biceps": "Biceps",
+          "triceps": "Triceps",
+          "legs": "Legs",
+          "quadriceps": "Quadriceps",
+          "hamstrings": "Hamstrings",
+          "glutes": "Glutes",
+          "calves": "Calves",
+          "core": "Core",
+          "abs": "Abs",
+          "cardio": "Cardio",
+          "full_body": "Full Body"
+        },
+        "dialog": {
+          "createTemplate": "Create Session Template",
+          "editTemplate": "Edit Session Template",
+          "description": "Configure your session template details",
+          "cancel": "Cancel",
+          "save": "Save Template",
+          "exercises": "Exercises"
+        },
+        "summary": {
+          "title": "Templates Summary",
+          "totalTemplates": "Total Templates",
+          "avgDuration": "Avg Duration (min)",
+          "totalExercises": "Total Exercises",
+          "muscleGroupsCovered": "Muscle Groups"
+        },
+        "filters": {
+          "findTitle": "Find Exercises",
+          "searchPlaceholder": "Search exercises or muscle groups...",
+          "placeholders": {
+            "category": "Category",
+            "difficulty": "Difficulty",
+            "equipment": "Equipment"
+          },
+          "tabs": {
+            "browse": "Browse Exercises",
+            "selected": "Selected ({selected}/{max})"
+          },
+          "categories": {
+            "all": "All Exercises",
+            "chest": "Chest",
+            "back": "Back",
+            "legs": "Legs",
+            "shoulders": "Shoulders",
+            "arms": "Arms",
+            "core": "Core",
+            "cardio": "Cardio"
+          },
+          "difficulty": {
+            "all": "All Levels",
+            "beginner": "Beginner",
+            "intermediate": "Intermediate",
+            "advanced": "Advanced"
+          },
+          "equipment": {
+            "all": "All Equipment",
+            "bodyweight": "Bodyweight",
+            "dumbbells": "Dumbbells",
+            "barbell": "Barbell",
+            "machines": "Machines",
+            "cables": "Cables"
+          },
+          "results": "{count} exercises found",
+          "selectedCount": "{selected}/{max} selected",
+          "empty": {
+            "title": "No exercises found",
+            "description": "Try adjusting your search terms or filters"
+          },
+          "selectedEmpty": {
+            "title": "No exercises selected",
+            "description": "Browse exercises and add them to configure your workout"
+          }
+        }
+      }
+    },
     "subtitle": "Track your fitness journey and achieve your goals",
     "dashboard": "Workouts Dashboard",
     "buttons": {
@@ -993,6 +1322,211 @@
       "syncFailed": "Some data couldn't be synced. We'll try again automatically.",
       "updateAvailable": "A new version of the app is ready.",
       "updateDescription": "Refresh to get the latest features and improvements."
+    }
+  },
+  "generate": {
+    "header": {
+      "title": "AI Workout Generator",
+      "subtitle": "Create personalized workouts"
+    },
+    "steps": {
+      "preferences": "Preferences",
+      "generating": "Generating",
+      "review": "Review",
+      "complete": "Complete"
+    },
+    "intro": {
+      "title": "Let's Create Your Perfect Workout",
+      "subtitle": "Tell us about your fitness goals and preferences"
+    },
+    "fitnessLevel": {
+      "title": "Fitness Level",
+      "description": "Help us understand your current fitness experience",
+      "levels": {
+        "beginner": {
+          "name": "Beginner",
+          "description": "New to exercise or getting back into it"
+        },
+        "intermediate": {
+          "name": "Intermediate",
+          "description": "Regular exercise routine for 6+ months"
+        },
+        "advanced": {
+          "name": "Advanced",
+          "description": "Consistent training for 2+ years"
+        }
+      }
+    },
+    "fitnessGoals": {
+      "title": "Fitness Goals",
+      "description": "Select all goals that apply to you",
+      "options": {
+        "weight_loss": "Weight Loss",
+        "muscle_gain": "Muscle Gain",
+        "strength": "Strength",
+        "endurance": "Endurance",
+        "flexibility": "Flexibility",
+        "general_fitness": "General Fitness"
+      }
+    },
+    "duration": {
+      "title": "Workout Duration",
+      "description": "How long do you want each workout to be?",
+      "label": "Duration: {minutes} minutes",
+      "minLabel": "20 min",
+      "maxLabel": "120 min"
+    },
+    "daysPerWeek": {
+      "label": "Days per week: {days}",
+      "min": "1 day",
+      "max": "7 days"
+    },
+    "equipment": {
+      "title": "Available Equipment",
+      "description": "Select all equipment you have access to",
+      "options": {
+        "bodyweight": "Bodyweight Only",
+        "dumbbells": "Dumbbells",
+        "barbell": "Barbell",
+        "resistance_bands": "Resistance Bands",
+        "full_gym": "Full Gym Access",
+        "home_gym": "Home Gym Setup"
+      }
+    },
+    "actions": {
+      "generate": "Generate My Workout"
+    }
+  },
+  "workouts_extra": {
+    "createPlan": {
+      "schedule": {
+        "title": "Weekly Schedule",
+        "description": "Drag and drop sessions to build your weekly training schedule.",
+        "addSession": "Add Session",
+        "stats": {
+          "sessions": "Sessions",
+          "totalTime": "Total Time",
+          "avgDuration": "Avg Duration",
+          "restDays": "Rest Days"
+        },
+        "days": {
+          "monday": "Monday",
+          "tuesday": "Tuesday",
+          "wednesday": "Wednesday",
+          "thursday": "Thursday",
+          "friday": "Friday",
+          "saturday": "Saturday",
+          "sunday": "Sunday"
+        },
+        "dropZone": {
+          "empty": "No sessions scheduled",
+          "instruction": "Drag sessions here or add new ones"
+        },
+        "editor": {
+          "title": "Edit Session",
+          "sessionName": "Session Name",
+          "sessionNamePlaceholder": "e.g., Upper Body Strength",
+          "sessionType": "Session Type",
+          "duration": "Duration (minutes)",
+          "durationHint": "Recommended: 30-90 minutes",
+          "save": "Save Session",
+          "cancel": "Cancel"
+        },
+        "defaultSession": {
+          "name": "New Workout Session"
+        }
+      },
+      "templates": {
+        "title": "Session Templates",
+        "description": "Create workout session templates that define exercises, sets, and reps",
+        "predefined": {
+          "select": "Add from templates",
+          "lower_body_quad_focus": {
+            "name": "Lower Body - Quad Focus",
+            "description": "Emphasis on quadriceps with imbalance correction"
+          },
+          "upper_body_push": {
+            "name": "Upper Body - Push",
+            "description": "Chest, shoulders, and triceps development"
+          }
+        },
+        "actions": {
+          "createNew": "Create New Template"
+        },
+        "empty": {
+          "title": "No Session Templates Yet",
+          "description": "Create session templates to define your workout structure. You can start with a predefined template or create one from scratch.",
+          "useTemplate": "Use Template",
+          "createFromScratch": "Create From Scratch"
+        },
+        "untitled": "Untitled Template",
+        "noDescription": "No description provided",
+        "stats": {
+          "minutes": "minutes",
+          "exercises": "exercises",
+          "muscleGroups": "muscle groups"
+        },
+        "exercisePreview": "Exercise Preview:",
+        "moreExercises": "more exercises",
+        "fields": {
+          "name": "Template Name",
+          "namePlaceholder": "e.g., Upper Body Push Day",
+          "description": "Description",
+          "descriptionPlaceholder": "Describe the focus and approach of this session...",
+          "duration": "Duration (minutes)",
+          "sessionType": "Session Type",
+          "difficulty": "Difficulty Level",
+          "muscleGroups": "Target Muscle Groups"
+        },
+        "sessionType": {
+          "workout": "Workout",
+          "assessment": "Assessment",
+          "recovery": "Recovery"
+        },
+        "difficulty": {
+          "beginner": "Beginner",
+          "intermediate": "Intermediate",
+          "advanced": "Advanced"
+        },
+        "muscleGroups": {
+          "chest": "Chest",
+          "back": "Back",
+          "shoulders": "Shoulders",
+          "arms": "Arms",
+          "biceps": "Biceps",
+          "triceps": "Triceps",
+          "legs": "Legs",
+          "quadriceps": "Quadriceps",
+          "hamstrings": "Hamstrings",
+          "glutes": "Glutes",
+          "calves": "Calves",
+          "core": "Core",
+          "abs": "Abs",
+          "cardio": "Cardio",
+          "full_body": "Full Body"
+        },
+        "dialog": {
+          "createTemplate": "Create Session Template",
+          "editTemplate": "Edit Session Template",
+          "description": "Configure your session template details",
+          "cancel": "Cancel",
+          "save": "Save Template",
+          "exercises": "Exercises"
+        },
+        "summary": {
+          "title": "Templates Summary",
+          "totalTemplates": "Total Templates",
+          "avgDuration": "Avg Duration (min)",
+          "totalExercises": "Total Exercises",
+          "muscleGroupsCovered": "Muscle Groups"
+        }
+      },
+      "steps": {
+        "templates": {
+          "title": "Session Templates",
+          "description": "Create workout session templates that define exercises, sets, and reps"
+        }
+      }
     }
   }
 }

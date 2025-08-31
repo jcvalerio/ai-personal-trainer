@@ -775,7 +775,17 @@ export type SessionAction =
   | { type: 'UPDATE_TIMER'; payload: Partial<TimerState> }
   | {
       type: 'COMPLETE_SET';
-      payload: { setIndex: number; data: SetPerformanceData; setData?: any };
+      payload: { 
+        setIndex: number; 
+        data: SetPerformanceData; 
+        setData?: any;
+        skipProgressUpdate?: boolean;
+        recoveryMode?: boolean;
+        actualProgress?: {
+          setsCompleted: number;
+          exercisesCompleted: number;
+        };
+      };
     }
   | { type: 'SKIP_SET'; payload: { setIndex: number } }
   | { type: 'NEXT_EXERCISE' }
@@ -785,10 +795,16 @@ export type SessionAction =
   | { type: 'UPDATE_PERFORMANCE'; payload: Partial<SessionPerformance> }
   | { type: 'SET_ERROR'; payload: string }
   | { type: 'CLEAR_ERROR' }
+  | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_OFFLINE'; payload: boolean }
   | { type: 'UPDATE_SETTINGS'; payload: Partial<SessionExecutionSettings> }
   | { type: 'UPDATE_ELAPSED_TIME'; payload: number }
-  | { type: 'UPDATE_TIMER_STATE'; payload: { timerState: TimerState } };
+  | { type: 'UPDATE_TIMER_STATE'; payload: { timerState: TimerState } }
+  | { type: 'UPDATE_SESSION_ID'; payload: string }
+  | { type: 'ADD_PENDING_SET'; payload: SetPerformanceData }
+  | { type: 'REMOVE_PENDING_SET'; payload: number }
+  | { type: 'CLEAR_PENDING_SETS' }
+  | { type: 'ROLLBACK_SET'; payload: { setIndex: number; data: SetPerformanceData; setData?: any } };
 
 /**
  * Alias for SessionAction for backward compatibility

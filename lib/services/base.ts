@@ -485,8 +485,22 @@ export abstract class BaseService {
     context: ServiceContext,
     allowOrgAccess = false
   ): Promise<boolean> {
+    // Get user profile ID from Clerk user ID to compare with resource user ID
+    const userProfileResult = await this.db`
+      SELECT id FROM user_profiles 
+      WHERE clerk_user_id = ${context.userId}
+      LIMIT 1
+    `;
+
+    if (userProfileResult.length === 0) {
+      // User profile doesn't exist, deny access
+      return false;
+    }
+
+    const userProfileId = userProfileResult[0].id;
+
     // User can always access their own resources
-    if (resourceUserId === context.userId) {
+    if (resourceUserId === userProfileId) {
       return true;
     }
 

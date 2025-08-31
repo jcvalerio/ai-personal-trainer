@@ -173,7 +173,16 @@
     "copyright": "© {year} AI Personal Trainer. Todos los derechos reservados."
   },
   "loading": {
-    "text": "Cargando..."
+    "text": "Cargando...",
+    "application": "Cargando aplicación...",
+    "workoutCreator": "Cargando creador de entrenamientos...",
+    "preparingInterface": "Preparando interfaz...",
+    "ariaLabel": "Cargando contenido",
+    "ariaLive": "Cargando, por favor espera",
+    "screenReader": {
+      "loading": "El contenido se está cargando, por favor espera",
+      "spinner": "Animación de carga en progreso"
+    }
   },
   "dashboard": {
     "title": "Entrenador Personal con IA",
@@ -265,12 +274,23 @@
     "measurements": {
       "weight": "Peso",
       "bodyFat": "Grasa Corporal",
+      "bodyfat": "Grasa Corporal",
       "muscleMass": "Masa Muscular",
+      "musclemass": "Masa Muscular",
+      "circumference": "Circunferencia",
       "bodyComposition": "Tendencias de Composición Corporal",
       "bodyCompositionDesc": "Rastrea cambios en tu composición corporal a lo largo del tiempo",
       "chartPlaceholder": "La visualización del gráfico aparecería aquí",
       "connectScale": "Conecta una báscula inteligente para seguimiento automático",
-      "thisMonth": "este mes"
+      "thisMonth": "este mes",
+      "locations": {
+        "waist": "Cintura",
+        "chest": "Pecho",
+        "arm": "Brazo",
+        "thigh": "Muslo",
+        "neck": "Cuello",
+        "hip": "Cadera"
+      }
     },
     "strength": {
       "benchPressPR": "RP Press de Banca",
@@ -304,6 +324,41 @@
     "analytics": {
       "title": "Análisis Avanzado",
       "description": "Análisis detallados e insights estarán disponibles con más datos de entrenamientos."
+    },
+    "logMeasurement": {
+      "title": "Registrar Medición",
+      "description": "Registra una nueva medición corporal para hacer seguimiento de tu progreso",
+      "measurementType": "Tipo de Medición",
+      "location": "Ubicación",
+      "selectLocation": "Selecciona una ubicación",
+      "value": "Valor",
+      "unit": "Unidad",
+      "measuredAt": "Fecha y Hora",
+      "dateDescription": "Cuándo fue tomada esta medición",
+      "method": "Método",
+      "selectMethod": "Selecciona un método",
+      "device": "Dispositivo",
+      "selectDevice": "Selecciona un dispositivo",
+      "notes": "Notas",
+      "notesPlaceholder": "Notas adicionales sobre esta medición...",
+      "notesDescription": "Contexto adicional, condiciones u observaciones",
+      "photoUpload": "Subir Foto de Progreso",
+      "photoUploadDescription": "Próximamente: Adjunta fotos para seguimiento visual",
+      "save": "Guardar Medición"
+    },
+    "methods": {
+      "digital_scale": "Báscula Digital",
+      "analog_scale": "Báscula Analógica",
+      "body_fat_scale": "Báscula de Grasa Corporal",
+      "calipers": "Calibradores",
+      "dexa_scan": "Escáner DEXA",
+      "bod_pod": "Bod Pod",
+      "tape_measure": "Cinta Métrica",
+      "manual_entry": "Entrada Manual"
+    },
+    "common": {
+      "saving": "Guardando...",
+      "cancel": "Cancelar"
     }
   },
   "workouts": {
@@ -312,6 +367,159 @@
     "createPlan": {
       "title": "Crear Plan de Entrenamiento Personalizado",
       "subtitle": "Diseña tu programa de entrenamiento personalizado",
+      "common": {
+        "back": "Atrás",
+        "next": "Siguiente",
+        "previous": "Anterior",
+        "save": "Guardar",
+        "cancel": "Cancelar"
+      },
+      "navigation": {
+        "previous": "Anterior",
+        "next": "Siguiente",
+        "creating": "Creando...",
+        "createPlan": "Crear Plan",
+        "stepProgress": "Paso {current} de {total}"
+      },
+      "templates": {
+        "title": "Plantillas de Sesión",
+        "description": "Crea plantillas de sesión de entrenamiento que definen ejercicios, series y repeticiones",
+        "quickStart": {
+          "title": "Inicio Rápido",
+          "description": "Usa plantillas predefinidas o crea desde cero"
+        },
+        "actions": {
+          "createNew": "Crear Nueva Plantilla"
+        },
+        "predefined": {
+          "select": "Agregar desde plantillas",
+          "lower_body_quad_focus": {
+            "name": "Tren Inferior - Enfoque Cuádriceps",
+            "description": "Énfasis en cuádriceps con corrección de desequilibrios"
+          },
+          "upper_body_push": {
+            "name": "Tren Superior - Empuje",
+            "description": "Desarrollo de pecho, hombros y tríceps"
+          }
+        },
+        "empty": {
+          "title": "Aún No Hay Plantillas de Sesión",
+          "description": "Crea plantillas de sesión para definir la estructura de tu entrenamiento. Puedes empezar con una plantilla predefinida o crear una desde cero.",
+          "useTemplate": "Usar Plantilla",
+          "createFromScratch": "Crear Desde Cero"
+        },
+        "untitled": "Plantilla Sin Título",
+        "noDescription": "Sin descripción proporcionada",
+        "stats": {
+          "minutes": "minutos",
+          "exercises": "ejercicios",
+          "muscleGroups": "grupos musculares"
+        },
+        "exercisePreview": "Vista Previa del Ejercicio:",
+        "moreExercises": "más ejercicios",
+        "targetMuscles": "Músculos Objetivo",
+        "exerciseLabel": "Ejercicio {number}",
+        "moreCount": "+{count} más",
+        "fields": {
+          "name": "Nombre de Plantilla",
+          "namePlaceholder": "ej., Día de Empuje Tren Superior",
+          "description": "Descripción",
+          "descriptionPlaceholder": "Describe el enfoque y aproximación de esta sesión...",
+          "duration": "Duración (minutos)",
+          "sessionType": "Tipo de Sesión",
+          "difficulty": "Nivel de Dificultad",
+          "muscleGroups": "Grupos Musculares Objetivo"
+        },
+        "sessionType": {
+          "workout": "Entrenamiento",
+          "assessment": "Evaluación",
+          "recovery": "Recuperación"
+        },
+        "difficulty": {
+          "beginner": "Principiante",
+          "intermediate": "Intermedio",
+          "advanced": "Avanzado"
+        },
+        "muscleGroups": {
+          "chest": "Pecho",
+          "back": "Espalda",
+          "shoulders": "Hombros",
+          "arms": "Brazos",
+          "biceps": "Bíceps",
+          "triceps": "Tríceps",
+          "legs": "Piernas",
+          "quadriceps": "Cuádriceps",
+          "hamstrings": "Isquiotibiales",
+          "glutes": "Glúteos",
+          "calves": "Pantorrillas",
+          "core": "Core",
+          "abs": "Abdominales",
+          "cardio": "Cardio",
+          "full_body": "Cuerpo Completo"
+        },
+        "dialog": {
+          "createTemplate": "Crear Plantilla de Sesión",
+          "editTemplate": "Editar Plantilla de Sesión",
+          "description": "Configura los detalles de tu plantilla de sesión",
+          "cancel": "Cancelar",
+          "save": "Guardar Plantilla",
+          "exercises": "Ejercicios"
+        },
+        "summary": {
+          "title": "Resumen de Plantillas",
+          "totalTemplates": "Total de Plantillas",
+          "avgDuration": "Duración Promedio (min)",
+          "totalExercises": "Total de Ejercicios",
+          "muscleGroupsCovered": "Grupos Musculares"
+        },
+        "filters": {
+          "findTitle": "Encontrar Ejercicios",
+          "searchPlaceholder": "Buscar ejercicios o grupos musculares...",
+          "placeholders": {
+            "category": "Categoría",
+            "difficulty": "Dificultad",
+            "equipment": "Equipamiento"
+          },
+          "tabs": {
+            "browse": "Explorar Ejercicios",
+            "selected": "Seleccionados ({selected}/{max})"
+          },
+          "categories": {
+            "all": "Todos los Ejercicios",
+            "chest": "Pecho",
+            "back": "Espalda",
+            "legs": "Piernas",
+            "shoulders": "Hombros",
+            "arms": "Brazos",
+            "core": "Core",
+            "cardio": "Cardio"
+          },
+          "difficulty": {
+            "all": "Todos los Niveles",
+            "beginner": "Principiante",
+            "intermediate": "Intermedio",
+            "advanced": "Avanzado"
+          },
+          "equipment": {
+            "all": "Todo el Equipamiento",
+            "bodyweight": "Peso Corporal",
+            "dumbbells": "Mancuernas",
+            "barbell": "Barra",
+            "machines": "Máquinas",
+            "cables": "Cables"
+          },
+          "results": "{count} ejercicios encontrados",
+          "selectedCount": "{selected}/{max} seleccionados",
+          "empty": {
+            "title": "No se encontraron ejercicios",
+            "description": "Intenta ajustar tus términos de búsqueda o filtros"
+          },
+          "selectedEmpty": {
+            "title": "No hay ejercicios seleccionados",
+            "description": "Explora ejercicios y agrégalos para configurar tu entrenamiento"
+          }
+        }
+      },
       "steps": {
         "templates": {
           "title": "Plantillas de Sesión",
@@ -378,7 +586,8 @@
           "editTemplate": "Editar Plantilla de Sesión",
           "description": "Configura los detalles de tu plantilla de sesión",
           "cancel": "Cancelar",
-          "save": "Guardar Plantilla"
+          "save": "Guardar Plantilla",
+          "exercises": "Ejercicios"
         },
         "empty": {
           "title": "Aún No Hay Plantillas de Sesión",
@@ -718,6 +927,70 @@
         "name": "Nueva Sesión de Entrenamiento"
       }
     },
+    "templates": {
+      "filters": {
+        "findTitle": "Buscar Ejercicios",
+        "searchPlaceholder": "Buscar ejercicios o grupos musculares...",
+        "placeholders": {
+          "category": "Categoría",
+          "difficulty": "Dificultad",
+          "equipment": "Equipamiento"
+        },
+        "tabs": {
+          "browse": "Explorar Ejercicios",
+          "selected": "Seleccionados ({selected}/{max})"
+        },
+        "categories": {
+          "all": "Todos los Ejercicios",
+          "chest": "Pecho",
+          "back": "Espalda",
+          "legs": "Piernas",
+          "shoulders": "Hombros",
+          "arms": "Brazos",
+          "core": "Core",
+          "cardio": "Cardio"
+        },
+        "difficulty": {
+          "all": "Todos los Niveles",
+          "beginner": "Principiante",
+          "intermediate": "Intermedio",
+          "advanced": "Avanzado"
+        },
+        "equipment": {
+          "all": "Todo el Equipamiento",
+          "bodyweight": "Peso Corporal",
+          "dumbbells": "Mancuernas",
+          "barbell": "Barra",
+          "machines": "Máquinas",
+          "cables": "Poleas"
+        },
+        "results": "{count} ejercicios encontrados",
+        "selectedCount": "{selected}/{max} seleccionados",
+        "empty": {
+          "title": "No se encontraron ejercicios",
+          "description": "Intenta ajustar tus términos de búsqueda o filtros"
+        },
+        "selectedEmpty": {
+          "title": "No hay ejercicios seleccionados",
+          "description": "Explora ejercicios y agrégalos para configurar tu entrenamiento"
+        }
+      },
+      "quickStart": {
+        "title": "Inicio Rápido",
+        "description": "Usa plantillas predefinidas o crea desde cero"
+      },
+      "stats": {
+        "exercises": "ejercicios",
+        "muscleGroups": "grupos musculares"
+      },
+      "targetMuscles": "Músculos Objetivo",
+      "exercisePreview": "Vista Previa de Ejercicios:",
+      "exerciseLabel": "Ejercicio {number}",
+      "moreCount": "+{count} más",
+      "dialog": {
+        "exercises": "Ejercicios"
+      }
+    },
     "steps": {
       "basics": {
         "title": "Fundamentos del Plan",
@@ -914,6 +1187,60 @@
         },
         "exercisePreview": "Vista Previa de Ejercicios:",
         "moreExercises": "más ejercicios",
+        "targetMuscles": "Músculos Objetivo",
+        "exerciseLabel": "Ejercicio {number}",
+        "moreCount": "+{count} más",
+        "quickStart": {
+          "title": "Inicio Rápido",
+          "description": "Usa plantillas predefinidas o crea desde cero"
+        },
+        "filters": {
+          "findTitle": "Buscar Ejercicios",
+          "searchPlaceholder": "Buscar ejercicios o grupos musculares...",
+          "placeholders": {
+            "category": "Categoría",
+            "difficulty": "Dificultad",
+            "equipment": "Equipamiento"
+          },
+          "tabs": {
+            "browse": "Explorar Ejercicios",
+            "selected": "Seleccionados ({selected}/{max})"
+          },
+          "categories": {
+            "all": "Todos los Ejercicios",
+            "chest": "Pecho",
+            "back": "Espalda",
+            "legs": "Piernas",
+            "shoulders": "Hombros",
+            "arms": "Brazos",
+            "core": "Core",
+            "cardio": "Cardio"
+          },
+          "difficulty": {
+            "all": "Todos los Niveles",
+            "beginner": "Principiante",
+            "intermediate": "Intermedio",
+            "advanced": "Avanzado"
+          },
+          "equipment": {
+            "all": "Todo el Equipamiento",
+            "bodyweight": "Peso Corporal",
+            "dumbbells": "Mancuernas",
+            "barbell": "Barra",
+            "machines": "Máquinas",
+            "cables": "Poleas"
+          },
+          "results": "{count} ejercicios encontrados",
+          "selectedCount": "{selected}/{max} seleccionados",
+          "empty": {
+            "title": "No se encontraron ejercicios",
+            "description": "Intenta ajustar tus términos de búsqueda o filtros"
+          },
+          "selectedEmpty": {
+            "title": "No hay ejercicios seleccionados",
+            "description": "Explora ejercicios y agrégalos para configurar tu entrenamiento"
+          }
+        },
         "fields": {
           "name": "Nombre de Plantilla",
           "namePlaceholder": "ej., Día de Empuje Tren Superior",
@@ -1225,6 +1552,215 @@
           "ready": "Listo",
           "counting": "Contando",
           "waiting": "Esperando"
+        }
+      }
+    }
+  },
+  "generate": {
+    "header": {
+      "title": "Generador de Entrenamientos con IA",
+      "subtitle": "Crea entrenamientos personalizados"
+    },
+    "steps": {
+      "preferences": "Preferencias",
+      "generating": "Generando",
+      "review": "Revisar",
+      "complete": "Completo"
+    },
+    "intro": {
+      "title": "Creemos tu Entrenamiento Perfecto",
+      "subtitle": "Cuéntanos sobre tus objetivos y preferencias"
+    },
+    "fitnessLevel": {
+      "title": "Nivel de Fitness",
+      "description": "Ayúdanos a entender tu experiencia actual",
+      "levels": {
+        "beginner": {
+          "name": "Principiante",
+          "description": "Nuevo en el ejercicio o retomándolo"
+        },
+        "intermediate": {
+          "name": "Intermedio",
+          "description": "Rutina regular de ejercicio por 6+ meses"
+        },
+        "advanced": {
+          "name": "Avanzado",
+          "description": "Entrenamiento consistente por 2+ años"
+        }
+      }
+    },
+    "fitnessGoals": {
+      "title": "Objetivos de Fitness",
+      "description": "Selecciona todos los objetivos que apliquen",
+      "options": {
+        "weight_loss": "Pérdida de Peso",
+        "muscle_gain": "Ganancia Muscular",
+        "strength": "Fuerza",
+        "endurance": "Resistencia",
+        "flexibility": "Flexibilidad",
+        "general_fitness": "Fitness General"
+      }
+    },
+    "duration": {
+      "title": "Duración del Entrenamiento",
+      "description": "¿Cuánto quieres que dure cada entrenamiento?",
+      "label": "Duración: {minutes} minutos",
+      "minLabel": "20 min",
+      "maxLabel": "120 min"
+    },
+    "daysPerWeek": {
+      "label": "Días por semana: {days}",
+      "min": "1 día",
+      "max": "7 días"
+    },
+    "equipment": {
+      "title": "Equipamiento Disponible",
+      "description": "Selecciona todo el equipamiento al que tienes acceso",
+      "options": {
+        "bodyweight": "Solo Peso Corporal",
+        "dumbbells": "Mancuernas",
+        "barbell": "Barra",
+        "resistance_bands": "Bandas de Resistencia",
+        "full_gym": "Acceso a Gimnasio Completo",
+        "home_gym": "Gimnasio en Casa"
+      }
+    },
+    "actions": {
+      "generate": "Generar mi Entrenamiento"
+    }
+  },
+  "workouts": {
+    "createPlan": {
+      "schedule": {
+        "title": "Horario Semanal",
+        "description": "Arrastra y suelta sesiones para construir tu horario de entrenamiento semanal.",
+        "addSession": "Agregar Sesión",
+        "stats": {
+          "sessions": "Sesiones",
+          "totalTime": "Tiempo Total",
+          "avgDuration": "Duración Prom.",
+          "restDays": "Días de Descanso"
+        },
+        "days": {
+          "monday": "Lunes",
+          "tuesday": "Martes",
+          "wednesday": "Miércoles",
+          "thursday": "Jueves",
+          "friday": "Viernes",
+          "saturday": "Sábado",
+          "sunday": "Domingo"
+        },
+        "dropZone": {
+          "empty": "No hay sesiones programadas",
+          "instruction": "Arrastra sesiones aquí o agrega nuevas"
+        },
+        "editor": {
+          "title": "Editar Sesión",
+          "sessionName": "Nombre de la Sesión",
+          "sessionNamePlaceholder": "ej., Fuerza Tren Superior",
+          "sessionType": "Tipo de Sesión",
+          "duration": "Duración (minutos)",
+          "durationHint": "Recomendado: 30-90 minutos",
+          "save": "Guardar Sesión",
+          "cancel": "Cancelar"
+        },
+        "defaultSession": {
+          "name": "Nueva Sesión de Entrenamiento"
+        }
+      },
+      "templates": {
+        "title": "Plantillas de Sesión",
+        "description": "Crea plantillas de sesión de entrenamiento que definen ejercicios, series y repeticiones",
+        "quickStart": {
+          "title": "Inicio Rápido",
+          "description": "Usa plantillas predefinidas o crea desde cero"
+        },
+        "predefined": {
+          "select": "Agregar desde plantillas",
+          "lower_body_quad_focus": {
+            "name": "Tren Inferior - Enfoque Cuádriceps",
+            "description": "Énfasis en cuádriceps con corrección de desbalances"
+          },
+          "upper_body_push": {
+            "name": "Tren Superior - Empuje",
+            "description": "Desarrollo de pecho, hombros y tríceps"
+          }
+        },
+        "actions": {
+          "createNew": "Crear Nueva Plantilla"
+        },
+        "empty": {
+          "title": "Aún No Hay Plantillas de Sesión",
+          "description": "Crea plantillas de sesión para definir la estructura de tu entrenamiento. Puedes empezar con una plantilla predefinida o crear una desde cero.",
+          "useTemplate": "Usar Plantilla",
+          "createFromScratch": "Crear Desde Cero"
+        },
+        "untitled": "Plantilla Sin Título",
+        "noDescription": "No se proporcionó descripción",
+        "stats": {
+          "minutes": "minutos",
+          "exercises": "ejercicios",
+          "muscleGroups": "grupos musculares"
+        },
+        "exercisePreview": "Vista Previa de Ejercicios:",
+        "moreExercises": "más ejercicios",
+        "fields": {
+          "name": "Nombre de la Plantilla",
+          "namePlaceholder": "ej., Día de Empuje Tren Superior",
+          "description": "Descripción",
+          "descriptionPlaceholder": "Describe el enfoque y la metodología de esta sesión...",
+          "duration": "Duración (minutos)",
+          "sessionType": "Tipo de Sesión",
+          "difficulty": "Nivel de Dificultad",
+          "muscleGroups": "Grupos Musculares Objetivo"
+        },
+        "sessionType": {
+          "workout": "Entrenamiento",
+          "assessment": "Evaluación",
+          "recovery": "Recuperación"
+        },
+        "difficulty": {
+          "beginner": "Principiante",
+          "intermediate": "Intermedio",
+          "advanced": "Avanzado"
+        },
+        "muscleGroups": {
+          "chest": "Pecho",
+          "back": "Espalda",
+          "shoulders": "Hombros",
+          "arms": "Brazos",
+          "biceps": "Bíceps",
+          "triceps": "Tríceps",
+          "legs": "Piernas",
+          "quadriceps": "Cuádriceps",
+          "hamstrings": "Isquiotibiales",
+          "glutes": "Glúteos",
+          "calves": "Pantorrillas",
+          "core": "Core",
+          "abs": "Abdomen",
+          "cardio": "Cardio",
+          "full_body": "Cuerpo Completo"
+        },
+
+        "dialog": {
+          "createTemplate": "Crear Plantilla de Sesión",
+          "editTemplate": "Editar Plantilla de Sesión",
+          "description": "Configura los detalles de tu plantilla de sesión",
+          "cancel": "Cancelar",
+          "save": "Guardar Plantilla"
+        },
+        "summary": {
+          "title": "Resumen de Plantillas",
+          "totalTemplates": "Total Plantillas",
+          "avgDuration": "Duración Prom. (min)",
+          "totalExercises": "Total Ejercicios",
+          "muscleGroupsCovered": "Grupos Musculares"
+        }
+      },
+      "steps": {
+        "templates": {
+          "title": "Plantillas de Sesión",
+          "description": "Crea plantillas de sesión de entrenamiento que definen ejercicios, series y repeticiones"
         }
       }
     }

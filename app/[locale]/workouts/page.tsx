@@ -7,6 +7,7 @@
 import { Suspense, useCallback } from 'react';
 import { use } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import {
   Dumbbell,
@@ -29,176 +30,86 @@ import {
   ProgressOverview,
 } from '@/components/workouts/workout-stats';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LoadingSpinner } from '@/components/ui/loading';
+import { LoadingState } from '@/components/ui/loading-state';
+import { ErrorState } from '@/components/ui/error-state';
+import { EmptyState } from '@/components/ui/empty-state';
 import { AppNavigation } from '../../../components/navigation/app-navigation';
 import { createLocalizedPath } from '../../../lib/localized-navigation';
 import { TranslationErrorBoundary } from '../../../components/providers/translation-error-boundary';
+import { useWorkoutStats, useWorkoutPlans, useWorkoutSessions, useTodaysSessions } from '../../../hooks/use-workout-data';
+import { createWorkoutSession } from '../../../lib/api/workout-sessions';
 
 interface WorkoutsPageProps {
   params: Promise<{ locale: string }>;
 }
 
-// Mock data for demonstration - in a real app, this would come from API calls
-const mockStats = {
-  totalWorkouts: 47,
-  weeklyWorkouts: 4,
-  currentStreak: 12,
-  totalMinutes: 2340,
-  averageIntensity: 7.5,
-  completionRate: 85,
-};
-
-const mockTrends = {
-  workouts: { value: 15, direction: 'up' as const },
-  streak: { value: 3, direction: 'up' as const },
-  intensity: { value: -5, direction: 'down' as const },
-  completion: { value: 8, direction: 'up' as const },
-};
-
-const mockWorkoutPlans = [
-  {
-    id: '1',
-    userId: 'user1',
-    name: 'Summer Strength Challenge',
-    description: 'Build lean muscle and increase strength over 12 weeks',
-    durationWeeks: 12,
-    sessionsPerWeek: 4,
-    fitnessGoals: ['strength', 'muscle_gain', 'fat_loss'],
-    targetFitnessLevel: 'intermediate' as const,
-    estimatedSessionDuration: 75,
-    status: 'active' as const,
-    planData: { summary: '', phases: [], progressionStrategy: '' },
-    weeklySchedule: {},
-    version: 1,
-    isTemplate: false,
-    isPublic: false,
-    isFeatured: false,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '2',
-    userId: 'user1',
-    name: 'Morning Cardio Blast',
-    description: 'High-intensity cardio workouts to start your day',
-    durationWeeks: 8,
-    sessionsPerWeek: 5,
-    fitnessGoals: ['cardio', 'fat_loss', 'endurance'],
-    targetFitnessLevel: 'beginner' as const,
-    estimatedSessionDuration: 30,
-    status: 'draft' as const,
-    planData: { summary: '', phases: [], progressionStrategy: '' },
-    weeklySchedule: {},
-    version: 1,
-    isTemplate: false,
-    isPublic: false,
-    isFeatured: false,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
-
-const mockSessions = [
-  {
-    id: '1',
-    userId: 'user1',
-    workoutPlanId: '1',
-    name: 'Upper Body Power',
-    sessionType: 'workout' as const,
-    scheduledDate: new Date(),
-    scheduledTime: '07:00',
-    scheduledDuration: 75,
-    sessionData: {
-      totalExercises: 8,
-      estimatedDuration: 75,
-      targetMuscleGroups: ['chest', 'shoulders', 'triceps'],
-      equipmentNeeded: ['barbell', 'dumbbells', 'bench'],
-      difficultyLevel: 'intermediate' as const,
-    },
-    warmUpExercises: [],
-    mainExercises: [],
-    coolDownExercises: [],
-    completionPercentage: 0,
-    status: 'scheduled' as const,
-    equipmentUsed: [],
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '2',
-    userId: 'user1',
-    workoutPlanId: '1',
-    name: 'Lower Body Strength',
-    sessionType: 'workout' as const,
-    scheduledDate: new Date(Date.now() + 86400000), // Tomorrow
-    scheduledTime: '18:30',
-    scheduledDuration: 80,
-    sessionData: {
-      totalExercises: 6,
-      estimatedDuration: 80,
-      targetMuscleGroups: ['quadriceps', 'hamstrings', 'glutes'],
-      equipmentNeeded: ['squat_rack', 'barbells', 'leg_press'],
-      difficultyLevel: 'intermediate' as const,
-    },
-    warmUpExercises: [],
-    mainExercises: [],
-    coolDownExercises: [],
-    completionPercentage: 0,
-    status: 'scheduled' as const,
-    equipmentUsed: [],
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '3',
-    userId: 'user1',
-    workoutPlanId: '1',
-    name: 'Push Day Complete',
-    sessionType: 'workout' as const,
-    scheduledDate: new Date(Date.now() - 86400000), // Yesterday
-    completedAt: new Date(Date.now() - 82800000),
-    actualDuration: 72,
-    sessionData: {
-      totalExercises: 7,
-      estimatedDuration: 75,
-      targetMuscleGroups: ['chest', 'shoulders', 'triceps'],
-      equipmentNeeded: ['dumbbells', 'cables'],
-      difficultyLevel: 'intermediate' as const,
-    },
-    warmUpExercises: [],
-    mainExercises: [],
-    coolDownExercises: [],
-    completionPercentage: 100,
-    effortRating: 8,
-    status: 'completed' as const,
-    equipmentUsed: ['dumbbells', 'cables'],
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
-
 export default function WorkoutsPage({ params }: WorkoutsPageProps) {
   const t = useTranslations('workouts');
   const { locale } = use(params);
-  const handleStartWorkout = useCallback((workoutId: string) => {
-    // Navigate to workout session or create new session
-    console.log('Starting workout:', workoutId);
-  }, []);
+  const router = useRouter();
+  
+  // Fetch real data using hooks
+  const { stats, trends, isLoading: statsLoading, error: statsError } = useWorkoutStats();
+  const { plans, isLoading: plansLoading, error: plansError } = useWorkoutPlans();
+  const { sessions, isLoading: sessionsLoading, error: sessionsError } = useWorkoutSessions();
+  const { sessions: todaysSessions, isLoading: todaysLoading, error: todaysError } = useTodaysSessions();
+  const handleStartWorkout = useCallback(async (workoutId: string) => {
+    try {
+      // Find the workout plan
+      const plan = plans.find(p => p.id === workoutId);
+      if (!plan) {
+        console.error('Workout plan not found:', workoutId);
+        return;
+      }
+
+      // Check if plan has templates
+      const templates = plan.planData?.templates || [];
+      if (templates.length === 0) {
+        // Navigate to plan details for template creation
+        const planPath = createLocalizedPath(`workouts/plans/${workoutId}`, locale as 'en' | 'es');
+        router.push(planPath);
+        return;
+      }
+
+      // Create session with first available template
+      const template = templates[0];
+      const today = new Date();
+      
+      const createRequest = {
+        name: `${template.name} - ${today.toLocaleDateString()}`,
+        workoutPlanId: workoutId,
+        scheduledDate: today.toISOString(),
+        sessionData: template,
+        scheduledDuration: template.estimatedDuration || 60,
+      };
+
+      const response = await createWorkoutSession(createRequest);
+
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to create session');
+      }
+
+      // Navigate to session execution
+      const sessionPath = createLocalizedPath(`workouts/sessions/${response.data!.id}`, locale as 'en' | 'es');
+      router.push(sessionPath);
+      
+    } catch (error) {
+      console.error('Failed to start workout:', error);
+      // TODO: Show user-friendly error toast
+    }
+  }, [plans, router, locale]);
 
   const handleStartSession = useCallback((sessionId: string) => {
-    // Navigate to active session
-    console.log('Starting session:', sessionId);
-  }, []);
+    // Navigate to session execution page
+    const sessionPath = createLocalizedPath(`workouts/sessions/${sessionId}`, locale as 'en' | 'es');
+    router.push(sessionPath);
+  }, [router, locale]);
 
   const handleContinueSession = useCallback((sessionId: string) => {
-    // Navigate to active session
-    console.log('Continuing session:', sessionId);
-  }, []);
+    // Navigate to session execution page
+    const sessionPath = createLocalizedPath(`workouts/sessions/${sessionId}`, locale as 'en' | 'es');
+    router.push(sessionPath);
+  }, [router, locale]);
 
   return (
     <TranslationErrorBoundary>
@@ -237,9 +148,18 @@ export default function WorkoutsPage({ params }: WorkoutsPageProps) {
 
           {/* Statistics Grid */}
           <div className='mb-8'>
-            <Suspense fallback={<LoadingSpinner />}>
-              <WorkoutStatsGrid stats={mockStats} trends={mockTrends} />
-            </Suspense>
+            {statsLoading ? (
+              <LoadingState variant="centered" message="Loading workout statistics..." />
+            ) : statsError ? (
+              <ErrorState 
+                variant="card"
+                message="Error loading workout statistics"
+                description={statsError || undefined}
+                onRetry={() => window.location.reload()}
+              />
+            ) : (
+              <WorkoutStatsGrid stats={stats} trends={trends} />
+            )}
           </div>
 
           {/* Main Tabs */}
@@ -270,8 +190,8 @@ export default function WorkoutsPage({ params }: WorkoutsPageProps) {
                 <div className='lg:col-span-2'>
                   <ProgressOverview
                     weeklyGoal={4}
-                    currentProgress={mockStats.weeklyWorkouts}
-                    monthlyStats={{ planned: 16, completed: 13 }}
+                    currentProgress={stats.weeklyWorkouts}
+                    monthlyStats={{ planned: 16, completed: Math.min(stats.totalWorkouts, 16) }}
                   />
                 </div>
 
@@ -363,29 +283,138 @@ export default function WorkoutsPage({ params }: WorkoutsPageProps) {
                 <h3 className='mb-4 text-xl font-semibold text-gray-900'>
                   {t('todaySessions.title')}
                 </h3>
+                {todaysLoading ? (
+                  <LoadingState variant="centered" message="Loading today's sessions..." />
+                ) : todaysError ? (
+                  <ErrorState 
+                    variant="card"
+                    message="Error loading today's sessions"
+                    description={todaysError || undefined}
+                    onRetry={() => window.location.reload()}
+                  />
+                ) : (
+                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+                    {todaysSessions.length > 0 ? (
+                      todaysSessions.map((session) => (
+                        <SessionCard
+                          key={session.id}
+                          session={session}
+                          onStart={handleStartSession}
+                          onContinue={handleContinueSession}
+                        />
+                      ))
+                    ) : (
+                      <div className='col-span-2 py-8 text-center text-gray-500'>
+                        <Calendar className='mx-auto mb-3 h-12 w-12 opacity-50' />
+                        <p>{t('todaySessions.noSessions')}</p>
+                        <Button asChild className='mt-3'>
+                          <Link
+                            href={createLocalizedPath(
+                              'workouts/sessions/schedule',
+                              locale as 'en' | 'es'
+                            )}
+                          >
+                            {t('buttons.scheduleSession')}
+                          </Link>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            {/* Workout Plans Tab */}
+            <TabsContent value='plans' className='space-y-6'>
+              <div className='flex items-center justify-between'>
+                <h3 className='text-xl font-semibold text-gray-900'>
+                  {t('myPlans.title')}
+                </h3>
+                <Badge variant='outline'>
+                  {plans.length} {t('myPlans.plans')}
+                </Badge>
+              </div>
+
+              {plansLoading ? (
+                <LoadingState variant="centered" message="Loading workout plans..." />
+              ) : plansError ? (
+                <ErrorState 
+                  variant="card"
+                  message="Error loading workout plans"
+                  description={plansError || undefined}
+                  onRetry={() => window.location.reload()}
+                />
+              ) : (
+                <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
+                  {plans.map((plan) => (
+                    <WorkoutCard
+                      key={plan.id}
+                      workout={plan}
+                      onStart={handleStartWorkout}
+                      showProgress={plan.status === 'active'}
+                    />
+                  ))}
+                  {plans.length === 0 && (
+                    <div className='col-span-3 py-8 text-center text-gray-500'>
+                      <Dumbbell className='mx-auto mb-3 h-12 w-12 opacity-50' />
+                      <p>No workout plans found</p>
+                      <Button asChild className='mt-3'>
+                        <Link
+                          href={createLocalizedPath(
+                            'workouts/create',
+                            locale as 'en' | 'es'
+                          )}
+                        >
+                          {t('buttons.newWorkout')}
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Sessions Tab */}
+            <TabsContent value='sessions' className='space-y-6'>
+              <div className='flex items-center justify-between'>
+                <h3 className='text-xl font-semibold text-gray-900'>
+                  {t('allSessions.title')}
+                </h3>
+                <div className='flex gap-2'>
+                  <Badge variant='success'>
+                    {sessions.filter((s) => s.status === 'completed').length}{' '}
+                    {t('allSessions.completed')}
+                  </Badge>
+                  <Badge variant='warning'>
+                    {sessions.filter((s) => s.status === 'scheduled').length}{' '}
+                    {t('allSessions.scheduled')}
+                  </Badge>
+                </div>
+              </div>
+
+              {sessionsLoading ? (
+                <LoadingState variant="centered" message="Loading sessions..." />
+              ) : sessionsError ? (
+                <ErrorState 
+                  variant="card"
+                  message="Error loading sessions"
+                  description={sessionsError || undefined}
+                  onRetry={() => window.location.reload()}
+                />
+              ) : (
                 <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                  {mockSessions
-                    .filter(
-                      (session) =>
-                        new Date(session.scheduledDate).toDateString() ===
-                        new Date().toDateString()
-                    )
-                    .map((session) => (
-                      <SessionCard
-                        key={session.id}
-                        session={session}
-                        onStart={handleStartSession}
-                        onContinue={handleContinueSession}
-                      />
-                    ))}
-                  {mockSessions.filter(
-                    (session) =>
-                      new Date(session.scheduledDate).toDateString() ===
-                      new Date().toDateString()
-                  ).length === 0 && (
+                  {sessions.map((session) => (
+                    <SessionCard
+                      key={session.id}
+                      session={session}
+                      onStart={handleStartSession}
+                      onContinue={handleContinueSession}
+                    />
+                  ))}
+                  {sessions.length === 0 && (
                     <div className='col-span-2 py-8 text-center text-gray-500'>
                       <Calendar className='mx-auto mb-3 h-12 w-12 opacity-50' />
-                      <p>{t('todaySessions.noSessions')}</p>
+                      <p>No sessions found</p>
                       <Button asChild className='mt-3'>
                         <Link
                           href={createLocalizedPath(
@@ -399,66 +428,7 @@ export default function WorkoutsPage({ params }: WorkoutsPageProps) {
                     </div>
                   )}
                 </div>
-              </div>
-            </TabsContent>
-
-            {/* Workout Plans Tab */}
-            <TabsContent value='plans' className='space-y-6'>
-              <div className='flex items-center justify-between'>
-                <h3 className='text-xl font-semibold text-gray-900'>
-                  {t('myPlans.title')}
-                </h3>
-                <Badge variant='outline'>
-                  {mockWorkoutPlans.length} {t('myPlans.plans')}
-                </Badge>
-              </div>
-
-              <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
-                {mockWorkoutPlans.map((plan) => (
-                  <WorkoutCard
-                    key={plan.id}
-                    workout={plan}
-                    onStart={handleStartWorkout}
-                    showProgress={plan.status === 'active'}
-                  />
-                ))}
-              </div>
-            </TabsContent>
-
-            {/* Sessions Tab */}
-            <TabsContent value='sessions' className='space-y-6'>
-              <div className='flex items-center justify-between'>
-                <h3 className='text-xl font-semibold text-gray-900'>
-                  {t('allSessions.title')}
-                </h3>
-                <div className='flex gap-2'>
-                  <Badge variant='success'>
-                    {
-                      mockSessions.filter((s) => s.status === 'completed')
-                        .length
-                    }{' '}
-                    {t('allSessions.completed')}
-                  </Badge>
-                  <Badge variant='warning'>
-                    {
-                      mockSessions.filter((s) => s.status === 'scheduled')
-                        .length
-                    }{' '}
-                    {t('allSessions.scheduled')}
-                  </Badge>
-                </div>
-              </div>
-
-              <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-                {mockSessions.map((session) => (
-                  <SessionCard
-                    key={session.id}
-                    session={session}
-                    onStart={handleStartSession}
-                    onContinue={handleContinueSession}
-                  />
-                ))}
-              </div>
+              )}
             </TabsContent>
 
             {/* Library Tab */}

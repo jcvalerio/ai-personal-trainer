@@ -4,9 +4,10 @@
  */
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { use } from 'react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import { UserButton } from '@clerk/nextjs';
 import {
   Dumbbell,
@@ -23,6 +24,7 @@ import {
   Pause,
   Archive,
   BarChart3,
+  Plus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -37,6 +39,8 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { SessionCard } from '@/components/workouts/session-card';
+import { LoadingState } from '@/components/ui/loading-state';
+import { ErrorState } from '@/components/ui/error-state';
 import {
   Dialog,
   DialogContent,
@@ -45,213 +49,313 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { WeeklySchedule } from '@/components/workouts/ui/weekly-schedule';
+import { SessionCreationDialog } from '@/components/workouts/ui/session-creation-dialog';
+import { QuickSessionStarter } from '@/components/workouts/ui/quick-session-starter';
+import { createLocalizedPath } from '@/lib/localized-navigation';
+import { 
+  getWorkoutPlan, 
+  getWorkoutPlanSessions,
+  startWorkoutPlan
+} from '@/lib/api/workout-plans';
+import { createWorkoutSession } from '@/lib/api/workout-sessions';
+import type { WorkoutPlan, WorkoutSession } from '@/types/workouts';
 
 interface PageProps {
-  params: { planId: string };
+  params: Promise<{ locale: string; planId: string }>;
 }
 
-// Mock data - in a real app, this would be fetched from the API
-const mockPlan = {
-  id: '1',
-  userId: 'user1',
-  name: 'Summer Strength Challenge',
-  description:
-    'Build lean muscle and increase strength over 12 weeks with progressive overload principles. This comprehensive program targets all major muscle groups with compound movements and isolation exercises.',
-  durationWeeks: 12,
-  sessionsPerWeek: 4,
-  fitnessGoals: ['strength', 'muscle_gain', 'fat_loss'],
-  targetFitnessLevel: 'intermediate' as const,
-  estimatedSessionDuration: 75,
-  status: 'active' as const,
-  planData: {
-    summary:
-      'A comprehensive 12-week strength training program designed to build muscle and increase overall strength.',
-    phases: [
-      {
-        name: 'Foundation Phase',
-        description: 'Build movement patterns and base strength',
-        durationWeeks: 4,
-        sessions: [],
-      },
-      {
-        name: 'Building Phase',
-        description: 'Increase volume and intensity progressively',
-        durationWeeks: 6,
-        sessions: [],
-      },
-      {
-        name: 'Peak Phase',
-        description: 'Peak strength and muscle development',
-        durationWeeks: 2,
-        sessions: [],
-      },
-    ],
-    progressionStrategy: 'Linear periodization with progressive overload',
-  },
-  weeklySchedule: {
-    'week-1': [
-      {
-        day: 'Monday',
-        sessionId: '1',
-        sessionName: 'Upper Body Power',
-        type: 'workout' as const,
-        duration: 75,
-      },
-      {
-        day: 'Tuesday',
-        sessionName: 'Rest Day',
-        type: 'rest' as const,
-        duration: 0,
-      },
-      {
-        day: 'Wednesday',
-        sessionId: '2',
-        sessionName: 'Lower Body Strength',
-        type: 'workout' as const,
-        duration: 80,
-      },
-      {
-        day: 'Thursday',
-        sessionName: 'Active Recovery',
-        type: 'active_recovery' as const,
-        duration: 30,
-      },
-      {
-        day: 'Friday',
-        sessionId: '3',
-        sessionName: 'Push Focus',
-        type: 'workout' as const,
-        duration: 70,
-      },
-      {
-        day: 'Saturday',
-        sessionId: '4',
-        sessionName: 'Pull Focus',
-        type: 'workout' as const,
-        duration: 70,
-      },
-      {
-        day: 'Sunday',
-        sessionName: 'Rest Day',
-        type: 'rest' as const,
-        duration: 0,
-      },
-    ],
-  },
-  version: 1,
-  isTemplate: false,
-  isPublic: false,
-  isFeatured: false,
-  isActive: true,
-  createdAt: new Date('2024-01-15'),
-  updatedAt: new Date(),
-  startedAt: new Date('2024-01-20'),
-  // Progress data (mock)
-  progress: {
-    currentWeek: 3,
-    completedSessions: 8,
-    totalSessions: 48,
-    completionPercentage: 17,
-  },
-};
+// Loading and error states
+interface PlanProgress {
+  completionPercentage: number;
+  currentWeek: number;
+  completedSessions: number;
+  totalSessions: number;
+}
 
-const mockSessions = [
-  {
-    id: '1',
-    userId: 'user1',
-    workoutPlanId: '1',
-    name: 'Upper Body Power',
-    sessionType: 'workout' as const,
-    scheduledDate: new Date(),
-    scheduledTime: '07:00',
-    scheduledDuration: 75,
-    sessionData: {
-      totalExercises: 8,
-      estimatedDuration: 75,
-      targetMuscleGroups: ['chest', 'shoulders', 'triceps'],
-      equipmentNeeded: ['barbell', 'dumbbells', 'bench'],
-      difficultyLevel: 'intermediate' as const,
-    },
-    warmUpExercises: [],
-    mainExercises: [],
-    coolDownExercises: [],
-    completionPercentage: 0,
-    status: 'scheduled' as const,
-    equipmentUsed: [],
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '2',
-    userId: 'user1',
-    workoutPlanId: '1',
-    name: 'Lower Body Strength',
-    sessionType: 'workout' as const,
-    scheduledDate: new Date(Date.now() + 2 * 86400000), // Day after tomorrow
-    scheduledTime: '18:30',
-    scheduledDuration: 80,
-    sessionData: {
-      totalExercises: 6,
-      estimatedDuration: 80,
-      targetMuscleGroups: ['quadriceps', 'hamstrings', 'glutes'],
-      equipmentNeeded: ['squat_rack', 'barbells', 'leg_press'],
-      difficultyLevel: 'intermediate' as const,
-    },
-    warmUpExercises: [],
-    mainExercises: [],
-    coolDownExercises: [],
-    completionPercentage: 0,
-    status: 'scheduled' as const,
-    equipmentUsed: [],
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '3',
-    userId: 'user1',
-    workoutPlanId: '1',
-    name: 'Push Day Complete',
-    sessionType: 'workout' as const,
-    scheduledDate: new Date(Date.now() - 86400000), // Yesterday
-    completedAt: new Date(Date.now() - 82800000),
-    actualDuration: 72,
-    sessionData: {
-      totalExercises: 7,
-      estimatedDuration: 75,
-      targetMuscleGroups: ['chest', 'shoulders', 'triceps'],
-      equipmentNeeded: ['dumbbells', 'cables'],
-      difficultyLevel: 'intermediate' as const,
-    },
-    warmUpExercises: [],
-    mainExercises: [],
-    coolDownExercises: [],
-    completionPercentage: 100,
-    effortRating: 8,
-    status: 'completed' as const,
-    equipmentUsed: ['dumbbells', 'cables'],
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
+interface PageState {
+  plan: (WorkoutPlan & { progress?: PlanProgress }) | null;
+  sessions: WorkoutSession[];
+  isLoading: boolean;
+  error: string | null;
+  sessionsLoading: boolean;
+  sessionsError: string | null;
+  startingPlan: boolean;
+  startPlanError: string | null;
+  isSessionCreationOpen: boolean;
+  selectedDateForSession: Date | null;
+}
 
 export default function WorkoutPlanDetailPage({ params }: PageProps) {
-  // In a real app, fetch the plan data based on params.planId
-  const plan = mockPlan;
+  const { locale, planId } = use(params);
+  const router = useRouter();
+  
+  // State management - ALL HOOKS AT TOP LEVEL
+  const [state, setState] = useState<PageState>({
+    plan: null,
+    sessions: [],
+    isLoading: true,
+    error: null,
+    sessionsLoading: false,
+    sessionsError: null,
+    startingPlan: false,
+    startPlanError: null,
+    isSessionCreationOpen: false,
+    selectedDateForSession: null,
+  });
 
-  if (!plan) {
-    notFound();
-  }
-
+  // All callbacks defined before any conditional logic
   const handleStartSession = useCallback((sessionId: string) => {
-    console.log('Starting session:', sessionId);
-  }, []);
+    // Navigate to session execution page
+    const sessionPath = createLocalizedPath(`workouts/sessions/${sessionId}`, locale as 'en' | 'es');
+    router.push(sessionPath);
+  }, [router, locale]);
 
   const handleContinueSession = useCallback((sessionId: string) => {
-    console.log('Continuing session:', sessionId);
+    // Navigate to session execution page
+    const sessionPath = createLocalizedPath(`workouts/sessions/${sessionId}`, locale as 'en' | 'es');
+    router.push(sessionPath);
+  }, [router, locale]);
+
+  const handleStartPlan = useCallback(async () => {
+    if (!state.plan || state.startingPlan) return;
+
+    setState(prev => ({
+      ...prev,
+      startingPlan: true,
+      startPlanError: null,
+    }));
+
+    try {
+      const response = await startWorkoutPlan(planId, {
+        generateInitialSessions: true,
+      });
+
+      if (response.success && response.data) {
+        // Update plan data with the activated plan
+        setState(prev => ({
+          ...prev,
+          plan: response.data!,
+          startingPlan: false,
+          startPlanError: null,
+        }));
+
+        // Refresh sessions data after starting the plan
+        setTimeout(async () => {
+          try {
+            const sessionsResponse = await getWorkoutPlanSessions(planId, {
+              limit: 20,
+              sortBy: 'scheduledDate',
+              sortOrder: 'desc',
+            });
+            
+            if (sessionsResponse.success && sessionsResponse.data) {
+              setState(prev => ({
+                ...prev,
+                sessions: sessionsResponse.data!,
+              }));
+            }
+          } catch (error) {
+            console.warn('Failed to refresh sessions after starting plan:', error);
+          }
+        }, 1000);
+      } else {
+        setState(prev => ({
+          ...prev,
+          startingPlan: false,
+          startPlanError: typeof response.error === 'string' ? response.error : 'Failed to start workout plan',
+        }));
+      }
+    } catch (error) {
+      console.error('Error starting plan:', error);
+      setState(prev => ({
+        ...prev,
+        startingPlan: false,
+        startPlanError: 'An unexpected error occurred',
+      }));
+    }
+  }, [planId, state.plan, state.startingPlan]);
+
+  // Session creation handlers
+  const handleCreateSession = useCallback((date?: Date) => {
+    setState(prev => ({
+      ...prev,
+      selectedDateForSession: date || new Date(),
+      isSessionCreationOpen: true,
+    }));
   }, []);
+
+  const handleSessionCreated = useCallback((sessionId: string) => {
+    // Refresh sessions after creation
+    const refetchSessions = async () => {
+      try {
+        const response = await getWorkoutPlanSessions(planId, {
+          limit: 20,
+          sortBy: 'scheduledDate',
+          sortOrder: 'desc',
+        });
+        
+        if (response.success && response.data) {
+          setState(prev => ({
+            ...prev,
+            sessions: response.data!,
+          }));
+        }
+      } catch (error) {
+        console.error('Failed to refresh sessions:', error);
+      }
+    };
+
+    refetchSessions();
+
+    // Start the newly created session
+    handleStartSession(sessionId);
+  }, [planId, handleStartSession]);
+
+  const handleCloseSessionCreation = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      isSessionCreationOpen: false,
+      selectedDateForSession: null,
+    }));
+  }, []);
+
+  const handleRefreshSessions = useCallback(async () => {
+    setState(prev => ({ ...prev, sessionsLoading: true, sessionsError: null }));
+    
+    try {
+      const response = await getWorkoutPlanSessions(planId, {
+        limit: 20,
+        sortBy: 'scheduledDate',
+        sortOrder: 'desc',
+      });
+      
+      if (response.success && response.data) {
+        setState(prev => ({
+          ...prev,
+          sessions: response.data!,
+          sessionsLoading: false,
+          sessionsError: null,
+        }));
+      } else {
+        setState(prev => ({
+          ...prev,
+          sessionsLoading: false,
+          sessionsError: response.error || 'Failed to load sessions',
+        }));
+      }
+    } catch {
+      setState(prev => ({
+        ...prev,
+        sessionsLoading: false,
+        sessionsError: 'An unexpected error occurred loading sessions',
+      }));
+    }
+  }, [planId]);
+
+  // Fetch workout plan data
+  useEffect(() => {
+    async function fetchPlan() {
+      try {
+        const response = await getWorkoutPlan(planId);
+        if (response.success && response.data) {
+          setState(prev => ({
+            ...prev,
+            plan: response.data!,
+            isLoading: false,
+            error: null,
+          }));
+        } else {
+          setState(prev => ({
+            ...prev,
+            isLoading: false,
+            error: response.error || 'Failed to load workout plan',
+          }));
+        }
+      } catch {
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          error: 'An unexpected error occurred',
+        }));
+      }
+    }
+
+    fetchPlan();
+  }, [planId]);
+
+  // Fetch sessions for the plan
+  useEffect(() => {
+    async function fetchSessions() {
+      if (!state.plan) return;
+      
+      setState(prev => ({ ...prev, sessionsLoading: true, sessionsError: null }));
+      
+      try {
+        const response = await getWorkoutPlanSessions(planId, {
+          limit: 20, // Get first 20 sessions
+          sortBy: 'scheduledDate',
+          sortOrder: 'desc',
+        });
+        
+        if (response.success && response.data) {
+          setState(prev => ({
+            ...prev,
+            sessions: response.data!,
+            sessionsLoading: false,
+            sessionsError: null,
+          }));
+        } else {
+          setState(prev => ({
+            ...prev,
+            sessionsLoading: false,
+            sessionsError: response.error || 'Failed to load sessions',
+          }));
+        }
+      } catch {
+        setState(prev => ({
+          ...prev,
+          sessionsLoading: false,
+          sessionsError: 'An unexpected error occurred loading sessions',
+        }));
+      }
+    }
+
+    fetchSessions();
+  }, [planId, state.plan]);
+
+  // Loading state - CONDITIONAL LOGIC AFTER ALL HOOKS
+  if (state.isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingState 
+          message="Loading workout plan..." 
+          size="lg" 
+          variant="centered"
+        />
+      </div>
+    );
+  }
+
+  // Error state
+  if (state.error || !state.plan) {
+    return (
+      <div className="flex items-center justify-center min-h-screen px-4">
+        <div className="w-full max-w-md">
+          <ErrorState
+            message="Failed to load workout plan"
+            description={state.error || 'Workout plan not found'}
+            variant="card"
+            onRetry={() => window.location.reload()}
+            showRetry={!!state.error}
+            className="w-full"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  const { plan } = state;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -286,7 +390,79 @@ export default function WorkoutPlanDetailPage({ params }: PageProps) {
       {/* Header */}
       <header className='sticky top-0 z-40 border-b border-gray-200 bg-white'>
         <div className='mx-auto max-w-7xl px-4 sm:px-6 lg:px-8'>
-          <div className='flex h-16 items-center justify-between'>
+          {/* Mobile Header */}
+          <div className='flex h-16 items-center justify-between lg:hidden'>
+            <div className='flex items-center gap-3 flex-1 min-w-0'>
+              <Link
+                href='/workouts/plans'
+                className='rounded-lg p-2 transition-colors hover:bg-gray-100 flex-shrink-0'
+              >
+                <ArrowLeft className='h-5 w-5 text-gray-600' />
+              </Link>
+              <div className='flex items-center gap-3 min-w-0 flex-1'>
+                <div className='rounded-xl bg-blue-100 p-2 flex-shrink-0'>
+                  <Dumbbell className='h-6 w-6 text-blue-600' />
+                </div>
+                <div className='min-w-0 flex-1'>
+                  <h1 className='text-lg font-bold text-gray-900 truncate'>
+                    {plan.name}
+                  </h1>
+                  <p className='text-xs text-gray-500'>Workout Plan</p>
+                </div>
+              </div>
+            </div>
+
+            <div className='flex items-center gap-2 flex-shrink-0'>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant='outline' size='sm' className='min-h-[44px] min-w-[44px] p-2'>
+                    <MoreVertical className='h-4 w-4' />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Plan Actions</DialogTitle>
+                    <DialogDescription>
+                      Manage your workout plan
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className='grid gap-3'>
+                    <Button variant='outline' className='justify-start min-h-[44px]'>
+                      <Share2 className='mr-2 h-4 w-4' />
+                      Share Plan
+                    </Button>
+                    <Button variant='outline' className='justify-start min-h-[44px]'>
+                      <Edit className='mr-2 h-4 w-4' />
+                      Edit Plan
+                    </Button>
+                    <Button variant='outline' className='justify-start min-h-[44px]'>
+                      <Copy className='mr-2 h-4 w-4' />
+                      Duplicate Plan
+                    </Button>
+                    <Button variant='outline' className='justify-start min-h-[44px]'>
+                      <Pause className='mr-2 h-4 w-4' />
+                      Pause Plan
+                    </Button>
+                    <Button variant='destructive' className='justify-start min-h-[44px]'>
+                      <Archive className='mr-2 h-4 w-4' />
+                      Archive Plan
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: 'w-8 h-8',
+                  },
+                }}
+                showName={false}
+              />
+            </div>
+          </div>
+
+          {/* Desktop Header */}
+          <div className='hidden lg:flex h-16 items-center justify-between'>
             <div className='flex items-center gap-3'>
               <Link
                 href='/workouts/plans'
@@ -361,7 +537,7 @@ export default function WorkoutPlanDetailPage({ params }: PageProps) {
       {/* Main Content */}
       <main className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
         {/* Plan Overview */}
-        <div className='mb-8 grid grid-cols-1 gap-8 lg:grid-cols-3'>
+        <div className='mb-8 grid grid-cols-1 gap-6 lg:gap-8 lg:grid-cols-3'>
           {/* Main Info */}
           <div className='lg:col-span-2'>
             <Card>
@@ -387,7 +563,7 @@ export default function WorkoutPlanDetailPage({ params }: PageProps) {
               </CardHeader>
 
               <CardContent>
-                <div className='mb-6 grid grid-cols-2 gap-4 md:grid-cols-4'>
+                <div className='mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4'>
                   <div className='flex items-center gap-2 text-sm text-gray-600'>
                     <Calendar className='h-4 w-4' />
                     <span>{plan.durationWeeks} weeks</span>
@@ -426,16 +602,17 @@ export default function WorkoutPlanDetailPage({ params }: PageProps) {
                 )}
 
                 {plan.status === 'active' && (
-                  <div className='flex gap-3'>
-                    <Button className='flex-1'>
-                      <Play className='mr-2 h-4 w-4' />
-                      Start Today's Workout
-                    </Button>
-                    <Button variant='outline' className='flex-1'>
-                      <Calendar className='mr-2 h-4 w-4' />
-                      View Schedule
-                    </Button>
-                  </div>
+                  <QuickSessionStarter
+                    workoutPlan={plan}
+                    todaysSessions={state.sessions.filter(session => {
+                      const today = new Date();
+                      const sessionDate = new Date(session.scheduledDate);
+                      return today.toDateString() === sessionDate.toDateString();
+                    })}
+                    availableTemplates={plan.planData.templates || []}
+                    onSessionCreated={handleSessionCreated}
+                    onStartSession={handleStartSession}
+                  />
                 )}
               </CardContent>
             </Card>
@@ -512,10 +689,30 @@ export default function WorkoutPlanDetailPage({ params }: PageProps) {
                   <div className='py-4 text-center'>
                     <p className='text-gray-600'>Plan is {plan.status}</p>
                     {plan.status === 'draft' && (
-                      <Button className='mt-3 w-full'>
-                        <Play className='mr-2 h-4 w-4' />
-                        Start Plan
-                      </Button>
+                      <>
+                        <Button 
+                          className='mt-3 w-full min-h-[44px]'
+                          onClick={handleStartPlan}
+                          disabled={state.startingPlan}
+                        >
+                          {state.startingPlan ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 mr-2 border-b-2 border-white"></div>
+                              Starting Plan...
+                            </>
+                          ) : (
+                            <>
+                              <Play className='mr-2 h-4 w-4' />
+                              Start Plan
+                            </>
+                          )}
+                        </Button>
+                        {state.startPlanError && (
+                          <p className="mt-2 text-sm text-red-600">
+                            {state.startPlanError}
+                          </p>
+                        )}
+                      </>
                     )}
                   </div>
                 )}
@@ -526,82 +723,108 @@ export default function WorkoutPlanDetailPage({ params }: PageProps) {
 
         {/* Detailed Tabs */}
         <Tabs defaultValue='sessions' className='w-full'>
-          <TabsList className='grid w-full grid-cols-4'>
-            <TabsTrigger value='sessions'>Sessions</TabsTrigger>
-            <TabsTrigger value='schedule'>Schedule</TabsTrigger>
-            <TabsTrigger value='phases'>Phases</TabsTrigger>
-            <TabsTrigger value='analytics'>Analytics</TabsTrigger>
+          <TabsList className='grid w-full grid-cols-2 sm:grid-cols-4 mb-2'>
+            <TabsTrigger value='sessions' className='text-sm'>Sessions</TabsTrigger>
+            <TabsTrigger value='schedule' className='text-sm'>Schedule</TabsTrigger>
+            <TabsTrigger value='phases' className='text-sm'>Phases</TabsTrigger>
+            <TabsTrigger value='analytics' className='text-sm'>Analytics</TabsTrigger>
           </TabsList>
 
           {/* Sessions Tab */}
           <TabsContent value='sessions' className='mt-6'>
-            <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
-              {mockSessions.map((session) => (
-                <SessionCard
-                  key={session.id}
-                  session={session}
-                  onStart={handleStartSession}
-                  onContinue={handleContinueSession}
-                />
-              ))}
-            </div>
+            {state.sessionsLoading ? (
+              <LoadingState 
+                message="Loading sessions..." 
+                variant="centered"
+                className="py-12"
+              />
+            ) : state.sessionsError ? (
+              <ErrorState
+                message="Failed to load sessions"
+                description={state.sessionsError}
+                variant="card"
+                onRetry={() => {
+                  // Retry sessions fetch
+                  setState(prev => ({ ...prev, sessionsLoading: true, sessionsError: null }));
+                  // Re-trigger sessions fetch
+                  const refetch = async () => {
+                    try {
+                      const response = await getWorkoutPlanSessions(planId, {
+                        limit: 20,
+                        sortBy: 'scheduledDate',
+                        sortOrder: 'desc',
+                      });
+                      
+                      if (response.success && response.data) {
+                        setState(prev => ({
+                          ...prev,
+                          sessions: response.data!,
+                          sessionsLoading: false,
+                          sessionsError: null,
+                        }));
+                      } else {
+                        setState(prev => ({
+                          ...prev,
+                          sessionsLoading: false,
+                          sessionsError: response.error || 'Failed to load sessions',
+                        }));
+                      }
+                    } catch {
+                      setState(prev => ({
+                        ...prev,
+                        sessionsLoading: false,
+                        sessionsError: 'An unexpected error occurred loading sessions',
+                      }));
+                    }
+                  };
+                  refetch();
+                }}
+                className="mx-auto max-w-md"
+              />
+            ) : state.sessions.length > 0 ? (
+              <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+                {state.sessions.map((session) => (
+                  <SessionCard
+                    key={session.id}
+                    session={session}
+                    onStart={handleStartSession}
+                    onContinue={handleContinueSession}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <div className="rounded-full bg-gray-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <Plus className="h-8 w-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Sessions Yet</h3>
+                <p className="text-gray-600 mb-6 max-w-sm mx-auto">
+                  Create your first workout session to get started with this plan.
+                </p>
+                <Button 
+                  variant="outline" 
+                  className="min-h-[44px]"
+                  onClick={() => handleCreateSession()}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Session
+                </Button>
+              </div>
+            )}
           </TabsContent>
 
           {/* Schedule Tab */}
           <TabsContent value='schedule' className='mt-6'>
-            <Card>
-              <CardHeader>
-                <CardTitle>Weekly Schedule</CardTitle>
-                <CardDescription>
-                  Your workout plan's weekly training schedule
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className='mb-4 grid grid-cols-7 gap-2'>
-                  {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(
-                    (day) => (
-                      <div
-                        key={day}
-                        className='p-2 text-center text-sm font-medium text-gray-700'
-                      >
-                        {day}
-                      </div>
-                    )
-                  )}
-                </div>
-                <div className='grid grid-cols-7 gap-2'>
-                  {plan.weeklySchedule['week-1']?.map((daySchedule, index) => (
-                    <Card
-                      key={index}
-                      className={
-                        daySchedule.type === 'rest' ? 'bg-gray-50' : ''
-                      }
-                    >
-                      <CardContent className='p-3'>
-                        <div className='mb-1 text-xs font-medium text-gray-900'>
-                          {daySchedule.sessionName}
-                        </div>
-                        {daySchedule.duration > 0 && (
-                          <div className='text-xs text-gray-500'>
-                            {daySchedule.duration} min
-                          </div>
-                        )}
-                        <Badge
-                          variant={
-                            daySchedule.type === 'workout'
-                              ? 'default'
-                              : 'outline'
-                          }
-                          className='mt-1 text-xs'
-                        >
-                          {daySchedule.type.replace('_', ' ')}
-                        </Badge>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <WeeklySchedule
+              workoutPlan={plan}
+              sessions={state.sessions}
+              availableTemplates={plan.planData.templates || []}
+              isLoading={state.sessionsLoading}
+              error={state.sessionsError}
+              onCreateSession={handleCreateSession}
+              onStartSession={handleStartSession}
+              onRefresh={handleRefreshSessions}
+            />
           </TabsContent>
 
           {/* Phases Tab */}
@@ -645,6 +868,16 @@ export default function WorkoutPlanDetailPage({ params }: PageProps) {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* Session Creation Dialog */}
+      <SessionCreationDialog
+        isOpen={state.isSessionCreationOpen}
+        onClose={handleCloseSessionCreation}
+        onSessionCreated={handleSessionCreated}
+        workoutPlan={plan}
+        selectedDate={state.selectedDateForSession || new Date()}
+        availableTemplates={plan.planData.templates || []}
+      />
     </div>
   );
 }

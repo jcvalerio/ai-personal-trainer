@@ -280,6 +280,17 @@ export interface SessionData {
   targetMuscleGroups: string[];
   equipmentNeeded: string[];
   difficultyLevel: FitnessLevel;
+  progress?: SessionProgressData;
+}
+
+export interface SessionProgressData {
+  currentExerciseIndex?: number;
+  currentSet?: number;
+  elapsedTime?: number;
+  exercisesCompleted?: number;
+  setsCompleted?: number;
+  totalVolume?: number;
+  lastUpdated?: string;
 }
 
 export interface SessionExercise {
@@ -802,6 +813,8 @@ export type EquipmentInput = Omit<
   Equipment,
   'id' | 'slug' | 'createdAt' | 'updatedAt'
 >;
+
+// SessionProgressData is already exported above with the interface declaration
 
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<

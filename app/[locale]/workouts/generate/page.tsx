@@ -21,8 +21,12 @@ import {
   Play,
   Save,
   Shuffle,
+  Star,
+  BookOpen,
+  ChevronRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from 'next-intl';
 import {
   Card,
   CardContent,
@@ -31,11 +35,25 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { FitnessLevelSelector } from '@/components/workouts/ui/fitness-level-selector';
+import { FitnessGoalsSelector } from '@/components/workouts/ui/fitness-goals-selector';
+import { EquipmentSelector } from '@/components/workouts/ui/equipment-selector';
+import { LimitationsSelector } from '@/components/workouts/ui/limitations-selector';
+import { ScheduleSliders } from '@/components/workouts/ui/schedule-sliders';
+import { LoadingState } from '@/components/ui/loading-state';
+import { ErrorState } from '@/components/ui/error-state';
+import { SelectableCard } from '@/components/workouts/ui/selectable-card';
 
-type GenerationStep = 'preferences' | 'generating' | 'review' | 'complete';
+// React Query hooks for template system
+import {
+  useFeaturedTemplates,
+  useTemplateCategories,
+  useCreatePlanFromTemplate,
+} from '@/hooks/queries/use-template-system-query';
+
+type GenerationStep = 'templates' | 'preferences' | 'generating' | 'review' | 'complete';
 
 interface WorkoutPreferences {
   fitnessLevel: string;
@@ -45,33 +63,35 @@ interface WorkoutPreferences {
   equipment: string[];
   limitations: string[];
   preferences: string[];
+  selectedTemplate?: string;
+  useTemplate: boolean;
 }
 
-const fitnessGoals = [
-  { id: 'weight_loss', label: 'Weight Loss', icon: '⚖️' },
-  { id: 'muscle_gain', label: 'Muscle Gain', icon: '💪' },
-  { id: 'strength', label: 'Strength', icon: '🏋️' },
-  { id: 'endurance', label: 'Endurance', icon: '🏃' },
-  { id: 'flexibility', label: 'Flexibility', icon: '🧘' },
-  { id: 'general_fitness', label: 'General Fitness', icon: '✨' },
+const fitnessGoalsDefs = [
+  { id: 'weight_loss', icon: '⚖️' },
+  { id: 'muscle_gain', icon: '💪' },
+  { id: 'strength', icon: '🏋️' },
+  { id: 'endurance', icon: '🏃' },
+  { id: 'flexibility', icon: '🧘' },
+  { id: 'general_fitness', icon: '✨' },
 ];
 
-const availableEquipment = [
-  { id: 'bodyweight', label: 'Bodyweight Only' },
-  { id: 'dumbbells', label: 'Dumbbells' },
-  { id: 'barbell', label: 'Barbell' },
-  { id: 'resistance_bands', label: 'Resistance Bands' },
-  { id: 'full_gym', label: 'Full Gym Access' },
-  { id: 'home_gym', label: 'Home Gym Setup' },
+const availableEquipmentDefs = [
+  { id: 'bodyweight', icon: '🧍' },
+  { id: 'dumbbells', icon: '🏋️‍♂️' },
+  { id: 'barbell', icon: '🏋️' },
+  { id: 'resistance_bands', icon: '🪢' },
+  { id: 'full_gym', icon: '🏋️‍♀️' },
+  { id: 'home_gym', icon: '🏠' },
 ];
 
 const commonLimitations = [
-  'Lower back issues',
-  'Knee problems',
-  'Shoulder injury',
-  'Time constraints',
-  'Beginner to exercise',
-  'Recovering from injury',
+  { label: 'Lower back issues', icon: '🦴' },
+  { label: 'Knee problems', icon: '🦵' },
+  { label: 'Shoulder injury', icon: '💪' },
+  { label: 'Time constraints', icon: '⏱️' },
+  { label: 'Beginner to exercise', icon: '🌱' },
+  { label: 'Recovering from injury', icon: '🤕' },
 ];
 
 const mockGeneratedWorkout = {
@@ -133,7 +153,8 @@ const mockGeneratedWorkout = {
 };
 
 export default function AIWorkoutGenerationPage() {
-  const [currentStep, setCurrentStep] = useState<GenerationStep>('preferences');
+  const t = useTranslations('generate');
+  const [currentStep, setCurrentStep] = useState<GenerationStep>('templates');
   const [, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
   const [preferences, setPreferences] = useState<WorkoutPreferences>({
@@ -144,7 +165,17 @@ export default function AIWorkoutGenerationPage() {
     equipment: [],
     limitations: [],
     preferences: [],
+    selectedTemplate: undefined,
+    useTemplate: false,
   });
+
+  // React Query hooks
+  const featuredTemplatesQuery = useFeaturedTemplates();
+  const categoriesQuery = useTemplateCategories();
+  const createPlanFromTemplateMutation = useCreatePlanFromTemplate();
+
+  const featuredTemplates = featuredTemplatesQuery.data || [];
+  const categories = categoriesQuery.data || [];
 
   const handleGoalToggle = (goalId: string) => {
     setPreferences((prev) => ({
@@ -177,12 +208,41 @@ export default function AIWorkoutGenerationPage() {
     setCurrentStep('generating');
     setIsGenerating(true);
 
+    if (preferences.useTemplate && preferences.selectedTemplate) {
+      try {
+        // Create plan from template
+        await createPlanFromTemplateMutation.mutateAsync({
+          templateId: preferences.selectedTemplate,
+          name: `My Custom Plan - ${new Date().toLocaleDateString()}`,
+          personalizations: {
+            targetFitnessLevel: preferences.fitnessLevel as any,
+            durationWeeks: Math.ceil(preferences.daysPerWeek / 3) * 4, // Estimate weeks
+            sessionsPerWeek: preferences.daysPerWeek,
+            estimatedSessionDuration: preferences.duration,
+            fitnessGoals: preferences.goals,
+            preferences: {
+              focusAreas: preferences.goals,
+              preferredEquipment: preferences.equipment,
+              timeConstraints: {
+                maxSessionDuration: preferences.duration,
+              },
+            },
+          },
+        });
+        setCurrentStep('complete');
+        return;
+      } catch (error) {
+        console.error('Failed to create plan from template:', error);
+        // Fall back to AI generation
+      }
+    }
+
     // Simulate AI generation with progress updates
     const steps = [
       { progress: 20, message: 'Analyzing your preferences...' },
       { progress: 40, message: 'Selecting optimal exercises...' },
       { progress: 60, message: 'Calculating sets and reps...' },
-      { progress: 80, message: 'Optimizing workout flow...' },
+      { progress: 80, message: 'Optimizing workflow...' },
       { progress: 100, message: 'Finalizing your workout...' },
     ];
 
@@ -196,10 +256,11 @@ export default function AIWorkoutGenerationPage() {
     setCurrentStep('review');
   };
 
-  const canGenerate =
-    preferences.fitnessLevel &&
-    preferences.goals.length > 0 &&
-    preferences.equipment.length > 0;
+  const canGenerate = preferences.useTemplate 
+    ? preferences.selectedTemplate
+    : preferences.fitnessLevel &&
+      preferences.goals.length > 0 &&
+      preferences.equipment.length > 0;
 
   return (
     <div className='min-h-screen bg-gray-50'>
@@ -220,10 +281,10 @@ export default function AIWorkoutGenerationPage() {
                 </div>
                 <div>
                   <h1 className='text-xl font-bold text-gray-900'>
-                    AI Workout Generator
+                    {t('header.title')}
                   </h1>
                   <p className='text-xs text-gray-500'>
-                    Create personalized workouts
+                    {t('header.subtitle')}
                   </p>
                 </div>
               </div>
@@ -248,13 +309,28 @@ export default function AIWorkoutGenerationPage() {
         <div className='mx-auto max-w-4xl px-4 py-4 sm:px-6 lg:px-8'>
           <div className='flex items-center justify-between'>
             {[
-              { step: 'preferences', label: 'Preferences', icon: Target },
-              { step: 'generating', label: 'Generating', icon: Sparkles },
-              { step: 'review', label: 'Review', icon: CheckCircle },
-              { step: 'complete', label: 'Complete', icon: Play },
+              {
+                step: 'templates',
+                label: 'Templates',
+                icon: BookOpen,
+              },
+              {
+                step: 'preferences',
+                label: t('steps.preferences'),
+                icon: Target,
+              },
+              {
+                step: 'generating',
+                label: t('steps.generating'),
+                icon: Sparkles,
+              },
+              { step: 'review', label: t('steps.review'), icon: CheckCircle },
+              { step: 'complete', label: t('steps.complete'), icon: Play },
             ].map(({ step, label, icon: Icon }, index) => {
               const isActive = currentStep === step;
               const isCompleted =
+                (step === 'templates' &&
+                  ['preferences', 'generating', 'review', 'complete'].includes(currentStep)) ||
                 (step === 'preferences' &&
                   ['generating', 'review', 'complete'].includes(currentStep)) ||
                 (step === 'generating' &&
@@ -276,7 +352,7 @@ export default function AIWorkoutGenerationPage() {
                     <Icon className='h-4 w-4' />
                     <span className='text-sm font-medium'>{label}</span>
                   </div>
-                  {index < 3 && (
+                  {index < 4 && (
                     <div
                       className={cn(
                         'mx-2 h-px w-8',
@@ -293,16 +369,130 @@ export default function AIWorkoutGenerationPage() {
 
       {/* Main Content */}
       <main className='mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8'>
+        {/* Templates Step */}
+        {currentStep === 'templates' && (
+          <div className='space-y-8'>
+            <div className='mb-8 text-center'>
+              <h2 className='mb-2 text-2xl font-bold text-gray-900'>
+                Choose Your Starting Point
+              </h2>
+              <p className='text-gray-600'>
+                Start with a proven template or create a custom workout from scratch
+              </p>
+            </div>
+
+            {/* Template Options */}
+            <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
+              {/* Use Template Option */}
+              <SelectableCard
+                selected={preferences.useTemplate}
+                onSelect={() => setPreferences((prev) => ({ ...prev, useTemplate: true, selectedTemplate: undefined }))}
+                title='Start with a Template'
+                description='Choose from proven workout templates and customize them to your needs'
+                icon={<BookOpen className='h-8 w-8 text-blue-600' />}
+                className='min-h-[120px]'
+              />
+
+              {/* Custom Workout Option */}
+              <SelectableCard
+                selected={!preferences.useTemplate}
+                onSelect={() => setPreferences((prev) => ({ ...prev, useTemplate: false, selectedTemplate: undefined }))}
+                title='Create from Scratch'
+                description='Build a completely custom workout based on your specific preferences'
+                icon={<Sparkles className='h-8 w-8 text-purple-600' />}
+                className='min-h-[120px]'
+              />
+            </div>
+
+            {/* Featured Templates */}
+            {preferences.useTemplate && (
+              <div className='space-y-6'>
+                <div className='flex items-center justify-between'>
+                  <h3 className='text-lg font-semibold text-gray-900'>
+                    Featured Templates
+                  </h3>
+                  {categories.length > 0 && (
+                    <Button variant='outline' size='sm'>
+                      Browse All Categories
+                      <ChevronRight className='ml-2 h-4 w-4' />
+                    </Button>
+                  )}
+                </div>
+
+                {featuredTemplatesQuery.isLoading ? (
+                  <LoadingState message='Loading templates...' variant='grid' />
+                ) : featuredTemplatesQuery.error ? (
+                  <ErrorState 
+                    message='Failed to load templates'
+                    description='Please try again or create a custom workout instead'
+                    onRetry={() => featuredTemplatesQuery.refetch()}
+                  />
+                ) : (
+                  <div className='grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3'>
+                    {featuredTemplates.map((template: any) => (
+                      <SelectableCard
+                        key={template.id}
+                        selected={preferences.selectedTemplate === template.id}
+                        onSelect={() => setPreferences((prev) => ({ 
+                          ...prev, 
+                          selectedTemplate: template.id 
+                        }))}
+                        title={template.name}
+                        description={template.description}
+                        badge={template.difficulty ? { text: template.difficulty, variant: 'outline' as const } : undefined}
+                        metadata={[
+                          template.estimatedDuration && `${template.estimatedDuration} min`,
+                          template.sessionCount && `${template.sessionCount} sessions`,
+                          template.targetFitnessLevel,
+                        ].filter(Boolean)}
+                        icon={<Star className='h-6 w-6 text-yellow-500' />}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {featuredTemplates.length === 0 && !featuredTemplatesQuery.isLoading && (
+                  <div className='py-12 text-center'>
+                    <BookOpen className='mx-auto mb-4 h-16 w-16 text-gray-400' />
+                    <h3 className='mb-2 text-lg font-medium text-gray-900'>
+                      No templates available
+                    </h3>
+                    <p className='mb-6 text-gray-600'>
+                      Create a custom workout instead or check back later.
+                    </p>
+                    <Button 
+                      onClick={() => setPreferences((prev) => ({ ...prev, useTemplate: false }))}
+                    >
+                      Create Custom Workout
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Navigation */}
+            <div className='flex justify-center'>
+              <Button
+                onClick={() => setCurrentStep('preferences')}
+                disabled={preferences.useTemplate && !preferences.selectedTemplate}
+                size='lg'
+                className='w-full sm:w-auto'
+              >
+                {preferences.useTemplate ? 'Customize Template' : 'Set Preferences'}
+                <ChevronRight className='ml-2 h-4 w-4' />
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Preferences Step */}
         {currentStep === 'preferences' && (
           <div className='space-y-8'>
             <div className='mb-8 text-center'>
               <h2 className='mb-2 text-2xl font-bold text-gray-900'>
-                Let's Create Your Perfect Workout
+                {t('intro.title')}
               </h2>
-              <p className='text-gray-600'>
-                Tell us about your fitness goals and preferences
-              </p>
+              <p className='text-gray-600'>{t('intro.subtitle')}</p>
             </div>
 
             <div className='grid grid-cols-1 gap-8 lg:grid-cols-2'>
@@ -311,40 +501,45 @@ export default function AIWorkoutGenerationPage() {
                 <CardHeader>
                   <CardTitle className='flex items-center gap-2'>
                     <Users className='h-5 w-5' />
-                    Fitness Level
+                    {t('fitnessLevel.title')}
                   </CardTitle>
                   <CardDescription>
-                    Help us understand your current fitness experience
+                    {t('fitnessLevel.description')}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className='space-y-3'>
-                  {['beginner', 'intermediate', 'advanced'].map((level) => (
-                    <button
-                      key={level}
-                      onClick={() =>
-                        setPreferences((prev) => ({
-                          ...prev,
-                          fitnessLevel: level,
-                        }))
-                      }
-                      className={cn(
-                        'w-full rounded-lg border p-3 text-left transition-colors',
-                        preferences.fitnessLevel === level
-                          ? 'border-purple-500 bg-purple-50 text-purple-900'
-                          : 'border-gray-200 hover:border-gray-300'
-                      )}
-                    >
-                      <div className='font-medium capitalize'>{level}</div>
-                      <div className='text-sm text-gray-600'>
-                        {level === 'beginner' &&
-                          'New to exercise or getting back into it'}
-                        {level === 'intermediate' &&
-                          'Regular exercise routine for 6+ months'}
-                        {level === 'advanced' &&
-                          'Consistent training for 2+ years'}
-                      </div>
-                    </button>
-                  ))}
+                <CardContent>
+                  <FitnessLevelSelector
+                    value={preferences.fitnessLevel}
+                    onChange={(level) =>
+                      setPreferences((prev) => ({
+                        ...prev,
+                        fitnessLevel: level,
+                      }))
+                    }
+                    options={[
+                      {
+                        id: 'beginner',
+                        name: t('fitnessLevel.levels.beginner.name'),
+                        description: t(
+                          'fitnessLevel.levels.beginner.description'
+                        ),
+                      },
+                      {
+                        id: 'intermediate',
+                        name: t('fitnessLevel.levels.intermediate.name'),
+                        description: t(
+                          'fitnessLevel.levels.intermediate.description'
+                        ),
+                      },
+                      {
+                        id: 'advanced',
+                        name: t('fitnessLevel.levels.advanced.name'),
+                        description: t(
+                          'fitnessLevel.levels.advanced.description'
+                        ),
+                      },
+                    ]}
+                  />
                 </CardContent>
               </Card>
 
@@ -353,30 +548,22 @@ export default function AIWorkoutGenerationPage() {
                 <CardHeader>
                   <CardTitle className='flex items-center gap-2'>
                     <Target className='h-5 w-5' />
-                    Fitness Goals
+                    {t('fitnessGoals.title')}
                   </CardTitle>
                   <CardDescription>
-                    Select all goals that apply to you
+                    {t('fitnessGoals.description')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className='grid grid-cols-2 gap-2'>
-                    {fitnessGoals.map((goal) => (
-                      <button
-                        key={goal.id}
-                        onClick={() => handleGoalToggle(goal.id)}
-                        className={cn(
-                          'rounded-lg border p-3 text-center transition-colors',
-                          preferences.goals.includes(goal.id)
-                            ? 'border-purple-500 bg-purple-50 text-purple-900'
-                            : 'border-gray-200 hover:border-gray-300'
-                        )}
-                      >
-                        <div className='mb-1 text-2xl'>{goal.icon}</div>
-                        <div className='text-sm font-medium'>{goal.label}</div>
-                      </button>
-                    ))}
-                  </div>
+                  <FitnessGoalsSelector
+                    selected={preferences.goals}
+                    onToggle={handleGoalToggle}
+                    options={fitnessGoalsDefs.map((g) => ({
+                      id: g.id,
+                      icon: g.icon,
+                      label: t(`fitnessGoals.options.${g.id}`),
+                    }))}
+                  />
                 </CardContent>
               </Card>
 
@@ -385,56 +572,44 @@ export default function AIWorkoutGenerationPage() {
                 <CardHeader>
                   <CardTitle className='flex items-center gap-2'>
                     <Clock className='h-5 w-5' />
-                    Workout Duration
+                    {t('duration.title')}
                   </CardTitle>
-                  <CardDescription>
-                    How long do you want each workout to be?
-                  </CardDescription>
+                  <CardDescription>{t('duration.description')}</CardDescription>
                 </CardHeader>
-                <CardContent className='space-y-4'>
-                  <div className='space-y-2'>
-                    <Label>Duration: {preferences.duration} minutes</Label>
-                    <input
-                      type='range'
-                      min='20'
-                      max='120'
-                      step='10'
-                      value={preferences.duration}
-                      onChange={(e) =>
+                <CardContent>
+                  <ScheduleSliders
+                    minutes={{
+                      value: preferences.duration,
+                      onChange: (val) =>
+                        setPreferences((prev) => ({ ...prev, duration: val })),
+                      label: t('duration.label', {
+                        minutes: preferences.duration,
+                      }),
+                      min: 20,
+                      max: 120,
+                      step: 10,
+                      minLabel: t('duration.minLabel'),
+                      maxLabel: t('duration.maxLabel'),
+                      marks: [30, 45, 60, 90, 120],
+                    }}
+                    daysPerWeek={{
+                      value: preferences.daysPerWeek,
+                      onChange: (val) =>
                         setPreferences((prev) => ({
                           ...prev,
-                          duration: parseInt(e.target.value),
-                        }))
-                      }
-                      className='w-full'
-                    />
-                    <div className='flex justify-between text-sm text-gray-500'>
-                      <span>20 min</span>
-                      <span>120 min</span>
-                    </div>
-                  </div>
-
-                  <div className='space-y-2'>
-                    <Label>Days per week: {preferences.daysPerWeek}</Label>
-                    <input
-                      type='range'
-                      min='1'
-                      max='7'
-                      step='1'
-                      value={preferences.daysPerWeek}
-                      onChange={(e) =>
-                        setPreferences((prev) => ({
-                          ...prev,
-                          daysPerWeek: parseInt(e.target.value),
-                        }))
-                      }
-                      className='w-full'
-                    />
-                    <div className='flex justify-between text-sm text-gray-500'>
-                      <span>1 day</span>
-                      <span>7 days</span>
-                    </div>
-                  </div>
+                          daysPerWeek: val,
+                        })),
+                      label: t('daysPerWeek.label', {
+                        days: preferences.daysPerWeek,
+                      }),
+                      min: 1,
+                      max: 7,
+                      step: 1,
+                      minLabel: t('daysPerWeek.min'),
+                      maxLabel: t('daysPerWeek.max'),
+                      marks: [1, 2, 3, 4, 5, 6, 7],
+                    }}
+                  />
                 </CardContent>
               </Card>
 
@@ -443,27 +618,22 @@ export default function AIWorkoutGenerationPage() {
                 <CardHeader>
                   <CardTitle className='flex items-center gap-2'>
                     <Dumbbell className='h-5 w-5' />
-                    Available Equipment
+                    {t('equipment.title')}
                   </CardTitle>
                   <CardDescription>
-                    Select all equipment you have access to
+                    {t('equipment.description')}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className='space-y-2'>
-                  {availableEquipment.map((equipment) => (
-                    <button
-                      key={equipment.id}
-                      onClick={() => handleEquipmentToggle(equipment.id)}
-                      className={cn(
-                        'w-full rounded-lg border p-3 text-left transition-colors',
-                        preferences.equipment.includes(equipment.id)
-                          ? 'border-purple-500 bg-purple-50 text-purple-900'
-                          : 'border-gray-200 hover:border-gray-300'
-                      )}
-                    >
-                      {equipment.label}
-                    </button>
-                  ))}
+                <CardContent>
+                  <EquipmentSelector
+                    selected={preferences.equipment}
+                    onToggle={handleEquipmentToggle}
+                    options={availableEquipmentDefs.map((e) => ({
+                      id: e.id,
+                      label: t(`equipment.options.${e.id}`),
+                      icon: e.icon,
+                    }))}
+                  />
                 </CardContent>
               </Card>
             </div>
@@ -480,22 +650,15 @@ export default function AIWorkoutGenerationPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className='grid grid-cols-2 gap-2 md:grid-cols-3'>
-                  {commonLimitations.map((limitation) => (
-                    <button
-                      key={limitation}
-                      onClick={() => handleLimitationToggle(limitation)}
-                      className={cn(
-                        'rounded-lg border p-2 text-center text-sm transition-colors',
-                        preferences.limitations.includes(limitation)
-                          ? 'border-orange-500 bg-orange-50 text-orange-900'
-                          : 'border-gray-200 hover:border-gray-300'
-                      )}
-                    >
-                      {limitation}
-                    </button>
-                  ))}
-                </div>
+                <LimitationsSelector
+                  selected={preferences.limitations}
+                  onToggle={handleLimitationToggle}
+                  options={commonLimitations.map((l) => ({
+                    id: l.label,
+                    label: l.label,
+                    icon: l.icon,
+                  }))}
+                />
               </CardContent>
             </Card>
 
@@ -508,7 +671,7 @@ export default function AIWorkoutGenerationPage() {
                 className='w-full sm:w-auto'
               >
                 <Sparkles className='mr-2 h-5 w-5' />
-                Generate My Workout
+                {t('actions.generate')}
               </Button>
             </div>
           </div>

@@ -17,9 +17,15 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
 
+  // Build configuration to avoid Html import issues
+  distDir: '.next',
+
+  // Disable static error pages that are causing the Html import issue
+  staticPageGenerationTimeout: 120,
+
   // Enable experimental features for better performance
   experimental: {
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+    // optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
 
   // Turbopack configuration (stable in Next.js 15+)

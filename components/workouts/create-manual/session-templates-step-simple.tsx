@@ -4,7 +4,7 @@
  */
 'use client';
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useId } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Dumbbell,
@@ -29,26 +29,22 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { SelectableCard } from '@/components/workouts/ui/selectable-card';
+import {
+  MobileSlider,
+  type SliderConfig,
+} from '@/components/workouts/ui/schedule-sliders';
 
 import { ExerciseSelector } from './exercise-selector';
 import { useFormState } from './form-state-provider';
 import type { SessionTemplate, ExerciseStructure } from '@/types/workouts';
-import type { FitnessLevel } from '@/types';
 
 // Conversion between ExerciseStructure and ExerciseConfig for compatibility
 interface ExerciseConfig {
@@ -105,24 +101,6 @@ const DIFFICULTY_LEVELS = [
   { value: 'intermediate', label: 'Intermediate', color: 'bg-yellow-500' },
   { value: 'advanced', label: 'Advanced', color: 'bg-red-500' },
 ] as const;
-
-const MUSCLE_GROUPS = [
-  'chest',
-  'back',
-  'shoulders',
-  'arms',
-  'biceps',
-  'triceps',
-  'legs',
-  'quadriceps',
-  'hamstrings',
-  'glutes',
-  'calves',
-  'core',
-  'abs',
-  'cardio',
-  'full_body',
-];
 
 // Predefined session templates
 const PREDEFINED_TEMPLATES = [
@@ -211,7 +189,9 @@ function TemplateCard({
           </div>
           <div className='flex items-center'>
             <Dumbbell className='mr-2 h-4 w-4 text-gray-500' />
-            <span>{template.exerciseStructure.length} exercises</span>
+            <span>
+              {template.exerciseStructure.length} {t('stats.exercises')}
+            </span>
           </div>
           <div className='flex items-center'>
             {difficultyConfig && (
@@ -219,20 +199,24 @@ function TemplateCard({
                 <div
                   className={`mr-2 h-3 w-3 rounded-full ${difficultyConfig.color}`}
                 />
-                <span>{difficultyConfig.label}</span>
+                <span>{t(`difficulty.${difficultyConfig.value}`)}</span>
               </>
             )}
           </div>
           <div className='flex items-center'>
             <Target className='mr-2 h-4 w-4 text-gray-500' />
-            <span>{template.targetMuscleGroups.length} muscle groups</span>
+            <span>
+              {template.targetMuscleGroups.length} {t('stats.muscleGroups')}
+            </span>
           </div>
         </div>
 
         {/* Target Muscle Groups */}
         {template.targetMuscleGroups.length > 0 && (
           <div>
-            <div className='mb-1 text-xs text-gray-600'>Target Muscles:</div>
+            <div className='mb-1 text-xs text-gray-600'>
+              {t('targetMuscles')}:
+            </div>
             <div className='flex flex-wrap gap-1'>
               {template.targetMuscleGroups.slice(0, 3).map((group) => (
                 <Badge
@@ -240,7 +224,7 @@ function TemplateCard({
                   variant='outline'
                   className='text-xs capitalize'
                 >
-                  {group.replace('_', ' ')}
+                  {t(`muscleGroups.${group}`)}
                 </Badge>
               ))}
               {template.targetMuscleGroups.length > 3 && (
@@ -255,11 +239,15 @@ function TemplateCard({
         {/* Exercise Preview */}
         {template.exerciseStructure.length > 0 && (
           <div>
-            <div className='mb-1 text-xs text-gray-600'>Exercise Preview:</div>
+            <div className='mb-1 text-xs text-gray-600'>
+              {t('exercisePreview')}
+            </div>
             <div className='space-y-1 text-xs text-gray-800'>
               {template.exerciseStructure.slice(0, 3).map((exercise, index) => (
                 <div key={index} className='flex justify-between'>
-                  <span className='mr-2 truncate'>Exercise {index + 1}</span>
+                  <span className='mr-2 truncate'>
+                    {t('exerciseLabel', { number: index + 1 })}
+                  </span>
                   <span className='whitespace-nowrap text-gray-500'>
                     {exercise.sets}×
                     {exercise.repsMin || exercise.durationSeconds}
@@ -268,7 +256,9 @@ function TemplateCard({
               ))}
               {template.exerciseStructure.length > 3 && (
                 <div className='text-center text-gray-500'>
-                  +{template.exerciseStructure.length - 3} more
+                  {t('moreCount', {
+                    count: template.exerciseStructure.length - 3,
+                  })}
                 </div>
               )}
             </div>
@@ -293,6 +283,7 @@ function TemplateEditor({
   const t = useTranslations('workouts.createPlan.templates');
   const [editingTemplate, setEditingTemplate] =
     useState<SessionTemplate | null>(null);
+  const durationListId = useId();
 
   React.useEffect(() => {
     if (isOpen && template) {
@@ -302,146 +293,248 @@ function TemplateEditor({
 
   const handleSave = useCallback(() => {
     if (editingTemplate) {
-      onSave(editingTemplate);
+      // Ensure name is not empty - use default if needed
+      const templateToSave = {
+        ...editingTemplate,
+        name: editingTemplate.name.trim() || t('untitled'),
+      };
+      onSave(templateToSave);
       onClose();
     }
-  }, [editingTemplate, onSave, onClose]);
+  }, [editingTemplate, onSave, onClose, t]);
 
   const updateTemplate = useCallback((updates: Partial<SessionTemplate>) => {
     setEditingTemplate((prev) => (prev ? { ...prev, ...updates } : null));
   }, []);
 
+  const handleSessionTypeChange = useCallback(
+    (value: 'workout' | 'assessment' | 'recovery') => {
+      updateTemplate({ sessionType: value });
+    },
+    [updateTemplate]
+  );
+
+  const handleDifficultyChange = useCallback(
+    (value: 'beginner' | 'intermediate' | 'advanced') => {
+      updateTemplate({ difficulty: value });
+    },
+    [updateTemplate]
+  );
+
+  const handleDurationChange = useCallback(
+    (duration: number) => {
+      updateTemplate({ estimatedDuration: duration });
+    },
+    [updateTemplate]
+  );
+
   if (!isOpen || !editingTemplate) {
     return null;
   }
 
+  // Duration slider configuration
+  const durationConfig: SliderConfig = {
+    value: editingTemplate.estimatedDuration,
+    onChange: handleDurationChange,
+    label: t('fields.duration'),
+    min: 15,
+    max: 180,
+    step: 15,
+    minLabel: '15 min',
+    maxLabel: '3h',
+    marks: [30, 45, 60, 90, 120, 150],
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className='max-h-[90vh] max-w-4xl overflow-y-auto'>
-        <DialogHeader>
-          <DialogTitle>
+      <DialogContent
+        mobileMode="bottomSheet"
+        className="bg-white p-0 shadow-xl max-w-2xl"
+      >
+
+        <DialogHeader className='p-4 pb-0 md:p-6'>
+          <DialogTitle className='text-center md:text-left'>
             {template?.id
               ? t('dialog.editTemplate')
               : t('dialog.createTemplate')}
           </DialogTitle>
-          <DialogDescription>{t('dialog.description')}</DialogDescription>
+          <DialogDescription className='text-center md:text-left'>
+            {t('dialog.description')}
+          </DialogDescription>
         </DialogHeader>
 
-        <div className='space-y-6'>
-          {/* Template Details */}
-          <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
+        <div className='space-y-6 p-4 md:p-6'>
+          {/* Section 1: Basic Information */}
+          <section className='space-y-4'>
+            <h3 className='border-b pb-2 text-lg font-semibold text-gray-900'>
+              Basic Information
+            </h3>
+
+            {/* Template Name - Full width on mobile */}
             <div>
-              <Label htmlFor='templateName'>{t('fields.name')}</Label>
+              <Label htmlFor='templateName' className='text-base font-medium'>
+                {t('fields.name')}
+              </Label>
               <Input
                 id='templateName'
                 value={editingTemplate.name}
                 onChange={(e) => updateTemplate({ name: e.target.value })}
                 placeholder={t('fields.namePlaceholder')}
+                className='mt-2 h-12 text-base' // Larger touch target
+                autoFocus
               />
             </div>
 
+            {/* Description - Mobile optimized textarea */}
             <div>
-              <Label htmlFor='templateType'>{t('fields.sessionType')}</Label>
-              <Select
-                value={editingTemplate.sessionType}
-                onValueChange={(value: 'workout' | 'assessment' | 'recovery') =>
-                  updateTemplate({ sessionType: value })
-                }
+              <Label
+                htmlFor='templateDescription'
+                className='text-base font-medium'
               >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {SESSION_TYPES.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor='templateDuration'>{t('fields.duration')}</Label>
-              <Input
-                id='templateDuration'
-                type='number'
-                min='15'
-                max='180'
-                step='15'
-                value={editingTemplate.estimatedDuration}
+                {t('fields.description')}
+              </Label>
+              <Textarea
+                id='templateDescription'
+                value={editingTemplate.description}
                 onChange={(e) =>
-                  updateTemplate({
-                    estimatedDuration: parseInt(e.target.value) || 60,
-                  })
+                  updateTemplate({ description: e.target.value })
                 }
+                placeholder={t('fields.descriptionPlaceholder')}
+                rows={3}
+                className='mt-2 resize-none text-base' // Prevent resize on mobile
               />
             </div>
+          </section>
 
+          {/* Section 2: Session Configuration */}
+          <section className='space-y-6'>
+            <h3 className='border-b pb-2 text-lg font-semibold text-gray-900'>
+              Configuration
+            </h3>
+
+            {/* Session Type - Visual cards */}
             <div>
-              <Label htmlFor='templateDifficulty'>
+              <Label className='mb-3 block text-base font-medium'>
+                {t('fields.sessionType')}
+              </Label>
+              <div className='grid grid-cols-1 gap-3 sm:grid-cols-3'>
+                {SESSION_TYPES.map((type) => {
+                  const Icon = type.icon;
+                  return (
+                    <SelectableCard
+                      key={type.value}
+                      selected={editingTemplate.sessionType === type.value}
+                      onClick={() => handleSessionTypeChange(type.value)}
+                      className='h-16 touch-manipulation md:h-20' // 64px+ touch targets
+                      icon={
+                        <div className='mb-1 rounded-lg bg-blue-100 p-2'>
+                          <Icon className='h-5 w-5 text-blue-600' />
+                        </div>
+                      }
+                      title={
+                        <span className='text-sm font-medium'>
+                          {t(`sessionType.${type.value}`)}
+                        </span>
+                      }
+                      align='center'
+                    />
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Duration - Mobile slider */}
+            <div>
+              <MobileSlider
+                config={durationConfig}
+                unit='min'
+                listId={durationListId}
+              />
+
+              {/* Quick preset buttons */}
+              <div className='mt-4 flex flex-wrap justify-center gap-2'>
+                {[30, 45, 60, 75, 90].map((preset) => (
+                  <Button
+                    key={preset}
+                    variant={
+                      editingTemplate.estimatedDuration === preset
+                        ? 'default'
+                        : 'outline'
+                    }
+                    size='sm'
+                    onClick={() => handleDurationChange(preset)}
+                    className='h-10 min-w-[48px] touch-manipulation text-sm'
+                  >
+                    {preset}m
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Difficulty - Visual cards */}
+            <div>
+              <Label className='mb-3 block text-base font-medium'>
                 {t('fields.difficulty')}
               </Label>
-              <Select
-                value={editingTemplate.difficulty}
-                onValueChange={(
-                  value: 'beginner' | 'intermediate' | 'advanced'
-                ) => updateTemplate({ difficulty: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {DIFFICULTY_LEVELS.map((level) => (
-                    <SelectItem key={level.value} value={level.value}>
-                      <div className='flex items-center gap-2'>
-                        <div
-                          className={`h-3 w-3 rounded-full ${level.color}`}
-                        />
-                        {level.label}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className='grid grid-cols-1 gap-3 sm:grid-cols-3'>
+                {DIFFICULTY_LEVELS.map((level) => (
+                  <SelectableCard
+                    key={level.value}
+                    selected={editingTemplate.difficulty === level.value}
+                    onClick={() => handleDifficultyChange(level.value)}
+                    className='h-16 touch-manipulation md:h-20'
+                    icon={
+                      <div
+                        className={`h-4 w-4 rounded-full ${level.color} mb-1`}
+                      />
+                    }
+                    title={
+                      <span className='text-sm font-medium'>{level.label}</span>
+                    }
+                    align='center'
+                  />
+                ))}
+              </div>
             </div>
-          </div>
+          </section>
 
-          <div>
-            <Label htmlFor='templateDescription'>
-              {t('fields.description')}
-            </Label>
-            <Textarea
-              id='templateDescription'
-              value={editingTemplate.description}
-              onChange={(e) => updateTemplate({ description: e.target.value })}
-              placeholder={t('fields.descriptionPlaceholder')}
-              rows={3}
-            />
-          </div>
-
-          {/* Exercise Selection */}
-          <div>
-            <h3 className='mb-4 text-lg font-semibold'>Exercises</h3>
-            <ExerciseSelector
-              selectedExercises={editingTemplate.exerciseStructure.map(
-                exerciseStructureToConfig
-              )}
-              onExercisesChange={(exercises) =>
-                updateTemplate({
-                  exerciseStructure: exercises.map(exerciseConfigToStructure),
-                })
-              }
-              maxExercises={15}
-            />
-          </div>
+          {/* Section 3: Exercise Selection */}
+          <section className='space-y-4'>
+            <h3 className='border-b pb-2 text-lg font-semibold text-gray-900'>
+              {t('dialog.exercises')}
+            </h3>
+            <div className='space-y-4'>
+              <ExerciseSelector
+                selectedExercises={editingTemplate.exerciseStructure.map(
+                  exerciseStructureToConfig
+                )}
+                onExercisesChange={(exercises) =>
+                  updateTemplate({
+                    exerciseStructure: exercises.map(exerciseConfigToStructure),
+                  })
+                }
+                maxExercises={15}
+              />
+            </div>
+          </section>
         </div>
 
-        <div className='flex gap-3 border-t pt-6'>
-          <Button onClick={handleSave} disabled={!editingTemplate.name.trim()}>
+        {/* Action Buttons */}
+        <div className='flex gap-3 border-t px-4 pb-4 pt-4 md:px-6 md:pb-6'>
+          <Button
+            onClick={handleSave}
+            disabled={!editingTemplate.name.trim()}
+            className='h-12 flex-1 touch-manipulation text-base font-medium'
+            size='lg'
+          >
             {t('dialog.save')}
           </Button>
-          <Button variant='outline' onClick={onClose}>
+          <Button
+            variant='outline'
+            onClick={onClose}
+            className='h-12 touch-manipulation px-6 text-base font-medium'
+            size='lg'
+          >
             {t('dialog.cancel')}
           </Button>
         </div>
@@ -451,7 +544,7 @@ function TemplateEditor({
 }
 
 export function SessionTemplatesStep() {
-  const t = useTranslations('workouts.createPlan.steps.templates');
+  const t = useTranslations('workouts.createPlan.templates');
   const { formData, updateFormData } = useFormState();
 
   const [editingTemplate, setEditingTemplate] =
@@ -566,10 +659,8 @@ export function SessionTemplatesStep() {
       {/* Quick Actions */}
       <Card>
         <CardHeader>
-          <CardTitle className='text-base'>Quick Start</CardTitle>
-          <CardDescription>
-            Use predefined templates or create from scratch
-          </CardDescription>
+          <CardTitle className='text-base'>{t('quickStart.title')}</CardTitle>
+          <CardDescription>{t('quickStart.description')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className='flex flex-wrap gap-3'>
@@ -584,7 +675,7 @@ export function SessionTemplatesStep() {
                 onClick={() => handleUsePredefinedTemplate(template)}
               >
                 <BookOpen className='mr-2 h-4 w-4' />
-                {template.name}
+                {t(`predefined.${template.id}.name`)}
               </Button>
             ))}
           </div>

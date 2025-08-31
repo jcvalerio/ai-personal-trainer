@@ -171,6 +171,7 @@ jspm_packages/
 .pnp.*
 
 # Playwright
+/.playwright-mcp/
 /test-results/
 /playwright-report/
 /playwright/.cache/

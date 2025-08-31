@@ -4,59 +4,54 @@
  */
 'use client';
 
-import React, { useState, useCallback, useMemo } from 'react';
-import { useTranslations } from 'next-intl';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
-  DndContext,
+  MobileSlider,
+  type SliderConfig,
+} from '@/components/workouts/ui/schedule-sliders';
+import { SelectableCard } from '@/components/workouts/ui/selectable-card';
+import { cn } from '@/lib/utils';
+import type { DayScheduleType } from '@/types/workouts';
+import {
   closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
+  DndContext,
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
+  KeyboardSensor,
+  PointerSensor,
   UniqueIdentifier,
+  useSensor,
+  useSensors,
 } from '@dnd-kit/core';
+import { restrictToWindowEdges } from '@dnd-kit/modifiers';
 import {
   arrayMove,
+  rectSortingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  rectSortingStrategy,
   useSortable,
+  verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { restrictToWindowEdges } from '@dnd-kit/modifiers';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Clock,
   Calendar,
-  Plus,
-  Trash2,
+  Clock,
+  Dumbbell,
   GripVertical,
+  Heart,
+  Plus,
   Target,
   Timer,
-  Dumbbell,
-  Heart,
+  Trash2,
   Zap,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
+import React, { useCallback, useId, useMemo, useState } from 'react';
 import { useFormState } from './form-state-provider';
-import type {
-  WeeklySchedule,
-  SessionTemplate,
-  DayScheduleType,
-} from '@/types/workouts';
 
 const DAYS_OF_WEEK = [
   { key: 'monday', label: 'Monday' },
@@ -180,7 +175,7 @@ function DroppableDay({
   onEditSession,
   onDeleteSession,
 }: DroppableDayProps) {
-  const t = useTranslations('workouts.createPlan.schedule');
+  const t = useTranslations('createPlan.schedule');
 
   const totalDuration = useMemo(
     () => sessions.reduce((sum, session) => sum + session.duration, 0),
@@ -240,8 +235,9 @@ function DroppableDay({
 interface SessionEditorProps {
   session: SessionItem | null;
   isOpen: boolean;
-  onSave: (session: SessionItem) => void;
+  onSave: (session: SessionItem, targetDay?: string) => void;
   onClose: () => void;
+  schedule: Record<string, SessionItem[]>;
 }
 
 function SessionEditor({
@@ -249,39 +245,96 @@ function SessionEditor({
   isOpen,
   onSave,
   onClose,
+  schedule,
 }: SessionEditorProps) {
-  const t = useTranslations('workouts.createPlan.schedule');
+  const t = useTranslations('createPlan.schedule');
   const [editSession, setEditSession] = useState<SessionItem | null>(null);
+  const [selectedDay, setSelectedDay] = useState<string>('monday');
+  const durationListId = useId();
 
   React.useEffect(() => {
     if (isOpen && session) {
-      setEditSession({ ...session });
+      // If it's a new session using the default display name, clear to use placeholder UX
+      const defaultName = t('defaultSession.name');
+      setEditSession({
+        ...session,
+        name: session.name && session.name !== defaultName ? session.name : '',
+      });
+
+      // Find which day this session is currently on, default to Monday for new sessions
+      let currentDay = 'monday';
+      for (const [day, sessions] of Object.entries(schedule)) {
+        if (sessions.find((s) => s.id === session.id)) {
+          currentDay = day;
+          break;
+        }
+      }
+      setSelectedDay(currentDay);
     }
-  }, [isOpen, session]);
+  }, [isOpen, session, schedule, t]);
 
   const handleSave = useCallback(() => {
     if (editSession) {
-      onSave(editSession);
+      // Ensure name is not empty - use default if needed
+      const sessionToSave = {
+        ...editSession,
+        name: editSession.name.trim() || t('defaultSession.name'),
+      };
+      onSave(sessionToSave, selectedDay);
       onClose();
     }
-  }, [editSession, onSave, onClose]);
+  }, [editSession, selectedDay, onSave, onClose, t]);
+
+  const handleSessionTypeChange = useCallback((type: SessionItem['type']) => {
+    setEditSession((prev) => (prev ? { ...prev, type } : null));
+  }, []);
+
+  const handleDurationChange = useCallback((duration: number) => {
+    setEditSession((prev) => (prev ? { ...prev, duration } : null));
+  }, []);
 
   if (!isOpen || !editSession) {
     return null;
   }
 
+  // Duration slider configuration
+  const durationConfig: SliderConfig = {
+    value: editSession.duration,
+    onChange: handleDurationChange,
+    label: t('editor.duration'),
+    min: 15,
+    max: 180,
+    step: 15,
+    minLabel: '15 min',
+    maxLabel: '3h',
+    marks: [30, 45, 60, 90, 120],
+  };
+
   return (
-    <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
-      <Card className='mx-4 w-full max-w-md'>
-        <CardHeader>
-          <CardTitle>{t('editor.title')}</CardTitle>
-        </CardHeader>
-        <CardContent className='space-y-4'>
+    <div className='fixed inset-0 z-50 bg-black/50 backdrop-blur-sm'>
+      <div
+        className={cn(
+          'bg-white shadow-xl transition-transform duration-300 ease-out',
+          'fixed left-1/2 top-1/2 mx-4 max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg',
+          'max-h-[90vh] overflow-y-auto',
+          // Mobile-specific optimizations
+          'w-[calc(100%-2rem)] max-md:max-w-none max-md:w-[calc(100%-2rem)]'
+        )}
+      >
+
+        <div className='space-y-6 p-6'>
+          <div className='text-center md:text-left'>
+            <h2 className='text-lg font-semibold text-gray-900'>
+              {t('editor.title')}
+            </h2>
+          </div>
+
+          {/* Session Name Input */}
           <div>
-            <label className='mb-1 block text-sm font-medium text-gray-700'>
+            <label className='mb-2 block text-sm font-medium text-gray-900'>
               {t('editor.sessionName')}
             </label>
-            <input
+            <Input
               type='text'
               value={editSession.name}
               onChange={(e) =>
@@ -289,84 +342,116 @@ function SessionEditor({
                   prev ? { ...prev, name: e.target.value } : null
                 )
               }
-              className='w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500'
               placeholder={t('editor.sessionNamePlaceholder')}
+              className='h-12 text-base' // Larger touch target and 16px text for iOS
+              autoFocus
             />
           </div>
 
+          {/* Day Selector - Mobile-friendly */}
           <div>
-            <label className='mb-1 block text-sm font-medium text-gray-700'>
+            <label className='mb-2 block text-sm font-medium text-gray-900'>
+              Schedule Day
+            </label>
+            <div className='grid grid-cols-2 gap-2 sm:grid-cols-4'>
+              {DAYS_OF_WEEK.map((day) => (
+                <SelectableCard
+                  key={day.key}
+                  selected={selectedDay === day.key}
+                  onClick={() => setSelectedDay(day.key)}
+                  className='h-12 touch-manipulation text-sm'
+                  title={
+                    <span className='text-sm font-medium'>
+                      {t(`days.${day.key}`)}
+                    </span>
+                  }
+                  align='center'
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Session Type Selector - Visual Cards */}
+          <div>
+            <label className='mb-2 block text-sm font-medium text-gray-900'>
               {t('editor.sessionType')}
             </label>
-            <Select
-              value={editSession.type}
-              onValueChange={(value: any) =>
-                setEditSession((prev) =>
-                  prev ? { ...prev, type: value } : null
-                )
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {SESSION_TYPES.map((type) => {
-                  const Icon = type.icon;
-                  return (
-                    <SelectItem key={type.value} value={type.value}>
-                      <div className='flex items-center gap-2'>
-                        <div className={cn('rounded p-1', type.color)}>
-                          <Icon className='h-3 w-3 text-white' />
-                        </div>
-                        {type.label}
+            <div className='grid grid-cols-2 gap-2 md:grid-cols-3'>
+              {SESSION_TYPES.map((type) => {
+                const Icon = type.icon;
+                return (
+                  <SelectableCard
+                    key={type.value}
+                    selected={editSession.type === type.value}
+                    onClick={() =>
+                      handleSessionTypeChange(type.value as SessionItem['type'])
+                    }
+                    className='h-16 touch-manipulation md:h-20' // 64px+ touch targets
+                    icon={
+                      <div className={cn('mb-1 rounded-lg p-2', type.color)}>
+                        <Icon className='h-5 w-5 text-white' />
                       </div>
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
+                    }
+                    title={
+                      <span className='text-sm font-medium'>{type.label}</span>
+                    }
+                    align='center'
+                  />
+                );
+              })}
+            </div>
           </div>
 
+          {/* Duration Slider */}
           <div>
-            <label className='mb-1 block text-sm font-medium text-gray-700'>
-              {t('editor.duration')}
-            </label>
-            <input
-              type='number'
-              min='15'
-              max='180'
-              step='15'
-              value={editSession.duration}
-              onChange={(e) =>
-                setEditSession((prev) =>
-                  prev
-                    ? { ...prev, duration: parseInt(e.target.value) || 30 }
-                    : null
-                )
-              }
-              className='w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500'
+            <MobileSlider
+              config={durationConfig}
+              unit='min'
+              listId={durationListId}
             />
-            <p className='mt-1 text-xs text-gray-500'>
-              {t('editor.durationHint')}
-            </p>
+
+            {/* Quick preset buttons */}
+            <div className='mt-4 flex justify-center gap-2'>
+              {[30, 45, 60, 90].map((preset) => (
+                <Button
+                  key={preset}
+                  variant={
+                    editSession.duration === preset ? 'default' : 'outline'
+                  }
+                  size='sm'
+                  onClick={() => handleDurationChange(preset)}
+                  className='h-10 min-w-[48px] touch-manipulation text-sm'
+                >
+                  {preset}m
+                </Button>
+              ))}
+            </div>
           </div>
 
+          {/* Action Buttons */}
           <div className='flex gap-3 pt-4'>
-            <Button onClick={handleSave} className='flex-1'>
+            <Button
+              onClick={handleSave}
+              className='h-12 flex-1 touch-manipulation text-base font-medium'
+            >
               {t('editor.save')}
             </Button>
-            <Button variant='outline' onClick={onClose} className='flex-1'>
+            <Button
+              variant='outline'
+              onClick={onClose}
+              className='h-12 flex-1 touch-manipulation text-base font-medium'
+            >
               {t('editor.cancel')}
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
 
 export function ScheduleBuilder() {
-  const t = useTranslations('workouts.createPlan.schedule');
+  const t = useTranslations('createPlan.schedule');
   const { formData, updateFormData } = useFormState();
 
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
@@ -385,6 +470,22 @@ export function ScheduleBuilder() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  // Helper function to map DayScheduleType to SessionItem type
+  const mapDayScheduleTypeToSessionType = (
+    type: string
+  ): SessionItem['type'] => {
+    switch (type) {
+      case 'workout':
+        return 'workout';
+      case 'active_recovery':
+        return 'recovery';
+      case 'rest':
+        return 'rest';
+      default:
+        return 'workout';
+    }
+  };
 
   // Convert form data to schedule
   const schedule = useMemo(() => {
@@ -405,22 +506,6 @@ export function ScheduleBuilder() {
       {} as Record<string, SessionItem[]>
     );
   }, [formData.weeklySchedule]);
-
-  // Helper function to map DayScheduleType to SessionItem type
-  const mapDayScheduleTypeToSessionType = (
-    type: string
-  ): SessionItem['type'] => {
-    switch (type) {
-      case 'workout':
-        return 'workout';
-      case 'active_recovery':
-        return 'recovery';
-      case 'rest':
-        return 'rest';
-      default:
-        return 'workout';
-    }
-  };
 
   const handleSessionsChange = useCallback(
     (day: string, sessions: SessionItem[]) => {
@@ -575,7 +660,7 @@ export function ScheduleBuilder() {
   const handleAddSession = useCallback(() => {
     const newSession: SessionItem = {
       id: `session-${Date.now()}`,
-      name: t('defaultSession.name'),
+      name: '',
       type: 'workout',
       duration: 60,
     };
@@ -590,54 +675,46 @@ export function ScheduleBuilder() {
   }, []);
 
   const handleSaveSession = useCallback(
-    (session: SessionItem) => {
-      // If it's a new session, add it to the first available day
-      if (!editingSession || editingSession.id !== session.id) {
-        // Add to Monday by default
-        const mondaySessions = [...(schedule.monday || []), session];
-        handleSessionsChange('monday', mondaySessions);
-      } else {
-        // Update existing session
-        const newSchedule = { ...schedule };
-        let updatedDay = '';
-        for (const [day, sessions] of Object.entries(newSchedule)) {
-          const index = sessions.findIndex((s) => s.id === session.id);
-          if (index !== -1) {
-            sessions[index] = session;
-            updatedDay = day;
-            break;
-          }
+    (session: SessionItem, targetDay?: string) => {
+      // Check if this is a new session (not found in any day)
+      let foundInDay = '';
+      for (const [day, sessions] of Object.entries(schedule)) {
+        if (sessions.find((s) => s.id === session.id)) {
+          foundInDay = day;
+          break;
         }
+      }
 
-        if (updatedDay) {
-          // Convert SessionItem[] back to DaySchedule[] for the updated day
-          const currentWeeklySchedule = formData.weeklySchedule || {};
-          const newWeeklySchedule = {
-            ...currentWeeklySchedule,
-            [updatedDay]:
-              newSchedule[updatedDay]?.map((sessionItem) => ({
-                day: updatedDay,
-                sessionId: sessionItem.templateId || sessionItem.id,
-                sessionName: sessionItem.name,
-                type: mapSessionTypeToDayScheduleType(sessionItem.type),
-                duration: sessionItem.duration,
-              })) || [],
-          };
-
-          updateFormData({ weeklySchedule: newWeeklySchedule });
+      if (!foundInDay) {
+        // New session - add to target day or Monday by default
+        const dayToUse = targetDay || 'monday';
+        const daySessions = [...(schedule[dayToUse] || []), session];
+        handleSessionsChange(dayToUse, daySessions);
+      } else {
+        // Existing session - check if we need to move to a different day
+        if (targetDay && targetDay !== foundInDay) {
+          // Move session to target day
+          const sourceDaySessions = schedule[foundInDay]?.filter((s) => s.id !== session.id) || [];
+          const targetDaySessions = [...(schedule[targetDay] || []), session];
+          
+          handleSessionsChange(foundInDay, sourceDaySessions);
+          handleSessionsChange(targetDay, targetDaySessions);
+        } else {
+          // Update existing session in same day
+          const daySchedule = schedule[foundInDay];
+          if (daySchedule) {
+            const updatedSessions = daySchedule.map((s) =>
+              s.id === session.id ? session : s
+            );
+            handleSessionsChange(foundInDay, updatedSessions);
+          }
         }
       }
     },
-    [
-      editingSession,
-      schedule,
-      handleSessionsChange,
-      updateFormData,
-      formData.weeklySchedule,
-    ]
+    [schedule, handleSessionsChange]
   );
 
-  const handleDeleteSession = useCallback((sessionId: string) => {
+  const handleDeleteSession = useCallback((_sessionId: string) => {
     // Session deletion is handled in DroppableDay
   }, []);
 
@@ -789,6 +866,7 @@ export function ScheduleBuilder() {
           setIsEditorOpen(false);
           setEditingSession(null);
         }}
+        schedule={schedule}
       />
     </div>
   );

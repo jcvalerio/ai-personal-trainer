@@ -143,6 +143,7 @@ export const exerciseFiltersSchema = z.object({
   equipmentRequired: z.array(z.string().uuid()).optional(),
   search: z.string().min(2).optional(),
   isVerified: z.boolean().optional(),
+  isPublic: z.boolean().optional(),
 });
 
 // Workout plan schemas
@@ -546,4 +547,238 @@ export type ExerciseRecommendationRequest = z.infer<
   typeof exerciseRecommendationRequestSchema
 >;
 
+// AI Recommendations schemas
+export const recommendationContextSchema = z.object({
+  currentExerciseId: z.string().uuid().optional(),
+  perceivedExertion: z.number().min(1).max(10).optional(),
+  formRating: z.number().min(1).max(5).optional(),
+  availableEquipment: z.array(z.string()).optional(),
+  timeConstraint: z.number().min(1).optional(), // minutes remaining
+  energyLevel: z.number().min(1).max(10).optional(),
+  previousInjuries: z.array(z.string()).optional(),
+  preferences: z.object({
+    focusAreas: z.array(z.string()).optional(),
+    avoidedMovements: z.array(z.string()).optional(),
+    intensityPreference: z.enum(['low', 'moderate', 'high']).optional(),
+  }).optional(),
+});
+
+export const recommendationRequestSchema = z.object({
+  type: z.enum([
+    'exercise_substitute',
+    'rest_time',
+    'intensity_adjustment',
+    'form_improvement',
+    'progression',
+    'recovery'
+  ]),
+  context: recommendationContextSchema,
+  userFeedback: z.string().max(500).optional(),
+});
+
+export const recommendationResponseSchema = z.object({
+  title: z.string().min(1).max(200),
+  description: z.string().min(1).max(1000),
+  priority: z.enum(['high', 'medium', 'low']),
+  actionable: z.boolean(),
+  action: z.record(z.any()).optional(),
+  reason: z.string().max(500).optional(),
+});
+
+// Session Analytics schemas
+export const sessionAnalyticsQuerySchema = z.object({
+  includePerformanceMetrics: z.boolean().default(true),
+  includeProgressComparison: z.boolean().default(true),
+  includeMuscleGroupAnalysis: z.boolean().default(false),
+  includeCalorieEstimation: z.boolean().default(true),
+  timeframe: z.enum(['session', 'week', 'month']).default('session'),
+});
+
+export const sessionPerformanceMetricsSchema = z.object({
+  strengthGain: z.number().min(0).max(100).optional(),
+  enduranceImprovement: z.number().min(0).max(100).optional(),
+  consistency: z.number().min(0).max(100).optional(),
+  intensityScore: z.number().min(0).max(100).optional(),
+});
+
+export const sessionAnalyticsResponseSchema = z.object({
+  sessionId: z.string().uuid(),
+  completionStats: z.object({
+    exercisesCompleted: z.number().int().min(0),
+    totalExercises: z.number().int().min(0),
+    completionPercentage: z.number().min(0).max(100),
+  }),
+  performanceMetrics: sessionPerformanceMetricsSchema.optional(),
+  effortAnalysis: z.object({
+    averagePerceivedExertion: z.number().min(1).max(10).optional(),
+    averageFormRating: z.number().min(1).max(5).optional(),
+    effortDistribution: z.record(z.number()).optional(),
+  }),
+  timeAnalysis: z.object({
+    totalDuration: z.number().int().min(0), // seconds
+    actualRestTime: z.number().int().min(0).optional(),
+    exerciseTime: z.number().int().min(0).optional(),
+    efficiencyScore: z.number().min(0).max(100).optional(),
+  }),
+  calorieEstimation: z.object({
+    estimated: z.number().min(0),
+    method: z.string().max(100),
+    factors: z.array(z.string()).optional(),
+  }).optional(),
+  progressComparison: z.object({
+    previousSessionId: z.string().uuid().optional(),
+    improvements: z.array(z.string()).optional(),
+    regressions: z.array(z.string()).optional(),
+    overallTrend: z.enum(['improving', 'stable', 'declining']).optional(),
+  }).optional(),
+});
+
+// Dashboard Stats schemas
+export const dashboardStatsQuerySchema = z.object({
+  timeframe: z.enum(['week', 'month', 'quarter', 'year']).default('month'),
+  includeGoalProgress: z.boolean().default(true),
+  includeStreakInfo: z.boolean().default(true),
+  includeRecentActivity: z.boolean().default(false),
+});
+
+export const dashboardStatsResponseSchema = z.object({
+  workoutsThisWeek: z.number().int().min(0),
+  totalCompletedWorkouts: z.number().int().min(0),
+  activeWorkoutPlans: z.number().int().min(0),
+  totalWorkoutHours: z.number().min(0),
+  currentStreak: z.number().int().min(0),
+  longestStreak: z.number().int().min(0).optional(),
+  goalProgress: z.object({
+    weeklyGoal: z.number().int().min(0).optional(),
+    monthlyGoal: z.number().int().min(0).optional(),
+    weeklyProgress: z.number().min(0).max(100).optional(),
+    monthlyProgress: z.number().min(0).max(100).optional(),
+  }).optional(),
+  recentAchievements: z.array(z.object({
+    id: z.string().uuid(),
+    name: z.string(),
+    description: z.string(),
+    achievedAt: z.string().datetime(),
+    category: z.string(),
+  })).optional(),
+});
+
+// Progress Stats schemas
+export const progressStatsQuerySchema = z.object({
+  timeframe: z.enum(['week', 'month', 'quarter', 'year']).default('month'),
+  measurementTypes: z.array(measurementTypeSchema).optional(),
+  includeGoalTracking: z.boolean().default(false),
+  includeProjections: z.boolean().default(false),
+});
+
+export const progressStatsResponseSchema = z.object({
+  measurementSummary: z.record(z.object({
+    current: z.number().optional(),
+    previous: z.number().optional(),
+    change: z.number().optional(),
+    changePercentage: z.number().optional(),
+    trend: z.enum(['up', 'down', 'stable']).optional(),
+    unit: z.string(),
+  })),
+  goalTracking: z.object({
+    activeGoals: z.number().int().min(0),
+    goalsAchieved: z.number().int().min(0),
+    goalsInProgress: z.number().int().min(0),
+    averageProgress: z.number().min(0).max(100),
+  }).optional(),
+  trends: z.object({
+    weightTrend: z.enum(['gaining', 'losing', 'maintaining']).optional(),
+    bodyCompositionTrend: z.enum(['improving', 'stable', 'declining']).optional(),
+    performanceTrend: z.enum(['improving', 'stable', 'declining']).optional(),
+  }).optional(),
+  projections: z.object({
+    nextMilestone: z.object({
+      type: z.string(),
+      value: z.number(),
+      estimatedDate: z.string().datetime(),
+      confidence: z.number().min(0).max(100),
+    }).optional(),
+  }).optional(),
+});
+
+// Recent Activity schemas
+export const recentActivityQuerySchema = z.object({
+  limit: z.number().int().min(1).max(50).default(10),
+  includeWorkouts: z.boolean().default(true),
+  includeMeasurements: z.boolean().default(true),
+  includeAchievements: z.boolean().default(true),
+  dateFrom: z.string().datetime().optional(),
+});
+
+export const activityItemSchema = z.object({
+  id: z.string().uuid(),
+  type: z.enum(['workout', 'measurement', 'achievement', 'goal']),
+  title: z.string().min(1).max(200),
+  description: z.string().max(500).optional(),
+  date: z.string().datetime(),
+  metadata: z.record(z.any()).optional(),
+});
+
+export const recentActivityResponseSchema = z.object({
+  activities: z.array(activityItemSchema),
+  totalCount: z.number().int().min(0),
+  hasMore: z.boolean(),
+});
+
+// Workout Stats schemas  
+export const workoutStatsQuerySchema = z.object({
+  timeframe: z.enum(['week', 'month', 'quarter', 'year']).default('month'),
+  groupBy: z.enum(['day', 'week', 'month']).default('week'),
+  includeExerciseBreakdown: z.boolean().default(false),
+  includeMuscleGroupAnalysis: z.boolean().default(false),
+});
+
+export const workoutStatsResponseSchema = z.object({
+  totalWorkouts: z.number().int().min(0),
+  totalDuration: z.number().int().min(0), // minutes
+  averageDuration: z.number().min(0),
+  completionRate: z.number().min(0).max(100),
+  frequencyData: z.array(z.object({
+    period: z.string(),
+    count: z.number().int().min(0),
+    duration: z.number().min(0),
+  })),
+  exerciseBreakdown: z.object({
+    mostPerformed: z.array(z.object({
+      exerciseName: z.string(),
+      count: z.number().int().min(0),
+      totalVolume: z.number().min(0).optional(),
+    })),
+    muscleGroupDistribution: z.record(z.number().min(0)),
+    equipmentUsage: z.record(z.number().int().min(0)),
+  }).optional(),
+  performanceMetrics: z.object({
+    averageIntensity: z.number().min(0).max(10),
+    progressionRate: z.number().min(-100).max(100),
+    consistencyScore: z.number().min(0).max(100),
+  }).optional(),
+});
+
 export type PaginationParams = z.infer<typeof paginationSchema>;
+
+// Export new schema types
+export type RecommendationContext = z.infer<typeof recommendationContextSchema>;
+export type RecommendationRequest = z.infer<typeof recommendationRequestSchema>;
+export type RecommendationResponse = z.infer<typeof recommendationResponseSchema>;
+
+export type SessionAnalyticsQuery = z.infer<typeof sessionAnalyticsQuerySchema>;
+export type SessionPerformanceMetrics = z.infer<typeof sessionPerformanceMetricsSchema>;
+export type SessionAnalyticsResponse = z.infer<typeof sessionAnalyticsResponseSchema>;
+
+export type DashboardStatsQuery = z.infer<typeof dashboardStatsQuerySchema>;
+export type DashboardStatsResponse = z.infer<typeof dashboardStatsResponseSchema>;
+
+export type ProgressStatsQuery = z.infer<typeof progressStatsQuerySchema>;
+export type ProgressStatsResponse = z.infer<typeof progressStatsResponseSchema>;
+
+export type RecentActivityQuery = z.infer<typeof recentActivityQuerySchema>;
+export type ActivityItem = z.infer<typeof activityItemSchema>;
+export type RecentActivityResponse = z.infer<typeof recentActivityResponseSchema>;
+
+export type WorkoutStatsQuery = z.infer<typeof workoutStatsQuerySchema>;
+export type WorkoutStatsResponse = z.infer<typeof workoutStatsResponseSchema>;

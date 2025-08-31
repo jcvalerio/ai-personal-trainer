@@ -11,6 +11,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
+  Play,
   Plus,
   Calendar,
   Target,
@@ -36,6 +37,11 @@ import { SessionTemplatesStep } from './session-templates-step-simple';
 import { PlanPreviewStep } from './plan-preview-step';
 import { useFormState } from './form-state-provider';
 import { useWorkoutPlanSubmission } from '@/lib/hooks/use-workout-plan-submission';
+import { createWorkoutPlan } from '@/lib/api/workout-plans';
+import {
+  createWorkoutSession,
+  startWorkoutSession,
+} from '@/lib/api/workout-sessions';
 
 import { createLocalizedPath } from '@/lib/localized-navigation';
 
@@ -64,7 +70,7 @@ export function WizardContent({ locale }: WizardContentProps) {
     useWorkoutPlanSubmission({
       redirectOnSuccess: true,
       redirectPath: createLocalizedPath(
-        '/dashboard/workouts',
+        '/workouts',
         locale as 'en' | 'es'
       ),
       onSuccess: (response) => {
@@ -145,6 +151,70 @@ export function WizardContent({ locale }: WizardContentProps) {
     await submitWorkoutPlan();
   }
 
+  // Create plan and immediately start first session from first template
+  async function handleCreateAndStart() {
+    if (!canContinue || formData.sessionTemplates.length === 0) return;
+
+    // Create the plan first (no redirect here)
+    const planRes = await createWorkoutPlan(formData);
+    if (!planRes.success || !planRes.data) {
+      return;
+    }
+
+    // Map first template into a simple session payload
+    const firstTemplate = formData.sessionTemplates[0];
+    if (!firstTemplate) {
+      console.error('No session templates found');
+      return;
+    }
+    const mainExercises = firstTemplate.exerciseStructure.map((ex, idx) => ({
+      exerciseId: ex.exerciseId || `exercise-${idx}`,
+      orderIndex: idx,
+      exercisePhase: 'main' as const,
+      plannedSets: ex.sets || 3,
+      plannedReps: ex.repsMin || 10,
+      plannedDurationSeconds: ex.durationSeconds,
+      plannedRestSeconds: ex.restSeconds || 60,
+      equipmentAlternatives: [],
+    }));
+
+    const sessionPayload = {
+      name: firstTemplate.name || 'Custom Session',
+      workoutPlanId: planRes.data.id,
+      sessionType: 'workout' as const,
+      scheduledDate: new Date().toISOString(),
+      scheduledDuration:
+        firstTemplate.estimatedDuration || formData.estimatedSessionDuration,
+      sessionData: {
+        totalExercises: mainExercises.length,
+        estimatedDuration:
+          firstTemplate.estimatedDuration || formData.estimatedSessionDuration,
+        targetMuscleGroups: firstTemplate.targetMuscleGroups || [],
+        equipmentNeeded: [],
+        difficultyLevel: formData.targetFitnessLevel,
+      },
+      warmUpExercises: [],
+      mainExercises,
+      coolDownExercises: [],
+    };
+
+    const sessionRes = await createWorkoutSession(sessionPayload as any);
+    if (!sessionRes.success || !sessionRes.data) {
+      return;
+    }
+
+    // Start the session
+    await startWorkoutSession(sessionRes.data.id);
+
+    // Navigate to the live session page
+    router.push(
+      createLocalizedPath(
+        `/workouts/sessions/${sessionRes.data.id}`,
+        locale as 'en' | 'es'
+      )
+    );
+  }
+
   function renderCurrentStep() {
     switch (currentStep) {
       case 'basics':
@@ -181,7 +251,7 @@ export function WizardContent({ locale }: WizardContentProps) {
 
       {/* Progress Steps */}
       <div className='mb-8'>
-        <div className='flex items-center justify-between'>
+        <div className='flex flex-wrap items-center justify-center gap-2 sm:justify-between sm:gap-0'>
           {STEPS.map((step, index) => {
             const StepIcon = STEP_CONFIG[step].icon;
             const isActive = currentStep === step;
@@ -189,7 +259,7 @@ export function WizardContent({ locale }: WizardContentProps) {
             const isAccessible = index <= currentStepIndex;
 
             return (
-              <div key={step} className='flex items-center'>
+              <div key={step} className='flex flex-col items-center text-center sm:flex-row sm:text-left'>
                 {/* Step Circle */}
                 <button
                   onClick={() => handleStepClick(step)}
@@ -212,18 +282,18 @@ export function WizardContent({ locale }: WizardContentProps) {
                 </button>
 
                 {/* Step Label */}
-                <div className='ml-3 min-w-0 flex-1'>
+                <div className='mt-2 min-w-0 sm:ml-3 sm:mt-0 sm:flex-1'>
                   <p
-                    className={`text-sm font-medium ${isActive ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-gray-500'} `}
+                    className={`text-xs font-medium sm:text-sm ${isActive ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-gray-500'} `}
                   >
                     {t(STEP_CONFIG[step].titleKey)}
                   </p>
                 </div>
 
-                {/* Connector Line */}
+                {/* Connector Line - Hidden on mobile, shown on larger screens */}
                 {index < STEPS.length - 1 && (
                   <div
-                    className={`mx-4 h-0.5 w-16 ${isCompleted ? 'bg-green-600' : 'bg-gray-200'} `}
+                    className={`mx-4 hidden h-0.5 w-16 sm:block ${isCompleted ? 'bg-green-600' : 'bg-gray-200'} `}
                   />
                 )}
               </div>
@@ -297,6 +367,20 @@ export function WizardContent({ locale }: WizardContentProps) {
           <Button onClick={handleNext} disabled={!canContinue || isSubmitting}>
             {t('navigation.next')}
             <ArrowRight className='ml-2 h-4 w-4' />
+          </Button>
+        )}
+
+        {isLastStep && (
+          <Button
+            variant='outline'
+            onClick={handleCreateAndStart}
+            disabled={
+              !canContinue ||
+              isSubmitting ||
+              formData.sessionTemplates.length === 0
+            }
+          >
+            <Play className='mr-2 h-4 w-4' /> Start first session
           </Button>
         )}
       </div>

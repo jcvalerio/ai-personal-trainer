@@ -124,7 +124,7 @@ export function useWorkoutPlanSubmission(
 
         // Redirect if configured
         if (options.redirectOnSuccess !== false) {
-          const redirectPath = options.redirectPath || '/dashboard/workouts';
+          const redirectPath = options.redirectPath || '/en/workouts';
           router.push(redirectPath);
         }
       } else {

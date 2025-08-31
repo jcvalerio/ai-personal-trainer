@@ -342,11 +342,21 @@ export function createRateLimiter(maxRequests: number, windowMs: number) {
 
 /**
  * Constants for rate limiting
+ * More permissive in development mode for testing
  */
 export const RATE_LIMITS = {
-  AUTH: createRateLimiter(5, 60 * 1000), // 5 auth attempts per minute
-  INVITE: createRateLimiter(10, 60 * 60 * 1000), // 10 invites per hour
-  PROFILE_UPDATE: createRateLimiter(20, 60 * 60 * 1000), // 20 profile updates per hour
+  AUTH: createRateLimiter(
+    process.env.NODE_ENV === 'development' ? 50 : 5,
+    60 * 1000
+  ), // 50/5 auth attempts per minute
+  INVITE: createRateLimiter(
+    process.env.NODE_ENV === 'development' ? 100 : 10,
+    60 * 60 * 1000
+  ), // 100/10 invites per hour
+  PROFILE_UPDATE: createRateLimiter(
+    process.env.NODE_ENV === 'development' ? 1000 : 20,
+    60 * 60 * 1000
+  ), // 1000/20 profile updates per hour
 } as const;
 
 /**

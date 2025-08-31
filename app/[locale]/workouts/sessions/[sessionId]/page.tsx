@@ -1,663 +1,128 @@
 /**
- * Active Workout Session Page
- * Real-time workout tracking interface
+ * Active Workout Session Page (by ID)
+ * Wires SessionExecution UI to the real session from API
  */
-
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
+import { use } from 'react';
+import { AppNavigation } from '@/components/navigation/app-navigation';
 import {
-  Timer,
-  Play,
-  Pause,
-  SkipForward,
-  Check,
-  ArrowLeft,
-  Target,
-  Clock,
-  MoreVertical,
-  Volume2,
-  VolumeX,
-  Settings,
-  ChevronDown,
-  ChevronUp,
-  Plus,
-  Minus,
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Input } from '@/components/ui/input';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { cn } from '@/lib/utils';
+  SessionExecutionProvider,
+  useSessionExecution,
+} from '@/components/workouts/session-execution/session-execution-provider';
+import { 
+  EnhancedSessionInterface, 
+  SessionLoading, 
+  SessionErrorState 
+} from '@/components/workouts/ui';
+import { getWorkoutSession } from '@/lib/api/workout-sessions';
+import type { SessionExercise, WorkoutSession } from '@/types/workouts';
 
 interface PageProps {
-  params: { sessionId: string };
+  params: Promise<{ locale: string; sessionId: string }>;
 }
 
-// Mock data for demonstration
-const mockSession = {
-  id: '1',
-  name: 'Upper Body Power',
-  sessionType: 'workout' as const,
-  estimatedDuration: 75,
-  exercises: [
-    {
-      id: '1',
-      name: 'Barbell Bench Press',
-      type: 'strength',
-      targetSets: 4,
-      targetReps: '8-10',
-      restTime: 180,
-      notes: 'Focus on controlled movement',
-      completed: true,
-      sets: [
-        { reps: 10, weight: 135, completed: true },
-        { reps: 9, weight: 135, completed: true },
-        { reps: 8, weight: 140, completed: true },
-        { reps: 8, weight: 140, completed: true },
-      ],
-    },
-    {
-      id: '2',
-      name: 'Incline Dumbbell Press',
-      type: 'strength',
-      targetSets: 3,
-      targetReps: '10-12',
-      restTime: 150,
-      notes: 'Keep elbows at 45-degree angle',
-      completed: false,
-      currentSet: 2,
-      sets: [
-        { reps: 12, weight: 50, completed: true },
-        { reps: 0, weight: 50, completed: false },
-        { reps: 0, weight: 0, completed: false },
-      ],
-    },
-    {
-      id: '3',
-      name: 'Seated Cable Row',
-      type: 'strength',
-      targetSets: 3,
-      targetReps: '12-15',
-      restTime: 120,
-      notes: 'Squeeze shoulder blades together',
-      completed: false,
-      sets: [
-        { reps: 0, weight: 0, completed: false },
-        { reps: 0, weight: 0, completed: false },
-        { reps: 0, weight: 0, completed: false },
-      ],
-    },
-    {
-      id: '4',
-      name: 'Overhead Press',
-      type: 'strength',
-      targetSets: 3,
-      targetReps: '8-10',
-      restTime: 150,
-      notes: 'Keep core tight',
-      completed: false,
-      sets: [
-        { reps: 0, weight: 0, completed: false },
-        { reps: 0, weight: 0, completed: false },
-        { reps: 0, weight: 0, completed: false },
-      ],
-    },
-  ],
-};
+function mapToSessionExercises(session: WorkoutSession): SessionExercise[] {
+  const all = [
+    ...(session.warmUpExercises || []),
+    ...(session.mainExercises || []),
+    ...(session.coolDownExercises || []),
+  ];
+  return all.map((ex: Record<string, any>, idx: number) => ({
+    id: ex.id || `${session.id}-${idx}`,
+    sessionId: session.id,
+    exerciseId: ex.exerciseId || ex.id || `exercise-${idx}`,
+    name: ex.name,
+    orderIndex: ex.orderIndex ?? idx,
+    exercisePhase: ex.exercisePhase || 'main',
+    plannedSets: ex.plannedSets ?? ex.sets ?? 3,
+    plannedReps: ex.plannedReps ?? ex.repsMin ?? 10,
+    plannedWeightKg: ex.plannedWeightKg,
+    plannedDurationSeconds: ex.plannedDurationSeconds ?? ex.durationSeconds,
+    plannedDistanceMeters: ex.plannedDistanceMeters,
+    plannedRestSeconds: ex.plannedRestSeconds ?? ex.restSeconds ?? 60,
+    equipmentAlternatives: ex.equipmentAlternatives || [],
+    status: 'pending',
+    // Preserve completed sets from database
+    completedSets: ex.completedSets || 0,
+    setData: ex.setData || [],
+    sets: ex.sets || ex.plannedSets || 3,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }));
+}
 
-export default function WorkoutSessionPage({ params }: PageProps) {
-  const [session, setSession] = useState(mockSession);
-  const [isActive, setIsActive] = useState(false);
-  const [elapsedTime, setElapsedTime] = useState(0); // in seconds
-  const [restTimer, setRestTimer] = useState(0);
-  const [isResting, setIsResting] = useState(false);
-  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(1); // 0-based, exercise 1 is completed
-  const [soundEnabled, setSoundEnabled] = useState(true);
-  const [expandedExercise, setExpandedExercise] = useState<string | null>(
-    session.exercises[currentExerciseIndex]?.id || null
-  );
+function LiveSession({ session, locale }: { session: WorkoutSession; locale: string }) {
+  const { startSession, session: execSession, recoverSession } = useSessionExecution();
+  const exercises = useMemo(() => mapToSessionExercises(session), [session]);
 
-  // Timer effect for workout duration
   useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isActive) {
-      interval = setInterval(() => {
-        setElapsedTime((time) => time + 1);
-      }, 1000);
+    if (exercises.length > 0 && (!execSession || execSession.status === 'idle')) {
+      // Initialize session with proper sessionId and recovery logic
+      startSession(exercises, { keepScreenOn: true });
+      
+      // Set the sessionId after starting
+      if (session.id && execSession?.sessionId !== session.id) {
+        recoverSession(session.id);
+      }
     }
-    return () => clearInterval(interval);
-  }, [isActive]);
-
-  // Rest timer effect
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (isResting && restTimer > 0) {
-      interval = setInterval(() => {
-        setRestTimer((time) => {
-          if (time <= 1) {
-            setIsResting(false);
-            if (soundEnabled) {
-              // Play notification sound
-              console.log('Rest period finished!');
-            }
-            return 0;
-          }
-          return time - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isResting, restTimer, soundEnabled]);
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const toggleWorkout = () => {
-    setIsActive(!isActive);
-  };
-
-  const startRest = (duration: number) => {
-    setRestTimer(duration);
-    setIsResting(true);
-  };
-
-  const completeSet = (
-    exerciseId: string,
-    setIndex: number,
-    reps: number,
-    weight: number
-  ) => {
-    setSession((prev) => ({
-      ...prev,
-      exercises: prev.exercises.map((exercise) => {
-        if (exercise.id === exerciseId) {
-          const newSets = [...exercise.sets];
-          newSets[setIndex] = { reps, weight, completed: true };
-
-          const completedSets = newSets.filter((set) => set.completed).length;
-          const isExerciseComplete = completedSets === exercise.targetSets;
-
-          return {
-            ...exercise,
-            sets: newSets,
-            completed: isExerciseComplete,
-            currentSet: isExerciseComplete
-              ? exercise.targetSets
-              : completedSets,
-          };
-        }
-        return exercise;
-      }),
-    }));
-
-    // Auto-start rest timer after completing a set
-    const exercise = session.exercises.find((ex) => ex.id === exerciseId);
-    if (exercise && !isResting) {
-      startRest(exercise.restTime);
-    }
-  };
-
-  const skipExercise = () => {
-    if (currentExerciseIndex < session.exercises.length - 1) {
-      setCurrentExerciseIndex((prev) => prev + 1);
-      setExpandedExercise(
-        session.exercises[currentExerciseIndex + 1]?.id || null
-      );
-    }
-  };
-
-  const completedExercises = session.exercises.filter(
-    (ex) => ex.completed
-  ).length;
-  const progressPercentage =
-    (completedExercises / session.exercises.length) * 100;
-
-  const currentExercise = session.exercises[currentExerciseIndex];
+  }, [exercises, execSession, startSession, recoverSession, session.id]);
 
   return (
-    <div className='min-h-screen bg-gray-900 text-white'>
-      {/* Header */}
-      <header className='sticky top-0 z-40 border-b border-gray-700 bg-gray-800'>
-        <div className='mx-auto max-w-4xl px-4 py-3'>
-          <div className='flex items-center justify-between'>
-            <div className='flex items-center gap-3'>
-              <Link
-                href='/workouts'
-                className='rounded-lg p-2 transition-colors hover:bg-gray-700'
-              >
-                <ArrowLeft className='h-5 w-5' />
-              </Link>
-              <div>
-                <h1 className='text-lg font-semibold'>{session.name}</h1>
-                <p className='text-xs text-gray-400'>Session in progress</p>
-              </div>
-            </div>
+    <EnhancedSessionInterface 
+      onBack={() => window.history.back()}
+      onSessionComplete={() => {
+        // Could navigate to results page or back to workouts
+        window.location.href = `/${locale}/workouts`;
+      }}
+    />
+  );
+}
 
-            <div className='flex items-center gap-2'>
-              <Button
-                variant='ghost'
-                size='sm'
-                onClick={() => setSoundEnabled(!soundEnabled)}
-                className='text-white hover:bg-gray-700'
-              >
-                {soundEnabled ? (
-                  <Volume2 className='h-4 w-4' />
-                ) : (
-                  <VolumeX className='h-4 w-4' />
-                )}
-              </Button>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    className='text-white hover:bg-gray-700'
-                  >
-                    <Settings className='h-4 w-4' />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className='border-gray-700 bg-gray-800 text-white'>
-                  <DialogHeader>
-                    <DialogTitle>Session Settings</DialogTitle>
-                  </DialogHeader>
-                  <div className='space-y-4'>
-                    <div className='flex items-center justify-between'>
-                      <span>Sound Notifications</span>
-                      <Button
-                        variant='outline'
-                        size='sm'
-                        onClick={() => setSoundEnabled(!soundEnabled)}
-                        className='border-gray-600 text-white'
-                      >
-                        {soundEnabled ? 'Enabled' : 'Disabled'}
-                      </Button>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </div>
-        </div>
-      </header>
+export default function WorkoutSessionPage({ params }: PageProps) {
+  const { locale, sessionId } = use(params);
+  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<WorkoutSession | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-      {/* Main Content */}
-      <main className='mx-auto max-w-4xl px-4 py-6'>
-        {/* Workout Controls */}
-        <Card className='mb-6 border-gray-700 bg-gray-800'>
-          <CardContent className='p-6'>
-            <div className='flex items-center justify-between'>
-              <div className='flex items-center gap-6'>
-                <Button
-                  onClick={toggleWorkout}
-                  size='lg'
-                  className={cn(
-                    'h-16 w-16 rounded-full',
-                    isActive
-                      ? 'bg-red-600 hover:bg-red-700'
-                      : 'bg-green-600 hover:bg-green-700'
-                  )}
-                >
-                  {isActive ? (
-                    <Pause className='h-6 w-6' />
-                  ) : (
-                    <Play className='h-6 w-6' />
-                  )}
-                </Button>
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const res = await getWorkoutSession(sessionId);
+      if (!mounted) return;
+      if (res.success && res.data) {
+        setSession(res.data);
+      } else {
+        setError(res.error || 'Failed to load session');
+      }
+      setLoading(false);
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [sessionId]);
 
-                <div>
-                  <div className='flex items-center gap-4'>
-                    <div>
-                      <p className='font-mono text-2xl font-bold'>
-                        {formatTime(elapsedTime)}
-                      </p>
-                      <p className='text-xs text-gray-400'>Elapsed time</p>
-                    </div>
-                    {isResting && (
-                      <div className='text-orange-400'>
-                        <p className='font-mono text-xl font-bold'>
-                          {formatTime(restTimer)}
-                        </p>
-                        <p className='text-xs'>Rest remaining</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className='text-right'>
-                <p className='text-2xl font-bold'>
-                  {completedExercises}/{session.exercises.length}
-                </p>
-                <p className='text-xs text-gray-400'>Exercises completed</p>
-                <Progress
-                  value={progressPercentage}
-                  className='mt-2 w-24'
-                  variant='success'
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Rest Timer Alert */}
-        {isResting && (
-          <Card className='mb-6 border-orange-700 bg-orange-900'>
-            <CardContent className='p-4'>
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center gap-3'>
-                  <Timer className='h-5 w-5 text-orange-400' />
-                  <span className='font-medium'>Rest Period</span>
-                </div>
-                <div className='flex items-center gap-3'>
-                  <span className='font-mono text-lg font-bold text-orange-400'>
-                    {formatTime(restTimer)}
-                  </span>
-                  <Button
-                    variant='outline'
-                    size='sm'
-                    onClick={() => setIsResting(false)}
-                    className='border-orange-600 text-orange-400 hover:bg-orange-800'
-                  >
-                    Skip Rest
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+  return (
+    <div className='min-h-screen bg-gray-50'>
+      <AppNavigation locale={locale} variant='workouts' />
+      <main className='mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8'>
+        {loading && (
+          <SessionLoading 
+            message="Loading workout session..."
+            size="lg" 
+          />
         )}
-
-        {/* Exercise List */}
-        <div className='space-y-4'>
-          {session.exercises.map((exercise, index) => {
-            const isExpanded = expandedExercise === exercise.id;
-            const isCurrent = index === currentExerciseIndex;
-            const isNext = index === currentExerciseIndex + 1;
-
-            return (
-              <Card
-                key={exercise.id}
-                className={cn(
-                  'transition-all duration-200',
-                  exercise.completed
-                    ? 'border-green-700 bg-green-900'
-                    : isCurrent
-                      ? 'border-blue-700 bg-blue-900 ring-2 ring-blue-600'
-                      : isNext
-                        ? 'border-gray-600 bg-gray-700'
-                        : 'border-gray-700 bg-gray-800 opacity-60'
-                )}
-              >
-                <CardHeader
-                  className='cursor-pointer'
-                  onClick={() =>
-                    setExpandedExercise(isExpanded ? null : exercise.id)
-                  }
-                >
-                  <div className='flex items-center justify-between'>
-                    <div className='flex items-center gap-3'>
-                      <div
-                        className={cn(
-                          'flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold',
-                          exercise.completed
-                            ? 'bg-green-600'
-                            : isCurrent
-                              ? 'bg-blue-600'
-                              : 'bg-gray-600'
-                        )}
-                      >
-                        {exercise.completed ? (
-                          <Check className='h-3 w-3' />
-                        ) : (
-                          index + 1
-                        )}
-                      </div>
-                      <div>
-                        <CardTitle className='text-base'>
-                          {exercise.name}
-                        </CardTitle>
-                        <p className='text-sm text-gray-400'>
-                          {exercise.targetSets} sets × {exercise.targetReps}{' '}
-                          reps
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className='flex items-center gap-2'>
-                      {exercise.completed && (
-                        <Badge variant='success'>Complete</Badge>
-                      )}
-                      {isCurrent && <Badge variant='default'>Current</Badge>}
-                      <Button variant='ghost' size='sm'>
-                        {isExpanded ? (
-                          <ChevronUp className='h-4 w-4' />
-                        ) : (
-                          <ChevronDown className='h-4 w-4' />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-
-                {isExpanded && (
-                  <CardContent>
-                    {exercise.notes && (
-                      <div className='mb-4 rounded-lg bg-gray-700 p-3'>
-                        <p className='text-sm text-gray-300'>
-                          <Target className='mr-1 inline h-4 w-4' />
-                          {exercise.notes}
-                        </p>
-                      </div>
-                    )}
-
-                    <div className='space-y-3'>
-                      {exercise.sets.map((set, setIndex) => (
-                        <div
-                          key={setIndex}
-                          className='flex items-center gap-3 rounded-lg bg-gray-700 p-3'
-                        >
-                          <span className='w-12 text-sm font-medium'>
-                            Set {setIndex + 1}:
-                          </span>
-
-                          {set.completed ? (
-                            <div className='flex flex-1 items-center gap-2'>
-                              <span className='text-sm'>
-                                {set.reps} reps @ {set.weight} lbs
-                              </span>
-                              <Check className='h-4 w-4 text-green-400' />
-                            </div>
-                          ) : (
-                            <div className='flex flex-1 items-center gap-2'>
-                              <div className='flex items-center gap-1'>
-                                <Button
-                                  variant='outline'
-                                  size='sm'
-                                  className='h-8 w-8 border-gray-600 p-0'
-                                  onClick={() => {
-                                    const newReps = Math.max(
-                                      0,
-                                      (set.reps || 0) - 1
-                                    );
-                                    setSession((prev) => ({
-                                      ...prev,
-                                      exercises: prev.exercises.map((ex) =>
-                                        ex.id === exercise.id
-                                          ? {
-                                              ...ex,
-                                              sets: ex.sets.map((s, i) =>
-                                                i === setIndex
-                                                  ? { ...s, reps: newReps }
-                                                  : s
-                                              ),
-                                            }
-                                          : ex
-                                      ),
-                                    }));
-                                  }}
-                                >
-                                  <Minus className='h-3 w-3' />
-                                </Button>
-                                <Input
-                                  type='number'
-                                  value={set.reps || ''}
-                                  onChange={(e) => {
-                                    const newReps =
-                                      parseInt(e.target.value) || 0;
-                                    setSession((prev) => ({
-                                      ...prev,
-                                      exercises: prev.exercises.map((ex) =>
-                                        ex.id === exercise.id
-                                          ? {
-                                              ...ex,
-                                              sets: ex.sets.map((s, i) =>
-                                                i === setIndex
-                                                  ? { ...s, reps: newReps }
-                                                  : s
-                                              ),
-                                            }
-                                          : ex
-                                      ),
-                                    }));
-                                  }}
-                                  className='w-16 border-gray-500 bg-gray-600 text-center'
-                                  placeholder='0'
-                                />
-                                <Button
-                                  variant='outline'
-                                  size='sm'
-                                  className='h-8 w-8 border-gray-600 p-0'
-                                  onClick={() => {
-                                    const newReps = (set.reps || 0) + 1;
-                                    setSession((prev) => ({
-                                      ...prev,
-                                      exercises: prev.exercises.map((ex) =>
-                                        ex.id === exercise.id
-                                          ? {
-                                              ...ex,
-                                              sets: ex.sets.map((s, i) =>
-                                                i === setIndex
-                                                  ? { ...s, reps: newReps }
-                                                  : s
-                                              ),
-                                            }
-                                          : ex
-                                      ),
-                                    }));
-                                  }}
-                                >
-                                  <Plus className='h-3 w-3' />
-                                </Button>
-                              </div>
-
-                              <span className='text-gray-400'>×</span>
-
-                              <Input
-                                type='number'
-                                value={set.weight || ''}
-                                onChange={(e) => {
-                                  const newWeight =
-                                    parseInt(e.target.value) || 0;
-                                  setSession((prev) => ({
-                                    ...prev,
-                                    exercises: prev.exercises.map((ex) =>
-                                      ex.id === exercise.id
-                                        ? {
-                                            ...ex,
-                                            sets: ex.sets.map((s, i) =>
-                                              i === setIndex
-                                                ? { ...s, weight: newWeight }
-                                                : s
-                                            ),
-                                          }
-                                        : ex
-                                    ),
-                                  }));
-                                }}
-                                className='w-20 border-gray-500 bg-gray-600 text-center'
-                                placeholder='0'
-                              />
-                              <span className='text-sm text-gray-400'>lbs</span>
-
-                              <Button
-                                onClick={() =>
-                                  completeSet(
-                                    exercise.id,
-                                    setIndex,
-                                    set.reps || 0,
-                                    set.weight || 0
-                                  )
-                                }
-                                disabled={!set.reps || !set.weight}
-                                size='sm'
-                                className='ml-2'
-                              >
-                                <Check className='h-4 w-4' />
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-
-                    {!exercise.completed && isCurrent && (
-                      <div className='mt-4 flex gap-2'>
-                        <Button
-                          onClick={() => startRest(exercise.restTime)}
-                          variant='outline'
-                          className='flex-1 border-gray-600'
-                        >
-                          <Timer className='mr-2 h-4 w-4' />
-                          Rest ({exercise.restTime}s)
-                        </Button>
-                        <Button
-                          onClick={skipExercise}
-                          variant='ghost'
-                          className='flex-1'
-                        >
-                          <SkipForward className='mr-2 h-4 w-4' />
-                          Skip Exercise
-                        </Button>
-                      </div>
-                    )}
-                  </CardContent>
-                )}
-              </Card>
-            );
-          })}
-        </div>
-
-        {/* Session Complete */}
-        {completedExercises === session.exercises.length && (
-          <Card className='mt-6 border-green-700 bg-green-900'>
-            <CardContent className='p-6 text-center'>
-              <Check className='mx-auto mb-4 h-16 w-16 text-green-400' />
-              <h3 className='mb-2 text-xl font-bold'>Workout Complete!</h3>
-              <p className='mb-4 text-gray-300'>
-                Great job! You completed all exercises in{' '}
-                {formatTime(elapsedTime)}.
-              </p>
-              <div className='flex justify-center gap-3'>
-                <Button asChild className='bg-green-600 hover:bg-green-700'>
-                  <Link href='/workouts'>Finish Session</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        {error && (
+          <SessionErrorState 
+            error={error}
+            onRetry={() => window.location.reload()}
+          />
+        )}
+        {session && (
+          <SessionExecutionProvider>
+            <LiveSession session={session} locale={locale} />
+          </SessionExecutionProvider>
         )}
       </main>
     </div>

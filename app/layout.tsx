@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
-import {
-  ServiceWorkerProvider,
-  ServiceWorkerUpdatePrompt,
-} from '@/components/providers/service-worker-provider';
+import { ReactQueryProvider } from '@/components/providers/react-query-provider';
+import { ErrorBoundary } from '@/components/providers/error-boundary';
+// import {
+//   ServiceWorkerProvider,
+//   ServiceWorkerUpdatePrompt,
+// } from '@/components/providers/service-worker-provider';
 import { OfflineIndicator } from '@/components/ui/offline-indicator';
 
 import './globals.css';
@@ -133,9 +135,9 @@ export default function RootLayout({
   // If no Clerk key is provided, render without ClerkProvider (for build-time)
   if (!clerkPublishableKey) {
     return (
-      <html lang='en' className={inter.variable} suppressHydrationWarning>
-        <body className='bg-background min-h-screen font-sans antialiased'>
-          <div className='flex min-h-screen flex-col'>
+      <html lang='en'>
+        <body className={`${inter.variable} font-sans`}>
+          <div className='bg-background flex min-h-screen flex-col font-sans antialiased'>
             <div className='p-8 text-center'>
               <p className='text-gray-600'>Authentication not configured</p>
             </div>
@@ -146,67 +148,77 @@ export default function RootLayout({
   }
 
   return (
-    <ClerkProvider
-      publishableKey={clerkPublishableKey}
-      appearance={{
-        baseTheme: undefined, // Will be customized in sign-in/sign-up pages
-        variables: {
-          colorPrimary: '#3b82f6', // Blue-500 for primary actions
-          colorBackground: '#ffffff',
-          colorText: '#1f2937',
-          borderRadius: '0.5rem',
-        },
-        elements: {
-          formButtonPrimary:
-            'bg-blue-600 hover:bg-blue-700 text-sm font-medium',
-          card: 'shadow-xl border-0',
-          headerTitle: 'text-xl font-semibold text-gray-900',
-          headerSubtitle: 'text-gray-600',
-          socialButtonsBlockButton: 'border-gray-200 hover:bg-gray-50',
-          formFieldInput:
-            'border-gray-300 focus:border-blue-500 focus:ring-blue-500',
-          footerActionLink: 'text-blue-600 hover:text-blue-700',
-        },
-      }}
-    >
-      <html lang='en' className={inter.variable}>
-        <body className={`${inter.className} antialiased`}>
-          <ServiceWorkerProvider enableDevelopment={false}>
-            <div className='min-h-dvh min-h-screen bg-gray-50'>
-              {/* Skip to main content for accessibility */}
-              <a
-                href='#main-content'
-                className='sr-only z-50 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white focus:not-sr-only focus:absolute focus:left-4 focus:top-4'
+    <html lang='en'>
+      <body className={`${inter.variable} font-sans`}>
+        <ClerkProvider
+          publishableKey={clerkPublishableKey}
+          signInFallbackRedirectUrl='/en/dashboard'
+          signUpFallbackRedirectUrl='/en/onboarding'
+          afterSignInUrl='/en/dashboard'
+          afterSignUpUrl='/en/onboarding'
+          appearance={{
+            baseTheme: undefined, // Will be customized in sign-in/sign-up pages
+            variables: {
+              colorPrimary: '#3b82f6', // Blue-500 for primary actions
+              colorBackground: '#ffffff',
+              colorText: '#1f2937',
+              borderRadius: '0.5rem',
+            },
+            elements: {
+              formButtonPrimary:
+                'bg-blue-600 hover:bg-blue-700 text-sm font-medium',
+              card: 'shadow-xl border-0',
+              headerTitle: 'text-xl font-semibold text-gray-900',
+              headerSubtitle: 'text-gray-600',
+              socialButtonsBlockButton: 'border-gray-200 hover:bg-gray-50',
+              formFieldInput:
+                'border-gray-300 focus:border-blue-500 focus:ring-blue-500',
+              footerActionLink: 'text-blue-600 hover:text-blue-700',
+            },
+          }}
+        >
+          <ReactQueryProvider>
+            <ErrorBoundary
+              level="page"
+              context="Application Root"
+            >
+              <div
+                className={`min-h-dvh bg-gray-50 ${inter.className} antialiased`}
               >
-                Skip to main content
-              </a>
+                {/* Skip to main content for accessibility */}
+                <a
+                  href='#main-content'
+                  className='sr-only z-50 rounded-lg bg-blue-600 px-4 py-2 font-medium text-white focus:not-sr-only focus:absolute focus:left-4 focus:top-4'
+                >
+                  Skip to main content
+                </a>
 
-              {/* Main application content */}
-              <main id='main-content' className='relative'>
-                {children}
-              </main>
+                {/* Main application content */}
+                <main id='main-content' className='relative'>
+                  {children}
+                </main>
 
-              {/* Offline capabilities */}
-              <OfflineIndicator position='floating' />
-              <ServiceWorkerUpdatePrompt />
-            </div>
-          </ServiceWorkerProvider>
+                {/* Offline capabilities */}
+                <OfflineIndicator position='floating' />
 
-          {/* Development tools - only in development */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className='fixed bottom-4 right-4 z-50'>
-              <div className='rounded bg-black/80 px-2 py-1 text-xs text-white'>
-                <span className='block sm:hidden'>XS</span>
-                <span className='hidden sm:block md:hidden'>SM</span>
-                <span className='hidden md:block lg:hidden'>MD</span>
-                <span className='hidden lg:block xl:hidden'>LG</span>
-                <span className='hidden xl:block 2xl:hidden'>XL</span>
-                <span className='hidden 2xl:block'>2XL</span>
+                {/* Development tools - only in development */}
+                {process.env.NODE_ENV === 'development' && (
+                  <div className='fixed bottom-4 right-4 z-50'>
+                    <div className='rounded bg-black/80 px-2 py-1 text-xs text-white'>
+                      <span className='block sm:hidden'>XS</span>
+                      <span className='hidden sm:block md:hidden'>SM</span>
+                      <span className='hidden md:block lg:hidden'>MD</span>
+                      <span className='hidden lg:block xl:hidden'>LG</span>
+                      <span className='hidden xl:block 2xl:hidden'>XL</span>
+                      <span className='hidden 2xl:block'>2XL</span>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
-        </body>
-      </html>
-    </ClerkProvider>
+            </ErrorBoundary>
+          </ReactQueryProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }

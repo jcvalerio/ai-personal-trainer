@@ -37,18 +37,18 @@ interface PlanPreviewStepProps {
 export function PlanPreviewStep({ data, onUpdate }: PlanPreviewStepProps) {
   const t = useTranslations('createPlan.steps.preview');
 
-  // Calculate plan statistics
+  // Calculate plan statistics - fix to properly count sessions
   const totalSessions = Object.values(data.weeklySchedule).reduce(
-    (total, weekSchedule: any) => {
-      if (!weekSchedule) {
+    (total, daySchedule: any) => {
+      if (!daySchedule || !Array.isArray(daySchedule)) {
         return total;
       }
       return (
-        total + weekSchedule.filter((day: any) => day.type === 'workout').length
+        total + daySchedule.filter((session: any) => session.type === 'workout' || session.type === 'strength' || session.type === 'cardio' || session.type === 'hiit').length
       );
     },
     0
-  );
+  ) * data.durationWeeks;
 
   const totalRestDays = data.durationWeeks * 7 - totalSessions;
   const totalProgramHours = Math.round(
@@ -243,11 +243,18 @@ export function PlanPreviewStep({ data, onUpdate }: PlanPreviewStepProps) {
             {Array.from(
               { length: Math.min(data.durationWeeks, 4) },
               (_, weekIndex) => {
-                const weekKey = `week${weekIndex + 1}`;
-                const weekSchedule = data.weeklySchedule[weekKey] || [];
-                const weekWorkouts = weekSchedule.filter(
-                  (day: any) => day.type === 'workout'
-                );
+                // Get sessions for this week by mapping day names to schedule data
+                const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+                const dayShortNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                
+                // Count workouts for this week
+                let weekWorkouts = 0;
+                dayNames.forEach(dayName => {
+                  const daySchedule = data.weeklySchedule[dayName] || [];
+                  weekWorkouts += daySchedule.filter((session: any) => 
+                    session.type === 'workout' || session.type === 'strength' || session.type === 'cardio' || session.type === 'hiit'
+                  ).length;
+                });
 
                 return (
                   <div key={weekIndex} className='rounded-lg border p-4'>
@@ -256,35 +263,42 @@ export function PlanPreviewStep({ data, onUpdate }: PlanPreviewStepProps) {
                         {t('schedule.week', { number: weekIndex + 1 })}
                       </h4>
                       <Badge variant='outline'>
-                        {weekWorkouts.length} {t('schedule.workouts')}
+                        {weekWorkouts} {t('schedule.workouts')}
                       </Badge>
                     </div>
 
                     <div className='grid grid-cols-7 gap-2 text-xs'>
-                      {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(
-                        (day, dayIndex) => {
-                          const dayData = weekSchedule[dayIndex];
-                          const isWorkout = dayData?.type === 'workout';
-                          const isActiveRecovery =
-                            dayData?.type === 'active_recovery';
+                      {dayShortNames.map((dayShort, dayIndex) => {
+                        const dayName = dayNames[dayIndex];
+                        const daySchedule = data.weeklySchedule[dayName] || [];
+                        const workoutSessions = daySchedule.filter((session: any) => 
+                          session.type === 'workout' || session.type === 'strength' || session.type === 'cardio' || session.type === 'hiit'
+                        );
+                        const hasWorkout = workoutSessions.length > 0;
+                        const firstSession = workoutSessions[0];
 
-                          return (
-                            <div
-                              key={day}
-                              className={`rounded p-2 text-center ${isWorkout ? 'bg-blue-100 text-blue-800' : ''} ${isActiveRecovery ? 'bg-green-100 text-green-800' : ''} ${!isWorkout && !isActiveRecovery ? 'bg-gray-100 text-gray-600' : ''} `}
-                            >
-                              <div className='font-medium'>{day}</div>
-                              <div className='mt-1 truncate'>
-                                {isWorkout
-                                  ? dayData.sessionName || t('schedule.workout')
-                                  : isActiveRecovery
-                                    ? t('schedule.recovery')
-                                    : t('schedule.rest')}
-                              </div>
+                        return (
+                          <div
+                            key={dayShort}
+                            className={`rounded p-2 text-center ${
+                              hasWorkout 
+                                ? firstSession?.type === 'cardio' 
+                                  ? 'bg-red-100 text-red-800'
+                                  : firstSession?.type === 'hiit'
+                                  ? 'bg-orange-100 text-orange-800' 
+                                  : 'bg-blue-100 text-blue-800'
+                                : 'bg-gray-100 text-gray-600'
+                            }`}
+                          >
+                            <div className='font-medium'>{dayShort}</div>
+                            <div className='mt-1 truncate'>
+                              {hasWorkout
+                                ? firstSession?.name || t(`schedule.${firstSession?.type}`) || t('schedule.workout')
+                                : t('schedule.rest')}
                             </div>
-                          );
-                        }
-                      )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 );

@@ -41,6 +41,47 @@ export class ProgressService extends BaseService {
       const sanitizedData = this.sanitizeInput(data);
 
       const result = await this.executeWithTransaction(async (client) => {
+        // First, ensure user profile exists
+        // Ensure a valid placeholder email to satisfy CHECK constraint
+        const placeholderEmail = `${context.userId}@users.local`;
+        const userResult = await client`
+          INSERT INTO user_profiles (clerk_user_id, email, display_name)
+          VALUES (${context.userId}, ${placeholderEmail}, 'User')
+          ON CONFLICT (clerk_user_id) DO NOTHING
+          RETURNING id
+        `;
+
+        // Get user ID (either newly created or existing)
+        const userIdResult = await client`
+          SELECT id FROM user_profiles WHERE clerk_user_id = ${context.userId}
+        `;
+
+        if (userIdResult.length === 0) {
+          throw new Error('Failed to create or find user profile');
+        }
+
+        const userId = userIdResult[0]?.id;
+        if (!userId) {
+          throw new Error('Failed to get user ID from user profile');
+        }
+
+        // Check for an existing identical measurement to avoid duplicate errors
+        const existingMeasurement = await client`
+          SELECT * FROM progress_measurements
+          WHERE user_id = ${userId}
+            AND measurement_type = ${sanitizedData.measurementType}
+            AND unit = ${sanitizedData.unit}
+            AND value = ${sanitizedData.value}
+            AND measured_at = ${sanitizedData.measuredAt ? new Date(sanitizedData.measuredAt) : new Date()}
+            AND COALESCE(measurement_location, '') = ${sanitizedData.measurementLocation || ''}
+          LIMIT 1
+        `;
+
+        if (existingMeasurement.length > 0) {
+          // Return existing to behave idempotently
+          return this.mapProgressMeasurementFromDb(existingMeasurement[0]);
+        }
+
         const measurementResult = await client`
           INSERT INTO progress_measurements (
             user_id,
@@ -56,7 +97,7 @@ export class ProgressService extends BaseService {
             notes,
             photo_url
           ) VALUES (
-            (SELECT id FROM user_profiles WHERE clerk_user_id = ${context.userId}),
+            ${userId},
             ${context.organizationId || null},
             ${sanitizedData.measurementType},
             ${sanitizedData.measurementLocation || null},

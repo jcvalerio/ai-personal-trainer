@@ -2,11 +2,12 @@
 
 /**
  * Exercise Library Page
- * Browse and search exercises
+ * Browse and search exercises with Phase 3 API integration
  */
 
 import Link from 'next/link';
 import { UserButton } from '@clerk/nextjs';
+import { useState, useMemo } from 'react';
 import {
   Dumbbell,
   Search,
@@ -29,230 +30,133 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { ExerciseCard } from '@/components/workouts/exercise-card';
+import { LoadingState } from '@/components/ui/loading-state';
+import { ErrorState } from '@/components/ui/error-state';
 import type { Exercise } from '@/types/workouts';
 
-// Mock exercise data
-const mockExercises: Exercise[] = [
-  {
-    id: '1',
-    name: 'Barbell Bench Press',
-    slug: 'barbell-bench-press',
-    description:
-      'A compound upper body exercise that primarily targets the chest muscles while engaging shoulders and triceps.',
-    instructions:
-      'Lie on a bench with feet flat on the floor. Grip the barbell with hands slightly wider than shoulder-width. Lower the bar to your chest with control, then press back up to starting position.',
-    exerciseType: 'strength',
-    primaryMuscleGroups: ['chest', 'pectorals'],
-    secondaryMuscleGroups: ['shoulders', 'triceps'],
-    difficultyLevel: 'intermediate',
-    equipmentRequired: ['barbell', 'bench'],
-    equipmentOptional: ['safety_bars'],
-    equipmentAlternatives: { barbell: ['dumbbells', 'cables'] },
-    defaultSets: 4,
-    defaultRepsMin: 8,
-    defaultRepsMax: 12,
-    defaultRestSeconds: 180,
-    demoVideoUrl: 'https://example.com/video',
-    instructionImages: [],
-    contraindications: ['shoulder_injury', 'wrist_injury'],
-    modifications: {},
-    safetyTips: [
-      'Always use a spotter',
-      'Keep feet planted',
-      'Control the descent',
-    ],
-    isVerified: true,
-    isPublic: true,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '2',
-    name: 'Squat',
-    slug: 'squat',
-    description:
-      'A fundamental compound exercise targeting the lower body, particularly quadriceps, hamstrings, and glutes.',
-    instructions:
-      'Stand with feet shoulder-width apart. Lower your body by bending at the knees and hips as if sitting back into a chair. Keep your chest up and knees tracking over toes. Return to standing.',
-    exerciseType: 'strength',
-    primaryMuscleGroups: ['quadriceps', 'glutes'],
-    secondaryMuscleGroups: ['hamstrings', 'calves', 'core'],
-    difficultyLevel: 'beginner',
-    equipmentRequired: [],
-    equipmentOptional: ['barbell', 'dumbbells'],
-    equipmentAlternatives: {},
-    defaultSets: 3,
-    defaultRepsMin: 12,
-    defaultRepsMax: 15,
-    defaultRestSeconds: 120,
-    demoVideoUrl: 'https://example.com/video',
-    instructionImages: [],
-    contraindications: ['knee_injury', 'back_injury'],
-    modifications: {},
-    safetyTips: ['Keep knees aligned with toes', 'Maintain neutral spine'],
-    isVerified: true,
-    isPublic: true,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '3',
-    name: 'Deadlift',
-    slug: 'deadlift',
-    description:
-      'A powerful compound exercise that works the entire posterior chain, building overall strength and muscle mass.',
-    instructions:
-      'Stand with feet hip-width apart, barbell over mid-foot. Hinge at hips and bend knees to grip the bar. Keep chest up, core tight. Drive through heels to stand, pulling the bar up your legs.',
-    exerciseType: 'strength',
-    primaryMuscleGroups: ['hamstrings', 'glutes', 'lower_back'],
-    secondaryMuscleGroups: ['quadriceps', 'traps', 'forearms'],
-    difficultyLevel: 'advanced',
-    equipmentRequired: ['barbell', 'plates'],
-    equipmentOptional: ['lifting_belt', 'chalk'],
-    equipmentAlternatives: { barbell: ['dumbbells', 'trap_bar'] },
-    defaultSets: 4,
-    defaultRepsMin: 5,
-    defaultRepsMax: 8,
-    defaultRestSeconds: 240,
-    demoVideoUrl: 'https://example.com/video',
-    instructionImages: [],
-    contraindications: ['lower_back_injury', 'hernia'],
-    modifications: {},
-    safetyTips: [
-      'Master form with light weight first',
-      'Keep bar close to body',
-      'Neutral spine throughout',
-    ],
-    isVerified: true,
-    isPublic: true,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '4',
-    name: 'Running',
-    slug: 'running',
-    description:
-      'A cardiovascular exercise that improves heart health, endurance, and burns calories effectively.',
-    instructions:
-      'Maintain an upright posture with a slight forward lean. Land on the balls of your feet with a midfoot strike. Keep arms relaxed at your sides with a natural swing.',
-    exerciseType: 'cardio',
-    primaryMuscleGroups: ['quadriceps', 'hamstrings', 'calves'],
-    secondaryMuscleGroups: ['glutes', 'core'],
-    difficultyLevel: 'beginner',
-    equipmentRequired: [],
-    equipmentOptional: ['running_shoes', 'fitness_tracker'],
-    equipmentAlternatives: {},
-    defaultDurationSeconds: 1800, // 30 minutes
-    defaultRestSeconds: 0,
-    instructionImages: [],
-    contraindications: ['severe_joint_problems', 'heart_conditions'],
-    modifications: {},
-    safetyTips: [
-      'Start slowly and build up distance',
-      'Stay hydrated',
-      'Listen to your body',
-    ],
-    isVerified: true,
-    isPublic: true,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '5',
-    name: 'Yoga Flow',
-    slug: 'yoga-flow',
-    description:
-      'A flowing sequence of yoga poses that improves flexibility, balance, and mindfulness.',
-    instructions:
-      'Move smoothly between poses, focusing on breath coordination. Hold each pose for 30-60 seconds while maintaining proper alignment and deep breathing.',
-    exerciseType: 'flexibility',
-    primaryMuscleGroups: ['full_body'],
-    secondaryMuscleGroups: [],
-    difficultyLevel: 'beginner',
-    equipmentRequired: [],
-    equipmentOptional: ['yoga_mat', 'blocks'],
-    equipmentAlternatives: {},
-    defaultDurationSeconds: 3600, // 60 minutes
-    defaultRestSeconds: 0,
-    instructionImages: [],
-    contraindications: ['acute_injuries'],
-    modifications: {},
-    safetyTips: [
-      'Never force a pose',
-      'Focus on breath',
-      'Listen to your body',
-    ],
-    isVerified: true,
-    isPublic: true,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: '6',
-    name: 'Pull-ups',
-    slug: 'pull-ups',
-    description:
-      'An upper body strength exercise that targets the back muscles and biceps using body weight.',
-    instructions:
-      'Hang from a pull-up bar with palms facing away, hands slightly wider than shoulders. Pull your body up until chin clears the bar, then lower with control.',
-    exerciseType: 'strength',
-    primaryMuscleGroups: ['lats', 'rhomboids'],
-    secondaryMuscleGroups: ['biceps', 'rear_delts'],
-    difficultyLevel: 'intermediate',
-    equipmentRequired: ['pull_up_bar'],
-    equipmentOptional: ['resistance_bands'],
-    equipmentAlternatives: { pull_up_bar: ['lat_pulldown_machine'] },
-    defaultSets: 3,
-    defaultRepsMin: 5,
-    defaultRepsMax: 12,
-    defaultRestSeconds: 150,
-    demoVideoUrl: 'https://example.com/video',
-    instructionImages: [],
-    contraindications: ['shoulder_impingement', 'elbow_injury'],
-    modifications: {},
-    safetyTips: [
-      'Start with assisted variations',
-      'Full range of motion',
-      'Controlled movement',
-    ],
-    isVerified: true,
-    isPublic: true,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
+// React Query hooks for Phase 3 API
+import {
+  useExerciseLibrary,
+  useExerciseSearch,
+  useExerciseCategories,
+  useMuscleGroups,
+  useEquipment,
+} from '@/hooks/queries/use-exercise-library-query';
 
-const muscleGroups = [
-  'chest',
-  'back',
-  'shoulders',
-  'arms',
-  'legs',
-  'core',
-  'full_body',
-];
 const exerciseTypes = ['strength', 'cardio', 'flexibility', 'sports'];
 const difficultyLevels = ['beginner', 'intermediate', 'advanced'];
 
 export default function ExercisesPage() {
+  // State for filters and search
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedType, setSelectedType] = useState<string>('all-types');
+  const [selectedLevel, setSelectedLevel] = useState<string>('all-levels');
+  const [activeTab, setActiveTab] = useState('all');
+
+  // React Query hooks for fetching data
+  const exerciseLibraryQuery = useExerciseLibrary({
+    page: 1,
+    limit: 50,
+    exerciseType: selectedType !== 'all-types' ? selectedType as any : undefined,
+    difficultyLevel: selectedLevel !== 'all-levels' ? selectedLevel as any : undefined,
+    isPublic: true,
+    isVerified: true,
+  });
+
+  const searchQuery = useExerciseSearch(
+    searchTerm,
+    {
+      type: selectedType !== 'all-types' ? selectedType as any : undefined,
+      difficulty: selectedLevel !== 'all-levels' ? selectedLevel as any : undefined,
+      verified: true,
+      public: true,
+      limit: 50,
+    }
+  );
+
+  const muscleGroupsQuery = useMuscleGroups();
+  const categoriesQuery = useExerciseCategories();
+
+  // Determine which data to use
+  const shouldUseSearch = searchTerm.length >= 2;
+  const activeQuery = shouldUseSearch ? searchQuery : exerciseLibraryQuery;
+  const exercises = activeQuery.data?.exercises || [];
+  const isLoading = activeQuery.isLoading;
+  const error = activeQuery.error;
+
+  // Computed values for tabs
+  const favoriteExercises = useMemo(() => {
+    // TODO: Implement favorites functionality with user preferences
+    return exercises.slice(0, 3);
+  }, [exercises]);
+
+  const popularExercises = useMemo(() => {
+    // TODO: Implement popularity metrics from backend
+    return exercises.slice(1, 4);
+  }, [exercises]);
+
+  const featuredExercises = useMemo(() => {
+    // TODO: Implement featured exercises from backend
+    return exercises.slice(0, 2);
+  }, [exercises]);
+
+  const muscleGroups = muscleGroupsQuery.data || [
+    'chest',
+    'back',
+    'shoulders',
+    'arms',
+    'legs',
+    'core',
+    'full_body',
+  ];
+
+  // Event handlers
   const handleAddToWorkout = (exercise: Exercise) => {
     console.log('Adding exercise to workout:', exercise.name);
+    // TODO: Implement add to workout functionality
   };
 
   const handleViewDemo = (exercise: Exercise) => {
     console.log('Viewing demo for:', exercise.name);
+    // TODO: Implement demo video functionality
   };
 
-  const favoriteExercises = mockExercises.slice(0, 3);
-  const popularExercises = mockExercises.slice(1, 4);
-  const featuredExercises = mockExercises.slice(0, 2);
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+  };
+
+  const handleTypeChange = (value: string) => {
+    setSelectedType(value);
+  };
+
+  const handleLevelChange = (value: string) => {
+    setSelectedLevel(value);
+  };
+
+  // Loading state
+  if (isLoading && exercises.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <LoadingState 
+          message="Loading exercise library..." 
+          variant="page" 
+        />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error && exercises.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <ErrorState 
+          message="Failed to load exercises" 
+          description={error instanceof Error ? error.message : 'Unknown error occurred'}
+          onRetry={() => activeQuery.refetch()}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className='min-h-screen bg-gray-50'>
@@ -340,9 +244,11 @@ export default function ExercisesPage() {
             <Input
               placeholder='Search exercises by name, muscle group, or equipment...'
               className='pl-10'
+              value={searchTerm}
+              onChange={(e) => handleSearchChange(e.target.value)}
             />
           </div>
-          <Select defaultValue='all-types'>
+          <Select value={selectedType} onValueChange={handleTypeChange}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -355,7 +261,7 @@ export default function ExercisesPage() {
               ))}
             </SelectContent>
           </Select>
-          <Select defaultValue='all-levels'>
+          <Select value={selectedLevel} onValueChange={handleLevelChange}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -375,7 +281,7 @@ export default function ExercisesPage() {
           <Card>
             <CardContent className='p-4 text-center'>
               <div className='text-2xl font-bold text-blue-600'>
-                {mockExercises.length}
+                {isLoading ? '-' : exercises.length}
               </div>
               <div className='text-sm text-gray-600'>Total Exercises</div>
             </CardContent>
@@ -383,9 +289,9 @@ export default function ExercisesPage() {
           <Card>
             <CardContent className='p-4 text-center'>
               <div className='text-2xl font-bold text-green-600'>
-                {
-                  mockExercises.filter((e) => e.difficultyLevel === 'beginner')
-                    .length
+                {isLoading 
+                  ? '-' 
+                  : exercises.filter((e: Exercise) => e.difficultyLevel === 'beginner').length
                 }
               </div>
               <div className='text-sm text-gray-600'>Beginner Friendly</div>
@@ -394,9 +300,9 @@ export default function ExercisesPage() {
           <Card>
             <CardContent className='p-4 text-center'>
               <div className='text-2xl font-bold text-purple-600'>
-                {
-                  mockExercises.filter((e) => e.exerciseType === 'strength')
-                    .length
+                {isLoading 
+                  ? '-' 
+                  : exercises.filter((e: Exercise) => e.exerciseType === 'strength').length
                 }
               </div>
               <div className='text-sm text-gray-600'>Strength</div>
@@ -405,9 +311,9 @@ export default function ExercisesPage() {
           <Card>
             <CardContent className='p-4 text-center'>
               <div className='text-2xl font-bold text-orange-600'>
-                {
-                  mockExercises.filter((e) => e.exerciseType === 'cardio')
-                    .length
+                {isLoading 
+                  ? '-' 
+                  : exercises.filter((e: Exercise) => e.exerciseType === 'cardio').length
                 }
               </div>
               <div className='text-sm text-gray-600'>Cardio</div>
@@ -416,7 +322,7 @@ export default function ExercisesPage() {
         </div>
 
         {/* Main Exercise Browser */}
-        <Tabs defaultValue='all' className='w-full'>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
           <TabsList className='grid w-full grid-cols-4'>
             <TabsTrigger value='all'>All Exercises</TabsTrigger>
             <TabsTrigger value='favorites'>Favorites</TabsTrigger>
@@ -429,8 +335,13 @@ export default function ExercisesPage() {
             <div className='mb-4 flex items-center justify-between'>
               <div className='flex items-center gap-2'>
                 <Badge variant='outline'>
-                  {mockExercises.length} exercises
+                  {isLoading ? 'Loading...' : `${exercises.length} exercises`}
                 </Badge>
+                {shouldUseSearch && (
+                  <Badge variant='outline'>
+                    Search: "{searchTerm}"
+                  </Badge>
+                )}
               </div>
               <div className='flex items-center gap-2'>
                 <Button variant='outline' size='sm'>
@@ -444,24 +355,49 @@ export default function ExercisesPage() {
               </div>
             </div>
 
-            <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
-              {mockExercises.map((exercise) => (
-                <ExerciseCard
-                  key={exercise.id}
-                  exercise={exercise}
-                  showAddButton
-                  showInstructions
-                  onAdd={handleAddToWorkout}
-                  onViewDemo={handleViewDemo}
-                />
-              ))}
-            </div>
+            {isLoading ? (
+              <LoadingState message="Loading exercises..." variant="grid" />
+            ) : exercises.length === 0 ? (
+              <div className='py-12 text-center'>
+                <Target className='mx-auto mb-4 h-16 w-16 text-gray-400' />
+                <h3 className='mb-2 text-lg font-medium text-gray-900'>
+                  {shouldUseSearch ? 'No exercises found' : 'No exercises available'}
+                </h3>
+                <p className='mb-6 text-gray-600'>
+                  {shouldUseSearch 
+                    ? `Try adjusting your search "${searchTerm}" or filters.`
+                    : 'Try adjusting your filters or check back later.'
+                  }
+                </p>
+                {shouldUseSearch && (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setSearchTerm('')}
+                  >
+                    Clear search
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
+                {exercises.map((exercise: Exercise) => (
+                  <ExerciseCard
+                    key={exercise.id}
+                    exercise={exercise}
+                    showAddButton
+                    showInstructions
+                    onAdd={handleAddToWorkout}
+                    onViewDemo={handleViewDemo}
+                  />
+                ))}
+              </div>
+            )}
           </TabsContent>
 
           {/* Favorites Tab */}
           <TabsContent value='favorites' className='mt-6'>
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
-              {favoriteExercises.map((exercise) => (
+              {favoriteExercises.map((exercise: Exercise) => (
                 <ExerciseCard
                   key={exercise.id}
                   exercise={exercise}
@@ -488,7 +424,7 @@ export default function ExercisesPage() {
           {/* Popular Tab */}
           <TabsContent value='popular' className='mt-6'>
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
-              {popularExercises.map((exercise) => (
+              {popularExercises.map((exercise: Exercise) => (
                 <ExerciseCard
                   key={exercise.id}
                   exercise={exercise}
@@ -504,7 +440,7 @@ export default function ExercisesPage() {
           {/* Featured Tab */}
           <TabsContent value='featured' className='mt-6'>
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
-              {featuredExercises.map((exercise) => (
+              {featuredExercises.map((exercise: Exercise) => (
                 <ExerciseCard
                   key={exercise.id}
                   exercise={exercise}
@@ -524,13 +460,13 @@ export default function ExercisesPage() {
             Browse by Muscle Group
           </h3>
           <div className='grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-7'>
-            {muscleGroups.map((muscle) => {
-              const count = mockExercises.filter(
-                (ex) =>
-                  ex.primaryMuscleGroups.some((mg) =>
+            {muscleGroups.map((muscle: string) => {
+              const count = exercises.filter(
+                (ex: Exercise) =>
+                  ex.primaryMuscleGroups.some((mg: string) =>
                     mg.toLowerCase().includes(muscle.toLowerCase())
                   ) ||
-                  ex.secondaryMuscleGroups?.some((mg) =>
+                  ex.secondaryMuscleGroups?.some((mg: string) =>
                     mg.toLowerCase().includes(muscle.toLowerCase())
                   )
               ).length;

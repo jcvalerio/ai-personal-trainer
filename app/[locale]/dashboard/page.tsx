@@ -8,8 +8,13 @@ import Link from 'next/link';
 import { use } from 'react';
 import { useTranslations } from 'next-intl';
 import { Dumbbell, Users, Target, TrendingUp } from 'lucide-react';
+import { StatCard } from '@/components/ui/stat-card';
+import { LoadingState } from '@/components/ui/loading-state';
+import { ErrorState } from '@/components/ui/error-state';
+import { EmptyState } from '@/components/ui/empty-state';
 import { AppNavigation } from '../../../components/navigation/app-navigation';
 import { createLocalizedPath } from '../../../lib/localized-navigation';
+import { useDashboardStats } from '../../../hooks/use-dashboard-stats';
 
 interface DashboardPageProps {
   params: Promise<{ locale: string }>;
@@ -18,6 +23,7 @@ interface DashboardPageProps {
 export default function DashboardPage({ params }: DashboardPageProps) {
   const t = useTranslations('dashboard');
   const { locale } = use(params);
+  const { stats, recentActivity, isLoading, error } = useDashboardStats();
 
   return (
     <div className='min-h-screen bg-gray-50'>
@@ -36,61 +42,41 @@ export default function DashboardPage({ params }: DashboardPageProps) {
 
         {/* Quick Stats Grid */}
         <div className='mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4'>
-          <div className='rounded-xl border border-gray-200 bg-white p-6'>
-            <div className='flex items-center gap-4'>
-              <div className='rounded-lg bg-blue-100 p-3'>
-                <Target className='h-6 w-6 text-blue-600' />
-              </div>
-              <div>
-                <p className='text-sm text-gray-600'>
-                  {t('stats.workoutsThisWeek')}
-                </p>
-                <p className='text-2xl font-bold text-gray-900'>0</p>
-              </div>
-            </div>
-          </div>
-
-          <div className='rounded-xl border border-gray-200 bg-white p-6'>
-            <div className='flex items-center gap-4'>
-              <div className='rounded-lg bg-green-100 p-3'>
-                <TrendingUp className='h-6 w-6 text-green-600' />
-              </div>
-              <div>
-                <p className='text-sm text-gray-600'>
-                  {t('stats.currentStreak')}
-                </p>
-                <p className='text-2xl font-bold text-gray-900'>
-                  0 {t('stats.streakDays')}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className='rounded-xl border border-gray-200 bg-white p-6'>
-            <div className='flex items-center gap-4'>
-              <div className='rounded-lg bg-purple-100 p-3'>
-                <Dumbbell className='h-6 w-6 text-purple-600' />
-              </div>
-              <div>
-                <p className='text-sm text-gray-600'>
-                  {t('stats.totalWorkouts')}
-                </p>
-                <p className='text-2xl font-bold text-gray-900'>0</p>
-              </div>
-            </div>
-          </div>
-
-          <div className='rounded-xl border border-gray-200 bg-white p-6'>
-            <div className='flex items-center gap-4'>
-              <div className='rounded-lg bg-orange-100 p-3'>
-                <Users className='h-6 w-6 text-orange-600' />
-              </div>
-              <div>
-                <p className='text-sm text-gray-600'>{t('stats.community')}</p>
-                <p className='text-2xl font-bold text-gray-900'>-</p>
-              </div>
-            </div>
-          </div>
+          <StatCard
+            icon={Target}
+            iconColor="blue"
+            label={t('stats.workoutsThisWeek')}
+            value={stats.workoutsThisWeek}
+            isLoading={isLoading}
+            error={error || undefined}
+          />
+          
+          <StatCard
+            icon={TrendingUp}
+            iconColor="green"
+            label={t('stats.currentStreak')}
+            value={`${stats.currentStreak} ${t('stats.streakDays')}`}
+            isLoading={isLoading}
+            error={error || undefined}
+          />
+          
+          <StatCard
+            icon={Dumbbell}
+            iconColor="purple"
+            label={t('stats.totalWorkouts')}
+            value={stats.totalWorkouts}
+            isLoading={isLoading}
+            error={error || undefined}
+          />
+          
+          <StatCard
+            icon={Users}
+            iconColor="orange"
+            label={t('stats.community')}
+            value={stats.activeWorkoutPlans}
+            isLoading={isLoading}
+            error={error || undefined}
+          />
         </div>
 
         {/* Quick Actions */}
@@ -171,17 +157,67 @@ export default function DashboardPage({ params }: DashboardPageProps) {
             <h3 className='mb-4 text-lg font-semibold text-gray-900'>
               {t('recentActivity.title')}
             </h3>
-            <div className='py-8 text-center'>
-              <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100'>
-                <TrendingUp className='h-8 w-8 text-gray-400' />
+            {isLoading ? (
+              <LoadingState 
+                variant="centered" 
+                message="Loading activity..." 
+                icon={TrendingUp}
+              />
+            ) : error ? (
+              <ErrorState
+                variant="centered"
+                message="Error loading activity"
+                description={error || undefined}
+                onRetry={() => window.location.reload()}
+              />
+            ) : recentActivity.length === 0 ? (
+              <EmptyState
+                icon={TrendingUp}
+                title={t('recentActivity.empty.title')}
+                description={t('recentActivity.empty.description')}
+              />
+            ) : (
+              <div className="space-y-3">
+                {recentActivity.slice(0, 5).map((activity) => (
+                  <div key={activity.id} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
+                    <div className={`rounded-full p-2 ${
+                      activity.type === 'workout_completed' 
+                        ? 'bg-green-100 text-green-600' 
+                        : activity.type === 'plan_created'
+                        ? 'bg-blue-100 text-blue-600'
+                        : 'bg-orange-100 text-orange-600'
+                    }`}>
+                      {activity.type === 'workout_completed' ? (
+                        <Target className="h-4 w-4" />
+                      ) : activity.type === 'plan_created' ? (
+                        <Dumbbell className="h-4 w-4" />
+                      ) : (
+                        <TrendingUp className="h-4 w-4" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-900">{activity.title}</p>
+                      <p className="text-sm text-gray-600 truncate">{activity.description}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {new Date(activity.timestamp).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                {recentActivity.length > 5 && (
+                  <div className="text-center pt-2">
+                    <p className="text-sm text-gray-500">
+                      +{recentActivity.length - 5} more activities
+                    </p>
+                  </div>
+                )}
               </div>
-              <p className='mb-2 text-gray-600'>
-                {t('recentActivity.empty.title')}
-              </p>
-              <p className='text-sm text-gray-500'>
-                {t('recentActivity.empty.description')}
-              </p>
-            </div>
+            )}
           </div>
         </div>
 

@@ -76,7 +76,7 @@ export class WorkoutService extends BaseService {
             ${sanitizedData.description || null},
             ${sanitizedData.durationWeeks},
             ${sanitizedData.sessionsPerWeek},
-            ${JSON.stringify(sanitizedData.fitnessGoals)},
+            ${sanitizedData.fitnessGoals},
             ${sanitizedData.targetFitnessLevel || 'beginner'},
             ${sanitizedData.estimatedSessionDuration || null},
             ${JSON.stringify(sanitizedData.planData || {})},
@@ -239,9 +239,7 @@ export class WorkoutService extends BaseService {
         return existingPlan;
       }
 
-      if (existingPlan.data.userId !== context.userId) {
-        return this.createErrorResult('Access denied', 'UNAUTHORIZED');
-      }
+      // Access already verified by getWorkoutPlan above - if we got here, user has access
 
       const sanitizedData = this.sanitizeInput(data);
       const updates: string[] = [];
@@ -261,6 +259,8 @@ export class WorkoutService extends BaseService {
         'weeklySchedule',
         'progressionRules',
         'status',
+        'startedAt',
+        'completedAt',
         'isTemplate',
         'templateCategory',
         'isPublic',
@@ -279,6 +279,13 @@ export class WorkoutService extends BaseService {
           ) {
             updates.push(`${dbField} = $${paramIndex++}`);
             values.push(JSON.stringify(sanitizedData[field]));
+          } else if (['startedAt', 'completedAt'].includes(field)) {
+            // Handle date fields - convert to ISO string for PostgreSQL
+            updates.push(`${dbField} = $${paramIndex++}`);
+            const dateValue = sanitizedData[field] instanceof Date 
+              ? sanitizedData[field] 
+              : sanitizedData[field] ? new Date(sanitizedData[field]) : null;
+            values.push(dateValue ? dateValue.toISOString() : null);
           } else {
             updates.push(`${dbField} = $${paramIndex++}`);
             values.push(sanitizedData[field]);
@@ -470,7 +477,18 @@ export class WorkoutService extends BaseService {
       );
       const offset = ((pagination?.page || 1) - 1) * (pagination?.limit || 10);
       const limit = pagination?.limit || 10;
-      const sortBy = pagination?.sortBy || 'scheduled_date';
+      
+      // Map camelCase field names to database column names
+      const fieldMappings: Record<string, string> = {
+        scheduledDate: 'scheduled_date',
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
+        userId: 'user_id',
+        workoutPlanId: 'workout_plan_id',
+        organizationId: 'organization_id'
+      };
+      
+      const sortBy = fieldMappings[pagination?.sortBy || ''] || pagination?.sortBy || 'scheduled_date';
       const sortOrder = pagination?.sortOrder || 'desc';
 
       // Get total count
@@ -632,6 +650,364 @@ export class WorkoutService extends BaseService {
   }
 
   /**
+   * Pause a workout session
+   */
+  async pauseWorkoutSession(
+    sessionId: string,
+    context: ServiceContext
+  ): Promise<ServiceResult<WorkoutSession>> {
+    try {
+      this.validateContext(context);
+
+      const sessionResult = await this.getWorkoutSession(sessionId, context);
+      if (!sessionResult.success || !sessionResult.data) {
+        return sessionResult;
+      }
+
+      if (sessionResult.data.status !== 'in_progress') {
+        return this.createErrorResult(
+          'Session must be in progress to pause',
+          'INVALID_STATE'
+        );
+      }
+
+      const result = await this.db`
+        UPDATE workout_sessions 
+        SET status = 'paused',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ${sessionId} AND user_id = (
+          SELECT id FROM user_profiles WHERE clerk_user_id = ${context.userId}
+        )
+        RETURNING *
+      `;
+
+      if (result.length === 0) {
+        return this.createErrorResult(
+          'Failed to pause session',
+          'UPDATE_FAILED'
+        );
+      }
+
+      const pausedSession = this.mapWorkoutSessionFromDb(result[0]);
+
+      await this.logEvent(
+        'session_paused',
+        'Workout session paused',
+        context,
+        { sessionId }
+      );
+
+      return this.createSuccessResult(
+        pausedSession,
+        'Workout session paused successfully'
+      );
+    } catch (error) {
+      return this.handleError(error, 'pauseWorkoutSession');
+    }
+  }
+
+  /**
+   * Resume a workout session
+   */
+  async resumeWorkoutSession(
+    sessionId: string,
+    context: ServiceContext
+  ): Promise<ServiceResult<WorkoutSession>> {
+    try {
+      this.validateContext(context);
+
+      const sessionResult = await this.getWorkoutSession(sessionId, context);
+      if (!sessionResult.success || !sessionResult.data) {
+        return sessionResult;
+      }
+
+      if (sessionResult.data.status !== 'paused') {
+        return this.createErrorResult(
+          'Session must be paused to resume',
+          'INVALID_STATE'
+        );
+      }
+
+      const result = await this.db`
+        UPDATE workout_sessions 
+        SET status = 'in_progress',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ${sessionId} AND user_id = (
+          SELECT id FROM user_profiles WHERE clerk_user_id = ${context.userId}
+        )
+        RETURNING *
+      `;
+
+      if (result.length === 0) {
+        return this.createErrorResult(
+          'Failed to resume session',
+          'UPDATE_FAILED'
+        );
+      }
+
+      const resumedSession = this.mapWorkoutSessionFromDb(result[0]);
+
+      await this.logEvent(
+        'session_resumed',
+        'Workout session resumed',
+        context,
+        { sessionId }
+      );
+
+      return this.createSuccessResult(
+        resumedSession,
+        'Workout session resumed successfully'
+      );
+    } catch (error) {
+      return this.handleError(error, 'resumeWorkoutSession');
+    }
+  }
+
+  /**
+   * Record set performance data
+   */
+  async recordSetPerformance(
+    sessionId: string,
+    exerciseId: string,
+    setData: {
+      setIndex: number;
+      reps: number;
+      weight?: number;
+      distance?: number;
+      duration?: number;
+      perceivedExertion?: number;
+      formRating?: number;
+      notes?: string;
+      completedAt?: Date;
+    },
+    context: ServiceContext
+  ): Promise<ServiceResult<boolean>> {
+    try {
+      this.validateContext(context);
+      this.validateRequiredFields(setData, ['setIndex', 'reps']);
+
+      // Verify session exists and user has access
+      const sessionResult = await this.getWorkoutSession(sessionId, context);
+      if (!sessionResult.success || !sessionResult.data) {
+        return this.createErrorResult('Session not found', 'NOT_FOUND');
+      }
+
+      const sanitizedData = this.sanitizeInput(setData);
+
+      const result = await this.executeWithTransaction(async (client) => {
+        // Check if session_exercise record exists
+        const exerciseResult = await client`
+          SELECT id, set_data 
+          FROM session_exercises 
+          WHERE session_id = ${sessionId} 
+            AND exercise_id = ${exerciseId}
+        `;
+
+        let sessionExerciseId: string;
+        let existingSetData: any[] = [];
+
+        if (exerciseResult.length === 0) {
+          // Create new session_exercise record
+          const newExerciseResult = await client`
+            INSERT INTO session_exercises (
+              session_id,
+              exercise_id,
+              order_index,
+              exercise_phase,
+              set_data,
+              status
+            ) VALUES (
+              ${sessionId},
+              ${exerciseId},
+              0,
+              'main',
+              ${JSON.stringify([])},
+              'in_progress'
+            )
+            RETURNING id
+          `;
+          sessionExerciseId = newExerciseResult[0].id;
+        } else {
+          sessionExerciseId = exerciseResult[0].id;
+          existingSetData = exerciseResult[0].set_data || [];
+        }
+
+        // Update or add set data
+        const newSetData = {
+          setIndex: sanitizedData.setIndex,
+          reps: sanitizedData.reps,
+          weight: sanitizedData.weight || null,
+          distance: sanitizedData.distance || null,
+          duration: sanitizedData.duration || null,
+          perceivedExertion: sanitizedData.perceivedExertion || null,
+          formRating: sanitizedData.formRating || null,
+          notes: sanitizedData.notes || null,
+          completedAt: sanitizedData.completedAt || new Date(),
+        };
+
+        // Find existing set or add new one
+        const existingSetIndex = existingSetData.findIndex(
+          (set: any) => set.setIndex === sanitizedData.setIndex
+        );
+
+        if (existingSetIndex >= 0) {
+          existingSetData[existingSetIndex] = newSetData;
+        } else {
+          existingSetData.push(newSetData);
+        }
+
+        // Sort by setIndex
+        existingSetData.sort((a: any, b: any) => a.setIndex - b.setIndex);
+
+        // Update session_exercise with new set data
+        await client`
+          UPDATE session_exercises 
+          SET set_data = ${JSON.stringify(existingSetData)},
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = ${sessionExerciseId}
+        `;
+
+        return true;
+      });
+
+      if (!result.success) {
+        return result;
+      }
+
+      await this.logEvent(
+        'set_recorded',
+        'Set performance recorded',
+        context,
+        {
+          sessionId,
+          exerciseId,
+          setIndex: sanitizedData.setIndex,
+        }
+      );
+
+      return this.createSuccessResult(
+        true,
+        'Set performance recorded successfully'
+      );
+    } catch (error) {
+      return this.handleError(error, 'recordSetPerformance');
+    }
+  }
+
+  /**
+   * Update session progress
+   */
+  async updateSessionProgress(
+    sessionId: string,
+    progressData: {
+      currentExerciseIndex?: number;
+      currentSet?: number;
+      elapsedTime?: number;
+      exercisesCompleted?: number;
+      setsCompleted?: number;
+      totalVolume?: number;
+      completionPercentage?: number;
+    },
+    context: ServiceContext
+  ): Promise<ServiceResult<boolean>> {
+    try {
+      this.validateContext(context);
+
+      // Verify session exists and user has access
+      const sessionResult = await this.getWorkoutSession(sessionId, context);
+      if (!sessionResult.success || !sessionResult.data) {
+        return this.createErrorResult('Session not found', 'NOT_FOUND');
+      }
+
+      if (sessionResult.data.status !== 'in_progress') {
+        return this.createErrorResult(
+          'Can only update progress for active sessions',
+          'INVALID_STATE'
+        );
+      }
+
+      const sanitizedData = this.sanitizeInput(progressData);
+      const updates: string[] = [];
+      const values: any[] = [];
+      let paramIndex = 1;
+
+      // Build dynamic update query
+      if (sanitizedData.elapsedTime !== undefined) {
+        updates.push(`actual_duration = $${paramIndex++}`);
+        values.push(Math.round(sanitizedData.elapsedTime / (1000 * 60))); // Convert to minutes
+      }
+
+      if (sanitizedData.completionPercentage !== undefined) {
+        updates.push(`completion_percentage = $${paramIndex++}`);
+        values.push(sanitizedData.completionPercentage);
+      }
+
+      // Update session_data with progress information
+      const currentSessionData = sessionResult.data.sessionData || {};
+      const updatedSessionData = {
+        ...currentSessionData,
+        progress: {
+          ...currentSessionData.progress,
+          currentExerciseIndex: sanitizedData.currentExerciseIndex,
+          currentSet: sanitizedData.currentSet,
+          elapsedTime: sanitizedData.elapsedTime,
+          exercisesCompleted: sanitizedData.exercisesCompleted,
+          setsCompleted: sanitizedData.setsCompleted,
+          totalVolume: sanitizedData.totalVolume,
+          lastUpdated: new Date().toISOString(),
+        },
+      };
+
+      updates.push(`session_data = $${paramIndex++}`);
+      values.push(JSON.stringify(updatedSessionData));
+
+      updates.push(`updated_at = CURRENT_TIMESTAMP`);
+      
+      // Add WHERE clause parameters
+      values.push(sessionId);
+      values.push(context.userId);
+
+      if (updates.length > 1) {
+        // Only proceed if there are actual updates
+        const result = await this.db.queryRaw(
+          `
+          UPDATE workout_sessions 
+          SET ${updates.join(', ')}
+          WHERE id = $${paramIndex++} AND user_id = (
+            SELECT id FROM user_profiles WHERE clerk_user_id = $${paramIndex++}
+          )
+        `,
+          values
+        );
+
+        if (result.length === 0) {
+          return this.createErrorResult(
+            'Failed to update session progress',
+            'UPDATE_FAILED'
+          );
+        }
+      }
+
+      await this.logEvent(
+        'session_progress_updated',
+        'Session progress updated',
+        context,
+        {
+          sessionId,
+          completionPercentage: sanitizedData.completionPercentage,
+        }
+      );
+
+      return this.createSuccessResult(
+        true,
+        'Session progress updated successfully'
+      );
+    } catch (error) {
+      return this.handleError(error, 'updateSessionProgress');
+    }
+  }
+
+  /**
    * Complete a workout session
    */
   async completeWorkoutSession(
@@ -640,6 +1016,9 @@ export class WorkoutService extends BaseService {
       effortRating?: number;
       energyLevelAfter?: number;
       userNotes?: string;
+      totalVolume?: number;
+      exercisesCompleted?: number;
+      setsCompleted?: number;
     },
     context: ServiceContext
   ): Promise<ServiceResult<WorkoutSession>> {
@@ -666,6 +1045,44 @@ export class WorkoutService extends BaseService {
           )
         : null;
 
+      // Get session exercises to calculate final stats
+      const sessionExercises = await this.db`
+        SELECT set_data, exercise_id
+        FROM session_exercises
+        WHERE session_id = ${sessionId}
+          AND user_id = (SELECT id FROM user_profiles WHERE clerk_user_id = ${context.userId})
+      `;
+
+      // Calculate final metrics from actual performance
+      let totalVolume = 0;
+      let totalSets = 0;
+      let exercisesCompleted = 0;
+
+      sessionExercises.forEach((exercise: any) => {
+        const setData = exercise.set_data || [];
+        if (setData.length > 0) {
+          exercisesCompleted++;
+          totalSets += setData.length;
+          setData.forEach((set: any) => {
+            if (set.weight && set.reps) {
+              totalVolume += set.weight * set.reps;
+            }
+          });
+        }
+      });
+
+      // Update session_data with final metrics
+      const currentSessionData = sessionResult.data.sessionData || {};
+      const finalSessionData = {
+        ...currentSessionData,
+        finalStats: {
+          totalVolume: sanitizedData.totalVolume || totalVolume,
+          exercisesCompleted: sanitizedData.exercisesCompleted || exercisesCompleted,
+          setsCompleted: sanitizedData.setsCompleted || totalSets,
+          completedAt: new Date().toISOString(),
+        },
+      };
+
       const result = await this.db`
         UPDATE workout_sessions 
         SET status = 'completed',
@@ -675,6 +1092,7 @@ export class WorkoutService extends BaseService {
             effort_rating = ${sanitizedData.effortRating || null},
             energy_level_after = ${sanitizedData.energyLevelAfter || null},
             user_notes = ${sanitizedData.userNotes || null},
+            session_data = ${JSON.stringify(finalSessionData)},
             updated_at = CURRENT_TIMESTAMP
         WHERE id = ${sessionId} AND user_id = (
           SELECT id FROM user_profiles WHERE clerk_user_id = ${context.userId}
@@ -698,6 +1116,8 @@ export class WorkoutService extends BaseService {
         {
           sessionId,
           duration: actualDuration,
+          totalVolume: totalVolume,
+          exercisesCompleted: exercisesCompleted,
         }
       );
 
@@ -721,17 +1141,19 @@ export class WorkoutService extends BaseService {
     let paramIndex = 1;
 
     // Always filter by user or organization
-    conditions.push(
-      `(wp.user_id = (SELECT id FROM user_profiles WHERE clerk_user_id = $${paramIndex++})`
+    const userConditions: string[] = [];
+    userConditions.push(
+      `wp.user_id = (SELECT id FROM user_profiles WHERE clerk_user_id = $${paramIndex++})`
     );
     values.push(context.userId);
 
     if (context.organizationId) {
-      conditions.push(`OR wp.organization_id = $${paramIndex++}`);
+      userConditions.push(`wp.organization_id = $${paramIndex++}`);
       values.push(context.organizationId);
     }
 
-    conditions.push('OR wp.is_public = true)');
+    userConditions.push('wp.is_public = true');
+    conditions.push(`(${userConditions.join(' OR ')})`);
 
     if (filters.status) {
       conditions.push(`wp.status = $${paramIndex++}`);
@@ -872,6 +1294,111 @@ export class WorkoutService extends BaseService {
       createdAt: new Date(row.created_at),
       updatedAt: new Date(row.updated_at),
     };
+  }
+
+  /**
+   * Calculate workout plan progress
+   */
+  async getWorkoutPlanProgress(
+    planId: string,
+    context: ServiceContext
+  ): Promise<ServiceResult<{
+    currentWeek: number;
+    completedSessions: number;
+    totalSessions: number;
+    completionPercentage: number;
+    lastCompletedSession?: Date;
+    upcomingSessions: number;
+  }>> {
+    try {
+      this.validateContext(context);
+
+      // Get plan details first
+      const planResult = await this.getWorkoutPlan(planId, context);
+      if (!planResult.success) {
+        return planResult as any;
+      }
+
+      const plan = planResult.data!;
+
+      // Calculate total expected sessions
+      const totalWeeks = plan.durationWeeks;
+      const sessionsPerWeek = plan.sessionsPerWeek;
+      const totalSessions = totalWeeks * sessionsPerWeek;
+
+      // Get all sessions for this plan
+      const sessionsResult = await this.db`
+        SELECT 
+          status,
+          completed_at,
+          scheduled_date,
+          created_at
+        FROM workout_sessions 
+        WHERE workout_plan_id = ${planId} 
+        AND is_active = true
+        ORDER BY scheduled_date ASC
+      `;
+
+      // Calculate progress metrics
+      const completedSessions = sessionsResult.filter(
+        (session) => session.status === 'completed'
+      ).length;
+
+      const completionPercentage = Math.round(
+        (completedSessions / totalSessions) * 100
+      );
+
+      // Find last completed session
+      const completedSessionDates = sessionsResult
+        .filter((session) => session.status === 'completed' && session.completed_at)
+        .map((session) => new Date(session.completed_at))
+        .sort((a, b) => b.getTime() - a.getTime());
+      
+      const lastCompletedSession = completedSessionDates.length > 0 
+        ? completedSessionDates[0] 
+        : undefined;
+
+      // Calculate current week (based on plan start date or first session)
+      let currentWeek = 1;
+      if (plan.startedAt) {
+        const weeksSinceStart = Math.ceil(
+          (Date.now() - new Date(plan.startedAt).getTime()) / 
+          (7 * 24 * 60 * 60 * 1000)
+        );
+        currentWeek = Math.min(Math.max(weeksSinceStart, 1), totalWeeks);
+      } else if (sessionsResult.length > 0) {
+        // Use first session date as reference
+        const firstSessionDate = new Date(sessionsResult[0].created_at);
+        const weeksSinceFirst = Math.ceil(
+          (Date.now() - firstSessionDate.getTime()) / 
+          (7 * 24 * 60 * 60 * 1000)
+        );
+        currentWeek = Math.min(Math.max(weeksSinceFirst, 1), totalWeeks);
+      }
+
+      // Count upcoming sessions (scheduled or in_progress)
+      const upcomingSessions = sessionsResult.filter(
+        (session) => session.status === 'scheduled' || session.status === 'in_progress'
+      ).length;
+
+      const progressData = {
+        currentWeek,
+        completedSessions,
+        totalSessions,
+        completionPercentage,
+        lastCompletedSession,
+        upcomingSessions,
+      };
+
+      await this.logEvent('plan_progress_calculated', 'Plan progress calculated', context, {
+        planId,
+        progressData,
+      });
+
+      return this.createSuccessResult(progressData);
+    } catch (error) {
+      return this.handleError(error, 'getWorkoutPlanProgress');
+    }
   }
 
   private camelToSnakeCase(str: string): string {

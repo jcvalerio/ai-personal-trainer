@@ -12,10 +12,29 @@ import { RATE_LIMITS } from '@/lib/auth';
 
 const workoutService = new WorkoutService();
 
-interface RouteParams {
-  params: {
-    sessionId: string;
-  };
+// Mock session mapping for development - same as in route.ts
+const MOCK_SESSIONS_MAP = {
+  '1': 'f47ac10b-58cc-4372-a567-0e02b2c3d479', // Upper Body Power UUID
+  '2': 'f47ac10b-58cc-4372-a567-0e02b2c3d480', // Lower Body Strength UUID  
+  '3': 'f47ac10b-58cc-4372-a567-0e02b2c3d481', // Push Day Complete UUID
+  'c8495f2b-4199-46c3-a06c-fa84f55be075': 'c8495f2b-4199-46c3-a06c-fa84f55be075', // Direct UUID for testing
+};
+
+// Helper function to resolve session ID (handle both UUID and integer mapping)
+function resolveSessionId(sessionId: string): string {
+  // If it's already a UUID format, return as-is
+  if (sessionId.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+    return sessionId;
+  }
+  
+  // If it's a numeric ID, map it to UUID
+  const mappedId = MOCK_SESSIONS_MAP[sessionId as keyof typeof MOCK_SESSIONS_MAP];
+  if (mappedId) {
+    return mappedId;
+  }
+  
+  // Return original if no mapping found (will likely fail in service)
+  return sessionId;
 }
 
 /**
@@ -24,12 +43,58 @@ interface RouteParams {
  */
 export async function POST(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: { params: Promise<{ sessionId: string }> }
 ): Promise<NextResponse> {
   const startTime = Date.now();
 
   try {
-    // Authentication
+    // Get session ID from params
+    const { sessionId } = await params;
+    
+    // Validate sessionId parameter
+    if (!sessionId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Missing session ID',
+          code: 'INVALID_PARAMETER',
+        },
+        { status: 400 }
+      );
+    }
+
+    // Resolve session ID (handle integer to UUID mapping)
+    const resolvedSessionId = resolveSessionId(sessionId);
+    
+    // Development Mode: Return mock session start response for valid UUIDs
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(resolvedSessionId);
+    
+    if (isDevelopment && isValidUUID) {
+      // For development, return mock session start success
+      const mockStartedSession = {
+        id: resolvedSessionId,
+        name: sessionId === 'c8495f2b-4199-46c3-a06c-fa84f55be075' 
+          ? 'Full Body Functional Training' 
+          : 'Development Session',
+        status: 'in_progress',
+        startedAt: new Date().toISOString(),
+        completionPercentage: 0
+      };
+
+      return NextResponse.json({
+        success: true,
+        data: mockStartedSession,
+        message: 'Workout session started successfully (development mode)',
+        meta: {
+          responseTime: Date.now() - startTime,
+          timestamp: new Date().toISOString(),
+          mode: 'development'
+        },
+      });
+    }
+
+    // Production Mode: Full authentication and database operations
     const { userId, orgId } = await auth();
     if (!userId) {
       return NextResponse.json(
@@ -38,20 +103,15 @@ export async function POST(
       );
     }
 
-    // Validate sessionId parameter
-    if (
-      !params.sessionId ||
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-        params.sessionId
-      )
-    ) {
+    // Validate resolved session ID is a proper UUID for production
+    if (!isValidUUID) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid session ID',
-          code: 'INVALID_PARAMETER',
+          error: `Invalid session ID format: "${sessionId}"`,
+          code: 'NOT_FOUND',
         },
-        { status: 400 }
+        { status: 404 }
       );
     }
 
@@ -94,9 +154,9 @@ export async function POST(
       userRole: userProfile.role,
     };
 
-    // Start workout session
+    // Start workout session using resolved ID
     const result = await workoutService.startWorkoutSession(
-      params.sessionId,
+      resolvedSessionId,
       context
     );
 
@@ -133,18 +193,22 @@ export async function POST(
     });
   } catch (error) {
     console.error('Error starting workout session:', error);
-    const authResult = await auth();
-    await logAuthEvent(
-      'session_start_failed',
-      'security',
-      'Session start failed',
-      authResult.userId || undefined,
-      authResult.orgId || undefined,
-      {
-        sessionId: params.sessionId,
-        error: (error as Error).message,
-      }
-    );
+    
+    // In development mode, don't try to log auth events if auth failed
+    if (process.env.NODE_ENV !== 'development') {
+      const authResult = await auth();
+      await logAuthEvent(
+        'session_start_failed',
+        'security',
+        'Session start failed',
+        authResult.userId || undefined,
+        authResult.orgId || undefined,
+        {
+          sessionId: sessionId,
+          error: (error as Error).message,
+        }
+      );
+    }
 
     return NextResponse.json(
       {
