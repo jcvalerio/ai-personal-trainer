@@ -20,7 +20,20 @@ const measurementSchema = z.object({
   measurementLocation: z.string().optional(),
   value: z.number().positive(),
   unit: z.string().min(1),
-  measuredAt: z.string().datetime().optional(),
+  measuredAt: z
+    .union([
+      z.string().datetime(),
+      z.date(),
+      z.string().transform((str) => {
+        // Handle various date formats
+        const date = new Date(str);
+        if (isNaN(date.getTime())) {
+          throw new Error('Invalid date format');
+        }
+        return date.toISOString();
+      }),
+    ])
+    .optional(),
   measurementMethod: z.string().optional(),
   measurementDevice: z.string().optional(),
   bodyComposition: z.record(z.any()).optional(),
@@ -155,11 +168,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Handle date conversion properly
+    const measuredAtValue = validatedData.data.measuredAt;
+    let measuredAtDate: Date;
+    
+    if (measuredAtValue) {
+      if (measuredAtValue instanceof Date) {
+        measuredAtDate = measuredAtValue;
+      } else if (typeof measuredAtValue === 'string') {
+        measuredAtDate = new Date(measuredAtValue);
+        if (isNaN(measuredAtDate.getTime())) {
+          return NextResponse.json(
+            { error: 'Invalid measuredAt date format' },
+            { status: 400 }
+          );
+        }
+      } else {
+        measuredAtDate = new Date();
+      }
+    } else {
+      measuredAtDate = new Date();
+    }
+
     const measurementData: CreateProgressMeasurementRequest = {
       ...validatedData.data,
-      measuredAt: validatedData.data.measuredAt
-        ? new Date(validatedData.data.measuredAt)
-        : new Date(),
+      measuredAt: measuredAtDate,
     };
 
     // Validate circumference measurements have location

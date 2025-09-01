@@ -75,14 +75,38 @@ export default function OnboardingPage() {
   // Initialize with user data if available
   useEffect(() => {
     if (isLoaded && user) {
+      const getDisplayName = () => {
+        // Use fullName if available (social login)
+        if (user.fullName?.trim()) {
+          return user.fullName.trim();
+        }
+        
+        // Construct name from first/last if both are available
+        const firstName = user.firstName?.trim();
+        const lastName = user.lastName?.trim();
+        if (firstName && lastName) {
+          return `${firstName} ${lastName}`;
+        }
+        if (firstName) {
+          return firstName;
+        }
+        if (lastName) {
+          return lastName;
+        }
+        
+        // Fall back to email address (email/password signup)
+        if (user.emailAddresses?.[0]?.emailAddress) {
+          return user.emailAddresses[0].emailAddress;
+        }
+        
+        // Final fallback
+        return '';
+      };
+
       setData((prev) => ({
         ...prev,
         profileData: {
-          displayName:
-            user.fullName ||
-            `${user.firstName} ${user.lastName}`.trim() ||
-            user.emailAddresses[0]?.emailAddress ||
-            '',
+          displayName: getDisplayName(),
           avatarUrl: user.imageUrl,
         },
       }));

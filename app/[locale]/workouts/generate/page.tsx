@@ -7,6 +7,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { UserButton } from '@clerk/nextjs';
 import {
   Sparkles,
@@ -94,69 +95,151 @@ const commonLimitations = [
   { label: 'Recovering from injury', icon: '🤕' },
 ];
 
-const mockGeneratedWorkout = {
-  name: 'Strength & Conditioning Workout',
-  description:
-    'A balanced full-body workout focusing on strength building and muscle development',
-  duration: 60,
-  difficulty: 'intermediate',
-  exercises: [
-    {
-      id: '1',
-      name: 'Goblet Squats',
-      description:
-        'A beginner-friendly squat variation that targets your entire lower body',
-      sets: 3,
-      reps: '12-15',
-      restTime: 90,
-      muscleGroups: ['quadriceps', 'glutes', 'core'],
-      equipment: ['dumbbell'],
-      difficulty: 'beginner',
-    },
-    {
-      id: '2',
-      name: 'Push-ups',
-      description:
-        'Classic upper body exercise targeting chest, shoulders, and triceps',
-      sets: 3,
-      reps: '8-12',
-      restTime: 60,
-      muscleGroups: ['chest', 'shoulders', 'triceps'],
-      equipment: [],
-      difficulty: 'beginner',
-    },
-    {
-      id: '3',
-      name: 'Dumbbell Rows',
-      description:
-        'Strengthen your back and improve posture with this rowing movement',
-      sets: 3,
-      reps: '10-12',
-      restTime: 90,
-      muscleGroups: ['lats', 'rhomboids', 'biceps'],
-      equipment: ['dumbbell'],
-      difficulty: 'beginner',
-    },
-    {
-      id: '4',
-      name: 'Plank Hold',
-      description:
-        'Core stability exercise that strengthens your entire midsection',
-      sets: 3,
-      duration: '30-45 seconds',
-      restTime: 60,
-      muscleGroups: ['core', 'shoulders'],
-      equipment: [],
-      difficulty: 'beginner',
-    },
-  ],
-};
+interface GeneratedWorkout {
+  name: string;
+  description: string;
+  duration: number;
+  difficulty: string;
+  exercises: Array<{
+    id: string;
+    name: string;
+    description: string;
+    sets: number;
+    reps?: string;
+    duration?: string;
+    restTime: number;
+    muscleGroups: string[];
+    equipment: string[];
+    difficulty: string;
+  }>;
+}
+
+// Complete Step Component
+function CompleteStep({ generatedWorkout }: { generatedWorkout: GeneratedWorkout }) {
+  const [isCreatingSession, setIsCreatingSession] = useState(false);
+  const [sessionError, setSessionError] = useState<string>('');
+  const router = useRouter();
+
+  const handleStartWorkout = async () => {
+    setIsCreatingSession(true);
+    setSessionError('');
+
+    try {
+      // Create a workout session from the generated workout
+      const sessionData = {
+        name: generatedWorkout.name,
+        description: generatedWorkout.description,
+        planId: null, // This is a standalone session, not from a plan
+        scheduledDate: new Date().toISOString(),
+        estimatedDuration: generatedWorkout.duration,
+        warmUpExercises: [],
+        mainExercises: generatedWorkout.exercises.map((ex, index) => ({
+          exerciseId: ex.id,
+          name: ex.name,
+          orderIndex: index,
+          exercisePhase: 'main',
+          plannedSets: ex.sets,
+          plannedReps: typeof ex.reps === 'string' && ex.reps ? parseInt(ex.reps.split('-')[0] || '12') : 12,
+          plannedRestSeconds: ex.restTime,
+          plannedWeightKg: null,
+          plannedDurationSeconds: ex.duration && typeof ex.duration === 'string' ? parseInt(ex.duration.split('-')[0] || '30') : null,
+        })),
+        coolDownExercises: [],
+        sessionType: 'standalone',
+        difficultyLevel: generatedWorkout.difficulty,
+        targetMuscleGroups: Array.from(new Set(
+          generatedWorkout.exercises.flatMap(ex => ex.muscleGroups)
+        )),
+        equipmentNeeded: Array.from(new Set(
+          generatedWorkout.exercises.flatMap(ex => ex.equipment || [])
+        )),
+      };
+
+      const response = await fetch('/api/workouts/sessions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(sessionData),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create workout session');
+      }
+
+      const result = await response.json();
+      
+      if (!result.success || !result.data?.id) {
+        throw new Error('Invalid response from session creation');
+      }
+
+      // Navigate to the newly created session
+      router.push(`/workouts/sessions/${result.data.id}`);
+    } catch (error) {
+      console.error('Error creating workout session:', error);
+      setSessionError(
+        error instanceof Error 
+          ? error.message 
+          : 'Failed to create workout session. Please try again.'
+      );
+    } finally {
+      setIsCreatingSession(false);
+    }
+  };
+
+  return (
+    <div className='mx-auto max-w-md text-center'>
+      <div className='mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100'>
+        <Play className='h-10 w-10 text-green-600' />
+      </div>
+      <h2 className='mb-4 text-2xl font-bold text-gray-900'>
+        Ready to Start!
+      </h2>
+      <p className='mb-8 text-gray-600'>
+        Your personalized workout has been created and saved. You can
+        start it now or access it later from your workout dashboard.
+      </p>
+
+      {sessionError && (
+        <div className='mb-6 rounded-lg bg-red-50 p-4 text-red-700'>
+          <p className='text-sm'>{sessionError}</p>
+        </div>
+      )}
+
+      <div className='space-y-4'>
+        <Button 
+          onClick={handleStartWorkout}
+          disabled={isCreatingSession}
+          className='w-full'
+        >
+          {isCreatingSession ? (
+            <>
+              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              Creating Session...
+            </>
+          ) : (
+            <>
+              <Play className='mr-2 h-4 w-4' />
+              Start Workout Now
+            </>
+          )}
+        </Button>
+        <Button variant='outline' asChild className='w-full'>
+          <Link href='/workouts'>Go to Dashboard</Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export default function AIWorkoutGenerationPage() {
   const t = useTranslations('generate');
   const [currentStep, setCurrentStep] = useState<GenerationStep>('templates');
-  const [, setIsGenerating] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(0);
+  const [generatedWorkout, setGeneratedWorkout] = useState<GeneratedWorkout | null>(null);
+  const [generationError, setGenerationError] = useState<string>('');
   const [preferences, setPreferences] = useState<WorkoutPreferences>({
     fitnessLevel: '',
     goals: [],
@@ -207,6 +290,8 @@ export default function AIWorkoutGenerationPage() {
   const generateWorkout = async () => {
     setCurrentStep('generating');
     setIsGenerating(true);
+    setGenerationError('');
+    setGenerationProgress(0);
 
     if (preferences.useTemplate && preferences.selectedTemplate) {
       try {
@@ -237,23 +322,67 @@ export default function AIWorkoutGenerationPage() {
       }
     }
 
-    // Simulate AI generation with progress updates
-    const steps = [
-      { progress: 20, message: 'Analyzing your preferences...' },
-      { progress: 40, message: 'Selecting optimal exercises...' },
-      { progress: 60, message: 'Calculating sets and reps...' },
-      { progress: 80, message: 'Optimizing workflow...' },
-      { progress: 100, message: 'Finalizing your workout...' },
-    ];
+    try {
+      // Progress updates for AI generation
+      const progressSteps = [
+        { progress: 20, message: 'Analyzing your preferences...' },
+        { progress: 40, message: 'Consulting AI trainer...' },
+        { progress: 60, message: 'Selecting optimal exercises...' },
+        { progress: 80, message: 'Calculating sets and reps...' },
+      ];
 
-    for (const step of steps) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setGenerationProgress(step.progress);
+      // Update progress incrementally
+      for (const step of progressSteps) {
+        setGenerationProgress(step.progress);
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+
+      // Call the AI API
+      const response = await fetch('/api/ai/generate-workout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fitnessLevel: preferences.fitnessLevel,
+          goals: preferences.goals,
+          duration: preferences.duration,
+          daysPerWeek: preferences.daysPerWeek,
+          equipment: preferences.equipment,
+          limitations: preferences.limitations,
+          preferences: preferences.preferences,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to generate workout');
+      }
+
+      const result = await response.json();
+
+      if (!result.success || !result.data) {
+        throw new Error('Invalid response from workout generator');
+      }
+
+      setGenerationProgress(100);
+      setGeneratedWorkout(result.data);
+      
+      // Short delay for final progress
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setCurrentStep('review');
+
+    } catch (error) {
+      console.error('Error generating workout:', error);
+      setGenerationError(
+        error instanceof Error 
+          ? error.message 
+          : 'Failed to generate workout. Please try again.'
+      );
+      setCurrentStep('preferences'); // Go back to preferences on error
+    } finally {
+      setIsGenerating(false);
     }
-
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    setIsGenerating(false);
-    setCurrentStep('review');
   };
 
   const canGenerate = preferences.useTemplate 
@@ -662,16 +791,38 @@ export default function AIWorkoutGenerationPage() {
               </CardContent>
             </Card>
 
+            {/* Error Message */}
+            {generationError && (
+              <div className='mx-auto max-w-md rounded-lg bg-red-50 p-4 text-red-700'>
+                <div className='flex items-start gap-3'>
+                  <AlertCircle className='h-5 w-5 flex-shrink-0 mt-0.5' />
+                  <div>
+                    <h4 className='font-medium'>Generation Failed</h4>
+                    <p className='text-sm mt-1'>{generationError}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Generate Button */}
             <div className='flex justify-center'>
               <Button
                 onClick={generateWorkout}
-                disabled={!canGenerate}
+                disabled={!canGenerate || isGenerating}
                 size='lg'
                 className='w-full sm:w-auto'
               >
-                <Sparkles className='mr-2 h-5 w-5' />
-                {t('actions.generate')}
+                {isGenerating ? (
+                  <>
+                    <Loader2 className='mr-2 h-5 w-5 animate-spin' />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className='mr-2 h-5 w-5' />
+                    {t('actions.generate')}
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -703,7 +854,7 @@ export default function AIWorkoutGenerationPage() {
         )}
 
         {/* Review Step */}
-        {currentStep === 'review' && (
+        {currentStep === 'review' && generatedWorkout && (
           <div className='space-y-8'>
             <div className='text-center'>
               <div className='mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100'>
@@ -723,15 +874,29 @@ export default function AIWorkoutGenerationPage() {
                 <div className='flex items-center justify-between'>
                   <div>
                     <CardTitle className='text-xl'>
-                      {mockGeneratedWorkout.name}
+                      {generatedWorkout.name}
                     </CardTitle>
                     <CardDescription>
-                      {mockGeneratedWorkout.description}
+                      {generatedWorkout.description}
                     </CardDescription>
                   </div>
-                  <Button variant='outline' size='sm'>
-                    <Shuffle className='mr-2 h-4 w-4' />
-                    Regenerate
+                  <Button 
+                    variant='outline' 
+                    size='sm'
+                    onClick={generateWorkout}
+                    disabled={isGenerating}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Shuffle className='mr-2 h-4 w-4' />
+                        Regenerate
+                      </>
+                    )}
                   </Button>
                 </div>
               </CardHeader>
@@ -739,24 +904,24 @@ export default function AIWorkoutGenerationPage() {
                 <div className='mb-6 flex items-center gap-6'>
                   <div className='flex items-center gap-2 text-sm text-gray-600'>
                     <Clock className='h-4 w-4' />
-                    <span>{mockGeneratedWorkout.duration} minutes</span>
+                    <span>{generatedWorkout.duration} minutes</span>
                   </div>
                   <div className='flex items-center gap-2 text-sm text-gray-600'>
                     <Target className='h-4 w-4' />
                     <Badge variant='outline' className='capitalize'>
-                      {mockGeneratedWorkout.difficulty}
+                      {generatedWorkout.difficulty}
                     </Badge>
                   </div>
                   <div className='flex items-center gap-2 text-sm text-gray-600'>
                     <Dumbbell className='h-4 w-4' />
                     <span>
-                      {mockGeneratedWorkout.exercises.length} exercises
+                      {generatedWorkout.exercises.length} exercises
                     </span>
                   </div>
                 </div>
 
                 <div className='space-y-4'>
-                  {mockGeneratedWorkout.exercises.map((exercise, index) => (
+                  {generatedWorkout.exercises.map((exercise, index) => (
                     <div
                       key={exercise.id}
                       className='flex items-start gap-4 rounded-lg bg-gray-50 p-4'
@@ -816,31 +981,8 @@ export default function AIWorkoutGenerationPage() {
         )}
 
         {/* Complete Step */}
-        {currentStep === 'complete' && (
-          <div className='mx-auto max-w-md text-center'>
-            <div className='mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-100'>
-              <Play className='h-10 w-10 text-green-600' />
-            </div>
-            <h2 className='mb-4 text-2xl font-bold text-gray-900'>
-              Ready to Start!
-            </h2>
-            <p className='mb-8 text-gray-600'>
-              Your personalized workout has been created and saved. You can
-              start it now or access it later from your workout dashboard.
-            </p>
-
-            <div className='space-y-4'>
-              <Button asChild className='w-full'>
-                <Link href='/workouts/sessions/1'>
-                  <Play className='mr-2 h-4 w-4' />
-                  Start Workout Now
-                </Link>
-              </Button>
-              <Button variant='outline' asChild className='w-full'>
-                <Link href='/workouts'>Go to Dashboard</Link>
-              </Button>
-            </div>
-          </div>
+        {currentStep === 'complete' && generatedWorkout && (
+          <CompleteStep generatedWorkout={generatedWorkout} />
         )}
       </main>
     </div>

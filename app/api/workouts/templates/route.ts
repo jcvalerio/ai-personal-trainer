@@ -156,7 +156,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // Get total count for pagination
-    const totalCount = await workoutPlanRepository.count({ isTemplate: true, status: 'active' });
+    const totalCount = await workoutPlanRepository.count({ is_template: true, status: 'active' });
     const totalPages = Math.ceil(totalCount / (paginationParams.limit || 20));
 
     const responseTime = Date.now() - startTime;
@@ -356,7 +356,7 @@ async function getTemplateCategories(): Promise<string[]> {
   try {
     // Get distinct template categories from the database
     const categories = await workoutPlanRepository.findMany(
-      { isTemplate: true, status: 'active' },
+      { is_template: true, status: 'active' },
       { cacheable: true, cacheKey: 'template_categories' }
     );
 

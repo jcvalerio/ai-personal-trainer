@@ -733,6 +733,17 @@ export function SessionExecutionProvider({
   const nextExercise = useCallback(() => {
     dispatch({ type: 'NEXT_EXERCISE' });
     
+    // Check if this was the last exercise and auto-complete session
+    const isLastExercise = state.currentExerciseIndex >= state.exercises.length - 1;
+    const allExercisesCompleted = state.progress.exercisesCompleted >= state.progress.totalExercises;
+    
+    if (isLastExercise || allExercisesCompleted) {
+      // Auto-complete session when all exercises are done
+      setTimeout(() => {
+        completeSession();
+      }, 1000); // Small delay to allow for UI updates
+    }
+    
     // Update session progress
     if (state.sessionId) {
       const progressData = {
@@ -754,7 +765,7 @@ export function SessionExecutionProvider({
         console.warn('Failed to sync progress:', error);
       });
     }
-  }, [state]);
+  }, [state, completeSession]);
 
   const previousExercise = useCallback(() => {
     dispatch({ type: 'PREVIOUS_EXERCISE' });
@@ -796,17 +807,38 @@ export function SessionExecutionProvider({
       }
 
       // Update session progress
+      const newSetsCompleted = state.progress.setsCompleted + 1;
       const progressData = {
         currentExerciseIndex: state.currentExerciseIndex,
         currentSet: state.currentSet,
         elapsedTime: state.elapsedTime,
         exercisesCompleted: state.progress.exercisesCompleted,
-        setsCompleted: state.progress.setsCompleted + 1,
+        setsCompleted: newSetsCompleted,
         totalVolume: state.performance.totalVolume + (setData.weight || 0) * setData.reps,
         completionPercentage: Math.round(
-          ((state.progress.setsCompleted + 1) / state.progress.totalSets) * 100
+          (newSetsCompleted / state.progress.totalSets) * 100
         ),
       };
+
+      // Check if this set completion means the exercise is complete
+      const exerciseCompletedSets = (currentExercise.completedSets || 0) + 1;
+      const exerciseTotalSets = currentExercise.sets || 3;
+      
+      // If exercise is complete and it's the last exercise, check for session completion
+      if (exerciseCompletedSets >= exerciseTotalSets) {
+        const isLastExercise = state.currentExerciseIndex >= state.exercises.length - 1;
+        const allSetsCompleted = newSetsCompleted >= state.progress.totalSets;
+        
+        if (isLastExercise && allSetsCompleted) {
+          // Auto-complete session when all sets of all exercises are done
+          setTimeout(() => {
+            completeSession({
+              effortRating: 7, // Default effort rating
+              userNotes: 'Session completed automatically after finishing all exercises',
+            });
+          }, 2000); // Delay to allow user to see completion
+        }
+      }
 
       updateSessionProgress(state.sessionId, progressData).catch((error) => {
         console.warn('Failed to sync progress:', error);

@@ -144,12 +144,8 @@ export function VersionIndicator({
   )
 }
 
-// Debug component for development
+// Version info component for all environments
 export function DebugVersionInfo() {
-  if (process.env.NODE_ENV !== 'development') {
-    return null
-  }
-
   return (
     <div className="fixed bottom-2 right-2 z-50">
       <VersionIndicator variant="button" showDialog className="opacity-70 hover:opacity-100" />
