@@ -44,6 +44,8 @@ function mapToSessionExercises(session: WorkoutSession): SessionExercise[] {
     plannedRestSeconds: ex.plannedRestSeconds ?? ex.restSeconds ?? 60,
     equipmentAlternatives: ex.equipmentAlternatives || [],
     status: 'pending',
+    // Video URLs from AI generation or manual entry
+    videoUrls: ex.videoUrls || (ex.videoUrl ? [{ url: ex.videoUrl, platform: 'youtube' as const, title: 'Tutorial' }] : []),
     // Preserve completed sets from database
     completedSets: ex.completedSets || 0,
     setData: ex.setData || [],

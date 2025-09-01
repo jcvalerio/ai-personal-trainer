@@ -46,6 +46,7 @@ import { ScheduleSliders } from '@/components/workouts/ui/schedule-sliders';
 import { LoadingState } from '@/components/ui/loading-state';
 import { ErrorState } from '@/components/ui/error-state';
 import { SelectableCard } from '@/components/workouts/ui/selectable-card';
+import { ExerciseVideoPlayer } from '@/components/workouts/ui/exercise-video-player';
 
 // React Query hooks for template system
 import {
@@ -97,6 +98,13 @@ const commonLimitations = [
   { label: 'Recovering from injury', icon: '🤕' },
 ];
 
+interface VideoUrl {
+  url: string;
+  platform: 'youtube' | 'tiktok' | 'instagram';
+  title: string;
+  description?: string;
+}
+
 interface GeneratedWorkoutExercise {
   exerciseId: string;
   name: string;
@@ -109,7 +117,7 @@ interface GeneratedWorkoutExercise {
   muscleGroups: string[];
   equipment: string[];
   difficulty: string;
-  videoUrl: string;
+  videoUrls: VideoUrl[];
   orderIndex: number;
 }
 
@@ -179,16 +187,12 @@ function ExerciseCard({
             ))}
           </div>
         </div>
-        {exercise.videoUrl && (
-          <div className='mt-2'>
-            <a 
-              href={exercise.videoUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className='text-xs text-blue-600 hover:text-blue-800'
-            >
-              📺 Video Tutorial
-            </a>
+        {exercise.videoUrls && exercise.videoUrls.length > 0 && (
+          <div className='mt-3'>
+            <ExerciseVideoPlayer 
+              exerciseName={exercise.name}
+              videoUrls={exercise.videoUrls}
+            />
           </div>
         )}
       </div>

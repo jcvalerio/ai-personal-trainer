@@ -28,6 +28,13 @@ const workoutPreferencesSchema = z.object({
   preferences: z.array(z.string()).optional().default([]),
 });
 
+const videoSchema = z.object({
+  url: z.string().url(),
+  platform: z.enum(['youtube', 'tiktok', 'instagram']),
+  title: z.string(),
+  description: z.string().optional(),
+});
+
 const aiSessionExerciseSchema = z.object({
   name: z.string(),
   description: z.string(),
@@ -39,7 +46,7 @@ const aiSessionExerciseSchema = z.object({
   muscleGroups: z.array(z.string()).min(1),
   equipment: z.array(z.string()).min(1),
   difficulty: z.enum(['beginner', 'intermediate', 'advanced']),
-  videoUrl: z.string().url(),
+  videoUrls: z.array(videoSchema).min(1).max(5),
 });
 
 const aiWorkoutSessionSchema = z.object({
@@ -271,7 +278,19 @@ Return ONLY a valid JSON object with this exact structure (no additional text, m
       "muscleGroups": ["shoulders"],
       "equipment": ["bodyweight"],
       "difficulty": "beginner",
-      "videoUrl": "https://www.youtube.com/watch?v=VIDEO_ID"
+      "videoUrls": [
+        {
+          "url": "https://www.youtube.com/watch?v=VIDEO_ID",
+          "platform": "youtube",
+          "title": "Exercise demonstration",
+          "description": "Detailed form tutorial"
+        },
+        {
+          "url": "https://www.tiktok.com/@username/video/VIDEO_ID",
+          "platform": "tiktok",
+          "title": "Quick form tips"
+        }
+      ]
     }
   ],
   "mainExercises": [
@@ -285,7 +304,20 @@ Return ONLY a valid JSON object with this exact structure (no additional text, m
       "muscleGroups": ["chest", "triceps"],
       "equipment": ["dumbbells"],
       "difficulty": "${fitnessLevel}",
-      "videoUrl": "https://www.youtube.com/watch?v=VIDEO_ID"
+      "videoUrls": [
+        {
+          "url": "https://www.youtube.com/watch?v=VIDEO_ID",
+          "platform": "youtube",
+          "title": "Complete exercise tutorial",
+          "description": "Full form breakdown and variations"
+        },
+        {
+          "url": "https://www.instagram.com/p/POST_ID/",
+          "platform": "instagram",
+          "title": "Visual form check",
+          "description": "Common mistakes to avoid"
+        }
+      ]
     }
   ],
   "coolDownExercises": [
@@ -298,8 +330,15 @@ Return ONLY a valid JSON object with this exact structure (no additional text, m
       "plannedRestSeconds": 15,
       "muscleGroups": ["hamstrings"],
       "equipment": ["bodyweight"],
-      "difficulty": "beginner", 
-      "videoUrl": "https://www.youtube.com/watch?v=VIDEO_ID"
+      "difficulty": "beginner",
+      "videoUrls": [
+        {
+          "url": "https://www.youtube.com/watch?v=VIDEO_ID",
+          "platform": "youtube",
+          "title": "Proper stretching technique",
+          "description": "Recovery and flexibility focus"
+        }
+      ]
     }
   ]
 }
@@ -315,7 +354,7 @@ Return ONLY a valid JSON object with this exact structure (no additional text, m
   - muscleGroups: array with at least 1 muscle group
   - equipment: array with at least 1 equipment item
   - Either "plannedReps" (integer) OR "plannedDurationSeconds" (integer), not both
-  - videoUrl: YouTube URL demonstrating proper exercise form and equipment usage
+  - videoUrls: array of 1-5 video objects from YouTube, TikTok, or Instagram
   - instructions: detailed step-by-step form guidance
   - difficulty: EXACTLY "beginner", "intermediate", or "advanced" (NEVER use "easy", "hard", etc.)
 - sessionType: EXACTLY "workout", "assessment", or "recovery"
@@ -342,8 +381,12 @@ Return ONLY a valid JSON object with this exact structure (no additional text, m
 - full_gym: all equipment available including machines, cables
 - home_gym: mix of basic equipment suitable for home use
 
-**YouTube Video Requirements:**
-- CRITICAL: Use only these verified working YouTube URLs for exercises. DO NOT create fake video IDs.
+**Multi-Platform Video Requirements:**
+- CRITICAL: Provide 1-5 videos per exercise from YouTube, TikTok, and Instagram
+- Each video must include: url, platform, title, and optional description
+- Use diverse perspectives: tutorials, form tips, common mistakes, variations
+
+**Verified YouTube URLs:**
 - Bench Press: "https://www.youtube.com/watch?v=4Y2ZdHCOXok" (AthleanX - Perfect Bench Press Form)
 - Pull-ups: "https://www.youtube.com/watch?v=eGo4IYlbE5g" (AthleanX - How to Do Pull Ups)
 - Push-ups: "https://www.youtube.com/watch?v=IODxDxX7oi4" (Calisthenic Movement - Perfect Push Up)
@@ -357,8 +400,20 @@ Return ONLY a valid JSON object with this exact structure (no additional text, m
 - Plank: "https://www.youtube.com/watch?v=ASdvN_XEl_c" (Calisthenic Movement - Perfect Plank)
 - Mountain Climbers: "https://www.youtube.com/watch?v=nmwgirgXLYM" (FitnessBlender - Mountain Climbers)
 - Burpees: "https://www.youtube.com/watch?v=auBLPXO8Fww" (FitnessBlender - How to Do Burpees)
-- For any other exercises, use: "https://www.youtube.com/watch?v=4Y2ZdHCOXok" as fallback
-- NEVER generate random video IDs - only use the URLs listed above
+
+**TikTok Examples:**
+- Use format: "https://www.tiktok.com/@fitnessinfluencer/video/7123456789012345678"
+- Focus on: Quick form tips, common mistakes, motivation clips
+
+**Instagram Examples:**
+- Use format: "https://www.instagram.com/p/ABC123DEF4G/" or "https://www.instagram.com/reel/ABC123DEF4G/"
+- Focus on: Visual form checks, before/after comparisons, exercise variations
+
+**Video Selection Strategy:**
+- YouTube: Detailed tutorials and form breakdowns (main reference)
+- TikTok: Quick tips and motivational content (supplementary)
+- Instagram: Visual demonstrations and variations (complementary)
+- NEVER generate fake video IDs - use realistic examples from established fitness creators
 
 **VALIDATION CHECKLIST - VERIFY BEFORE OUTPUT:**
 ✓ Session structure: name, description, sessionType, scheduledDate, scheduledDuration
@@ -371,12 +426,14 @@ Return ONLY a valid JSON object with this exact structure (no additional text, m
 ✓ Sets: plannedSets 1-10 for each exercise
 ✓ Muscle groups: At least 1 per exercise
 ✓ Equipment: At least 1 per exercise from available equipment
-✓ Video URLs: ONLY use the verified YouTube URLs provided above - NO fake video IDs
+✓ Video URLs: 1-5 videos per exercise with proper platform, title, url format
+✓ Platform mix: Include YouTube (detailed), TikTok (tips), Instagram (visual) when possible
+✓ Video titles: Descriptive and relevant to exercise and platform purpose
 ✓ Instructions: Detailed form guidance for each exercise
 ✓ Either plannedReps OR plannedDurationSeconds for each exercise, never both
 ✓ sessionData: accurate totals and arrays reflecting all exercises
 ✓ ENUM VALIDATION: All enum values match exactly - no synonyms allowed
-✓ CRITICAL: Every exercise must use one of the verified YouTube URLs listed above
+✓ CRITICAL: Use realistic video formats and established fitness creator patterns
 
 Generate the workout now:`;
 }

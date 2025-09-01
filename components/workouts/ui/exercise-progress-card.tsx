@@ -26,12 +26,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
+import { ExerciseVideoPlayer } from './exercise-video-player';
+
+interface VideoUrl {
+  url: string;
+  platform: 'youtube' | 'tiktok' | 'instagram';
+  title: string;
+  description?: string;
+}
 
 export interface ExerciseProgressCardProps {
   /** Exercise name */
   name: string;
   /** Exercise description */
   description?: string;
+  /** Video tutorials */
+  videoUrls?: VideoUrl[];
   /** Current set number (1-based) */
   currentSet: number;
   /** Total sets */
@@ -84,6 +94,7 @@ export interface ExerciseProgressCardProps {
 export const ExerciseProgressCard = React.memo(function ExerciseProgressCard({
   name,
   description,
+  videoUrls,
   currentSet,
   totalSets,
   targets,
@@ -173,6 +184,15 @@ export const ExerciseProgressCard = React.memo(function ExerciseProgressCard({
             </div>
             {description && (
               <p className="text-sm text-gray-600 line-clamp-2">{description}</p>
+            )}
+            {videoUrls && videoUrls.length > 0 && (
+              <div className="mt-2">
+                <ExerciseVideoPlayer 
+                  exerciseName={name}
+                  videoUrls={videoUrls}
+                  className="w-full"
+                />
+              </div>
             )}
           </div>
           

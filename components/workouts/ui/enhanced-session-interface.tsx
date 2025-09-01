@@ -333,6 +333,7 @@ const EnhancedSessionInterface = React.memo(function EnhancedSessionInterface({
     isActive: session.status === 'active',
     isResting: isRestPeriod,
     restTimeRemaining,
+    videoUrls: (currentExercise as any)?.videoUrls || [],
   } : null;
 
   return (
