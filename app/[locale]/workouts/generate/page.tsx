@@ -95,23 +95,103 @@ const commonLimitations = [
   { label: 'Recovering from injury', icon: '🤕' },
 ];
 
+interface GeneratedWorkoutExercise {
+  exerciseId: string;
+  name: string;
+  description: string;
+  instructions: string;
+  plannedSets: number;
+  plannedReps?: number;
+  plannedDurationSeconds?: number;
+  plannedRestSeconds: number;
+  muscleGroups: string[];
+  equipment: string[];
+  difficulty: string;
+  videoUrl: string;
+  orderIndex: number;
+}
+
 interface GeneratedWorkout {
   name: string;
   description: string;
-  duration: number;
-  difficulty: string;
-  exercises: Array<{
-    id: string;
-    name: string;
-    description: string;
-    sets: number;
-    reps?: string;
-    duration?: string;
-    restTime: number;
-    muscleGroups: string[];
-    equipment: string[];
-    difficulty: string;
-  }>;
+  sessionType: string;
+  scheduledDate: string;
+  scheduledDuration?: number;
+  sessionData: {
+    totalExercises: number;
+    estimatedDuration: number;
+    targetMuscleGroups: string[];
+    equipmentNeeded: string[];
+    difficultyLevel: string;
+  };
+  warmUpExercises: GeneratedWorkoutExercise[];
+  mainExercises: GeneratedWorkoutExercise[];
+  coolDownExercises: GeneratedWorkoutExercise[];
+}
+
+// Exercise Card Component
+function ExerciseCard({ 
+  exercise, 
+  index, 
+  phase 
+}: { 
+  exercise: GeneratedWorkoutExercise; 
+  index: number; 
+  phase: 'warm-up' | 'main' | 'cool-down';
+}) {
+  const phaseColors = {
+    'warm-up': 'bg-blue-600',
+    'main': 'bg-purple-600',
+    'cool-down': 'bg-green-600',
+  };
+
+  return (
+    <div className='flex items-start gap-4 rounded-lg bg-gray-50 p-4'>
+      <div className={`flex h-8 w-8 items-center justify-center rounded-full ${phaseColors[phase]} text-sm font-bold text-white`}>
+        {index}
+      </div>
+      <div className='flex-1'>
+        <h4 className='mb-1 font-semibold text-gray-900'>
+          {exercise.name}
+        </h4>
+        <p className='mb-2 text-sm text-gray-600'>
+          {exercise.description}
+        </p>
+        <div className='flex items-center gap-4 text-sm'>
+          <span className='font-medium'>
+            {exercise.plannedSets} sets ×{' '}
+            {exercise.plannedReps ? `${exercise.plannedReps} reps` : `${exercise.plannedDurationSeconds}s`}
+          </span>
+          <span className='text-gray-500'>
+            Rest: {exercise.plannedRestSeconds}s
+          </span>
+          <div className='flex gap-1'>
+            {exercise.muscleGroups.slice(0, 2).map((muscle) => (
+              <Badge
+                key={muscle}
+                variant='outline'
+                className='text-xs capitalize'
+              >
+                {muscle}
+              </Badge>
+            ))}
+          </div>
+        </div>
+        {exercise.videoUrl && (
+          <div className='mt-2'>
+            <a 
+              href={exercise.videoUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className='text-xs text-blue-600 hover:text-blue-800'
+            >
+              📺 Video Tutorial
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 // Complete Step Component
@@ -125,34 +205,17 @@ function CompleteStep({ generatedWorkout }: { generatedWorkout: GeneratedWorkout
     setSessionError('');
 
     try {
-      // Create a workout session from the generated workout
+      // The generatedWorkout already has the correct structure for session creation
       const sessionData = {
         name: generatedWorkout.name,
         description: generatedWorkout.description,
-        planId: null, // This is a standalone session, not from a plan
-        scheduledDate: new Date().toISOString(),
-        estimatedDuration: generatedWorkout.duration,
-        warmUpExercises: [],
-        mainExercises: generatedWorkout.exercises.map((ex, index) => ({
-          exerciseId: ex.id,
-          name: ex.name,
-          orderIndex: index,
-          exercisePhase: 'main',
-          plannedSets: ex.sets,
-          plannedReps: typeof ex.reps === 'string' && ex.reps ? parseInt(ex.reps.split('-')[0] || '12') : 12,
-          plannedRestSeconds: ex.restTime,
-          plannedWeightKg: null,
-          plannedDurationSeconds: ex.duration && typeof ex.duration === 'string' ? parseInt(ex.duration.split('-')[0] || '30') : null,
-        })),
-        coolDownExercises: [],
-        sessionType: 'standalone',
-        difficultyLevel: generatedWorkout.difficulty,
-        targetMuscleGroups: Array.from(new Set(
-          generatedWorkout.exercises.flatMap(ex => ex.muscleGroups)
-        )),
-        equipmentNeeded: Array.from(new Set(
-          generatedWorkout.exercises.flatMap(ex => ex.equipment || [])
-        )),
+        sessionType: generatedWorkout.sessionType,
+        scheduledDate: generatedWorkout.scheduledDate,
+        scheduledDuration: generatedWorkout.scheduledDuration || generatedWorkout.sessionData.estimatedDuration,
+        sessionData: generatedWorkout.sessionData,
+        warmUpExercises: generatedWorkout.warmUpExercises,
+        mainExercises: generatedWorkout.mainExercises,
+        coolDownExercises: generatedWorkout.coolDownExercises,
       };
 
       const response = await fetch('/api/workouts/sessions', {
@@ -904,61 +967,67 @@ export default function AIWorkoutGenerationPage() {
                 <div className='mb-6 flex items-center gap-6'>
                   <div className='flex items-center gap-2 text-sm text-gray-600'>
                     <Clock className='h-4 w-4' />
-                    <span>{generatedWorkout.duration} minutes</span>
+                    <span>{generatedWorkout.sessionData.estimatedDuration} minutes</span>
                   </div>
                   <div className='flex items-center gap-2 text-sm text-gray-600'>
                     <Target className='h-4 w-4' />
                     <Badge variant='outline' className='capitalize'>
-                      {generatedWorkout.difficulty}
+                      {generatedWorkout.sessionData.difficultyLevel}
                     </Badge>
                   </div>
                   <div className='flex items-center gap-2 text-sm text-gray-600'>
                     <Dumbbell className='h-4 w-4' />
                     <span>
-                      {generatedWorkout.exercises.length} exercises
+                      {generatedWorkout.sessionData.totalExercises} exercises
                     </span>
                   </div>
                 </div>
 
-                <div className='space-y-4'>
-                  {generatedWorkout.exercises.map((exercise, index) => (
-                    <div
-                      key={exercise.id}
-                      className='flex items-start gap-4 rounded-lg bg-gray-50 p-4'
-                    >
-                      <div className='flex h-8 w-8 items-center justify-center rounded-full bg-purple-600 text-sm font-bold text-white'>
-                        {index + 1}
-                      </div>
-                      <div className='flex-1'>
-                        <h4 className='mb-1 font-semibold text-gray-900'>
-                          {exercise.name}
-                        </h4>
-                        <p className='mb-2 text-sm text-gray-600'>
-                          {exercise.description}
-                        </p>
-                        <div className='flex items-center gap-4 text-sm'>
-                          <span className='font-medium'>
-                            {exercise.sets} sets ×{' '}
-                            {exercise.reps || exercise.duration}
-                          </span>
-                          <span className='text-gray-500'>
-                            Rest: {exercise.restTime}s
-                          </span>
-                          <div className='flex gap-1'>
-                            {exercise.muscleGroups.slice(0, 2).map((muscle) => (
-                              <Badge
-                                key={muscle}
-                                variant='outline'
-                                className='text-xs capitalize'
-                              >
-                                {muscle}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
+                <div className='space-y-6'>
+                  {/* Warm-up Exercises */}
+                  {generatedWorkout.warmUpExercises.length > 0 && (
+                    <div>
+                      <h4 className='mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700'>
+                        <div className='h-2 w-2 rounded-full bg-blue-500'></div>
+                        Warm-up ({generatedWorkout.warmUpExercises.length})
+                      </h4>
+                      <div className='space-y-3'>
+                        {generatedWorkout.warmUpExercises.map((exercise, index) => (
+                          <ExerciseCard key={exercise.exerciseId} exercise={exercise} index={index + 1} phase="warm-up" />
+                        ))}
                       </div>
                     </div>
-                  ))}
+                  )}
+
+                  {/* Main Exercises */}
+                  {generatedWorkout.mainExercises.length > 0 && (
+                    <div>
+                      <h4 className='mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700'>
+                        <div className='h-2 w-2 rounded-full bg-purple-500'></div>
+                        Main Workout ({generatedWorkout.mainExercises.length})
+                      </h4>
+                      <div className='space-y-3'>
+                        {generatedWorkout.mainExercises.map((exercise, index) => (
+                          <ExerciseCard key={exercise.exerciseId} exercise={exercise} index={index + 1} phase="main" />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Cool-down Exercises */}
+                  {generatedWorkout.coolDownExercises.length > 0 && (
+                    <div>
+                      <h4 className='mb-3 flex items-center gap-2 text-sm font-semibold text-gray-700'>
+                        <div className='h-2 w-2 rounded-full bg-green-500'></div>
+                        Cool-down ({generatedWorkout.coolDownExercises.length})
+                      </h4>
+                      <div className='space-y-3'>
+                        {generatedWorkout.coolDownExercises.map((exercise, index) => (
+                          <ExerciseCard key={exercise.exerciseId} exercise={exercise} index={index + 1} phase="cool-down" />
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

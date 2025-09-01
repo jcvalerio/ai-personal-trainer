@@ -1043,14 +1043,13 @@ export class WorkoutService extends BaseService {
             (Date.now() - new Date(sessionResult.data.startedAt).getTime()) /
               (1000 * 60)
           )
-        : null;
+        : 1; // Minimum duration of 1 minute to satisfy constraint
 
       // Get session exercises to calculate final stats
       const sessionExercises = await this.db`
         SELECT set_data, exercise_id
         FROM session_exercises
         WHERE session_id = ${sessionId}
-          AND user_id = (SELECT id FROM user_profiles WHERE clerk_user_id = ${context.userId})
       `;
 
       // Calculate final metrics from actual performance

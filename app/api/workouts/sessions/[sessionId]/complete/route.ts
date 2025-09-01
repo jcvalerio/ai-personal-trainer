@@ -42,87 +42,14 @@ export async function POST(
       );
     }
 
-    // Development Mode: Allow session completion without authentication for testing
+    // Get authentication context (required for both development and production)
+    const { userId, orgId } = await auth();
+    
+    // Allow completion without authentication only in development mode for testing
     const isDevelopment = process.env.NODE_ENV === 'development';
     const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sessionId);
     
-    if (isDevelopment && isValidUUID) {
-      // Parse and validate request body for development
-      let body = {};
-      try {
-        body = await request.json();
-      } catch (error) {
-        // Empty body is allowed for completion
-        body = {};
-      }
-
-      // Validate completion data
-      const validationResult = CompleteSessionSchema.safeParse(body);
-      if (!validationResult.success) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Validation failed',
-            code: 'VALIDATION_ERROR',
-            details: validationResult.error.issues,
-          },
-          { status: 400 }
-        );
-      }
-
-      const completionData = validationResult.data;
-
-      // For development mode, still update the database but use a mock user context
-      const workoutService = new WorkoutService();
-      const devServiceContext = {
-        userId: 'dev-user', // Mock user ID for development
-        organizationId: undefined,
-        userAgent: request.headers.get('user-agent') || undefined,
-        ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
-      };
-
-      // Actually complete the session in the database
-      const result = await workoutService.completeWorkoutSession(
-        sessionId,
-        completionData,
-        devServiceContext
-      );
-
-      if (!result.success) {
-        const statusCode = 
-          result.code === 'NOT_FOUND' ? 404 :
-          result.code === 'UNAUTHORIZED' ? 403 :
-          result.code === 'INVALID_STATE' ? 409 :
-          result.code === 'VALIDATION_ERROR' ? 400 :
-          500;
-
-        return NextResponse.json(
-          {
-            success: false,
-            error: result.message,
-            code: result.code,
-            mode: 'development',
-          },
-          { status: statusCode }
-        );
-      }
-
-      return NextResponse.json(
-        {
-          success: true,
-          message: 'Workout session completed successfully (development mode)',
-          data: {
-            ...result.data,
-            mode: 'development'
-          },
-        },
-        { status: 200 }
-      );
-    }
-
-    // Production Mode: Full authentication required
-    const { userId, orgId } = await auth();
-    if (!userId) {
+    if (!userId && !isDevelopment) {
       return NextResponse.json(
         {
           success: false,
@@ -158,10 +85,10 @@ export async function POST(
 
     const completionData = validationResult.data;
 
-    // Initialize service
+    // Initialize service with appropriate context
     const workoutService = new WorkoutService();
     const serviceContext = {
-      userId,
+      userId: userId || 'dev-user', // Use dev-user for development mode without auth
       organizationId: orgId || undefined,
       userAgent: request.headers.get('user-agent') || undefined,
       ipAddress: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || undefined,
@@ -213,6 +140,7 @@ export async function POST(
     );
   }
 }
+
 
 /**
  * OPTIONS /api/workouts/sessions/[sessionId]/complete
