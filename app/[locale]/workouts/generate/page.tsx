@@ -53,6 +53,8 @@ import {
   useTemplateCategories,
   useCreatePlanFromTemplate,
 } from '@/hooks/queries/use-template-system-query';
+import { createWorkoutPlan } from '@/lib/api/workout-plans';
+import type { CustomPlanFormData } from '@/types/workouts';
 
 type GenerationStep = 'templates' | 'preferences' | 'generating' | 'review' | 'complete';
 
@@ -303,6 +305,8 @@ export default function AIWorkoutGenerationPage() {
   const [generationProgress, setGenerationProgress] = useState(0);
   const [generatedWorkout, setGeneratedWorkout] = useState<GeneratedWorkout | null>(null);
   const [generationError, setGenerationError] = useState<string>('');
+  const [isSavingPlan, setIsSavingPlan] = useState(false);
+  const [planSaveError, setPlanSaveError] = useState<string>('');
   const [preferences, setPreferences] = useState<WorkoutPreferences>({
     fitnessLevel: '',
     goals: [],
@@ -445,6 +449,155 @@ export default function AIWorkoutGenerationPage() {
       setCurrentStep('preferences'); // Go back to preferences on error
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const saveAsPlan = async () => {
+    if (!generatedWorkout) return;
+
+    setIsSavingPlan(true);
+    setPlanSaveError('');
+
+    try {
+      // Convert generated workout to plan format
+      const planName = `${generatedWorkout.name} - Plan`;
+      const planDescription = generatedWorkout.description || 'AI-generated workout plan';
+      
+      // Create session template from the generated workout
+      const exerciseStructure = [
+        ...generatedWorkout.warmUpExercises.map((exercise: any) => ({
+          id: `exercise-${exercise.exerciseId}`,
+          exerciseId: exercise.exerciseId,
+          exerciseName: exercise.name,
+          exerciseType: 'strength' as const,
+          phase: 'warm_up' as const,
+          sets: exercise.plannedSets || 1,
+          repsMin: exercise.plannedReps || 0,
+          repsMax: exercise.plannedReps || 0,
+          restSeconds: exercise.plannedRestSeconds || 30,
+          durationSeconds: exercise.plannedDurationSeconds,
+          alternatives: []
+        })),
+        ...generatedWorkout.mainExercises.map((exercise: any) => ({
+          id: `exercise-${exercise.exerciseId}`,
+          exerciseId: exercise.exerciseId,
+          exerciseName: exercise.name,
+          exerciseType: 'strength' as const,
+          phase: 'main' as const,
+          sets: exercise.plannedSets || 3,
+          repsMin: exercise.plannedReps || 8,
+          repsMax: exercise.plannedReps || 12,
+          restSeconds: exercise.plannedRestSeconds || 60,
+          durationSeconds: exercise.plannedDurationSeconds,
+          alternatives: []
+        })),
+        ...generatedWorkout.coolDownExercises.map((exercise: any) => ({
+          id: `exercise-${exercise.exerciseId}`,
+          exerciseId: exercise.exerciseId,
+          exerciseName: exercise.name,
+          exerciseType: 'flexibility' as const,
+          phase: 'cool_down' as const,
+          sets: exercise.plannedSets || 1,
+          repsMin: exercise.plannedReps || 0,
+          repsMax: exercise.plannedReps || 0,
+          restSeconds: exercise.plannedRestSeconds || 15,
+          durationSeconds: exercise.plannedDurationSeconds,
+          alternatives: []
+        }))
+      ];
+
+      const sessionTemplate = {
+        id: `template-${Date.now()}`,
+        name: generatedWorkout.name,
+        description: generatedWorkout.description,
+        sessionType: generatedWorkout.sessionType as 'workout',
+        estimatedDuration: generatedWorkout.sessionData.estimatedDuration,
+        targetMuscleGroups: generatedWorkout.sessionData.targetMuscleGroups,
+        exerciseStructure,
+        difficulty: generatedWorkout.sessionData.difficultyLevel as 'intermediate',
+        equipmentRequired: generatedWorkout.sessionData.equipmentNeeded,
+      };
+
+      // Create the plan data structure
+      const planFormData: CustomPlanFormData = {
+        name: planName,
+        description: planDescription,
+        durationWeeks: Math.max(1, Math.ceil(preferences.daysPerWeek * 4 / 7)), // Estimate duration
+        sessionsPerWeek: preferences.daysPerWeek,
+        fitnessGoals: preferences.goals,
+        targetFitnessLevel: (preferences.fitnessLevel as 'beginner' | 'intermediate' | 'advanced') || 'intermediate',
+        estimatedSessionDuration: generatedWorkout.sessionData.estimatedDuration,
+        weeklySchedule: {
+          // Create a simple weekly schedule based on preferences
+          monday: preferences.daysPerWeek >= 1 ? [{
+            day: 'monday',
+            sessionName: generatedWorkout.name,
+            type: 'workout' as const,
+            duration: generatedWorkout.sessionData.estimatedDuration,
+          }] : [],
+          wednesday: preferences.daysPerWeek >= 2 ? [{
+            day: 'wednesday',
+            sessionName: generatedWorkout.name,
+            type: 'workout' as const,
+            duration: generatedWorkout.sessionData.estimatedDuration,
+          }] : [],
+          friday: preferences.daysPerWeek >= 3 ? [{
+            day: 'friday',
+            sessionName: generatedWorkout.name,
+            type: 'workout' as const,
+            duration: generatedWorkout.sessionData.estimatedDuration,
+          }] : [],
+          saturday: preferences.daysPerWeek >= 4 ? [{
+            day: 'saturday',
+            sessionName: generatedWorkout.name,
+            type: 'workout' as const,
+            duration: generatedWorkout.sessionData.estimatedDuration,
+          }] : [],
+          tuesday: preferences.daysPerWeek >= 5 ? [{
+            day: 'tuesday',
+            sessionName: generatedWorkout.name,
+            type: 'workout' as const,
+            duration: generatedWorkout.sessionData.estimatedDuration,
+          }] : [],
+          thursday: preferences.daysPerWeek >= 6 ? [{
+            day: 'thursday',
+            sessionName: generatedWorkout.name,
+            type: 'workout' as const,
+            duration: generatedWorkout.sessionData.estimatedDuration,
+          }] : [],
+          sunday: preferences.daysPerWeek >= 7 ? [{
+            day: 'sunday',
+            sessionName: generatedWorkout.name,
+            type: 'workout' as const,
+            duration: generatedWorkout.sessionData.estimatedDuration,
+          }] : [],
+        },
+        sessionTemplates: [sessionTemplate],
+        isTemplate: false,
+        isPublic: false,
+      };
+
+      const result = await createWorkoutPlan(planFormData);
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to save workout plan');
+      }
+
+      // Show success message and redirect
+      alert(`Workout plan "${planName}" saved successfully!`);
+      
+      // Optionally redirect to the plans page
+      window.location.href = '/workouts';
+
+    } catch (error) {
+      console.error('Error saving workout plan:', error);
+      setPlanSaveError(
+        error instanceof Error 
+          ? error.message 
+          : 'Failed to save workout plan. Please try again.'
+      );
+    } finally {
+      setIsSavingPlan(false);
     }
   };
 
@@ -1032,11 +1185,38 @@ export default function AIWorkoutGenerationPage() {
               </CardContent>
             </Card>
 
+            {/* Error Message for Plan Save */}
+            {planSaveError && (
+              <div className='mx-auto max-w-md rounded-lg bg-red-50 p-4 text-red-700'>
+                <div className='flex items-start gap-3'>
+                  <AlertCircle className='h-5 w-5 flex-shrink-0 mt-0.5' />
+                  <div>
+                    <h4 className='font-medium'>Save Failed</h4>
+                    <p className='text-sm mt-1'>{planSaveError}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Action Buttons */}
             <div className='flex justify-center gap-4'>
-              <Button variant='outline' className='flex-1 sm:flex-none'>
-                <Save className='mr-2 h-4 w-4' />
-                Save as Plan
+              <Button 
+                variant='outline' 
+                className='flex-1 sm:flex-none'
+                onClick={saveAsPlan}
+                disabled={isSavingPlan}
+              >
+                {isSavingPlan ? (
+                  <>
+                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className='mr-2 h-4 w-4' />
+                    Save as Plan
+                  </>
+                )}
               </Button>
               <Button
                 onClick={() => setCurrentStep('complete')}
