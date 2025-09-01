@@ -3,8 +3,38 @@ const withNextIntl = require('next-intl/plugin')(
   './i18n.ts'
 );
 
+// Load build environment variables
+const fs = require('fs');
+const path = require('path');
+
+function loadBuildEnv() {
+  try {
+    const envPath = path.join(__dirname, '.env.build');
+    if (fs.existsSync(envPath)) {
+      const envContent = fs.readFileSync(envPath, 'utf8');
+      const envVars = {};
+      envContent.split('\n').forEach(line => {
+        const [key, value] = line.split('=');
+        if (key && value) {
+          envVars[key] = value;
+        }
+      });
+      return envVars;
+    }
+  } catch (error) {
+    console.warn('Could not load build environment:', error.message);
+  }
+  return {};
+}
+
+const buildEnv = loadBuildEnv();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Load build-time environment variables
+  env: {
+    ...buildEnv,
+  },
   // Advanced TypeScript configuration with systematic type safety
   // TypeScript errors are now fixed, ESLint configured for development flexibility
   eslint: {

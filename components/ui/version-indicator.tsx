@@ -13,14 +13,37 @@ import {
 } from '@/components/ui/dialog'
 import { Info } from 'lucide-react'
 
-// This will be replaced during build with actual commit info
-const VERSION_INFO = {
-  commit: process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA || process.env.VERCEL_GIT_COMMIT_SHA || '905ec5f',
-  shortCommit: (process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA || process.env.VERCEL_GIT_COMMIT_SHA || '905ec5f').substring(0, 7),
-  branch: process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF || process.env.VERCEL_GIT_COMMIT_REF || 'main',
-  buildTime: process.env.NEXT_PUBLIC_BUILD_TIME || new Date().toISOString(),
-  environment: process.env.NODE_ENV || 'development'
+// Get version info from multiple sources (Vercel, custom build, git)
+const getVersionInfo = () => {
+  // Try multiple sources for commit SHA
+  const commitSha = 
+    process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA || // Vercel automatic
+    process.env.VERCEL_GIT_COMMIT_SHA || // Vercel server-side
+    process.env.NEXT_PUBLIC_GIT_COMMIT_SHA || // Our custom build script
+    '2d48778'; // Fallback
+  
+  return {
+    commit: commitSha,
+    shortCommit: commitSha.substring(0, 7),
+    branch: 
+      process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF || 
+      process.env.VERCEL_GIT_COMMIT_REF || 
+      process.env.NEXT_PUBLIC_GIT_BRANCH ||
+      'main',
+    buildTime: 
+      process.env.NEXT_PUBLIC_BUILD_TIME || 
+      process.env.VERCEL_BUILD_TIME || 
+      new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    // Vercel deployment info
+    url: process.env.NEXT_PUBLIC_VERCEL_URL || process.env.VERCEL_URL,
+    deploymentId: process.env.NEXT_PUBLIC_VERCEL_DEPLOYMENT_ID || process.env.VERCEL_DEPLOYMENT_ID,
+    // Custom build version
+    buildVersion: process.env.NEXT_PUBLIC_BUILD_VERSION
+  }
 }
+
+const VERSION_INFO = getVersionInfo();
 
 interface VersionIndicatorProps {
   variant?: 'badge' | 'button' | 'minimal'
@@ -100,6 +123,20 @@ export function VersionIndicator({
             
             <div className="font-medium">Build Time:</div>
             <div className="text-xs">{new Date(VERSION_INFO.buildTime).toLocaleString()}</div>
+            
+            {VERSION_INFO.url && (
+              <>
+                <div className="font-medium">Deployment URL:</div>
+                <div className="text-xs break-all">{VERSION_INFO.url}</div>
+              </>
+            )}
+            
+            {VERSION_INFO.deploymentId && (
+              <>
+                <div className="font-medium">Deployment ID:</div>
+                <div className="font-mono text-xs break-all">{VERSION_INFO.deploymentId}</div>
+              </>
+            )}
           </div>
         </div>
       </DialogContent>

@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "next dev --turbo",
     "dev:watch": "concurrently \"pnpm dev\" \"pnpm type-check:watch\" \"pnpm lint:watch\"",
+    "prebuild": "node scripts/build-env.js",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
