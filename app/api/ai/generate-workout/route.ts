@@ -4,20 +4,102 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { randomUUID } from 'crypto';
 
 import { auth } from '@clerk/nextjs/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { randomUUID } from 'crypto';
 import { z } from 'zod';
+import { generateWithHighestQuality, isAIServiceConfigured } from '@/lib/services/ai-model-service';
 
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(
-  process.env.GOOGLE_GENERATIVE_AI_API_KEY || ''
-);
+// Helper functions for personalized guidance
+function getAgeSpecificGuidance(age?: number): string {
+  if (!age) return 'No specific age considerations';
+  
+  if (age < 18) return 'Focus on bodyweight exercises, proper form, avoid heavy weights';
+  if (age < 30) return 'Can handle high intensity, focus on strength and skill development';
+  if (age < 40) return 'Balance strength with mobility, include injury prevention';
+  if (age < 50) return 'Emphasize functional movement, joint health, gradual progression';
+  if (age < 60) return 'Prioritize muscle preservation, balance, low-impact options';
+  return 'Focus on functional fitness, fall prevention, gentle progressive overload';
+}
 
-const GEMINI_MODEL = 'gemini-2.5-flash';
+function getGenderSpecificGuidance(gender?: string): string {
+  switch (gender) {
+    case 'female':
+      return 'Consider hormonal fluctuations, bone density focus, pelvic floor health';
+    case 'male':
+      return 'Focus on balanced muscle development, cardiovascular health';
+    default:
+      return 'Use inclusive approach suitable for all body types';
+  }
+}
 
-// Validation schemas
+function getConditionSpecificGuidance(conditions?: string[]): string {
+  if (!conditions?.length) return 'No specific medical considerations';
+  
+  const guidance = [];
+  
+  if (conditions.some(c => c.toLowerCase().includes('sarcopenia'))) {
+    guidance.push('CRITICAL: Progressive resistance training, compound movements, protein timing emphasis');
+  }
+  if (conditions.some(c => c.toLowerCase().includes('diabetes'))) {
+    guidance.push('Monitor blood sugar, emphasize consistency, include both aerobic and resistance');
+  }
+  if (conditions.some(c => c.toLowerCase().includes('arthritis') || c.includes('joint'))) {
+    guidance.push('Low-impact alternatives, warm-up emphasis, range of motion maintenance');
+  }
+  if (conditions.some(c => c.toLowerCase().includes('osteoporosis'))) {
+    guidance.push('Weight-bearing exercises, balance training, avoid spinal flexion');
+  }
+  
+  return guidance.length > 0 ? guidance.join('; ') : 'General health considerations apply';
+}
+
+function getGoalSpecificGuidance(goalDetails?: string): string {
+  if (!goalDetails) return 'Follow general fitness principles';
+  
+  const details = goalDetails.toLowerCase();
+  const guidance = [];
+  
+  if (details.includes('sarcopenia') || details.includes('muscle preservation')) {
+    guidance.push('Compound movements 2-3x/week, progressive overload, adequate recovery');
+  }
+  if (details.includes('bone density')) {
+    guidance.push('Weight-bearing exercises, impact training (if appropriate), resistance training');
+  }
+  if (details.includes('functional')) {
+    guidance.push('Multi-planar movements, real-world applications, balance challenges');
+  }
+  if (details.includes('flexibility') || details.includes('mobility')) {
+    guidance.push('Dynamic warm-up, static stretching post-workout, mobility flows');
+  }
+  
+  return guidance.length > 0 ? guidance.join('; ') : 'Standard programming principles';
+}
+
+// Enhanced User Profile Schema
+const enhancedUserProfileSchema = z.object({
+  age: z.number().min(13).max(100).optional(),
+  gender: z.enum(['male', 'female', 'other', 'prefer-not-to-say']).optional(),
+  primaryGoalDetails: z.string().max(500).optional(),
+  healthConditions: z.array(z.string()).optional().default([]),
+  specificFocus: z.string().max(2000).optional(),
+  experienceLevel: z.object({
+    yearsActive: z.enum(['0-1', '1-3', '3-5', '5+']).optional(),
+    familiarExercises: z.array(z.string()).optional().default([]),
+    enjoyedActivities: z.array(z.string()).optional().default([]),
+    dislikedActivities: z.array(z.string()).optional().default([]),
+  }).optional(),
+  lifestyle: z.object({
+    recoveryNeeds: z.enum(['low', 'moderate', 'high']).optional(),
+    timeOfDay: z.enum(['morning', 'afternoon', 'evening', 'flexible']).optional(),
+    consistencyLevel: z.enum(['strict', 'flexible', 'variable']).optional(),
+    motivationStyle: z.enum(['challenging', 'gentle', 'varied']).optional(),
+    sleepQuality: z.enum(['poor', 'fair', 'good', 'excellent']).optional(),
+    stressLevel: z.enum(['low', 'moderate', 'high']).optional(),
+  }).optional(),
+}).optional();
+
+// Enhanced Validation schemas
 const workoutPreferencesSchema = z.object({
   fitnessLevel: z.enum(['beginner', 'intermediate', 'advanced']),
   goals: z.array(z.string()).min(1),
@@ -26,13 +108,7 @@ const workoutPreferencesSchema = z.object({
   equipment: z.array(z.string()).min(1),
   limitations: z.array(z.string()).optional().default([]),
   preferences: z.array(z.string()).optional().default([]),
-});
-
-const videoSchema = z.object({
-  url: z.string().url(),
-  platform: z.enum(['youtube', 'tiktok', 'instagram']),
-  title: z.string(),
-  description: z.string().optional(),
+  userProfile: enhancedUserProfileSchema,
 });
 
 const aiSessionExerciseSchema = z.object({
@@ -46,7 +122,17 @@ const aiSessionExerciseSchema = z.object({
   muscleGroups: z.array(z.string()).min(1),
   equipment: z.array(z.string()).min(1),
   difficulty: z.enum(['beginner', 'intermediate', 'advanced']),
-  videoUrls: z.array(videoSchema).min(1).max(5),
+  videoUrls: z
+    .array(
+      z.object({
+        url: z.string().url(),
+        platform: z.enum(['youtube', 'tiktok', 'instagram']),
+        title: z.string(),
+        description: z.string().optional(),
+      })
+    )
+    .optional()
+    .default([]),
 });
 
 const aiWorkoutSessionSchema = z.object({
@@ -79,9 +165,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if Gemini API key is configured
-    if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-      console.error('GOOGLE_GENERATIVE_AI_API_KEY not configured');
+    // Check if AI service is configured
+    if (!isAIServiceConfigured()) {
+      console.error('AI service not configured');
       return NextResponse.json(
         { error: 'AI service not configured' },
         { status: 500 }
@@ -107,16 +193,17 @@ export async function POST(request: NextRequest) {
     // Create the prompt for Gemini
     const prompt = buildWorkoutPrompt(preferences);
 
-    // Generate workout using Gemini
-    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL });
-    const result = await model.generateContent(prompt);
+    // Generate workout using highest quality models (starts with gemini-2.5-pro)
+    const result = await generateWithHighestQuality(prompt, {
+      verbose: process.env.NODE_ENV === 'development',
+    });
 
-    if (!result.response) {
-      throw new Error('No response from AI model');
+    const text = result.text;
+    
+    // Log model usage in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`✅ Workout generated using ${result.usedModel.name} in ${result.duration}ms (${result.attempts} attempts)`);
     }
-
-    const response = await result.response;
-    const text = response.text();
 
     // Parse the AI response
     let workoutData;
@@ -135,7 +222,6 @@ export async function POST(request: NextRequest) {
 
     // Validate the generated workout session
     const validatedSession = aiWorkoutSessionSchema.safeParse(workoutData);
-    console.log('AI Response Text:', JSON.stringify(validatedSession, null, 2));
     if (!validatedSession.success) {
       console.error(
         'Invalid workout session structure:',
@@ -214,7 +300,10 @@ function buildWorkoutPrompt(
   // Get current date for context
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const currentMonth = currentDate.toLocaleDateString('en-US', {
+    month: 'long',
+    year: 'numeric',
+  });
   const {
     fitnessLevel,
     goals,
@@ -222,6 +311,7 @@ function buildWorkoutPrompt(
     equipment,
     limitations,
     preferences: userPrefs,
+    userProfile,
   } = preferences;
 
   const equipmentList = equipment.join(', ');
@@ -230,7 +320,87 @@ function buildWorkoutPrompt(
     limitations.length > 0 ? limitations.join(', ') : 'none';
   const preferencesList = userPrefs.length > 0 ? userPrefs.join(', ') : 'none';
 
-  return `You are a certified personal trainer and fitness expert. Today is ${currentMonth}. Create a personalized workout plan based on the following user preferences:
+  // Build enhanced context sections
+  const personalContext = userProfile ? `
+**ENHANCED PERSONAL CONTEXT:**
+- Age: ${userProfile.age || 'not specified'} (${getAgeSpecificGuidance(userProfile.age)})
+- Gender: ${userProfile.gender || 'not specified'} (${getGenderSpecificGuidance(userProfile.gender)})
+- Specific Goal Details: ${userProfile.primaryGoalDetails || 'general fitness'}
+- Health Conditions: ${userProfile.healthConditions?.join(', ') || 'none specified'} (${getConditionSpecificGuidance(userProfile.healthConditions)})
+- Focus Areas: ${userProfile.specificFocus || 'overall fitness'}
+` : '';
+
+  const experienceContext = userProfile?.experienceLevel ? `
+**EXPERIENCE PROFILE:**
+- Years Active: ${userProfile.experienceLevel.yearsActive || 'not specified'}
+- Familiar Exercises: ${userProfile.experienceLevel.familiarExercises?.join(', ') || 'assess and include basics'}
+- Enjoys: ${userProfile.experienceLevel.enjoyedActivities?.join(', ') || 'open to variety'}
+- Prefers to Avoid: ${userProfile.experienceLevel.dislikedActivities?.join(', ') || 'none specified'}
+` : '';
+
+  const lifestyleContext = userProfile?.lifestyle ? `
+**LIFESTYLE FACTORS:**
+- Recovery Needs: ${userProfile.lifestyle.recoveryNeeds || 'moderate'} (adjust rest periods accordingly)
+- Preferred Time: ${userProfile.lifestyle.timeOfDay || 'flexible'}
+- Schedule Consistency: ${userProfile.lifestyle.consistencyLevel || 'flexible'}
+- Motivation Style: ${userProfile.lifestyle.motivationStyle || 'balanced'}
+- Sleep Quality: ${userProfile.lifestyle.sleepQuality || 'not specified'}
+- Stress Level: ${userProfile.lifestyle.stressLevel || 'moderate'}
+` : '';
+
+  return `You are a certified personal trainer with expertise in personalized fitness programming and access to current ${currentYear} research. Today is ${currentMonth}. 
+
+IMPORTANT: Use your knowledge of the latest fitness research, exercise science developments, and evidence-based training methodologies as of ${currentYear}. If you need current information about specific conditions, exercises, or training protocols, apply the most recent scientific evidence available to you.
+
+Create a workout specifically tailored to this individual's unique profile and goals using current best practices.
+
+**🌐 LANGUAGE AND LOCALIZATION INSTRUCTIONS 🌐**
+CRITICAL: Analyze ONLY the user's "Specific Focus" field for language preference (ignore other fields):
+
+🇪🇸 SPANISH DETECTION - Specific Focus Field Only:
+- If "Specific Focus" contains "español", "idioma español" → GENERATE EVERYTHING IN SPANISH
+- If "Specific Focus" is predominantly in Spanish → GENERATE EVERYTHING IN SPANISH
+- Spanish request in Specific Focus OVERRIDES all other language considerations
+
+🚨 MANDATORY SPANISH GENERATION WHEN DETECTED:
+- ALL exercise names in Spanish (no English names allowed)
+- ALL descriptions and instructions in Spanish
+- ALL workout content in Spanish (name, description, everything)
+- Use Spanish fitness terminology exclusively
+- Ignore any English in other form fields - Spanish in Specific Focus takes priority
+
+Other languages: Apply same logic for French ("français"), Portuguese ("português")
+Default: English only if no language detected in Specific Focus field
+
+**BASIC USER PROFILE:**
+- Fitness Level: ${fitnessLevel}
+- Primary Goals: ${goalsList}
+- Workout Duration: ${duration} minutes
+- Available Equipment: ${equipmentList}
+- Physical Limitations: ${limitationsList}
+- Additional Preferences: ${preferencesList}
+${personalContext}${experienceContext}${lifestyleContext}
+
+**CRITICAL PERSONALIZATION REQUIREMENTS:**
+1. **Age-Specific Considerations**: ${getAgeSpecificGuidance(userProfile?.age)}
+2. **Gender-Specific Factors**: ${getGenderSpecificGuidance(userProfile?.gender)}
+3. **Condition-Specific Adaptations**: ${getConditionSpecificGuidance(userProfile?.healthConditions)}
+4. **Goal-Specific Programming**: ${getGoalSpecificGuidance(userProfile?.primaryGoalDetails)}
+5. **HIGHEST PRIORITY - User's Specific Focus**: Pay maximum attention to the "Focus Areas" field above. This contains the user's most important and detailed requirements. Prioritize these specific needs above all other considerations.
+
+**ADVANCED PERSONALIZATION RULES:**
+- If sarcopenia/muscle preservation mentioned: Emphasize compound movements, progressive overload, 8-12 rep range for hypertrophy
+- If joint issues mentioned: Include mobility work, low-impact alternatives, proper warm-up sequences
+- If time-constrained: Prioritize compound movements, supersets, circuit training for efficiency
+- If recovery concerns: Include longer rest periods, stress management exercises, lighter intensity days
+- If bone density concerns: Include weight-bearing exercises, impact training (if appropriate), resistance work
+- If flexibility/mobility goals: Dynamic warm-up sequences, static stretching cool-down, mobility flows
+- If muscle imbalance/asymmetry mentioned: Include unilateral exercises, single-limb training, corrective exercises for the weaker side
+- If sedentary work mentioned: Include posture correction exercises, hip flexor stretches, thoracic spine mobility
+- If machine preference mentioned: Prioritize machine-based exercises for safety, progressive loading, and injury prevention
+- If core strengthening mentioned: Include core stability exercises, anti-extension/rotation movements, functional core training
+
+Create a workout that demonstrates deep understanding of this person's specific needs and context.
 
 **User Profile:**
 - Fitness Level: ${fitnessLevel}
@@ -277,20 +447,7 @@ Return ONLY a valid JSON object with this exact structure (no additional text, m
       "plannedRestSeconds": 30,
       "muscleGroups": ["shoulders"],
       "equipment": ["bodyweight"],
-      "difficulty": "beginner",
-      "videoUrls": [
-        {
-          "url": "https://www.youtube.com/watch?v=VIDEO_ID",
-          "platform": "youtube",
-          "title": "Exercise demonstration",
-          "description": "Detailed form tutorial"
-        },
-        {
-          "url": "https://www.tiktok.com/@username/video/VIDEO_ID",
-          "platform": "tiktok",
-          "title": "Quick form tips"
-        }
-      ]
+      "difficulty": "beginner"
     }
   ],
   "mainExercises": [
@@ -303,21 +460,7 @@ Return ONLY a valid JSON object with this exact structure (no additional text, m
       "plannedRestSeconds": 60,
       "muscleGroups": ["chest", "triceps"],
       "equipment": ["dumbbells"],
-      "difficulty": "${fitnessLevel}",
-      "videoUrls": [
-        {
-          "url": "https://www.youtube.com/watch?v=VIDEO_ID",
-          "platform": "youtube",
-          "title": "Complete exercise tutorial",
-          "description": "Full form breakdown and variations"
-        },
-        {
-          "url": "https://www.instagram.com/p/POST_ID/",
-          "platform": "instagram",
-          "title": "Visual form check",
-          "description": "Common mistakes to avoid"
-        }
-      ]
+      "difficulty": "${fitnessLevel}"
     }
   ],
   "coolDownExercises": [
@@ -330,15 +473,7 @@ Return ONLY a valid JSON object with this exact structure (no additional text, m
       "plannedRestSeconds": 15,
       "muscleGroups": ["hamstrings"],
       "equipment": ["bodyweight"],
-      "difficulty": "beginner",
-      "videoUrls": [
-        {
-          "url": "https://www.youtube.com/watch?v=VIDEO_ID",
-          "platform": "youtube",
-          "title": "Proper stretching technique",
-          "description": "Recovery and flexibility focus"
-        }
-      ]
+      "difficulty": "beginner"
     }
   ]
 }
@@ -354,7 +489,6 @@ Return ONLY a valid JSON object with this exact structure (no additional text, m
   - muscleGroups: array with at least 1 muscle group
   - equipment: array with at least 1 equipment item
   - Either "plannedReps" (integer) OR "plannedDurationSeconds" (integer), not both
-  - videoUrls: array of 1-5 video objects from YouTube, TikTok, or Instagram
   - instructions: detailed step-by-step form guidance
   - difficulty: EXACTLY "beginner", "intermediate", or "advanced" (NEVER use "easy", "hard", etc.)
 - sessionType: EXACTLY "workout", "assessment", or "recovery"
@@ -381,39 +515,6 @@ Return ONLY a valid JSON object with this exact structure (no additional text, m
 - full_gym: all equipment available including machines, cables
 - home_gym: mix of basic equipment suitable for home use
 
-**Multi-Platform Video Requirements:**
-- CRITICAL: Provide 1-5 videos per exercise from YouTube, TikTok, and Instagram
-- Each video must include: url, platform, title, and optional description
-- Use diverse perspectives: tutorials, form tips, common mistakes, variations
-
-**Verified YouTube URLs:**
-- Bench Press: "https://www.youtube.com/watch?v=4Y2ZdHCOXok" (AthleanX - Perfect Bench Press Form)
-- Pull-ups: "https://www.youtube.com/watch?v=eGo4IYlbE5g" (AthleanX - How to Do Pull Ups)
-- Push-ups: "https://www.youtube.com/watch?v=IODxDxX7oi4" (Calisthenic Movement - Perfect Push Up)
-- Squats: "https://www.youtube.com/watch?v=aclHkVaku9U" (AthleanX - How to Squat Properly)
-- Deadlifts: "https://www.youtube.com/watch?v=r4MzxtBKyNE" (AthleanX - How to Deadlift)
-- Shoulder Press: "https://www.youtube.com/watch?v=qEwKCR5JCog" (AthleanX - Overhead Press)
-- Bicep Curls: "https://www.youtube.com/watch?v=ykJmrZ5v0Oo" (AthleanX - Perfect Bicep Curls)
-- Dumbbell Rows: "https://www.youtube.com/watch?v=pYcpY20QaE8" (AthleanX - Dumbbell Row)
-- Lunges: "https://www.youtube.com/watch?v=QE_hU5kWNIc" (AthleanX - Perfect Lunge)
-- Dips: "https://www.youtube.com/watch?v=2z8JmcrW-As" (Calisthenic Movement - Perfect Dip)
-- Plank: "https://www.youtube.com/watch?v=ASdvN_XEl_c" (Calisthenic Movement - Perfect Plank)
-- Mountain Climbers: "https://www.youtube.com/watch?v=nmwgirgXLYM" (FitnessBlender - Mountain Climbers)
-- Burpees: "https://www.youtube.com/watch?v=auBLPXO8Fww" (FitnessBlender - How to Do Burpees)
-
-**TikTok Examples:**
-- Use format: "https://www.tiktok.com/@fitnessinfluencer/video/7123456789012345678"
-- Focus on: Quick form tips, common mistakes, motivation clips
-
-**Instagram Examples:**
-- Use format: "https://www.instagram.com/p/ABC123DEF4G/" or "https://www.instagram.com/reel/ABC123DEF4G/"
-- Focus on: Visual form checks, before/after comparisons, exercise variations
-
-**Video Selection Strategy:**
-- YouTube: Detailed tutorials and form breakdowns (main reference)
-- TikTok: Quick tips and motivational content (supplementary)
-- Instagram: Visual demonstrations and variations (complementary)
-- NEVER generate fake video IDs - use realistic examples from established fitness creators
 
 **VALIDATION CHECKLIST - VERIFY BEFORE OUTPUT:**
 ✓ Session structure: name, description, sessionType, scheduledDate, scheduledDuration
@@ -426,14 +527,10 @@ Return ONLY a valid JSON object with this exact structure (no additional text, m
 ✓ Sets: plannedSets 1-10 for each exercise
 ✓ Muscle groups: At least 1 per exercise
 ✓ Equipment: At least 1 per exercise from available equipment
-✓ Video URLs: 1-5 videos per exercise with proper platform, title, url format
-✓ Platform mix: Include YouTube (detailed), TikTok (tips), Instagram (visual) when possible
-✓ Video titles: Descriptive and relevant to exercise and platform purpose
 ✓ Instructions: Detailed form guidance for each exercise
 ✓ Either plannedReps OR plannedDurationSeconds for each exercise, never both
 ✓ sessionData: accurate totals and arrays reflecting all exercises
 ✓ ENUM VALIDATION: All enum values match exactly - no synonyms allowed
-✓ CRITICAL: Use realistic video formats and established fitness creator patterns
 
 Generate the workout now:`;
 }

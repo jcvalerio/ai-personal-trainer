@@ -26,7 +26,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { ExerciseVideoPlayer } from './exercise-video-player';
+import { ExerciseVideoEnhancer } from './exercise-video-enhancer';
 
 interface VideoUrl {
   url: string;
@@ -42,6 +42,14 @@ export interface ExerciseProgressCardProps {
   description?: string;
   /** Video tutorials */
   videoUrls?: VideoUrl[];
+  /** Exercise instructions for AI enhancement */
+  instructions?: string;
+  /** Muscle groups targeted */
+  muscleGroups?: string[];
+  /** Required equipment */
+  equipment?: string[];
+  /** Exercise difficulty level */
+  difficulty?: 'beginner' | 'intermediate' | 'advanced';
   /** Current set number (1-based) */
   currentSet: number;
   /** Total sets */
@@ -95,6 +103,10 @@ export const ExerciseProgressCard = React.memo(function ExerciseProgressCard({
   name,
   description,
   videoUrls,
+  instructions,
+  muscleGroups = [],
+  equipment = [],
+  difficulty = 'intermediate',
   currentSet,
   totalSets,
   targets,
@@ -185,15 +197,21 @@ export const ExerciseProgressCard = React.memo(function ExerciseProgressCard({
             {description && (
               <p className="text-sm text-gray-600 line-clamp-2">{description}</p>
             )}
-            {videoUrls && videoUrls.length > 0 && (
-              <div className="mt-2">
-                <ExerciseVideoPlayer 
-                  exerciseName={name}
-                  videoUrls={videoUrls}
-                  className="w-full"
-                />
-              </div>
-            )}
+            <div className="mt-2">
+              <ExerciseVideoEnhancer
+                exerciseName={name}
+                exercise={{
+                  name,
+                  description: description || '',
+                  instructions: instructions || description || '',
+                  muscleGroups,
+                  equipment,
+                  difficulty,
+                }}
+                videoUrls={videoUrls}
+                className="w-full"
+              />
+            </div>
           </div>
           
           <Button

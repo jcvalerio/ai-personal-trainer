@@ -5,7 +5,7 @@
 'use client';
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { Calendar, Clock, Dumbbell, Play, Plus, Target } from 'lucide-react';
+import { Calendar, Dumbbell, Plus, Target } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -20,10 +20,9 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { SelectableCard } from './selectable-card';
-import { LoadingState } from '@/components/ui/loading-state';
 import { ErrorState } from '@/components/ui/error-state';
 
-import type { SessionTemplate, WorkoutPlan, CreateWorkoutSessionRequest } from '@/types/workouts';
+import type { SessionTemplate, WorkoutPlan, CreateWorkoutSessionRequest, ExercisePhase } from '@/types/workouts';
 import { createWorkoutSession } from '@/lib/api/workout-sessions';
 
 interface SessionCreationDialogProps {
@@ -51,13 +50,13 @@ export function SessionCreationDialog({
   selectedDate = new Date(),
   availableTemplates,
 }: SessionCreationDialogProps) {
-  const [formData, setFormData] = useState<SessionFormData>(() => ({
+  const [formData, setFormData] = useState<SessionFormData>({
     templateId: '',
     sessionName: '',
     scheduledDate: selectedDate.toISOString().split('T')[0],
     estimatedDuration: 60,
     notes: '',
-  }));
+  });
 
   const [isCreating, setIsCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
@@ -249,7 +248,7 @@ export function SessionCreationDialog({
     try {
       const today = new Date();
       const createRequest: CreateWorkoutSessionRequest = {
-        name: `${template.name} - ${today.toLocaleDateString()}`,
+        name: `${template.name || 'Quick Workout'} - ${today.toLocaleDateString()}`,
         workoutPlanId: workoutPlan.id,
         sessionType: 'workout',
         scheduledDate: today.toISOString(),
@@ -261,8 +260,45 @@ export function SessionCreationDialog({
           equipmentNeeded: template.equipmentRequired || [],
           difficultyLevel: template.difficulty,
         },
-        // Generate valid exercise data - for emergency templates, we'll create placeholder exercises
-        mainExercises: []
+        warmUpExercises: template.exerciseStructure
+          .filter(exercise => exercise.phase === 'warm_up')
+          .map((exercise, index) => ({
+            exerciseId: exercise.exerciseId || exercise.id,
+            orderIndex: index,
+            exercisePhase: exercise.phase as ExercisePhase,
+            plannedSets: exercise.sets || 1,
+            plannedReps: exercise.repsMin || 1,
+            plannedWeightKg: undefined,
+            plannedDurationSeconds: exercise.durationSeconds || undefined,
+            plannedRestSeconds: exercise.restSeconds || 60,
+            equipmentAlternatives: exercise.alternatives || [],
+          })),
+        mainExercises: template.exerciseStructure
+          .filter(exercise => exercise.phase === 'main')
+          .map((exercise, index) => ({
+            exerciseId: exercise.exerciseId || exercise.id,
+            orderIndex: index,
+            exercisePhase: exercise.phase as ExercisePhase,
+            plannedSets: exercise.sets || 1,
+            plannedReps: exercise.repsMin || 1,
+            plannedWeightKg: undefined,
+            plannedDurationSeconds: exercise.durationSeconds || undefined,
+            plannedRestSeconds: exercise.restSeconds || 60,
+            equipmentAlternatives: exercise.alternatives || [],
+          })),
+        coolDownExercises: template.exerciseStructure
+          .filter(exercise => exercise.phase === 'cool_down')
+          .map((exercise, index) => ({
+            exerciseId: exercise.exerciseId || exercise.id,
+            orderIndex: index,
+            exercisePhase: exercise.phase as ExercisePhase,
+            plannedSets: exercise.sets || 1,
+            plannedReps: exercise.repsMin || 1,
+            plannedWeightKg: undefined,
+            plannedDurationSeconds: exercise.durationSeconds || undefined,
+            plannedRestSeconds: exercise.restSeconds || 60,
+            equipmentAlternatives: exercise.alternatives || [],
+          })),
       };
 
       const response = await createWorkoutSession(createRequest);
@@ -296,12 +332,57 @@ export function SessionCreationDialog({
 
     try {
       const createRequest: CreateWorkoutSessionRequest = {
-        planId: workoutPlan.id,
-        sessionName: formData.sessionName.trim() || selectedTemplate.name,
+        name: formData.sessionName.trim() || selectedTemplate.name || 'Workout Session',
+        workoutPlanId: workoutPlan.id,
+        sessionType: 'workout',
         scheduledDate: new Date(formData.scheduledDate).toISOString(),
-        sessionTemplate: selectedTemplate,
-        estimatedDuration: formData.estimatedDuration,
-        notes: formData.notes,
+        scheduledDuration: formData.estimatedDuration,
+        sessionData: {
+          totalExercises: selectedTemplate.exerciseStructure.length,
+          estimatedDuration: formData.estimatedDuration,
+          targetMuscleGroups: selectedTemplate.targetMuscleGroups,
+          equipmentNeeded: selectedTemplate.equipmentRequired || [],
+          difficultyLevel: selectedTemplate.difficulty,
+        },
+        warmUpExercises: selectedTemplate.exerciseStructure
+          .filter(exercise => exercise.phase === 'warm_up')
+          .map((exercise, index) => ({
+            exerciseId: exercise.exerciseId || exercise.id,
+            orderIndex: index,
+            exercisePhase: exercise.phase as ExercisePhase,
+            plannedSets: exercise.sets || 1,
+            plannedReps: exercise.repsMin || 1,
+            plannedWeightKg: undefined,
+            plannedDurationSeconds: exercise.durationSeconds || undefined,
+            plannedRestSeconds: exercise.restSeconds || 60,
+            equipmentAlternatives: exercise.alternatives || [],
+          })),
+        mainExercises: selectedTemplate.exerciseStructure
+          .filter(exercise => exercise.phase === 'main')
+          .map((exercise, index) => ({
+            exerciseId: exercise.exerciseId || exercise.id,
+            orderIndex: index,
+            exercisePhase: exercise.phase as ExercisePhase,
+            plannedSets: exercise.sets || 1,
+            plannedReps: exercise.repsMin || 1,
+            plannedWeightKg: undefined,
+            plannedDurationSeconds: exercise.durationSeconds || undefined,
+            plannedRestSeconds: exercise.restSeconds || 60,
+            equipmentAlternatives: exercise.alternatives || [],
+          })),
+        coolDownExercises: selectedTemplate.exerciseStructure
+          .filter(exercise => exercise.phase === 'cool_down')
+          .map((exercise, index) => ({
+            exerciseId: exercise.exerciseId || exercise.id,
+            orderIndex: index,
+            exercisePhase: exercise.phase as ExercisePhase,
+            plannedSets: exercise.sets || 1,
+            plannedReps: exercise.repsMin || 1,
+            plannedWeightKg: undefined,
+            plannedDurationSeconds: exercise.durationSeconds || undefined,
+            plannedRestSeconds: exercise.restSeconds || 60,
+            equipmentAlternatives: exercise.alternatives || [],
+          })),
       };
 
       const response = await fetch('/api/workouts/sessions', {
@@ -323,7 +404,7 @@ export function SessionCreationDialog({
       setFormData({
         templateId: '',
         sessionName: '',
-        scheduledDate: selectedDate.toISOString().split('T')[0],
+        scheduledDate: new Date().toISOString().split('T')[0],
         estimatedDuration: 60,
         notes: '',
       });
@@ -359,48 +440,58 @@ export function SessionCreationDialog({
               Choose Template
             </h3>
             
-            {availableTemplates.length === 0 ? (
-              <div className="text-center py-6">
-                <Target className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-                <h3 className="font-medium text-gray-900 mb-2">Ready to Start?</h3>
-                <p className="text-gray-600 text-sm mb-6">
-                  Let's create your first workout session
+            {(!availableTemplates || availableTemplates.length === 0) ? (
+              <div className="text-center py-6 bg-gradient-to-b from-blue-50 to-purple-50 rounded-lg border-2 border-blue-100">
+                <div className="rounded-full bg-blue-100 w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <Target className="h-8 w-8 text-blue-600" />
+                </div>
+                <h3 className="font-semibold text-gray-900 mb-2 text-lg">Ready to Start Your Workout?</h3>
+                <p className="text-gray-600 text-sm mb-6 max-w-sm mx-auto">
+                  Choose from our quick-start templates to begin your fitness journey
                 </p>
                 
-                {/* Quick Start Options */}
-                <div className="space-y-3 mb-4">
-                  <Button 
+                {/* Quick Start Options - Enhanced Visual Design */}
+                <div className="space-y-3 mb-6">
+                  <SelectableCard
+                    selected={false}
                     onClick={() => handleQuickStartWorkout('full_body')}
-                    className="w-full h-12"
-                    variant="default"
-                  >
-                    <Play className="h-4 w-4 mr-2" />
-                    Full Body Workout (30 min)
-                  </Button>
-                  <Button 
+                    title="Full Body Workout"
+                    description="Complete workout • 30 minutes"
+                    icon={<Dumbbell className="h-5 w-5 text-green-600" />}
+                    badge={{ text: "Beginner", variant: "outline" }}
+                    metadata={["No Equipment"]}
+                    className="hover:shadow-md transition-all bg-white"
+                  />
+                  
+                  <SelectableCard
+                    selected={false}
                     onClick={() => handleQuickStartWorkout('upper_body')}
-                    className="w-full h-12"
-                    variant="outline"
-                  >
-                    <Play className="h-4 w-4 mr-2" />
-                    Upper Body Focus (20 min)
-                  </Button>
-                  <Button 
+                    title="Upper Body Focus"
+                    description="Chest, shoulders & arms • 20 minutes"
+                    icon={<Target className="h-5 w-5 text-blue-600" />}
+                    badge={{ text: "Beginner", variant: "outline" }}
+                    metadata={["No Equipment"]}
+                    className="hover:shadow-md transition-all bg-white"
+                  />
+                  
+                  <SelectableCard
+                    selected={false}
                     onClick={() => handleQuickStartWorkout('lower_body')}
-                    className="w-full h-12"
-                    variant="outline"
-                  >
-                    <Play className="h-4 w-4 mr-2" />
-                    Lower Body Focus (25 min)
-                  </Button>
+                    title="Lower Body Focus"
+                    description="Legs, glutes & core • 25 minutes"
+                    icon={<Calendar className="h-5 w-5 text-purple-600" />}
+                    badge={{ text: "Beginner", variant: "outline" }}
+                    metadata={["No Equipment"]}
+                    className="hover:shadow-md transition-all bg-white"
+                  />
                 </div>
                 
                 <Button 
                   variant="ghost" 
                   onClick={() => onClose()}
-                  className="text-sm"
+                  className="text-sm text-gray-500 hover:text-gray-700"
                 >
-                  Or create custom templates first
+                  Cancel and create custom templates later
                 </Button>
               </div>
             ) : (
@@ -410,38 +501,18 @@ export function SessionCreationDialog({
                     key={template.id}
                     selected={formData.templateId === template.id}
                     onClick={() => handleTemplateSelect(template.id)}
-                    className="p-4 text-left"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="rounded-lg bg-blue-100 p-2 flex-shrink-0">
-                        <Dumbbell className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h4 className="font-medium text-gray-900 truncate">
-                          {template.name}
-                        </h4>
-                        <p className="text-sm text-gray-600 line-clamp-2 mt-1">
-                          {template.description}
-                        </p>
-                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
-                          <div className="flex items-center">
-                            <Clock className="mr-1 h-3 w-3" />
-                            {template.estimatedDuration} min
-                          </div>
-                          <div className="flex items-center">
-                            <Target className="mr-1 h-3 w-3" />
-                            {template.exerciseStructure.length} exercises
-                          </div>
-                          <Badge 
-                            variant={template.difficulty === 'advanced' ? 'destructive' : template.difficulty === 'intermediate' ? 'default' : 'secondary'}
-                            className="text-xs"
-                          >
-                            {template.difficulty}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                  </SelectableCard>
+                    title={template.name}
+                    description={template.description}
+                    icon={<Dumbbell className="h-5 w-5 text-blue-600" />}
+                    badge={{ 
+                      text: template.difficulty, 
+                      variant: template.difficulty === 'advanced' ? 'destructive' : template.difficulty === 'intermediate' ? 'default' : 'secondary'
+                    }}
+                    metadata={[
+                      `${template.estimatedDuration} min`,
+                      `${template.exerciseStructure.length} exercises`
+                    ]}
+                  />
                 ))}
               </div>
             )}

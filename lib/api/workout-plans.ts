@@ -3,11 +3,27 @@
  * Handles API calls for workout plan CRUD operations
  */
 
+// Browser-compatible UUID generator
+function generateUUID(): string {
+  // Use crypto.randomUUID() if available (modern browsers)
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  
+  // Fallback to a simple UUID v4 implementation
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
 import type {
   WorkoutPlan,
   WorkoutSession,
   CustomPlanFormData,
   CreateWorkoutPlanRequest,
+  AiGeneratedWorkoutSession,
+  AiGeneratedExercise,
 } from '@/types/workouts';
 
 export interface ApiResponse<T = any> {
@@ -30,6 +46,149 @@ export interface CreateWorkoutPlanResponse {
   name: string;
   status: string;
   message?: string;
+}
+
+
+/**
+ * Transform AI-generated workout data to API request format
+ */
+export function transformAiWorkoutToApi(
+  aiWorkout: AiGeneratedWorkoutSession,
+  preferences?: {
+    daysPerWeek?: number;
+    fitnessGoals?: string[];
+    durationWeeks?: number;
+    enhancedProfile?: {
+      age?: number;
+      gender?: string;
+      healthConditions?: string[];
+      specificFocus?: string;
+    };
+    actualPromptUsed?: string;
+  }
+): CreateWorkoutPlanRequest {
+  // Convert AI exercises to exercise structure format
+  const convertExerciseToStructure = (exercise: AiGeneratedExercise) => ({
+    id: exercise.exerciseId,
+    exerciseId: exercise.exerciseId,
+    exerciseName: exercise.name,
+    exerciseType: 'strength' as const,
+    phase: 'main' as const,
+    sets: exercise.plannedSets,
+    repsMin: exercise.plannedReps || 8,
+    repsMax: exercise.plannedReps || 12,
+    restSeconds: exercise.plannedRestSeconds,
+    durationSeconds: exercise.plannedDurationSeconds,
+    notes: exercise.instructions,
+    alternatives: [],
+    videoUrls: exercise.videoUrls || [], // Include video URLs from AI-enhanced exercises
+  });
+
+  // Create session template from AI workout
+  const sessionTemplate = {
+    id: generateUUID(),
+    name: aiWorkout.name,
+    description: aiWorkout.description,
+    sessionType: aiWorkout.sessionType,
+    estimatedDuration: aiWorkout.sessionData.estimatedDuration,
+    targetMuscleGroups: aiWorkout.sessionData.targetMuscleGroups,
+    difficulty: aiWorkout.sessionData.difficultyLevel,
+    equipmentRequired: aiWorkout.sessionData.equipmentNeeded,
+    exerciseStructure: [
+      ...aiWorkout.warmUpExercises.map(ex => ({
+        ...convertExerciseToStructure(ex),
+        phase: 'warm_up' as const,
+      })),
+      ...aiWorkout.mainExercises.map(ex => convertExerciseToStructure(ex)),
+      ...aiWorkout.coolDownExercises.map(ex => ({
+        ...convertExerciseToStructure(ex),
+        phase: 'cool_down' as const,
+      })),
+    ],
+  };
+
+  // Create a basic weekly schedule (can be customized later)
+  const daysPerWeek = preferences?.daysPerWeek || 3;
+  const weeklySchedule: Record<string, Array<{
+    day: string;
+    sessionId?: string | undefined;
+    sessionName: string;
+    type: 'workout';
+    duration: number;
+  }>> = {};
+  
+  // Distribute sessions across the week
+  const scheduleDays = ['monday', 'wednesday', 'friday', 'tuesday', 'thursday', 'saturday', 'sunday'];
+  for (let i = 0; i < Math.min(daysPerWeek, 7); i++) {
+    const day = scheduleDays[i];
+    if (day) {
+      weeklySchedule[day] = [{
+        day: day,
+        sessionId: undefined, // Let the backend generate this when sessions are created
+        sessionName: aiWorkout.name,
+        type: 'workout',
+        duration: aiWorkout.sessionData.estimatedDuration,
+      }];
+    }
+  }
+
+  // Fill remaining days with rest days
+  for (let i = daysPerWeek; i < 7; i++) {
+    const day = scheduleDays[i];
+    if (day) {
+      weeklySchedule[day] = [];
+    }
+  }
+
+  return {
+    name: aiWorkout.name,
+    description: aiWorkout.description,
+    durationWeeks: preferences?.durationWeeks || 4,
+    sessionsPerWeek: daysPerWeek,
+    fitnessGoals: preferences?.fitnessGoals || aiWorkout.sessionData.targetMuscleGroups,
+    targetFitnessLevel: aiWorkout.sessionData.difficultyLevel,
+    estimatedSessionDuration: aiWorkout.sessionData.estimatedDuration,
+    planData: {
+      summary: `AI-generated workout plan: ${aiWorkout.name}`,
+      phases: [
+        {
+          name: 'AI Training Phase',
+          description: aiWorkout.description,
+          durationWeeks: preferences?.durationWeeks || 4,
+          sessions: [sessionTemplate.id],
+        },
+      ],
+      progressionStrategy: 'adaptive',
+      templates: [sessionTemplate],
+      schedule: weeklySchedule,
+      // Preserve all AI-generated exercise details
+      aiWorkoutData: {
+        warmUpExercises: aiWorkout.warmUpExercises,
+        mainExercises: aiWorkout.mainExercises,
+        coolDownExercises: aiWorkout.coolDownExercises,
+        sessionData: aiWorkout.sessionData,
+        enhancedProfile: preferences?.enhancedProfile,
+      },
+    },
+    weeklySchedule: weeklySchedule,
+    progressionRules: {
+      type: 'ai_adaptive',
+      targetMuscleGroups: aiWorkout.sessionData.targetMuscleGroups,
+      equipment: aiWorkout.sessionData.equipmentNeeded,
+      difficulty: aiWorkout.sessionData.difficultyLevel,
+    },
+    isTemplate: false,
+    isPublic: false,
+    aiPromptUsed: preferences?.actualPromptUsed || `AI-generated workout for ${preferences?.enhancedProfile?.age ? `${preferences.enhancedProfile.age}-year-old ` : ''}${preferences?.enhancedProfile?.gender || 'individual'}${preferences?.enhancedProfile?.healthConditions?.length ? ` with ${preferences.enhancedProfile.healthConditions.join(', ')}` : ''}${preferences?.enhancedProfile?.specificFocus ? `. Focus: ${preferences.enhancedProfile.specificFocus}` : ''}`,
+    aiModelVersion: 'gemini-2.5-flash',
+    aiGenerationId: generateUUID(),
+    generationParameters: {
+      sessionType: aiWorkout.sessionType,
+      totalExercises: aiWorkout.sessionData.totalExercises,
+      targetMuscleGroups: aiWorkout.sessionData.targetMuscleGroups,
+      equipmentNeeded: aiWorkout.sessionData.equipmentNeeded,
+    },
+  };
 }
 
 /**
@@ -85,6 +244,60 @@ export function transformFormDataToApi(
     isTemplate: formData.isTemplate || false,
     isPublic: formData.isPublic || false,
   };
+}
+
+/**
+ * Create a new workout plan from AI-generated workout data
+ */
+export async function createWorkoutPlanFromAi(
+  aiWorkout: AiGeneratedWorkoutSession,
+  preferences?: {
+    daysPerWeek?: number;
+    fitnessGoals?: string[];
+    durationWeeks?: number;
+    enhancedProfile?: {
+      age?: number;
+      gender?: string;
+      healthConditions?: string[];
+      specificFocus?: string;
+    };
+    actualPromptUsed?: string;
+  }
+): Promise<ApiResponse<CreateWorkoutPlanResponse>> {
+  try {
+    const requestData = transformAiWorkoutToApi(aiWorkout, preferences);
+
+    const response = await fetch('/api/workouts/plans', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestData),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: result.error || 'Failed to create AI workout plan',
+        code: result.code || 'UNKNOWN_ERROR',
+      };
+    }
+
+    return {
+      success: true,
+      data: result.data,
+      message: result.message || 'AI workout plan created successfully',
+    };
+  } catch (error) {
+    console.error('Error creating AI workout plan:', error);
+    return {
+      success: false,
+      error: 'Network error occurred',
+      code: 'NETWORK_ERROR',
+    };
+  }
 }
 
 /**

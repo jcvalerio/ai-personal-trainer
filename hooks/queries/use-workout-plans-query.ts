@@ -5,12 +5,13 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { WorkoutPlan } from '@/types/workouts';
+import type { WorkoutPlan, AiGeneratedWorkoutSession } from '@/types/workouts';
 
 // API Client functions (reusing existing ones)
 import { 
   getWorkoutPlans,
   createWorkoutPlan,
+  createWorkoutPlanFromAi,
   updateWorkoutPlan,
   deleteWorkoutPlan,
   getWorkoutPlan
@@ -86,6 +87,97 @@ export function useWorkoutPlanTemplates(options: WorkoutPlansQueryOptions = {}) 
       templates: data.data || [],
       pagination: data.pagination,
     }),
+  });
+}
+
+/**
+ * Hook to create a new AI-generated workout plan with optimistic updates
+ */
+export function useCreateAiWorkoutPlan() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ 
+      aiWorkout, 
+      preferences 
+    }: { 
+      aiWorkout: AiGeneratedWorkoutSession; 
+      preferences?: {
+        daysPerWeek?: number;
+        fitnessGoals?: string[];
+        durationWeeks?: number;
+      };
+    }) => createWorkoutPlanFromAi(aiWorkout, preferences),
+    
+    // Optimistic update: immediately add the plan to the UI
+    onMutate: async ({ aiWorkout }) => {
+      // Cancel any outgoing refetches so they don't overwrite optimistic update
+      await queryClient.cancelQueries({ queryKey: workoutPlanKeys.lists() });
+
+      // Snapshot previous data
+      const previousPlans = queryClient.getQueryData(workoutPlanKeys.lists());
+
+      // Optimistically update the plans list
+      const optimisticPlan: WorkoutPlan = {
+        id: `temp-${Date.now()}`, // Temporary ID
+        name: aiWorkout.name,
+        description: aiWorkout.description,
+        targetFitnessLevel: aiWorkout.sessionData.difficultyLevel,
+        durationWeeks: 4,
+        sessionsPerWeek: 3,
+        status: 'draft',
+        isTemplate: false,
+        fitnessGoals: aiWorkout.sessionData.targetMuscleGroups,
+        estimatedDuration: aiWorkout.sessionData.estimatedDuration,
+        difficulty: aiWorkout.sessionData.difficultyLevel,
+        userId: '', // Will be set by server
+        organizationId: undefined,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        // Add default values for required fields
+        weeklySchedule: [],
+        sessionTemplates: {},
+        tags: [],
+        equipment: aiWorkout.sessionData.equipmentNeeded,
+        muscleGroups: aiWorkout.sessionData.targetMuscleGroups,
+        isPublic: false,
+        isActive: true,
+      };
+
+      queryClient.setQueryData(workoutPlanKeys.lists(), (old: any) => {
+        if (!old) return { success: true, data: [optimisticPlan] };
+        return {
+          ...old,
+          data: [optimisticPlan, ...(old.data || [])],
+        };
+      });
+
+      // Return context with snapshot for rollback
+      return { previousPlans };
+    },
+    onSuccess: (data, variables) => {
+      // Invalidate and refetch to get real data from server
+      queryClient.invalidateQueries({ queryKey: workoutPlanKeys.lists() });
+      
+      // Add the real plan data to the cache
+      if (data.data) {
+        queryClient.setQueryData(
+          workoutPlanKeys.detail(data.data.id),
+          { success: true, data: data.data }
+        );
+      }
+    },
+    onError: (error, aiWorkout, context) => {
+      // Rollback optimistic update on error
+      if (context?.previousPlans) {
+        queryClient.setQueryData(workoutPlanKeys.lists(), context.previousPlans);
+      }
+      console.error('Failed to create AI workout plan:', error);
+    },
+    // Always refetch after mutation completes (success or error)
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: workoutPlanKeys.lists() });
+    },
   });
 }
 

@@ -334,6 +334,10 @@ const EnhancedSessionInterface = React.memo(function EnhancedSessionInterface({
     isResting: isRestPeriod,
     restTimeRemaining,
     videoUrls: (currentExercise as any)?.videoUrls || [],
+    instructions: currentExercise.instructions,
+    muscleGroups: currentExercise.muscleGroups || [],
+    equipment: currentExercise.equipment || [],
+    difficulty: (currentExercise as any)?.difficulty || 'intermediate',
   } : null;
 
   return (

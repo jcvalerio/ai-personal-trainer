@@ -782,6 +782,12 @@ export interface ExerciseStructure {
   durationSeconds?: number;
   notes?: string;
   alternatives: string[];
+  videoUrls?: Array<{
+    url: string;
+    platform: 'youtube' | 'tiktok' | 'instagram';
+    title: string;
+    description?: string;
+  }>;
 }
 
 export interface WeekScheduleData {
@@ -815,6 +821,93 @@ export type EquipmentInput = Omit<
 >;
 
 // SessionProgressData is already exported above with the interface declaration
+
+// Enhanced User Profiling for AI Workout Generation
+export interface EnhancedUserProfile {
+  // Personal Context (Optional but Powerful)
+  age?: number;
+  gender?: 'male' | 'female' | 'other' | 'prefer-not-to-say';
+  primaryGoalDetails?: string; // Free-form: "I'm 39, want to combat sarcopenia"
+  healthConditions?: string[]; // Structured: diabetes, arthritis, etc.
+  specificFocus?: string; // Free-form: "Bone density, functional movement"
+  
+  // Experience & Preferences
+  experienceLevel?: {
+    yearsActive?: '0-1' | '1-3' | '3-5' | '5+';
+    familiarExercises?: string[]; // Exercises they know well
+    enjoyedActivities?: string[]; // "yoga", "weightlifting", "cardio"
+    dislikedActivities?: string[]; // Things to avoid
+  };
+  
+  // Lifestyle Context
+  lifestyle?: {
+    recoveryNeeds?: 'low' | 'moderate' | 'high'; // Based on stress/sleep
+    timeOfDay?: 'morning' | 'afternoon' | 'evening' | 'flexible';
+    consistencyLevel?: 'strict' | 'flexible' | 'variable';
+    motivationStyle?: 'challenging' | 'gentle' | 'varied';
+    sleepQuality?: 'poor' | 'fair' | 'good' | 'excellent';
+    stressLevel?: 'low' | 'moderate' | 'high';
+  };
+}
+
+// Enhanced Workout Preferences with User Profiling
+export interface EnhancedWorkoutPreferences {
+  // Basic preferences (existing)
+  fitnessLevel: string;
+  goals: string[];
+  duration: number;
+  daysPerWeek: number;
+  equipment: string[];
+  limitations: string[];
+  preferences: string[];
+  
+  // Enhanced user profiling
+  userProfile?: EnhancedUserProfile;
+  
+  // Template selection
+  selectedTemplate?: string;
+  useTemplate: boolean;
+}
+
+// AI Workout Generation Types
+export interface AiGeneratedWorkoutSession {
+  name: string;
+  description: string;
+  sessionType: 'workout' | 'assessment' | 'recovery';
+  scheduledDate: string;
+  scheduledDuration?: number;
+  sessionData: {
+    totalExercises: number;
+    estimatedDuration: number;
+    targetMuscleGroups: string[];
+    equipmentNeeded: string[];
+    difficultyLevel: 'beginner' | 'intermediate' | 'advanced';
+  };
+  warmUpExercises: AiGeneratedExercise[];
+  mainExercises: AiGeneratedExercise[];
+  coolDownExercises: AiGeneratedExercise[];
+}
+
+export interface AiGeneratedExercise {
+  exerciseId: string;
+  name: string;
+  description: string;
+  instructions: string;
+  orderIndex: number;
+  plannedSets: number;
+  plannedReps?: number;
+  plannedDurationSeconds?: number;
+  plannedRestSeconds: number;
+  muscleGroups: string[];
+  equipment: string[];
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  videoUrls?: Array<{
+    url: string;
+    platform: 'youtube' | 'tiktok' | 'instagram';
+    title: string;
+    description?: string;
+  }>;
+}
 
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<

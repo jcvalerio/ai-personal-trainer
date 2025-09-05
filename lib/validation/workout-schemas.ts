@@ -159,6 +159,21 @@ export const workoutPlanDataSchema = z.object({
   ),
   progressionStrategy: z.string().max(1000),
   notes: z.string().max(2000).optional(),
+  // Allow additional fields for AI-generated data
+  templates: z.array(z.any()).optional(), // Session templates
+  schedule: z.record(z.any()).optional(), // Weekly schedule
+  aiWorkoutData: z.object({
+    warmUpExercises: z.array(z.any()).optional(),
+    mainExercises: z.array(z.any()).optional(),
+    coolDownExercises: z.array(z.any()).optional(),
+    sessionData: z.record(z.any()).optional(),
+    enhancedProfile: z.object({
+      age: z.number().optional(),
+      gender: z.string().optional(),
+      healthConditions: z.array(z.string()).optional(),
+      specificFocus: z.string().optional(),
+    }).optional(),
+  }).optional(),
 });
 
 export const weeklyScheduleSchema = z.record(

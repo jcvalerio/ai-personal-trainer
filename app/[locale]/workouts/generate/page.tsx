@@ -54,10 +54,10 @@ import {
   useTemplateCategories,
   useCreatePlanFromTemplate,
 } from '@/hooks/queries/use-template-system-query';
-import { createWorkoutPlan } from '@/lib/api/workout-plans';
-import type { CustomPlanFormData } from '@/types/workouts';
+import { createWorkoutPlanFromAi } from '@/lib/api/workout-plans';
+import type { AiGeneratedWorkoutSession, EnhancedUserProfile } from '@/types/workouts';
 
-type GenerationStep = 'templates' | 'preferences' | 'generating' | 'review' | 'complete';
+type GenerationStep = 'templates' | 'profile' | 'preferences' | 'generating' | 'review' | 'complete';
 
 interface WorkoutPreferences {
   fitnessLevel: string;
@@ -69,6 +69,27 @@ interface WorkoutPreferences {
   preferences: string[];
   selectedTemplate?: string;
   useTemplate: boolean;
+}
+
+interface EnhancedProfile {
+  age?: number;
+  gender?: 'male' | 'female' | 'other' | 'prefer-not-to-say';
+  primaryGoalDetails?: string;
+  healthConditions?: string[];
+  specificFocus?: string;
+  experienceLevel?: {
+    overallMonths: number;
+    strengthTraining: 'never' | 'beginner' | 'some_experience' | 'experienced';
+    cardioTraining: 'never' | 'beginner' | 'some_experience' | 'experienced';
+    flexibility: 'never' | 'beginner' | 'some_experience' | 'experienced';
+  };
+  lifestyle?: {
+    activityLevel: 'sedentary' | 'lightly_active' | 'moderately_active' | 'very_active';
+    stressLevel: 'low' | 'moderate' | 'high';
+    sleepQuality: 'poor' | 'fair' | 'good' | 'excellent';
+    availableTime: 'very_limited' | 'limited' | 'moderate' | 'flexible';
+  };
+  enableEnhanced: boolean;
 }
 
 const fitnessGoalsDefs = [
@@ -311,6 +332,9 @@ export default function AIWorkoutGenerationPage() {
   const [generationError, setGenerationError] = useState<string>('');
   const [isSavingPlan, setIsSavingPlan] = useState(false);
   const [planSaveError, setPlanSaveError] = useState<string>('');
+  const [isEnhancingVideos, setIsEnhancingVideos] = useState(false);
+  const [videoEnhancementProgress, setVideoEnhancementProgress] = useState(0);
+  const [videoEnhancementError, setVideoEnhancementError] = useState<string>('');
   const [preferences, setPreferences] = useState<WorkoutPreferences>({
     fitnessLevel: '',
     goals: [],
@@ -321,6 +345,9 @@ export default function AIWorkoutGenerationPage() {
     preferences: [],
     selectedTemplate: undefined,
     useTemplate: false,
+  });
+  const [enhancedProfile, setEnhancedProfile] = useState<EnhancedProfile>({
+    enableEnhanced: false,
   });
 
   // React Query hooks
@@ -422,6 +449,15 @@ export default function AIWorkoutGenerationPage() {
           equipment: preferences.equipment,
           limitations: preferences.limitations,
           preferences: preferences.preferences,
+          // Add enhanced profile if enabled
+          ...(enhancedProfile.enableEnhanced && {
+            userProfile: {
+              age: enhancedProfile.age,
+              gender: enhancedProfile.gender,
+              healthConditions: enhancedProfile.healthConditions,
+              specificFocus: enhancedProfile.specificFocus,
+            }
+          }),
         }),
       });
 
@@ -443,6 +479,9 @@ export default function AIWorkoutGenerationPage() {
       await new Promise((resolve) => setTimeout(resolve, 500));
       setCurrentStep('review');
 
+      // Enhance exercises with real videos (background process)
+      enhanceWorkoutWithVideos(result.data);
+
     } catch (error) {
       console.error('Error generating workout:', error);
       setGenerationError(
@@ -456,6 +495,95 @@ export default function AIWorkoutGenerationPage() {
     }
   };
 
+  const enhanceWorkoutWithVideos = async (workout: GeneratedWorkout) => {
+    setIsEnhancingVideos(true);
+    setVideoEnhancementError('');
+    setVideoEnhancementProgress(0);
+
+    try {
+      // Prepare exercises for video enhancement
+      const allExercises = [
+        ...workout.warmUpExercises,
+        ...workout.mainExercises,
+        ...workout.coolDownExercises,
+      ].map(exercise => ({
+        name: exercise.name,
+        description: exercise.description,
+        instructions: exercise.instructions,
+        muscleGroups: exercise.muscleGroups,
+        equipment: exercise.equipment,
+        difficulty: exercise.difficulty as 'beginner' | 'intermediate' | 'advanced',
+      }));
+
+      // Progress simulation
+      setVideoEnhancementProgress(20);
+
+      const response = await fetch('/api/ai/enhance-videos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          exercises: allExercises,
+          userContext: {
+            fitnessLevel: preferences.fitnessLevel as 'beginner' | 'intermediate' | 'advanced',
+            language: 'en',
+            region: 'US',
+            preferences: preferences.goals,
+          },
+        }),
+      });
+
+      setVideoEnhancementProgress(70);
+
+      if (!response.ok) {
+        throw new Error('Failed to enhance videos');
+      }
+
+      const result = await response.json();
+      
+      if (!result.success || !result.data?.exercises) {
+        throw new Error('Invalid video enhancement response');
+      }
+
+      setVideoEnhancementProgress(90);
+
+      // Map enhanced exercises back to workout structure
+      const enhancedExercises = result.data.exercises;
+      let exerciseIndex = 0;
+
+      const enhancedWorkout = {
+        ...workout,
+        warmUpExercises: workout.warmUpExercises.map(exercise => ({
+          ...exercise,
+          videoUrls: enhancedExercises[exerciseIndex++]?.videoUrls || [],
+        })),
+        mainExercises: workout.mainExercises.map(exercise => ({
+          ...exercise,
+          videoUrls: enhancedExercises[exerciseIndex++]?.videoUrls || [],
+        })),
+        coolDownExercises: workout.coolDownExercises.map(exercise => ({
+          ...exercise,
+          videoUrls: enhancedExercises[exerciseIndex++]?.videoUrls || [],
+        })),
+      };
+
+      setVideoEnhancementProgress(100);
+      setGeneratedWorkout(enhancedWorkout);
+
+      console.log(`Video enhancement completed: ${result.data.enhancedCount}/${result.data.totalExercises} exercises enhanced`);
+    } catch (error) {
+      console.error('Error enhancing videos:', error);
+      setVideoEnhancementError(
+        error instanceof Error 
+          ? error.message 
+          : 'Failed to enhance videos. Videos will be loaded later.'
+      );
+    } finally {
+      setIsEnhancingVideos(false);
+    }
+  };
+
   const saveAsPlan = async () => {
     if (!generatedWorkout) return;
 
@@ -463,132 +591,29 @@ export default function AIWorkoutGenerationPage() {
     setPlanSaveError('');
 
     try {
-      // Convert generated workout to plan format
-      const planName = `${generatedWorkout.name} - Plan`;
-      const planDescription = generatedWorkout.description || 'AI-generated workout plan';
-      
-      // Create session template from the generated workout
-      const exerciseStructure = [
-        ...generatedWorkout.warmUpExercises.map((exercise: any) => ({
-          id: `exercise-${exercise.exerciseId}`,
-          exerciseId: exercise.exerciseId,
-          exerciseName: exercise.name,
-          exerciseType: 'strength' as const,
-          phase: 'warm_up' as const,
-          sets: exercise.plannedSets || 1,
-          repsMin: exercise.plannedReps || 0,
-          repsMax: exercise.plannedReps || 0,
-          restSeconds: exercise.plannedRestSeconds || 30,
-          durationSeconds: exercise.plannedDurationSeconds,
-          alternatives: []
-        })),
-        ...generatedWorkout.mainExercises.map((exercise: any) => ({
-          id: `exercise-${exercise.exerciseId}`,
-          exerciseId: exercise.exerciseId,
-          exerciseName: exercise.name,
-          exerciseType: 'strength' as const,
-          phase: 'main' as const,
-          sets: exercise.plannedSets || 3,
-          repsMin: exercise.plannedReps || 8,
-          repsMax: exercise.plannedReps || 12,
-          restSeconds: exercise.plannedRestSeconds || 60,
-          durationSeconds: exercise.plannedDurationSeconds,
-          alternatives: []
-        })),
-        ...generatedWorkout.coolDownExercises.map((exercise: any) => ({
-          id: `exercise-${exercise.exerciseId}`,
-          exerciseId: exercise.exerciseId,
-          exerciseName: exercise.name,
-          exerciseType: 'flexibility' as const,
-          phase: 'cool_down' as const,
-          sets: exercise.plannedSets || 1,
-          repsMin: exercise.plannedReps || 0,
-          repsMax: exercise.plannedReps || 0,
-          restSeconds: exercise.plannedRestSeconds || 15,
-          durationSeconds: exercise.plannedDurationSeconds,
-          alternatives: []
-        }))
-      ];
-
-      const sessionTemplate = {
-        id: `template-${Date.now()}`,
-        name: generatedWorkout.name,
-        description: generatedWorkout.description,
-        sessionType: generatedWorkout.sessionType as 'workout',
-        estimatedDuration: generatedWorkout.sessionData.estimatedDuration,
-        targetMuscleGroups: generatedWorkout.sessionData.targetMuscleGroups,
-        exerciseStructure,
-        difficulty: generatedWorkout.sessionData.difficultyLevel as 'intermediate',
-        equipmentRequired: generatedWorkout.sessionData.equipmentNeeded,
-      };
-
-      // Create the plan data structure
-      const planFormData: CustomPlanFormData = {
-        name: planName,
-        description: planDescription,
-        durationWeeks: Math.max(1, Math.ceil(preferences.daysPerWeek * 4 / 7)), // Estimate duration
-        sessionsPerWeek: preferences.daysPerWeek,
+      // Use the new AI workout plan creation function
+      const result = await createWorkoutPlanFromAi(generatedWorkout as AiGeneratedWorkoutSession, {
+        daysPerWeek: preferences.daysPerWeek,
         fitnessGoals: preferences.goals,
-        targetFitnessLevel: (preferences.fitnessLevel as 'beginner' | 'intermediate' | 'advanced') || 'intermediate',
-        estimatedSessionDuration: generatedWorkout.sessionData.estimatedDuration,
-        weeklySchedule: {
-          // Create a simple weekly schedule based on preferences
-          monday: preferences.daysPerWeek >= 1 ? [{
-            day: 'monday',
-            sessionName: generatedWorkout.name,
-            type: 'workout' as const,
-            duration: generatedWorkout.sessionData.estimatedDuration,
-          }] : [],
-          wednesday: preferences.daysPerWeek >= 2 ? [{
-            day: 'wednesday',
-            sessionName: generatedWorkout.name,
-            type: 'workout' as const,
-            duration: generatedWorkout.sessionData.estimatedDuration,
-          }] : [],
-          friday: preferences.daysPerWeek >= 3 ? [{
-            day: 'friday',
-            sessionName: generatedWorkout.name,
-            type: 'workout' as const,
-            duration: generatedWorkout.sessionData.estimatedDuration,
-          }] : [],
-          saturday: preferences.daysPerWeek >= 4 ? [{
-            day: 'saturday',
-            sessionName: generatedWorkout.name,
-            type: 'workout' as const,
-            duration: generatedWorkout.sessionData.estimatedDuration,
-          }] : [],
-          tuesday: preferences.daysPerWeek >= 5 ? [{
-            day: 'tuesday',
-            sessionName: generatedWorkout.name,
-            type: 'workout' as const,
-            duration: generatedWorkout.sessionData.estimatedDuration,
-          }] : [],
-          thursday: preferences.daysPerWeek >= 6 ? [{
-            day: 'thursday',
-            sessionName: generatedWorkout.name,
-            type: 'workout' as const,
-            duration: generatedWorkout.sessionData.estimatedDuration,
-          }] : [],
-          sunday: preferences.daysPerWeek >= 7 ? [{
-            day: 'sunday',
-            sessionName: generatedWorkout.name,
-            type: 'workout' as const,
-            duration: generatedWorkout.sessionData.estimatedDuration,
-          }] : [],
-        },
-        sessionTemplates: [sessionTemplate],
-        isTemplate: false,
-        isPublic: false,
-      };
-
-      const result = await createWorkoutPlan(planFormData);
+        durationWeeks: Math.max(1, Math.ceil(preferences.daysPerWeek * 4 / 7)), // Estimate duration
+        // Include enhanced profile data if available
+        ...(enhancedProfile.enableEnhanced && {
+          enhancedProfile: {
+            age: enhancedProfile.age,
+            gender: enhancedProfile.gender,
+            healthConditions: enhancedProfile.healthConditions,
+            specificFocus: enhancedProfile.specificFocus,
+          },
+          actualPromptUsed: `Enhanced AI workout generation for ${enhancedProfile.age ? `${enhancedProfile.age}-year-old ` : ''}${enhancedProfile.gender || 'individual'}${enhancedProfile.healthConditions?.length ? ` with ${enhancedProfile.healthConditions.join(', ')}` : ''}${enhancedProfile.specificFocus ? `. ${enhancedProfile.specificFocus}` : ''}`,
+        }),
+      });
 
       if (!result.success) {
         throw new Error(result.error || 'Failed to save workout plan');
       }
 
       // Show success message and redirect
-      alert(`Workout plan "${planName}" saved successfully!`);
+      alert(`Workout plan "${generatedWorkout.name}" saved successfully!`);
       
       // Optionally redirect to the plans page
       window.location.href = '/workouts';
@@ -664,6 +689,11 @@ export default function AIWorkoutGenerationPage() {
                 icon: BookOpen,
               },
               {
+                step: 'profile',
+                label: 'Profile',
+                icon: Users,
+              },
+              {
                 step: 'preferences',
                 label: t('steps.preferences'),
                 icon: Target,
@@ -679,6 +709,8 @@ export default function AIWorkoutGenerationPage() {
               const isActive = currentStep === step;
               const isCompleted =
                 (step === 'templates' &&
+                  ['profile', 'preferences', 'generating', 'review', 'complete'].includes(currentStep)) ||
+                (step === 'profile' &&
                   ['preferences', 'generating', 'review', 'complete'].includes(currentStep)) ||
                 (step === 'preferences' &&
                   ['generating', 'review', 'complete'].includes(currentStep)) ||
@@ -822,12 +854,203 @@ export default function AIWorkoutGenerationPage() {
             {/* Navigation */}
             <div className='flex justify-center'>
               <Button
-                onClick={() => setCurrentStep('preferences')}
+                onClick={() => setCurrentStep('profile')}
                 disabled={preferences.useTemplate && !preferences.selectedTemplate}
                 size='lg'
                 className='w-full sm:w-auto'
               >
-                {preferences.useTemplate ? 'Customize Template' : 'Set Preferences'}
+                {preferences.useTemplate ? 'Customize Template' : 'Continue Setup'}
+                <ChevronRight className='ml-2 h-4 w-4' />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Profile Step */}
+        {currentStep === 'profile' && (
+          <div className='space-y-8'>
+            <div className='mb-8 text-center'>
+              <h2 className='mb-2 text-2xl font-bold text-gray-900'>
+                Tell Us About Yourself
+              </h2>
+              <p className='text-gray-600'>
+                Help us create the perfect workout by sharing some details about yourself
+              </p>
+            </div>
+
+            {/* Enhanced Profile Toggle */}
+            <Card className='border-purple-200 bg-purple-50'>
+              <CardContent className='pt-6'>
+                <div className='flex items-start gap-4'>
+                  <div className='rounded-lg bg-purple-100 p-2'>
+                    <Sparkles className='h-6 w-6 text-purple-600' />
+                  </div>
+                  <div className='flex-1'>
+                    <h3 className='mb-2 font-semibold text-gray-900'>
+                      Enhanced AI Personalization
+                    </h3>
+                    <p className='mb-4 text-sm text-gray-600'>
+                      Share additional details about your health, experience, and lifestyle to get AI workouts 
+                      specifically tailored to your unique needs and conditions.
+                    </p>
+                    <div className='flex items-center gap-3'>
+                      <Button
+                        variant={enhancedProfile.enableEnhanced ? 'default' : 'outline'}
+                        size='sm'
+                        onClick={() => setEnhancedProfile(prev => ({ 
+                          ...prev, 
+                          enableEnhanced: !prev.enableEnhanced 
+                        }))}
+                      >
+                        {enhancedProfile.enableEnhanced ? 'Enhanced Mode' : 'Enable Enhanced'}
+                      </Button>
+                      <span className='text-xs text-gray-500'>
+                        {enhancedProfile.enableEnhanced ? 'Detailed profiling active' : 'Basic profiling'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Enhanced Profile Fields */}
+            {enhancedProfile.enableEnhanced && (
+              <div className='grid grid-cols-1 gap-6 lg:grid-cols-2'>
+                {/* Basic Demographics */}
+                <Card className='border-blue-200 bg-white shadow-md'>
+                  <CardHeader className='bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-lg'>
+                    <CardTitle className='flex items-center gap-2 text-blue-900'>
+                      <Users className='h-5 w-5 text-blue-600' />
+                      Demographics
+                    </CardTitle>
+                    <CardDescription className='text-blue-700'>
+                      Help us understand your background (optional)
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className='space-y-4 pt-6'>
+                    {/* Age */}
+                    <div>
+                      <label className='block text-sm font-medium text-slate-800 mb-2'>
+                        Age
+                      </label>
+                      <input
+                        type='number'
+                        placeholder='e.g., 35'
+                        min='13'
+                        max='100'
+                        value={enhancedProfile.age || ''}
+                        onChange={(e) => setEnhancedProfile(prev => ({
+                          ...prev,
+                          age: e.target.value ? parseInt(e.target.value) : undefined
+                        }))}
+                        className='w-full rounded-lg border-2 border-blue-200 px-3 py-3 text-sm bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors'
+                      />
+                    </div>
+
+                    {/* Gender */}
+                    <div>
+                      <label className='block text-sm font-medium text-slate-800 mb-2'>
+                        Gender
+                      </label>
+                      <select
+                        value={enhancedProfile.gender || ''}
+                        onChange={(e) => setEnhancedProfile(prev => ({
+                          ...prev,
+                          gender: e.target.value as typeof enhancedProfile.gender
+                        }))}
+                        className='w-full rounded-lg border-2 border-blue-200 px-3 py-3 text-sm bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-colors'
+                      >
+                        <option value=''>Select gender</option>
+                        <option value='female'>Female</option>
+                        <option value='male'>Male</option>
+                        <option value='other'>Other</option>
+                        <option value='prefer-not-to-say'>Prefer not to say</option>
+                      </select>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Health & Focus */}
+                <Card className='border-green-200 bg-white shadow-md'>
+                  <CardHeader className='bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg'>
+                    <CardTitle className='flex items-center gap-2 text-green-900'>
+                      <AlertCircle className='h-5 w-5 text-green-600' />
+                      Health & Focus
+                    </CardTitle>
+                    <CardDescription className='text-green-700'>
+                      Any specific conditions or areas of focus
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className='space-y-4 pt-6'>
+                    {/* Health Conditions */}
+                    <div>
+                      <label className='block text-sm font-medium text-slate-800 mb-3'>
+                        Health Conditions
+                      </label>
+                      <div className='grid grid-cols-1 gap-3'>
+                        {['Sarcopenia', 'Diabetes', 'Arthritis', 'Osteoporosis', 'Heart condition', 'Back issues'].map(condition => (
+                          <label key={condition} className='flex items-center space-x-3 text-sm p-2 rounded-lg hover:bg-green-50 transition-colors cursor-pointer'>
+                            <input
+                              type='checkbox'
+                              checked={enhancedProfile.healthConditions?.includes(condition) || false}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setEnhancedProfile(prev => ({
+                                    ...prev,
+                                    healthConditions: [...(prev.healthConditions || []), condition]
+                                  }));
+                                } else {
+                                  setEnhancedProfile(prev => ({
+                                    ...prev,
+                                    healthConditions: prev.healthConditions?.filter(c => c !== condition)
+                                  }));
+                                }
+                              }}
+                              className='rounded border-2 border-green-300 text-green-600 focus:ring-green-500 w-4 h-4'
+                            />
+                            <span className='text-slate-700 font-medium'>{condition}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Specific Focus */}
+                    <div>
+                      <label className='block text-sm font-medium text-slate-800 mb-2'>
+                        Specific Focus
+                      </label>
+                      <textarea
+                        placeholder='e.g., "Focus on building muscle mass to combat sarcopenia" or "Need low-impact exercises for joint health"'
+                        value={enhancedProfile.specificFocus || ''}
+                        onChange={(e) => setEnhancedProfile(prev => ({
+                          ...prev,
+                          specificFocus: e.target.value
+                        }))}
+                        rows={3}
+                        className='w-full rounded-lg border-2 border-green-200 px-3 py-3 text-sm bg-white focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-colors resize-none'
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* Navigation */}
+            <div className='flex justify-center gap-4'>
+              <Button
+                variant='outline'
+                onClick={() => setCurrentStep('templates')}
+                size='lg'
+              >
+                <ArrowLeft className='mr-2 h-4 w-4' />
+                Back
+              </Button>
+              <Button
+                onClick={() => setCurrentStep('preferences')}
+                size='lg'
+                className='w-full sm:w-auto'
+              >
+                Continue to Preferences
                 <ChevronRight className='ml-2 h-4 w-4' />
               </Button>
             </div>
@@ -1086,6 +1309,37 @@ export default function AIWorkoutGenerationPage() {
               <p className='text-gray-600'>
                 Review your personalized workout and make any adjustments.
               </p>
+              
+              {/* Video Enhancement Progress */}
+              {isEnhancingVideos && (
+                <div className='mx-auto max-w-md rounded-lg bg-blue-50 p-4'>
+                  <div className='flex items-center gap-3'>
+                    <Loader2 className='h-5 w-5 animate-spin text-blue-600' />
+                    <div className='flex-1'>
+                      <p className='text-sm font-medium text-blue-900'>
+                        Enhancing exercises with video tutorials...
+                      </p>
+                      <Progress value={videoEnhancementProgress} className='mt-1' />
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {videoEnhancementError && (
+                <div className='mx-auto max-w-md rounded-lg bg-orange-50 p-4'>
+                  <div className='flex items-start gap-3'>
+                    <AlertCircle className='h-5 w-5 text-orange-600' />
+                    <div className='flex-1'>
+                      <p className='text-sm font-medium text-orange-900'>
+                        Video Enhancement Notice
+                      </p>
+                      <p className='text-sm text-orange-700'>
+                        {videoEnhancementError}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Generated Workout */}
