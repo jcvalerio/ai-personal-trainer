@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum FitnessLevel {
+  beginner
+  intermediate
+  advanced
+}
+
+enum WorkoutStatus {
+  draft
+  active
+  completed
+  paused
+  archived
+}
+
+enum SessionType {
+  workout
+  assessment
+  recovery
+}
+
+model User {
+  id            String   @id @default(uuid())
+  clerkUserId   String   @unique
+  email         String   @unique
+  displayName   String
+  locale        String   @default("en")
+  units         String   @default("metric")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  workoutPlans  WorkoutPlan[]
+  workoutSesions WorkoutSession[]
+}
+
+model WorkoutPlan {
+  id                      String        @id @default(uuid())
+  userId                  String
+  user                    User          @relation(fields: [userId], references: [id])
+  name                    String
+  description             String?
+  durationWeeks           Int
+  sessionsPerWeek         Int
+  primaryGoals            String[]
+  secondaryGoals          String[]
+  targetFitnessLevel      FitnessLevel  @default(beginner)
+  difficulty              FitnessLevel  @default(beginner)
+  estimatedSessionDuration Int?
+  macrocycle              Json
+  mesocycles              Json
+  microcycles             Json
+  workoutTemplates        Json
+  schedule                Json
+  progressionRules        Json?
+  aiMetadata              Json?
+  status                  WorkoutStatus @default(draft)
+  startedAt               DateTime?
+  completedAt             DateTime?
+  version                 Int           @default(1)
+  parentPlanId            String?
+  isTemplate              Boolean       @default(false)
+  templateCategory        String?
+  isPublic                Boolean       @default(false)
+  locale                  String        @default("en")
+  units                   String        @default("metric")
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
+  workoutSessions         WorkoutSession[]
+}
+
+model WorkoutSession {
+  id                String       @id @default(uuid())
+  userId            String
+  user              User         @relation(fields: [userId], references: [id])
+  workoutPlanId     String?
+  workoutPlan       WorkoutPlan? @relation(fields: [workoutPlanId], references: [id])
+  name              String
+  sessionType       SessionType  @default(workout)
+  scheduledDate     DateTime
+  scheduledTime     DateTime?
+  scheduledDuration Int?
+  sessionData       Json
+  warmUpExercises   Json
+  mainExercises     Json
+  coolDownExercises Json
+  status            WorkoutStatus @default(draft)
+  completionPercentage Int        @default(0)
+  effortRating      Int?
+  energyLevelBefore Int?
+  energyLevelAfter  Int?
+  notes             String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}
