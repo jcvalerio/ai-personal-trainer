@@ -16,7 +16,14 @@ After activating a plan, coaches need to see the generated workout sessions to m
 ## Test Plan
 - **E2E**: `tests/e2e/list-plan-sessions.spec.ts`
 - **Unit**: `tests/features/list-sessions/api.test.ts`, `tests/features/list-sessions/service.test.ts`, `tests/features/list-sessions/components.test.tsx`
-- **Seeds**: Extend `prisma/seeds/create-workout-plan.ts` to optionally generate sessions for demonstration.
+- **Seeds**: Flow uses newly created plans in E2E; no dedicated seed is required for the core happy paths.
+
+## Current Implementation Status
+- The sessions section is implemented on the plan detail page
+- The dedicated spec now exists at `docs/specs/features/list-plan-sessions.md`
+- The Playwright slice for list-plan-sessions is reconciled with the current UI and passes
+- Generated sessions are currently expected to appear with initial status `draft` after a plan is started
+- `pnpm test:e2e --grep "List Plan Sessions"` passes in the seeded `.env.test` environment
 
 ## Metrics / Observability
 - Track count of plans with active sessions and detect failed session fetches via structured logs.

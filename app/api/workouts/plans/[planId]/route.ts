@@ -3,13 +3,11 @@ import { workoutPlanService } from '@/lib/services/workout-plan-service';
 import { requireUser } from '@/lib/utils/auth';
 import { success, failure } from '@/lib/utils/api-response';
 
-type RouteParams = Promise<{ planId: string }> | { planId: string };
-
-export async function GET(req: NextRequest, context: { params: RouteParams }) {
+export async function GET(req: NextRequest, context: { params: Promise<{ planId: string }> }) {
   try {
     const userId = requireUser(req);
-    const resolvedParams = 'then' in context.params ? await context.params : context.params;
-    const plan = await workoutPlanService.getPlan(userId, resolvedParams.planId);
+    const { planId } = await context.params;
+    const plan = await workoutPlanService.getPlan(userId, planId);
 
     if (!plan) {
       return failure('Workout plan not found', 'NOT_FOUND', 404);

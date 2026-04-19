@@ -43,7 +43,7 @@ async function neonRequest<T>(path: string, init: RequestInit): Promise<T> {
 async function createBranchRecord(name: string) {
   const projectId = requireEnv('NEON_PROJECT_ID');
   const parentBranchId = process.env.NEON_PARENT_BRANCH_ID;
-  const branchBody: Record<string, unknown> = { branch: { name } };
+  const branchBody: { branch: { name: string; parent_id?: string } } = { branch: { name } };
 
   if (parentBranchId) {
     branchBody.branch = { ...branchBody.branch, parent_id: parentBranchId };

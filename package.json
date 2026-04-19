@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest --run",
-    "test:e2e": "playwright test --config playwright.config.ts"
+    "test:e2e": "playwright test --config playwright.config.ts",
+    "test:scenarios": "playwright test --config playwright.scenarios.config.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

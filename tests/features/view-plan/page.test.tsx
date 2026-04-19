@@ -14,7 +14,7 @@ describe('WorkoutPlanDetailPage', () => {
       '@/app/(dashboard)/workouts/plans/[planId]/page'
     );
 
-    const ui = await PlanDetailPage({ params: { planId: 'plan-abc' } });
+    const ui = await PlanDetailPage({ params: Promise.resolve({ planId: 'plan-abc' }) });
     render(ui);
 
     expect(screen.getByTestId('plan-detail')).toHaveAttribute('data-plan-id', 'plan-abc');

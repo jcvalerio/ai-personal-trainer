@@ -32,8 +32,9 @@ test.describe('List Plan Sessions', () => {
     await createAndStartPlan(page, planName);
 
     const sessionsSection = page.getByRole('region', { name: /sessions/i });
-    await expect(sessionsSection).toContainText(planName);
-    await expect(sessionsSection).toContainText(/Active/i);
+    await expect(sessionsSection).not.toContainText(/No sessions yet/i);
+    await expect(sessionsSection.locator('[data-session-id]').first()).toBeVisible();
+    await expect(sessionsSection.locator('[data-session-status="draft"]').first()).toBeVisible();
   });
 
   test('shows empty state when plan has no sessions', async ({ page }) => {

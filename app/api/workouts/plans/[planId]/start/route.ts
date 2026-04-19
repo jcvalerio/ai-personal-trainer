@@ -8,14 +8,12 @@ const startSchema = z.object({
   startDate: z.string().datetime().optional(),
 });
 
-type RouteParams = Promise<{ planId: string }> | { planId: string };
-
-export async function POST(req: NextRequest, context: { params: RouteParams }) {
+export async function POST(req: NextRequest, context: { params: Promise<{ planId: string }> }) {
   try {
     const userId = requireUser(req);
     const body = startSchema.parse(await req.json().catch(() => ({})));
-    const resolvedParams = 'then' in context.params ? await context.params : context.params;
-    const plan = await workoutPlanService.startPlan(userId, resolvedParams.planId, body);
+    const { planId } = await context.params;
+    const plan = await workoutPlanService.startPlan(userId, planId, body);
     if (!plan) {
       return failure('Workout plan not found', 'NOT_FOUND', 404);
     }

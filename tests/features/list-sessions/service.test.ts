@@ -76,6 +76,11 @@ describe('WorkoutPlanService.listSessions', () => {
 
     const result = await workoutPlanService.listSessions(userId, planId);
 
+    expect(result).not.toBeNull();
+    if (!result) {
+      throw new Error('Expected sessions to be returned');
+    }
+
     expect(mockWorkoutPlan.findFirst).toHaveBeenCalledWith({
       where: { id: planId, userId },
     });

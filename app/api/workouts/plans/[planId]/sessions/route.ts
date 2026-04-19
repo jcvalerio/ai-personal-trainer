@@ -3,16 +3,13 @@ import { workoutPlanService } from '@/lib/services/workout-plan-service';
 import { success, failure } from '@/lib/utils/api-response';
 import { requireUser } from '@/lib/utils/auth';
 import { z } from 'zod';
+import { CreateWorkoutSessionSchema } from '@/lib/shared/types';
 
-const createSessionSchema = z.object({}).passthrough();
-
-type RouteParams = Promise<{ planId: string }> | { planId: string };
-
-export async function GET(req: NextRequest, context: { params: RouteParams }) {
+export async function GET(req: NextRequest, context: { params: Promise<{ planId: string }> }) {
   try {
     const userId = requireUser(req);
-    const resolvedParams = 'then' in context.params ? await context.params : context.params;
-    const sessions = await workoutPlanService.listSessions(userId, resolvedParams.planId);
+    const { planId } = await context.params;
+    const sessions = await workoutPlanService.listSessions(userId, planId);
     if (sessions === null) {
       return failure('Workout plan not found', 'NOT_FOUND', 404);
     }
@@ -26,12 +23,12 @@ export async function GET(req: NextRequest, context: { params: RouteParams }) {
   }
 }
 
-export async function POST(req: NextRequest, context: { params: RouteParams }) {
+export async function POST(req: NextRequest, context: { params: Promise<{ planId: string }> }) {
   try {
     const userId = requireUser(req);
-    const body = createSessionSchema.parse(await req.json());
-    const resolvedParams = 'then' in context.params ? await context.params : context.params;
-    const session = await workoutPlanService.createSession(userId, resolvedParams.planId, body);
+    const body = CreateWorkoutSessionSchema.parse(await req.json());
+    const { planId } = await context.params;
+    const session = await workoutPlanService.createSession(userId, planId, body);
     return success({ workoutSession: session }, 201);
   } catch (error) {
     if (error instanceof Error && error.message === 'UNAUTHENTICATED') {

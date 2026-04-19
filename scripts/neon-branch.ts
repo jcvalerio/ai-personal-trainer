@@ -44,7 +44,7 @@ async function createBranch(name: string): Promise<NeonBranchResult> {
   const projectId = requireEnv('NEON_PROJECT_ID');
   const parentBranchId = process.env.NEON_PARENT_BRANCH_ID;
   const databaseName = process.env.NEON_BRANCH_DATABASE ?? `db_${name}`;
-  const branchBody: Record<string, unknown> = {
+  const branchBody: { branch: { name: string; parent_id?: string } } = {
     branch: {
       name,
     },

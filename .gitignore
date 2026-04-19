@@ -173,6 +173,7 @@ jspm_packages/
 # Playwright
 /.playwright-mcp/
 /test-results/
+/test-results-scenarios
 /playwright-report/
 /playwright/.cache/
 # clerk configuration (can include secrets)

@@ -216,6 +216,7 @@ export const UpdateWorkoutPlanSchema = BaseCreateWorkoutPlanSchema.partial();
 
 export const SessionExerciseSchema = z.object({
   exerciseId: UUIDSchema,
+  exerciseName: z.string().optional(),
   orderIndex: z.number().int().min(0),
   exercisePhase: z.enum(['warm_up', 'main', 'cool_down']).default('main'),
   plannedSets: z.number().int().positive().optional(),
@@ -223,7 +224,23 @@ export const SessionExerciseSchema = z.object({
   plannedWeightKg: z.number().positive().optional(),
   plannedDurationSeconds: z.number().positive().optional(),
   plannedRestSeconds: z.number().int().positive().optional(),
+  actualSets: z.number().int().nonnegative().optional(),
+  actualReps: z.number().int().nonnegative().optional(),
+  actualWeightKg: z.number().positive().optional(),
+  actualDurationSeconds: z.number().positive().optional(),
+  isCompleted: z.boolean().default(false),
+  exerciseNotes: z.string().optional(),
   equipmentAlternatives: z.array(z.string()).optional(),
+});
+
+export const UpdateSessionExerciseSchema = z.object({
+  exerciseId: UUIDSchema,
+  actualSets: z.number().int().nonnegative().optional(),
+  actualReps: z.number().int().nonnegative().optional(),
+  actualWeightKg: z.number().positive().optional(),
+  actualDurationSeconds: z.number().positive().optional(),
+  isCompleted: z.boolean(),
+  exerciseNotes: z.string().optional(),
 });
 
 export const SessionDataSchema = z.object({
@@ -260,6 +277,8 @@ export const WorkoutSessionSchema = z.object({
 
 export const CreateWorkoutSessionSchema = WorkoutSessionSchema.omit({
   id: true,
+  userId: true,
+  workoutPlanId: true,
   createdAt: true,
   updatedAt: true,
   completionPercentage: true,
@@ -270,13 +289,24 @@ export const CreateWorkoutSessionSchema = WorkoutSessionSchema.omit({
 
 export const UpdateWorkoutSessionSchema = CreateWorkoutSessionSchema.partial();
 
-export type Macrocycle = z.infer<typeof MacrocycleSchema>;
-export type Mesocycle = z.infer<typeof MesocycleSchema>;
-export type Microcycle = z.infer<typeof MicrocycleSchema>;
-export type WorkoutTemplate = z.infer<typeof WorkoutTemplateSchema>;
-export type WorkoutPlan = z.infer<typeof WorkoutPlanSchema>;
-export type CreateWorkoutPlan = z.infer<typeof CreateWorkoutPlanSchema>;
-export type UpdateWorkoutPlan = z.infer<typeof UpdateWorkoutPlanSchema>;
-export type WorkoutSession = z.infer<typeof WorkoutSessionSchema>;
-export type CreateWorkoutSession = z.infer<typeof CreateWorkoutSessionSchema>;
-export type UpdateWorkoutSession = z.infer<typeof UpdateWorkoutSessionSchema>;
+export const UpdateSessionProgressSchema = z.object({
+  warmUpExercises: z.array(UpdateSessionExerciseSchema).optional(),
+  mainExercises: z.array(UpdateSessionExerciseSchema).optional(),
+  coolDownExercises: z.array(UpdateSessionExerciseSchema).optional(),
+  completionPercentage: z.number().int().min(0).max(100).optional(),
+  notes: z.string().optional(),
+});
+
+export type Macrocycle = z.output<typeof MacrocycleSchema>;
+export type Mesocycle = z.output<typeof MesocycleSchema>;
+export type Microcycle = z.output<typeof MicrocycleSchema>;
+export type WorkoutTemplate = z.output<typeof WorkoutTemplateSchema>;
+export type WorkoutPlan = z.output<typeof WorkoutPlanSchema>;
+export type CreateWorkoutPlan = z.input<typeof CreateWorkoutPlanSchema>;
+export type UpdateWorkoutPlan = z.input<typeof UpdateWorkoutPlanSchema>;
+export type SessionExercise = z.output<typeof SessionExerciseSchema>;
+export type UpdateSessionExercise = z.input<typeof UpdateSessionExerciseSchema>;
+export type WorkoutSession = z.output<typeof WorkoutSessionSchema>;
+export type CreateWorkoutSession = z.input<typeof CreateWorkoutSessionSchema>;
+export type UpdateWorkoutSession = z.input<typeof UpdateWorkoutSessionSchema>;
+export type UpdateSessionProgress = z.input<typeof UpdateSessionProgressSchema>;

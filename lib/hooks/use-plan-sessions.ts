@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, UseQueryOptions } from '@tanstack/react-query';
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
 import type { WorkoutSession } from '@/lib/shared/types';
 
 async function fetchPlanSessions(planId: string): Promise<WorkoutSession[] | null> {
@@ -25,11 +25,16 @@ async function fetchPlanSessions(planId: string): Promise<WorkoutSession[] | nul
   return payload.data.sessions as WorkoutSession[];
 }
 
+type PlanSessionsQueryOptions = Omit<
+  UseQueryOptions<WorkoutSession[] | null, Error, WorkoutSession[] | null, ['workout-plan-sessions', string]>,
+  'queryKey' | 'queryFn'
+>;
+
 export function usePlanSessions(
   planId: string,
-  options?: UseQueryOptions<WorkoutSession[] | null, Error>
+  options?: PlanSessionsQueryOptions
 ) {
-  return useQuery<WorkoutSession[] | null, Error>({
+  return useQuery<WorkoutSession[] | null, Error, WorkoutSession[] | null, ['workout-plan-sessions', string]>({
     queryKey: ['workout-plan-sessions', planId],
     queryFn: () => fetchPlanSessions(planId),
     ...options,

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { WorkoutPlan, WorkoutTemplate } from '@/lib/shared/types';
 import { useWorkoutPlan } from '@/lib/hooks/use-workout-plan';
@@ -79,18 +80,24 @@ export function PlanDetailView({ plan, headerActions, banner, sessionsContent }:
           <p className="mt-2 text-sm text-slate-500">{description}</p>
           <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-500">
             <span className="font-semibold text-slate-700">{plan.durationWeeks} weeks</span>
-            <span aria-hidden="true" className="text-slate-300">
-              •
-            </span>
+            <span aria-hidden="true" className="text-slate-300">•</span>
             <span className="font-semibold text-slate-700">{plan.sessionsPerWeek} sessions / week</span>
             {plan.estimatedSessionDuration ? (
               <>
-                <span aria-hidden="true" className="text-slate-300">
-                  •
-                </span>
+                <span aria-hidden="true" className="text-slate-300">•</span>
                 <span className="font-semibold text-slate-700">~{plan.estimatedSessionDuration} min per session</span>
               </>
             ) : null}
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+            {plan.primaryGoals.length > 0 ? (
+              <span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold capitalize text-emerald-700">
+                {plan.primaryGoals[0]}
+              </span>
+            ) : null}
+            <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold capitalize text-slate-600">
+              {plan.difficulty}
+            </span>
           </div>
         </div>
         <div className="flex flex-col items-end gap-3">
@@ -380,15 +387,25 @@ export function PlanDetailScreen({ planId }: { planId: string }) {
             return (
               <li
                 key={session.id}
-                className="flex items-center justify-between gap-4 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-xs"
+                data-session-id={session.id}
+                data-session-status={session.status}
+                className="rounded-lg border border-slate-200 bg-white shadow-xs transition hover:-translate-y-0.5 hover:shadow-medium"
               >
-                <div className="flex flex-col">
-                  <span className="text-sm font-semibold text-slate-900">{session.name}</span>
-                  <span className="text-xs text-slate-500">{scheduledDate}</span>
-                </div>
-                <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
-                  {formatStatus(session.status)}
-                </span>
+                <Link
+                  href={`/workouts/sessions/${session.id}`}
+                  className="flex items-center justify-between gap-4 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                >
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-slate-900">{session.name}</span>
+                    <span className="text-xs text-slate-500">{scheduledDate}</span>
+                    {session.status !== 'draft' ? (
+                      <span className="mt-1 text-xs text-slate-500">{session.completionPercentage}% complete</span>
+                    ) : null}
+                  </div>
+                  <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                    {formatStatus(session.status)}
+                  </span>
+                </Link>
               </li>
             );
           })}

@@ -10,9 +10,9 @@ const TEMPLATE_ID = '33333333-4444-5555-6666-777777777777';
 const demoPlan: WorkoutPlan = {
   id: '22222222-3333-4444-5555-666666666666',
   userId: '11111111-2222-3333-4444-555555555555',
-  organizationId: null,
+  organizationId: undefined,
   name: 'Sedentary Strength Builder',
-  description: null,
+  description: undefined,
   durationWeeks: 4,
   sessionsPerWeek: 3,
   primaryGoals: ['strength'],
@@ -99,7 +99,7 @@ const demoPlan: WorkoutPlan = {
   ],
   schedule: {
     startDate: '2025-01-01T00:00:00.000Z',
-    endDate: null,
+    endDate: undefined,
     timeZone: 'UTC',
     weeklySchedule: {
       monday: {
@@ -138,12 +138,12 @@ const demoPlan: WorkoutPlan = {
   progressionRules: { progression: 'linear' },
   aiMetadata: { source: 'seed' },
   status: 'draft',
-  startedAt: null,
-  completedAt: null,
+  startedAt: undefined,
+  completedAt: undefined,
   version: 1,
-  parentPlanId: null,
+  parentPlanId: undefined,
   isTemplate: false,
-  templateCategory: null,
+  templateCategory: undefined,
   isPublic: false,
   locale: 'en',
   units: 'metric',

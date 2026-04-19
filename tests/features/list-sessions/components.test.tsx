@@ -21,9 +21,9 @@ const mockUsePlanSessions = vi.mocked(usePlanSessions);
 const basePlan = {
   id: 'plan-123',
   userId: 'user-123',
-  organizationId: null,
+  organizationId: undefined,
   name: 'Sedentary Strength Builder',
-  description: null,
+  description: undefined,
   durationWeeks: 4,
   sessionsPerWeek: 3,
   primaryGoals: ['strength'],
@@ -50,11 +50,11 @@ const basePlan = {
   aiMetadata: {},
   status: 'draft',
   startedAt: new Date().toISOString(),
-  completedAt: null,
+  completedAt: undefined,
   version: 1,
-  parentPlanId: null,
+  parentPlanId: undefined,
   isTemplate: false,
-  templateCategory: null,
+  templateCategory: undefined,
   isPublic: false,
   locale: 'en',
   units: 'metric',
@@ -69,19 +69,35 @@ describe('PlanDetailScreen sessions list', () => {
   });
 
   it('renders upcoming sessions when available', () => {
-    mockUseWorkoutPlan.mockReturnValue({ data: { ...basePlan, status: 'active' as const }, isLoading: false, error: null });
+    mockUseWorkoutPlan.mockReturnValue({ data: { ...basePlan, status: 'active' as const }, isLoading: false, error: null } as any);
     mockUsePlanSessions.mockReturnValue({
       data: [
         {
           id: 'session-1',
+          userId: basePlan.userId,
+          workoutPlanId: basePlan.id,
           name: 'Full Body Primer',
+          sessionType: 'workout',
           scheduledDate: '2025-01-08T10:00:00.000Z',
+          sessionData: {
+            totalExercises: 0,
+            estimatedDuration: 60,
+            targetMuscleGroups: [],
+            equipmentNeeded: [],
+            difficultyLevel: 'beginner',
+          },
+          warmUpExercises: [],
+          mainExercises: [],
+          coolDownExercises: [],
           status: 'draft',
+          completionPercentage: 0,
+          createdAt: '2025-01-08T10:00:00.000Z',
+          updatedAt: '2025-01-08T10:00:00.000Z',
         },
       ],
       isLoading: false,
       error: null,
-    });
+    } as any);
 
     renderWithQueryClient(<PlanDetailScreen planId={basePlan.id} />);
 
@@ -92,8 +108,8 @@ describe('PlanDetailScreen sessions list', () => {
   });
 
   it('shows an empty state when no sessions exist', async () => {
-    mockUseWorkoutPlan.mockReturnValue({ data: { ...basePlan, status: 'active' as const }, isLoading: false, error: null });
-    mockUsePlanSessions.mockReturnValue({ data: [], isLoading: false, error: null });
+    mockUseWorkoutPlan.mockReturnValue({ data: { ...basePlan, status: 'active' as const }, isLoading: false, error: null } as any);
+    mockUsePlanSessions.mockReturnValue({ data: [], isLoading: false, error: null } as any);
 
     renderWithQueryClient(<PlanDetailScreen planId={basePlan.id} />);
 

@@ -29,7 +29,7 @@ describe('GET /api/workouts/plans/:planId', () => {
     mockGetPlan.mockResolvedValue({ id: planId, name: 'Demo Plan' });
 
     const request = buildRequest({ 'x-user-id': userId });
-    const response = await GET(request, { params: { planId } });
+    const response = await GET(request, { params: Promise.resolve({ planId }) });
 
     expect(response.status).toBe(200);
     const payload = await response.json();
@@ -42,7 +42,7 @@ describe('GET /api/workouts/plans/:planId', () => {
     mockGetPlan.mockResolvedValue(null);
 
     const request = buildRequest({ 'x-user-id': userId });
-    const response = await GET(request, { params: { planId } });
+    const response = await GET(request, { params: Promise.resolve({ planId }) });
 
     expect(response.status).toBe(404);
     const payload = await response.json();
@@ -51,7 +51,7 @@ describe('GET /api/workouts/plans/:planId', () => {
 
   it('returns 401 when user header missing', async () => {
     const request = buildRequest();
-    const response = await GET(request, { params: { planId } });
+    const response = await GET(request, { params: Promise.resolve({ planId }) });
 
     expect(response.status).toBe(401);
   });
