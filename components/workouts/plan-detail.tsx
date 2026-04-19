@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { WorkoutPlan, WorkoutTemplate } from '@/lib/shared/types';
 import { useWorkoutPlan } from '@/lib/hooks/use-workout-plan';
 import { usePlanSessions } from '@/lib/hooks/use-plan-sessions';
+import { StartPlanConfirmationDialog } from './start-plan-confirmation-dialog';
 
 const DAY_LABELS: Array<{ key: keyof WorkoutPlan['schedule']['weeklySchedule']; label: string }> = [
   { key: 'monday', label: 'Monday' },
@@ -243,6 +244,7 @@ export function PlanDetailScreen({ planId }: { planId: string }) {
   const { data, isLoading, error } = useWorkoutPlan(planId);
   const queryClient = useQueryClient();
   const [flash, setFlash] = useState<{ variant: 'success' | 'error'; message: string } | null>(null);
+  const [showStartPlanDialog, setShowStartPlanDialog] = useState(false);
   const userId = process.env.NEXT_PUBLIC_E2E_USER_ID ?? '11111111-2222-3333-4444-555555555555';
 
   const {
@@ -275,9 +277,11 @@ export function PlanDetailScreen({ planId }: { planId: string }) {
       queryClient.setQueryData(['workout-plan', planId], updatedPlan);
       queryClient.invalidateQueries({ queryKey: ['workout-plans'] });
       queryClient.invalidateQueries({ queryKey: ['workout-plan-sessions', planId] });
+      setShowStartPlanDialog(false);
       setFlash({ variant: 'success', message: `Plan ${updatedPlan.name} is now active.` });
     },
     onError: (err: unknown) => {
+      setShowStartPlanDialog(false);
       setFlash({
         variant: 'error',
         message: err instanceof Error ? err.message : 'Failed to start plan',
@@ -288,6 +292,14 @@ export function PlanDetailScreen({ planId }: { planId: string }) {
   const handleStartPlan = () => {
     setFlash(null);
     startMutation.mutate();
+  };
+
+  const handleCancelStartPlan = () => {
+    if (startMutation.isPending) {
+      return;
+    }
+
+    setShowStartPlanDialog(false);
   };
 
   if (isLoading) {
@@ -346,11 +358,11 @@ export function PlanDetailScreen({ planId }: { planId: string }) {
     ? (
         <button
           type="button"
-          onClick={handleStartPlan}
+          onClick={() => setShowStartPlanDialog(true)}
           className="w-full rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           disabled={startMutation.isPending}
         >
-          {startMutation.isPending ? 'Starting…' : 'Start plan'}
+          Start plan
         </button>
       )
     : null;
@@ -415,11 +427,21 @@ export function PlanDetailScreen({ planId }: { planId: string }) {
   }
 
   return (
-    <PlanDetailView
-      plan={data}
-      headerActions={headerActions}
-      banner={banner}
-      sessionsContent={sessionsContent}
-    />
+    <>
+      <PlanDetailView
+        plan={data}
+        headerActions={headerActions}
+        banner={banner}
+        sessionsContent={sessionsContent}
+      />
+      {showStartPlanDialog ? (
+        <StartPlanConfirmationDialog
+          planName={data.name}
+          isPending={startMutation.isPending}
+          onCancel={handleCancelStartPlan}
+          onConfirm={handleStartPlan}
+        />
+      ) : null}
+    </>
   );
 }

@@ -47,7 +47,7 @@ Documentation for emitted events and captured fields lives in `docs/process/obse
 | List workout plans | `docs/specs/features/list-workout-plans.md` | Implemented and mobile-validated | Dashboard page and list UI exist. Header/actions, card stacking, and the create-plan dialog were revalidated on a 375px viewport. Base list behavior is separated from follow-up discovery controls. |
 | Filter workout plans | `docs/specs/features/filter-workout-plans.md` | Implemented and verified | The dashboard now exposes `status` and `search` controls using the existing API/service/hook support. Targeted component tests and the Playwright slice both pass, and the plans list API now logs filter usage plus zero-result requests. |
 | View workout plan detail | `docs/specs/features/view-workout-plan.md` | Implemented and mobile-validated | Detail page exists and now builds cleanly. Header, schedule, sessions block, and template cards were revalidated on a 375px viewport. |
-| Start workout plan | `docs/specs/features/start-workout-plan.md` | Implemented | Start action and session generation exist and build cleanly. |
+| Start workout plan | `docs/specs/features/start-workout-plan.md` | Implemented and verified | Draft plans now require a confirmation dialog before activation, then preserve the existing success/error flow and session refresh. |
 | List plan sessions | `docs/specs/features/list-plan-sessions.md` | Implemented and verified | Sessions render on the plan detail page, the dedicated spec now exists, and the Playwright slice passes. |
 | Create workout plan via UI | `docs/specs/features/create-workout-plan-via-ui.md` | Implemented and verified | Dialog flow works with the current minimal form, and the Playwright slice now matches the real UI behavior. |
 | Session management | `docs/specs/features/session-management.md` | Implemented, verified, and mobile-validated | Shared contracts, progress endpoint, lifecycle checks, status/completion UI, dedicated unit tests, and Playwright coverage are all in place. Session detail, in-session editing controls, and the completion dialog were revalidated on a 375px viewport with no horizontal overflow. |
@@ -95,7 +95,7 @@ This is the best leverage-to-risk tradeoff after the currently verified flows:
 
 ### Tradeoffs considered
 
-- **Start-plan confirmation** would be smaller, but it is a narrow compliance/polish fix rather than a discovery improvement across the main dashboard flow.
+- **Start-plan confirmation** is now implemented, so it is no longer a pending follow-up slice.
 - **Pagination UI** is adjacent, but it is less urgent until the list actually becomes longer in seeded and real user data.
 - **Auth migration** and **AI generation expansion** are higher-impact projects, but they are materially larger than the next safe slice.
 

@@ -35,6 +35,12 @@ test.describe('Start Workout Plan', () => {
 
     await startButton.click();
 
+    const confirmationDialog = page.getByRole('dialog');
+    await expect(confirmationDialog).toBeVisible();
+    await expect(confirmationDialog).toContainText(/will activate the plan and generate the first week of scheduled sessions/i);
+
+    await confirmationDialog.getByRole('button', { name: /confirm start/i }).click();
+
     await expect(page.getByRole('status')).toHaveText(/is now active/i);
     await expect(page.locator('span', { hasText: 'Active' }).first()).toBeVisible();
     await expect(page.getByRole('button', { name: /start plan/i })).toHaveCount(0);
