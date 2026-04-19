@@ -1,7 +1,15 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 
 const DEMO_PLAN_NAME = 'Sedentary Strength Builder';
 const DEMO_PLAN_ID = '00000000-1111-2222-3333-444444444444';
+
+async function expectNoHorizontalOverflow(page: Page) {
+  const hasHorizontalOverflow = await page.evaluate(() => {
+    return document.documentElement.scrollWidth > window.innerWidth + 1;
+  });
+
+  expect(hasHorizontalOverflow).toBe(false);
+}
 
 // Relies on prisma/seeds/create-workout-plan.ts creating the plan + user.
 
@@ -32,5 +40,21 @@ test.describe('View Workout Plan', () => {
     const templates = page.getByRole('region', { name: /Workout templates/i });
     await expect(templates).toContainText(/Full Body Primer/);
     await expect(templates).toContainText(/strength/i);
+  });
+
+  test('plan detail page remains usable on a mobile viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto(`/workouts/plans/${DEMO_PLAN_ID}`);
+
+    await expect(page.getByRole('heading', { name: DEMO_PLAN_NAME })).toBeVisible();
+    await expect(page.getByRole('button', { name: /start plan/i })).toBeVisible();
+
+    const schedule = page.getByRole('region', { name: /Weekly schedule/i });
+    await expect(schedule).toContainText(/Monday/);
+
+    const templates = page.getByRole('region', { name: /Workout templates/i });
+    await expect(templates).toContainText(/Full Body Primer/);
+
+    await expectNoHorizontalOverflow(page);
   });
 });

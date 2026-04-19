@@ -1,5 +1,13 @@
 import { test, expect, type APIRequestContext, type Page } from '@playwright/test';
 
+async function expectNoHorizontalOverflow(page: Page) {
+  const hasHorizontalOverflow = await page.evaluate(() => {
+    return document.documentElement.scrollWidth > window.innerWidth + 1;
+  });
+
+  expect(hasHorizontalOverflow).toBe(false);
+}
+
 const TEST_PLAN_ID = 'session-test-plan-0001';
 const SEEDED_SESSION_IDS = {
   draft: 'session-test-0001',
@@ -222,18 +230,31 @@ test.describe('Session Management', () => {
     await expect(completedSession).toContainText('100% complete');
   });
 
-  test('session page remains usable on a mobile viewport', async ({ page }) => {
+  test('session page remains usable on a mobile viewport', async ({ page, request }) => {
+    const session = await createSession(request, `E2E Mobile Session ${Date.now()}`);
+
     await page.setViewportSize({ width: 375, height: 667 });
-    await openSession(page, SEEDED_SESSION_IDS.draft);
+    await openSession(page, session.id);
 
-    await expect(page.getByRole('heading', { name: 'Session 1: Full Body Strength' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: session.name })).toBeVisible();
     await expect(page.getByRole('button', { name: /start workout/i })).toBeVisible();
-    await expect(page.locator('[data-exercise-id]')).toHaveCount(5);
+    await expect(page.locator('[data-exercise-id]')).toHaveCount(3);
+    await expectNoHorizontalOverflow(page);
 
-    const hasHorizontalOverflow = await page.evaluate(() => {
-      return document.documentElement.scrollWidth > window.innerWidth + 1;
-    });
+    await page.getByRole('button', { name: /start workout/i }).click();
+    await expect(page.getByText('Active').first()).toBeVisible();
+    await expect(page.getByRole('button', { name: /complete workout/i })).toBeVisible();
+    await expectNoHorizontalOverflow(page);
 
-    expect(hasHorizontalOverflow).toBe(false);
+    const squatCard = page.locator('[data-exercise-id="22222222-aaaa-bbbb-cccc-222222222222"]');
+    await squatCard.getByRole('button', { name: /mark complete/i }).click();
+    await expect(page.getByLabel('Actual reps')).toBeVisible();
+    await expect(page.getByRole('button', { name: /save & complete/i })).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+
+    await page.getByRole('button', { name: /complete workout/i }).click();
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await expect(page.getByRole('button', { name: /confirm completion/i })).toBeVisible();
+    await expectNoHorizontalOverflow(page);
   });
 });

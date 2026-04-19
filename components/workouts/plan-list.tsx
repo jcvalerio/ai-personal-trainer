@@ -68,7 +68,7 @@ export function WorkoutPlanList({ initialData }: WorkoutPlanListProps) {
               className="block h-full rounded-xl p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
               data-plan-id={plan.id}
             >
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900">{plan.name}</h3>
                   {plan.description ? (
@@ -77,11 +77,11 @@ export function WorkoutPlanList({ initialData }: WorkoutPlanListProps) {
                     <p className="mt-1 text-sm text-slate-400">No description provided.</p>
                   )}
                 </div>
-                <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                <span className="self-start rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
                   {formatStatus(plan.status)}
                 </span>
               </div>
-              <dl className="mt-4 grid grid-cols-2 gap-3 text-xs text-slate-500">
+              <dl className="mt-4 grid grid-cols-1 gap-3 text-xs text-slate-500 sm:grid-cols-2">
                 <div>
                   <dt className="font-medium text-slate-600">Duration</dt>
                   <dd className="mt-0.5 text-slate-500">{plan.durationWeeks ?? 0} weeks</dd>

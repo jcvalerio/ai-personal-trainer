@@ -115,7 +115,7 @@ export function SessionDetailView({ session: initialSession }: SessionDetailView
   const progress = calculateProgress(session);
 
   return (
-    <section className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-10 lg:px-0">
+    <section className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10 lg:px-0">
       <header className="flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-semibold text-slate-900">{session.name}</h1>
@@ -137,11 +137,11 @@ export function SessionDetailView({ session: initialSession }: SessionDetailView
             </span>
           </div>
         </div>
-        <div className="flex flex-col items-end gap-3">
+        <div className="flex w-full flex-col items-start gap-3 sm:w-auto sm:items-end">
           <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-700">
             {formatStatus(session.status)}
           </span>
-          <div className="flex gap-2">
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
             {session.status === 'draft' && (
               <SessionStartButton
                 sessionId={session.id}
@@ -152,7 +152,7 @@ export function SessionDetailView({ session: initialSession }: SessionDetailView
               <button
                 type="button"
                 onClick={() => setShowCompleteDialog(true)}
-                className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700"
+                className="w-full rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-green-700 sm:w-auto"
               >
                 Complete workout
               </button>
@@ -163,7 +163,7 @@ export function SessionDetailView({ session: initialSession }: SessionDetailView
 
       {/* Progress bar */}
       <div className="rounded-lg border border-slate-200 bg-white p-4">
-        <div className="flex items-center justify-between text-sm text-slate-600">
+        <div className="flex flex-col gap-1 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
           <span>Overall Progress</span>
           <span>{progress}% complete</span>
         </div>
@@ -215,7 +215,7 @@ export function SessionDetailView({ session: initialSession }: SessionDetailView
       {session.status === 'completed' && (
         <div className="rounded-lg border border-slate-200 bg-white p-6">
           <h3 className="text-lg font-semibold text-slate-900">Session Feedback</h3>
-          <div className="mt-4 grid grid-cols-2 gap-4 text-sm md:grid-cols-3">
+          <div className="mt-4 grid grid-cols-1 gap-4 text-sm sm:grid-cols-2 md:grid-cols-3">
             {session.effortRating && (
               <div>
                 <dt className="font-medium text-slate-600">Effort Rating</dt>

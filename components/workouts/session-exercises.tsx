@@ -54,15 +54,15 @@ function ExerciseCard({ exercise, canEdit, onUpdate }: ExerciseCardProps) {
       }`}
       data-exercise-id={exercise.exerciseId}
     >
-      <div className="flex items-start justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex-1">
           <h4 className="text-base font-semibold text-slate-900">{exerciseName}</h4>
 
           {/* Planned vs Actual */}
           <div className="mt-2 space-y-1 text-sm text-slate-600">
             {exercise.plannedSets && (
-              <div className="flex items-center gap-4">
-                <span className="w-20 text-slate-500">Planned:</span>
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
+                <span className="text-slate-500 sm:w-20">Planned:</span>
                 <span>
                   {exercise.plannedSets} sets × {exercise.plannedReps} reps
                   {exercise.plannedWeightKg && ` @ ${exercise.plannedWeightKg}kg`}
@@ -71,15 +71,15 @@ function ExerciseCard({ exercise, canEdit, onUpdate }: ExerciseCardProps) {
             )}
 
             {exercise.plannedDurationSeconds && (
-              <div className="flex items-center gap-4">
-                <span className="w-20 text-slate-500">Duration:</span>
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
+                <span className="text-slate-500 sm:w-20">Duration:</span>
                 <span>{Math.floor(exercise.plannedDurationSeconds / 60)} minutes</span>
               </div>
             )}
 
             {(exercise.actualReps || exercise.actualWeightKg) && (
-              <div className="flex items-center gap-4">
-                <span className="w-20 text-slate-500">Actual:</span>
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
+                <span className="text-slate-500 sm:w-20">Actual:</span>
                 <span>
                   {exercise.actualReps && `${exercise.actualReps} reps`}
                   {exercise.actualWeightKg && ` @ ${exercise.actualWeightKg}kg`}
@@ -95,7 +95,7 @@ function ExerciseCard({ exercise, canEdit, onUpdate }: ExerciseCardProps) {
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex w-full items-center gap-2 sm:w-auto">
           {exercise.isCompleted && (
             <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
               Complete
@@ -117,7 +117,7 @@ function ExerciseCard({ exercise, canEdit, onUpdate }: ExerciseCardProps) {
       {/* Editing form */}
       {isEditing && canEdit && (
         <div className="mt-4 space-y-3 border-t border-slate-100 pt-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {exercise.plannedReps && (
               <div>
                 <label htmlFor={`exercise-${exercise.exerciseId}-actual-reps`} className="block text-xs font-medium text-slate-700">
@@ -166,25 +166,25 @@ function ExerciseCard({ exercise, canEdit, onUpdate }: ExerciseCardProps) {
             />
           </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={() => setIsEditing(false)}
-              className="rounded px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100"
+              className="w-full rounded px-3 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100 sm:w-auto"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="rounded bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-800"
+              className="w-full rounded bg-slate-900 px-3 py-1 text-xs font-medium text-white hover:bg-slate-800 sm:w-auto"
             >
               Save
             </button>
             <button
               type="button"
               onClick={handleMarkComplete}
-              className="rounded bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700"
+              className="w-full rounded bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700 sm:w-auto"
             >
               Save & Complete
             </button>

@@ -33,7 +33,7 @@ export function NewPlanDialogTrigger() {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-blue-700"
+        className="inline-flex w-full items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-blue-700 sm:w-auto"
       >
         New plan
       </button>
@@ -128,8 +128,8 @@ function NewPlanDialog({ onClose, onSuccess, onError }: NewPlanDialogProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4">
-      <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-900/40 p-4 sm:items-center">
+      <div role="dialog" aria-modal="true" className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl sm:max-h-none">
         <header className="flex items-start justify-between">
           <div>
             <h2 className="text-lg font-semibold text-slate-900">New workout plan</h2>
@@ -182,17 +182,17 @@ function NewPlanDialog({ onClose, onSuccess, onError }: NewPlanDialogProps) {
             />
           </Field>
 
-          <div className="mt-4 flex justify-end gap-3">
+          <div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+              className="w-full rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 sm:w-auto"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               disabled={mutation.isPending}
             >
               {mutation.isPending ? 'Creating…' : 'Create plan'}

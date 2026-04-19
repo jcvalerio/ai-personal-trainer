@@ -4,21 +4,39 @@ import { success, failure } from '@/lib/utils/api-response';
 import { requireUser } from '@/lib/utils/auth';
 import { z } from 'zod';
 import { CreateWorkoutSessionSchema } from '@/lib/shared/types';
+import { logApiError, logApiInfo, logApiWarn } from '@/lib/utils/observability';
 
 export async function GET(req: NextRequest, context: { params: Promise<{ planId: string }> }) {
+  const startedAt = Date.now();
+  let userId: string | undefined;
+  let planId: string | undefined;
+
   try {
-    const userId = requireUser(req);
-    const { planId } = await context.params;
+    userId = requireUser(req);
+    ({ planId } = await context.params);
     const sessions = await workoutPlanService.listSessions(userId, planId);
     if (sessions === null) {
+      logApiWarn('workout_plan.sessions.list.not_found', req, startedAt, {
+        userId,
+        planId,
+      });
       return failure('Workout plan not found', 'NOT_FOUND', 404);
     }
+
+    logApiInfo('workout_plan.sessions.list.succeeded', req, startedAt, {
+      userId,
+      planId,
+      sessionCount: sessions.length,
+      statuses: Array.from(new Set(sessions.map((session) => session.status).filter((status) => status !== undefined))),
+    });
+
     return success({ sessions });
   } catch (error) {
     if (error instanceof Error && error.message === 'UNAUTHENTICATED') {
+      logApiWarn('workout_plan.sessions.list.unauthorized', req, startedAt, { planId });
       return failure('Unauthorized', 'UNAUTHORIZED', 401);
     }
-    console.error(error);
+    logApiError('workout_plan.sessions.list.failed', req, startedAt, error, { userId, planId });
     return failure('Internal server error', 'INTERNAL_ERROR', 500);
   }
 }

@@ -40,7 +40,7 @@ export function SessionStartButton({ sessionId, onStart }: SessionStartButtonPro
       type="button"
       onClick={handleStart}
       disabled={startMutation.isPending}
-      className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+      className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
     >
       {startMutation.isPending ? 'Starting…' : 'Start workout'}
     </button>

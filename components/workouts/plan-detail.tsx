@@ -24,7 +24,7 @@ function formatStatus(status: string) {
 function TemplateCard({ template }: { template: WorkoutTemplate }) {
   return (
     <li className="rounded-lg border border-slate-200 bg-white p-4 shadow-soft">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div>
           <h3 className="text-base font-semibold text-slate-900">{template.name}</h3>
           {template.description ? (
@@ -33,11 +33,11 @@ function TemplateCard({ template }: { template: WorkoutTemplate }) {
             <p className="mt-1 text-sm text-slate-400">No description provided.</p>
           )}
         </div>
-        <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
+        <span className="self-start rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
           {template.category}
         </span>
       </div>
-      <dl className="mt-4 grid grid-cols-3 gap-3 text-xs text-slate-500">
+      <dl className="mt-4 grid grid-cols-1 gap-3 text-xs text-slate-500 sm:grid-cols-3">
         <div>
           <dt className="font-medium text-slate-600">Duration</dt>
           <dd className="mt-0.5 text-slate-500">{template.estimatedDuration} min</dd>
@@ -72,7 +72,7 @@ export function PlanDetailView({ plan, headerActions, banner, sessionsContent }:
   const lastUpdatedLabel = plan.updatedAt ? new Date(plan.updatedAt).toLocaleDateString() : '—';
 
   return (
-    <section className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-10 lg:px-0">
+    <section className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10 lg:px-0">
       {banner}
       <header className="flex flex-col gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -100,7 +100,7 @@ export function PlanDetailView({ plan, headerActions, banner, sessionsContent }:
             </span>
           </div>
         </div>
-        <div className="flex flex-col items-end gap-3">
+        <div className="flex w-full flex-col items-start gap-3 sm:w-auto sm:items-end">
           <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-slate-700">
             {formatStatus(plan.status)}
           </span>
@@ -115,7 +115,7 @@ export function PlanDetailView({ plan, headerActions, banner, sessionsContent }:
           role="region"
           className="rounded-xl border border-slate-200 bg-white p-6 shadow-soft lg:col-span-2"
         >
-          <div className="flex items-start justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 id="macrocycle-heading" className="text-lg font-semibold text-slate-900">
                 Macrocycle overview
@@ -200,7 +200,7 @@ export function PlanDetailView({ plan, headerActions, banner, sessionsContent }:
         role="region"
         className="rounded-xl border border-slate-200 bg-white p-6 shadow-soft"
       >
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 id="sessions-heading" className="text-lg font-semibold text-slate-900">
               Sessions
@@ -218,7 +218,7 @@ export function PlanDetailView({ plan, headerActions, banner, sessionsContent }:
         role="region"
         className="rounded-xl border border-slate-200 bg-white p-6 shadow-soft"
       >
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 id="templates-heading" className="text-lg font-semibold text-slate-900">
               Workout templates
@@ -292,7 +292,7 @@ export function PlanDetailScreen({ planId }: { planId: string }) {
 
   if (isLoading) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-6 py-10 lg:px-0">
+      <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-0">
         <div
           role="status"
           className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-500"
@@ -305,7 +305,7 @@ export function PlanDetailScreen({ planId }: { planId: string }) {
 
   if (error) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-6 py-10 lg:px-0">
+      <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-0">
         <div
           role="alert"
           className="rounded-xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-600"
@@ -318,7 +318,7 @@ export function PlanDetailScreen({ planId }: { planId: string }) {
 
   if (!data) {
     return (
-      <div className="mx-auto w-full max-w-5xl px-6 py-10 lg:px-0">
+      <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-10 lg:px-0">
         <div className="rounded-xl border border-slate-200 bg-white p-6 text-center shadow-soft">
           <h2 className="text-lg font-semibold text-slate-900">Plan not found</h2>
           <p className="mt-2 text-sm text-slate-500">
@@ -347,7 +347,7 @@ export function PlanDetailScreen({ planId }: { planId: string }) {
         <button
           type="button"
           onClick={handleStartPlan}
-          className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-soft transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           disabled={startMutation.isPending}
         >
           {startMutation.isPending ? 'Starting…' : 'Start plan'}
@@ -393,7 +393,7 @@ export function PlanDetailScreen({ planId }: { planId: string }) {
               >
                 <Link
                   href={`/workouts/sessions/${session.id}`}
-                  className="flex items-center justify-between gap-4 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  className="flex flex-col items-start gap-2 px-4 py-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
                 >
                   <div className="flex flex-col">
                     <span className="text-sm font-semibold text-slate-900">{session.name}</span>
@@ -402,7 +402,7 @@ export function PlanDetailScreen({ planId }: { planId: string }) {
                       <span className="mt-1 text-xs text-slate-500">{session.completionPercentage}% complete</span>
                     ) : null}
                   </div>
-                  <span className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                  <span className="self-start rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600 sm:self-center">
                     {formatStatus(session.status)}
                   </span>
                 </Link>

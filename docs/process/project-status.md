@@ -1,6 +1,6 @@
 # Project Status
 
-_Last updated: 2026-04-18_
+_Last updated: 2026-04-19_
 
 This document is a working status board for the current implementation state of the AI Personal Trainer project.
 
@@ -18,21 +18,33 @@ It is intended to help future work stay aligned with the spec-driven workflow in
 - `pnpm lint` ✅ passes
 - `pnpm test:e2e --grep "Session Management"` ✅ passes
 - `pnpm test:e2e --grep "Create Workout Plan via UI|List Plan Sessions"` ✅ passes
+- `set -a; source .env.test; set +a; pnpm exec tsx prisma/seeds/run.ts session-management` ✅ reseeds local session-management E2E data
+- `set -a; source .env.test; set +a; pnpm test:e2e --grep "Create Workout Plan via UI|View Workout Plan|Session Management"` ✅ passes
 
 ### Practical meaning
 The repo is now in a **stable, buildable baseline state**. The next work should focus on closing feature gaps rather than repairing tooling and type drift.
+
+## Observability Status
+
+Minimal structured server-side logging is now in place for the verified flows:
+- create workout plan via UI
+- list plan sessions
+- session management
+
+Coverage is implemented in the relevant workout API routes with a shared helper at `lib/utils/observability.ts`.
+Documentation for emitted events and captured fields lives in `docs/process/observability.md`.
 
 ## Feature Status
 
 | Feature | Spec Source | Status | Notes |
 |---|---|---:|---|
 | Create workout plan (API + service) | `docs/specs/api-contracts.md` + `docs/features/create-workout-plan/README.md` | Implemented | Unit tests pass. API route exists and the repo is green again. |
-| List workout plans | `docs/specs/features/list-workout-plans.md` | Implemented | Dashboard page and list UI exist. |
-| View workout plan detail | `docs/specs/features/view-workout-plan.md` | Implemented | Detail page exists and now builds cleanly. |
+| List workout plans | `docs/specs/features/list-workout-plans.md` | Implemented and mobile-validated | Dashboard page and list UI exist. Header/actions, card stacking, and the create-plan dialog were revalidated on a 375px viewport. |
+| View workout plan detail | `docs/specs/features/view-workout-plan.md` | Implemented and mobile-validated | Detail page exists and now builds cleanly. Header, schedule, sessions block, and template cards were revalidated on a 375px viewport. |
 | Start workout plan | `docs/specs/features/start-workout-plan.md` | Implemented | Start action and session generation exist and build cleanly. |
 | List plan sessions | `docs/specs/features/list-plan-sessions.md` | Implemented and verified | Sessions render on the plan detail page, the dedicated spec now exists, and the Playwright slice passes. |
 | Create workout plan via UI | `docs/specs/features/create-workout-plan-via-ui.md` | Implemented and verified | Dialog flow works with the current minimal form, and the Playwright slice now matches the real UI behavior. |
-| Session management | `docs/specs/features/session-management.md` | Implemented and verified | Shared contracts, progress endpoint, lifecycle checks, status/completion UI, dedicated unit tests, and Playwright coverage are all in place. Remaining work is mobile/polish rather than core implementation. |
+| Session management | `docs/specs/features/session-management.md` | Implemented, verified, and mobile-validated | Shared contracts, progress endpoint, lifecycle checks, status/completion UI, dedicated unit tests, and Playwright coverage are all in place. Session detail, in-session editing controls, and the completion dialog were revalidated on a 375px viewport with no horizontal overflow. |
 
 ## Active Blockers
 
@@ -40,8 +52,8 @@ The repo is now in a **stable, buildable baseline state**. The next work should 
 The core workout-plan and session flows are now green in unit tests, build/typecheck, and the targeted Playwright slices.
 
 Remaining gaps are follow-up work rather than core implementation blockers:
-- mobile responsiveness still needs deeper validation/polish beyond the current session-management viewport assertion
-- release checklist items like screenshots, monitoring, and user-guide docs are still pending
+- the scoped mobile responsiveness review for `/workouts/plans`, `/workouts/plans/[planId]`, and `/workouts/sessions/[sessionId]` is now done; broader responsive review outside those flows is still optional follow-up work
+- release checklist items like screenshots, dashboards/alerts, and user-guide docs are still pending
 - feature naming/spec organization is improved, but there is still some historical overlap between feature READMEs and spec files that may be worth simplifying later
 
 ### Session-management E2E hardening already done
@@ -62,16 +74,16 @@ Remaining gaps are follow-up work rather than core implementation blockers:
 
 ### Phase 1 — Polish and close follow-up items
 
-1. Validate mobile responsiveness more thoroughly for session management and plan detail flows
-2. Add screenshots/user-guide snippets for the now-verified flows
-3. Add monitoring/observability work called out in the feature READMEs
+1. Add screenshots/user-guide snippets for the now-verified flows
+2. Decide whether the new structured logs should be shipped into dashboards/alerts for staging/production
+3. Consider a broader responsive review outside the currently scoped workout pages if more mobile polish is needed
 4. Consider migrating from `next lint` to ESLint CLI before Next.js 16
 
 ## Pending Follow-ups After Verified Core Flows
 
 These are valid next items now that the currently scoped core flows are verified:
 - update docs with screenshots/user guide snippets
-- add monitoring/structured logging tasks called out in feature READMEs
+- decide on dashboarding/alerting or log shipping beyond the new structured logs
 - Clerk auth migration
 - AI plan generation flow expansion
 - filters/search for plans and sessions
@@ -94,4 +106,4 @@ Use this as the next checkpoint before taking on additional scope:
 
 **Do not expand scope yet.**
 
-The highest-leverage next step is to close the remaining polish/documentation follow-ups from this stable baseline: mobile validation, screenshots/docs, monitoring, and then decide the next product feature to spec.
+The highest-leverage next step is to close the remaining polish/documentation follow-ups from this stable baseline: screenshots/docs and deciding whether the new structured logs need dashboarding/alerting before taking on additional product scope. The scoped mobile validation for the workout list/detail/session pages is now complete.
