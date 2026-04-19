@@ -14,7 +14,6 @@ Provide a dashboard view where coaches can browse AI-generated or manual workout
 2. **Component** – `WorkoutPlanList` covers loading/error/empty states with React Query mocked fetches.
 
 ## Pending Enhancements
-- Wire the "New plan" button to the upcoming creation flow once designed.
-- Add filters/search to the header when backend supports them.
 - Introduce skeleton placeholders instead of plain loading text.
 - Revisit styling as design system evolves; verified against `react@19.1.1`.
+- Search/status filters are now covered by the dedicated slice in `docs/specs/features/filter-workout-plans.md` and `docs/features/filter-workout-plans/README.md`.

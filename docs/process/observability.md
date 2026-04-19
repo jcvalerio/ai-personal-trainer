@@ -4,7 +4,8 @@ _Last updated: 2026-04-19_
 
 This project now uses minimal structured server-side logging for the currently verified workout flows:
 
-- create workout plan via UI
+- create and list workout plans
+- filter workout plans
 - list plan sessions
 - session management
 
@@ -38,6 +39,7 @@ When available, logs also include resource identifiers and safe outcome metadata
 - `status`
 - `completionPercentage`
 - `sessionCount`
+- filter metadata such as `filterType`, `statusFilter`, `searchTermLength`, and `zeroResults`
 - counts of updated exercises
 - validation issue counts
 
@@ -45,6 +47,7 @@ When available, logs also include resource identifiers and safe outcome metadata
 
 | Flow | Route | Success event | Warning/error events |
 |---|---|---|---|
+| List / filter workout plans | `GET /api/workouts/plans` | `workout_plan.list.succeeded` | `workout_plan.list.unauthorized`, `workout_plan.list.validation_failed`, `workout_plan.list.failed` |
 | Create workout plan via UI | `POST /api/workouts/plans` | `workout_plan.create.succeeded` | `workout_plan.create.unauthorized`, `workout_plan.create.validation_failed`, `workout_plan.create.failed` |
 | Start workout plan | `POST /api/workouts/plans/:planId/start` | `workout_plan.start.succeeded` | `workout_plan.start.unauthorized`, `workout_plan.start.validation_failed`, `workout_plan.start.not_found`, `workout_plan.start.failed` |
 | List plan sessions | `GET /api/workouts/plans/:planId/sessions` | `workout_plan.sessions.list.succeeded` | `workout_plan.sessions.list.unauthorized`, `workout_plan.sessions.list.not_found`, `workout_plan.sessions.list.failed` |
@@ -58,6 +61,7 @@ When available, logs also include resource identifiers and safe outcome metadata
 To keep logging minimal and lower-risk, the logs do **not** include free-text user content such as:
 
 - workout plan descriptions
+- search query text from plan filters
 - session notes text
 - exercise notes text
 

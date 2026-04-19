@@ -2,7 +2,9 @@
 
 ## Overview
 
-A coach can view all their workout plans in a paginated list with filtering and search.
+A coach can view all their workout plans in a dashboard list and open a plan for more detail.
+
+Search and status-filter behavior are intentionally tracked as a separate slice in `docs/specs/features/filter-workout-plans.md` so the baseline list behavior stays explicit.
 
 ## Preconditions
 

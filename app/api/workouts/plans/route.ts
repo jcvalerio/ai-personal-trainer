@@ -21,19 +21,78 @@ const listQuerySchema = z.object({
 });
 
 export async function GET(req: NextRequest) {
+  const startedAt = Date.now();
+  let userId: string | undefined;
+  let params: z.infer<typeof listQuerySchema> | undefined;
+  const rawParams = Object.fromEntries(req.nextUrl.searchParams);
+
   try {
-    const userId = requireUser(req);
-    const params = listQuerySchema.parse(Object.fromEntries(req.nextUrl.searchParams));
+    userId = requireUser(req);
+    params = listQuerySchema.parse(rawParams);
     const result = await workoutPlanService.listPlans(userId, params);
+
+    const hasStatusFilter = Boolean(params.status);
+    const hasSearchFilter = Boolean(params.search?.trim());
+    const filterType = hasStatusFilter && hasSearchFilter ? 'combined' : hasStatusFilter ? 'status' : hasSearchFilter ? 'search' : 'none';
+
+    logApiInfo('workout_plan.list.succeeded', req, startedAt, {
+      userId,
+      page: params.page ?? 1,
+      limit: params.limit ?? 10,
+      itemCount: result.items.length,
+      totalPlans: result.pagination.total,
+      hasStatusFilter,
+      hasSearchFilter,
+      filterType,
+      statusFilter: params.status,
+      searchTermLength: params.search?.trim().length,
+      zeroResults: result.items.length === 0,
+    });
+
     return success(result);
   } catch (error) {
+    const rawStatusFilter = typeof rawParams.status === 'string' ? rawParams.status : undefined;
+    const rawSearchTerm = typeof rawParams.search === 'string' ? rawParams.search.trim() : undefined;
+    const hasStatusFilter = Boolean(params?.status ?? rawStatusFilter);
+    const hasSearchFilter = Boolean(params?.search?.trim() ?? rawSearchTerm);
+    const filterType = hasStatusFilter && hasSearchFilter ? 'combined' : hasStatusFilter ? 'status' : hasSearchFilter ? 'search' : 'none';
+
     if (error instanceof Error && error.message === 'UNAUTHENTICATED') {
+      logApiWarn('workout_plan.list.unauthorized', req, startedAt, {
+        page: params?.page,
+        limit: params?.limit,
+        hasStatusFilter,
+        hasSearchFilter,
+        filterType,
+        statusFilter: params?.status ?? rawStatusFilter,
+        searchTermLength: params?.search?.trim().length ?? rawSearchTerm?.length,
+      });
       return failure('Unauthorized', 'UNAUTHORIZED', 401);
     }
     if (error instanceof z.ZodError) {
+      logApiWarn('workout_plan.list.validation_failed', req, startedAt, {
+        userId,
+        issuesCount: error.issues.length,
+        page: params?.page,
+        limit: params?.limit,
+        hasStatusFilter,
+        hasSearchFilter,
+        filterType,
+        statusFilter: params?.status ?? rawStatusFilter,
+        searchTermLength: params?.search?.trim().length ?? rawSearchTerm?.length,
+      });
       return failure('Invalid query parameters', 'VALIDATION_ERROR', 400, error.issues);
     }
-    console.error(error);
+    logApiError('workout_plan.list.failed', req, startedAt, error, {
+      userId,
+      page: params?.page,
+      limit: params?.limit,
+      hasStatusFilter,
+      hasSearchFilter,
+      filterType,
+      statusFilter: params?.status ?? rawStatusFilter,
+      searchTermLength: params?.search?.trim().length ?? rawSearchTerm?.length,
+    });
     return failure('Internal server error', 'INTERNAL_ERROR', 500);
   }
 }
